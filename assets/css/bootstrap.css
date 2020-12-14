@@ -10890,9 +10890,9 @@ a.text-info:hover, a.text-info:focus {
 a.text-warning:hover, a.text-warning:focus {
   color: #d39e00 !important; }
 
-/* line 6, node_modules/bootstrap/scss/mixins/_text-emphasis.scss */
+/* line 6, node_modules/bootstrap/scss/mixins/_text-emphasis.scss  #bd081c */
 .text-danger {
-  color: #bd081c !important; }
+  color: #00ffff !important; }
 
 /* line 17, node_modules/bootstrap/scss/mixins/_hover.scss */
 a.text-danger:hover, a.text-danger:focus {
