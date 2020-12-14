@@ -6,7 +6,7 @@ layout: default
     	<div class="row justify-content-center">
     		<div class="col-md-8">
                 
-    			<article class="card bg-dark">
+    			<article class="card">
                     
                  {% if page.image %} 
                     <!--<span class="pinme">
@@ -15,7 +15,7 @@ layout: default
                     <img class="card-img-top mb-2" src="{% if page.image contains "://" %}{{ page.image }}{% else %}{{ page.image | absolute_url }}{% endif %}" alt="{{ page.title }}"> 
                 {% endif %}
                     
-    			<div class="card-body">
+    			<div class="card-body bg-dark">
                     
     				<h1 class="display-4">
     				    {{page.title}} 
