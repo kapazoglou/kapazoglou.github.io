@@ -64,10 +64,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 	font-size: 1.5rem;
 }
 .fixed-top {
-	border-bottom: 1px solid #000;
+	border-bottom: 0px solid #000;
 }
 footer.footer {
-	border-top: 1px solid #000;
+	border-top: 0px solid #000;
 }
 .nav-link,.dropdown-item {
 	font-weight: 700;
@@ -147,7 +147,7 @@ footer.footer {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: #555;
+    background-color: #545a40;
     transition: all 0.2s;
 }
 .social {
