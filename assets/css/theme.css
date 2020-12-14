@@ -65,10 +65,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 	font-size: 1.5rem;
 }
 .fixed-top {
-	border-bottom: 1px solid #141a20;
+	border-bottom: 1px solid #181818;
 }
 footer.footer {
-	border-top: 1px solid #141a20;
+	border-top: 1px solid #181818;
 }
 .nav-link,.dropdown-item {
 	font-weight: 700;
