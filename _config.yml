@@ -6,7 +6,6 @@ favicon: 'assets/images/logo.png'
 baseurl: '/portfolio'
 url: 'http://kapazoglou.github.io/'
 avatar: 'assets/images/avatar.jpg'
-disqus: 'demowebsite'
 email: 'wowthemesnet@gmail.com'
 
 include: ["_pages"]
