@@ -1,8 +1,15 @@
+@import url('https://fonts.googleapis.com/css?family=Vampiro+One')
 body {
   background-color: #222;
   color: #fff;
 	padding-top:70px;
 }
+.logotype {
+  margin: 16px 0 20px 0;
+  font-family: 'Vampiro One', serif;
+  font-size: 36px;
+}
+
 a:hover {
 	text-decoration: none;
 }
