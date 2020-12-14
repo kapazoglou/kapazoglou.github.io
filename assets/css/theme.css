@@ -238,7 +238,7 @@ article .card-body {
      transition: all 0.2s;
 }
 .card-pin.raco:hover i.text-muted {
-    color:#bd081c !Important;
+    color:#6610f2 !Important;
      transition: all 0.2s;
     position: relative;
 }
