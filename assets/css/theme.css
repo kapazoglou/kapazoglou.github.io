@@ -1,5 +1,5 @@
 body {
-  background-color: #222;
+  background-color: #242a30;
   color: #fff;
 	padding-top:70px;
 }
@@ -65,10 +65,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 	font-size: 1.5rem;
 }
 .fixed-top {
-	border-bottom: 0px solid #000;
+	border-bottom: 1px solid #141a20;
 }
 footer.footer {
-	border-top: 0px solid #000;
+	border-top: 1px solid #141a20;
 }
 .nav-link,.dropdown-item {
 	font-weight: 700;
