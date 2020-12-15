@@ -1,14 +1,14 @@
 ---
-title:  "Portraits"
+title:  "Portraits for CAHID"
 metadate: "hide"
 categories: [ Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_2.png"
 
 ---
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_2.png)
+![vasculature](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_2.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_5.png)
+![ecorche](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_5.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_4.png)
+![tupper](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_4.png)
 

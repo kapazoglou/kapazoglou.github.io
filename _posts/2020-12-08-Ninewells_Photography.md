@@ -10,6 +10,6 @@ Ninewells Hospital documents patients ailments and surgical procedures with phot
 
 (all pictures posted with permission)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_3.png)
+![general](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_3.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_10.png)
+![closeup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_10.png)

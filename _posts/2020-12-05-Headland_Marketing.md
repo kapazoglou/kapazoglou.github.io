@@ -10,10 +10,10 @@ The backcover of the CifA Catalog has a full page ad. I put together this design
 
 Some additional marketing designs I did for Headland is this pop-up card of a derelict abbey from one of their projects:
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_8.png)
+![popup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_8.png)
 
 and some informational posters for internal circulation:
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_9.png)
+![poster](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_9.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/2016-1HAS-Plant-Lyme-Services_Page_2.png)
+![lyme](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/2016-1HAS-Plant-Lyme-Services_Page_2.png)

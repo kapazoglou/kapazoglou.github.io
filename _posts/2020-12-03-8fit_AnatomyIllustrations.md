@@ -8,9 +8,9 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 Explaining anatomical structures or procesess to fitness app users in a simple way. I researched the topics and designed the vector illustrations.
 
-![chest muscles](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png)
+![chest](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png)
 
-![back muscles](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/BackMuscles.png)
+![back](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/BackMuscles.png)
 
-![life of fat](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/LifeOfFat.png)
+![fat](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/LifeOfFat.png)
 

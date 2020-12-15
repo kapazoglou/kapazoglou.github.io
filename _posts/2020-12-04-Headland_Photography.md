@@ -9,8 +9,8 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 After an excavation in Blackburn, Headland needed 3d models of four skulls. I created these models and also took technical photos of other remains and archaeological finds.
 
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_6.png)
+![3d skulls](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_6.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_8.png)
+![bones](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_8.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_9.png)
+![spine](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_9.png)

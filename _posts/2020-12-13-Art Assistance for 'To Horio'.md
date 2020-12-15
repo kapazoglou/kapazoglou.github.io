@@ -6,7 +6,7 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/chorio-artDir-anim-2.png)
+![office](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/chorio-artDir-anim-2.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/chorio-artDir-anim.JPG)
+![backstage](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/chorio-artDir-anim.JPG)
 
