@@ -1,5 +1,5 @@
 ---
-title:  "Photography for Headland SENSITIVE MATERIAL"
+title:  "Photography for Headland [SENSITIVE MATERIAL]"
 metadate: "hide"
 categories: [ Photography, 3D ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_5.png"
