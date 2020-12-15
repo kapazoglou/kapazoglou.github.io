@@ -1,0 +1,12 @@
+---
+title:  "8fit Brand Identity"
+metadate: "hide"
+categories: [ Art Direction, Presentation Design ]
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-1.png"
+
+---
+
+I designed the Brand Identity for 8fit
+
+![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-2.png)
+
