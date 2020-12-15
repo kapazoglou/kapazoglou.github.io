@@ -1,5 +1,5 @@
 ---
-title:  "8fit Brand Identity"
+title:  "Anatomy Illustrations for 8fit"
 metadate: "hide"
 categories: [ Medical Illustration, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ChestMuscles.png"
