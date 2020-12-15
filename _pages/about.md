@@ -4,30 +4,13 @@ permalink: "/about.html"
 image: "/assets/images/herovatar.png"
 ---
 
-Hi, guys! The website you are previewing is a demonstration for Pintereso Jekyll theme and it is hosted on Github pages. There are various ways you can use Pintereso with your Jekyll website. Here are some of them:
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ultricies commodo felis in interdum. Donec nec tempor quam. Phasellus sit amet rhoncus leo. Mauris quis facilisis elit, in interdum nisl. Vivamus semper nunc ut pulvinar lacinia. 
 
-- blogging
-- curated resources
-- affiliate marketing
-- resume
-- portfolio
-- photography
-
-**Features**
-
-- 100% Github Pages Compatibility
-- Bootstrap 4.x
-- SEO Integration
-- Search
-- Categories
-- Prev/Next Post
-- Pagination
-- Disqus Comments
-- Sitemap
-- Feed
-- Formspree Contact Form
-- Pinterest, AddThis, Google Analytics
-- Font Awesome 5+
-- Cookie Consent & Privacy Policy
+- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+- Aliquam sit amet turpis lobortis, molestie ante nec, rutrum mi.
+- Nam lobortis nulla quis congue pulvinar.
+- Nulla mollis nulla id purus scelerisque vestibulum.
+- Aenean porta orci at ex molestie, eu ultrices leo condimentum.
+- Etiam quis orci vitae elit placerat aliquam in at quam.
 
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee?</a>
