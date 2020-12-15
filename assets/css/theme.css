@@ -6,8 +6,8 @@ body {
 }
 .logotype {
   font-family: 'Vampiro One', serif;
-  font-size: 28px;
-  padding-left: 1rem;
+  font-size: 27px;
+  padding-left: 0.5rem;
 }
 a:hover {
 	text-decoration: none;
@@ -80,7 +80,7 @@ footer.footer {
 	font-weight: 700;
 }
 .navbar {
-	padding: 0.5rem 2rem 0.5rem 0;
+	padding: 0.5rem 1rem 0.5rem 0;
 }
 .overlay {
 	position:absolute;
