@@ -1,5 +1,5 @@
 ---
-title:  "Illustrations for CAHID"
+title:  "Illustrations for the Centre for Anatomy and Human ID"
 metadate: "hide"
 categories: [ Illustration, Medical Illustration, 3D ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_6.png"
