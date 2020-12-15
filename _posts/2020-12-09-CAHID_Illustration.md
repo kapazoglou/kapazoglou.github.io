@@ -2,7 +2,7 @@
 title:  "Illustations for CAHID"
 metadate: "hide"
 categories: [ Illustration, Medical Illustration ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ani.gif"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ani_3.gif"
 
 ---
 
