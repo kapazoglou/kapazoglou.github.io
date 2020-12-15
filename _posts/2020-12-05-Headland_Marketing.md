@@ -1,12 +1,12 @@
 ---
-title:  "Marketing Design for Headland"
+title:  "Marketing Design for Headland Archaeology"
 metadate: "hide"
 categories: [ Marketing Design, Print Design, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/CIfA_ad-2016-v6.png"
 
 ---
 
-The backcover of the CifA Catalog has a full page ad. I put together this design based on a concept that the directors of the company were keen on and I made sure it would print well. 
+The back-cover of the Chartered Institute for Archaeologists Catalog has a full page ad space that Headland purchased. I put together this design based on a concept that the directors of the company were keen on and I made sure it would print well. 
 
 Some additional marketing designs I did for Headland is this pop-up card of a derelict abbey from one of their projects:
 

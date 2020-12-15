@@ -1,5 +1,5 @@
 ---
-title:  "Publication Design for Headland"
+title:  "Publication Design for Headland Archaeology"
 metadate: "hide"
 categories: [ Print Design, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/highway-through-history_Page_001.png"

@@ -6,7 +6,7 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-Explaining anatomical structures or procesess to fitness app users in a simple way. I researched the topics and designed the vector illustrations.
+The content managers wanted to explain anatomical structures and procesess to fitness app users in a simple way. I researched the topics and designed the vector illustrations.
 
 ![chest](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png)
 
