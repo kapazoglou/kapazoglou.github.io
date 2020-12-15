@@ -1,7 +1,7 @@
 ---
-title:  "Marketing Design for 8fit"
+title:  "Marketing Design for 8fit fitness app"
 metadate: "hide"
-categories: [ Conceptualisation, Marketing Design, Animation ]
+categories: [ Marketing Design, Art Direction, Animation ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-Screenshot-0.png"
 
 ---
