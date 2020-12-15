@@ -2,8 +2,9 @@
 name: 'Mano Kapazoglou'
 description: 'Some samples of my work'
 logo: 'assets/images/logo.png'
+baseurl: '/'
+url: 'https://kapazoglou.info'
 favicon: 'assets/images/logo.png'
-baseurl: '/m'
 avatar: 'assets/images/avatar.jpg'
 email: 'mano@kapazoglou.info'
 
