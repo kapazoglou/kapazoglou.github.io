@@ -1,12 +1,14 @@
 ---
 title:  "8fit Brand Identity"
 metadate: "hide"
-categories: [ Art Direction, Presentation Design ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-1.png"
+categories: [ Medical Illustration, Illustration ]
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png"
 
 ---
 
-I designed the Brand Identity for 8fit
+I created illustrations for 8fit explaining in a simplified some anatomical structures or procesess to the apps users.
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-2.png)
+![chest muscles](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ChestMuscles.png)
+![back muscles](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/BackMuscles.png)
+![life of fat](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/LifeOfFat.png)
 
