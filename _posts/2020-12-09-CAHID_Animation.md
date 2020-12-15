@@ -1,16 +1,11 @@
 ---
-title:  "Illustrations for CAHID"
+title:  "Animation for CAHID"
 metadate: "hide"
 categories: [ Animation, Medical Illustration ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_2.png"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ani_3.gif"
 
 ---
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Capture.PNG)
+![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/anim-medDes2.gif)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_6)
-
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_5)
-
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_3)
 
