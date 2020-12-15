@@ -14,4 +14,14 @@ The task was to design well perfoming Facebook/Instagram ads for a fitness app. 
   </video>
 </figure>
 
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true" poster="https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/vlcsnap-2020-12-15-15h49m05s755.png">
+    <source src="https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-KeepPushing_sn.mp4" type="video/mp4">
+  </video>
+</figure>
 
+<figure class="video_container">
+  <video controls="true" allowfullscreen="true" poster="https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/vlcsnap-2020-12-15-15h48m09s699.png">
+    <source src="https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-adDes-anim-2.mp4" type="video/mp4">
+  </video>
+</figure>
