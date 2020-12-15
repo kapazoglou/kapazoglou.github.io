@@ -3640,7 +3640,7 @@ input[type="button"].btn-block {
 
 /* line 12, node_modules/bootstrap/scss/_transitions.scss */
 .collapse:not(.show) {
-  /*display: none;*/ }
+  display: none; }
 
 /* line 17, node_modules/bootstrap/scss/_transitions.scss */
 .collapsing {
