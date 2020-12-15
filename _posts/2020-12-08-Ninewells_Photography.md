@@ -1,5 +1,5 @@
 ---
-title:  "Photography for Ninewells Hospital"
+title:  "Photography for Ninewells Hospital [CONTENT WARNING]"
 metadate: "hide"
 categories: [ Photography ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_1.png"
@@ -10,12 +10,6 @@ Ninewells Hospital documents patients' ailments and surgical procedures with pho
 
 (all pictures posted with permission)
 
-
-<details>
-<summary markdown="span">Warning, images of surgery inside here</summary>
-
 ![general](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_3.png)
 
 ![closeup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_10.png)
-
-</details>
