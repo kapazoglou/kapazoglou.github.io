@@ -1,7 +1,7 @@
 ---
 title:  "Marketing Design for Headland"
 metadate: "hide"
-categories: [ Marketing Design, Print Design ]
+categories: [ Marketing Design, Print Design, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/CIfA_ad-2016-v6.png"
 
 ---
