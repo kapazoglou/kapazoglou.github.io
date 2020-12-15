@@ -1,7 +1,7 @@
 ---
 title:  "Portraits for CAHID"
 metadate: "hide"
-categories: [ Illustration ]
+categories: [ Illustration, Medical Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/drw_2.png"
 
 ---
