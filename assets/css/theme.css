@@ -12,7 +12,7 @@ body {
 a:hover {
 	text-decoration: none;
 }
-img {
+img, figure, video{
 	max-width: 100%;
 }
 a,.a:hover {
