@@ -16,6 +16,4 @@ and some informational posters for internal circulation:
 
 ![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_9.png)
 
-![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_9.png)
-
 ![Moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/2016-1HAS-Plant-Lyme-Services_Page_2.png)
