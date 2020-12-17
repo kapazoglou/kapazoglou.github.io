@@ -1,10 +1,9 @@
 ---
-title: "About"
+title: "Hi there!"
 permalink: "/about.html"
 image: "/assets/images/herovatar.png"
 ---
 
-# Hi there,
 I'm a freelance designer / art director based in Berlin. I offer visual storytelling services for screen or print in the level of fidelity that suits your requirements. 
 
 If you have a project that needs:
