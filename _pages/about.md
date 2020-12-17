@@ -18,7 +18,7 @@ If you have a project that needs:
 
 or any other design service whether it's making slides look good to designing a book make sure to ![contact me](https://kapazoglu.info/contact.html) and I'll be happy to discuss your project.
 
-# Hey gamer,
+### Hey gamer,
 If you are a game designer or if you have an idea for a board game I can also offer you:
 
 - game design
