@@ -38,6 +38,7 @@ for your card or board game. Please **[contact me](https://kapazoglou.info/conta
 <br>
 
 I look forward to hearing from you,
+
 <i class="fa fa-heart"></i> Mano
 
 <br>
