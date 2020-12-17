@@ -1,5 +1,5 @@
 ---
-title:  "Photography for Headland Archaeology [CONTENT WARNING]"
+title:  "Photography for Headland Archaeology [CONTENT WARNING: Skeletons]"
 metadate: "hide"
 categories: [ Photography, 3D ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ZG-resized.jpg"
