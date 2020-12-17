@@ -15,7 +15,7 @@ If you have a project that needs:
 - web design and development;
 - photo and video editing;
 
-or any other design service whether it's making slides look good to designing a book make sure to ![contact me](https://kapazoglu.info/contact.html) and I'll be happy to discuss your project.
+or any other design service whether it's making slides look good to designing a book make sure to [contact me](https://kapazoglu.info/contact.html) and I'll be happy to discuss your project.
 
 ### Hey gamer,
 If you are a game designer or if you have an idea for a board game I can also offer you:
@@ -27,7 +27,6 @@ If you are a game designer or if you have an idea for a board game I can also of
 for your card or board game.
 
 
-
-If you like what I do and would like to support me, why don't you ![buy me a coffee](https://www.buymeacoffee.com/kapazoglou)
+I look forward to hearing from you!
 
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee?</a>
