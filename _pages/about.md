@@ -27,9 +27,9 @@ or any other design service whether it's making slides look good to designing a 
 ### Hey gamer,
 If you are a game designer or if you have an idea for a board game I can offer you:
 
-- game design
+- game design and playtesting
 
-- prototyping
+- digital or physical prototyping 
 
 - graphics and illustrations
 
