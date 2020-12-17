@@ -20,7 +20,7 @@ If you have a project that needs:
 
 - photo and video editing
 
-or any other design service whether it's making slides look good to designing a book make sure to **[contact me](https://kapazoglu.info/contact.html)** and I'll be happy to discuss your project.
+or any other design service whether it's making slides look good to designing a book make sure to **[contact me](https://kapazoglou.info/contact.html)** and I'll be happy to discuss your project.
 
 <br>
 
@@ -33,7 +33,7 @@ If you are a game designer or if you have an idea for a board game I can offer y
 
 - graphics and illustrations
 
-for your card or board game.
+for your card or board game. Please **[contact me](https://kapazoglou.info/contact.html)** for more information.
 
 <br>
 
