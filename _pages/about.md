@@ -41,6 +41,4 @@ I look forward to hearing from you,
 
 <i class="fa fa-heart"></i> Mano
 
-<br>
-
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee?</a>
