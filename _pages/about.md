@@ -8,24 +8,34 @@ I'm a freelance designer / art director based in Berlin. I offer visual storytel
 
 If you have a project that needs:
 
-- graphic and motion design;
-- drawings and illustrations;
-- medical illustration and data visualisation;
-- brand and marketing design and conceptualisation;
-- web design and development;
-- photo and video editing;
+- graphic and motion design
+
+- drawings and illustrations
+
+- medical illustration and data visualisation
+
+- brand and marketing design and conceptualisation
+
+- web design and development
+
+- photo and video editing
 
 or any other design service whether it's making slides look good to designing a book make sure to [contact me](https://kapazoglu.info/contact.html) and I'll be happy to discuss your project.
+
+<br>
 
 ### Hey gamer,
 If you are a game designer or if you have an idea for a board game I can also offer you:
 
 - game design
+
 - prototyping
+
 - graphics and illustrations
 
 for your card or board game.
 
+<br>
 
 I look forward to hearing from you!
 
