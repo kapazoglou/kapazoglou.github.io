@@ -1,5 +1,5 @@
 ---
-title:  "Anatomy Illustrations for 8fit fitness app"
+title:  "Anatomy Illustrations for the 8fit app"
 metadate: "hide"
 categories: [ Medical Illustration, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png"
