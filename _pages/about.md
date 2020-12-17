@@ -4,13 +4,31 @@ permalink: "/about.html"
 image: "/assets/images/herovatar.png"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce ultricies commodo felis in interdum. Donec nec tempor quam. Phasellus sit amet rhoncus leo. Mauris quis facilisis elit, in interdum nisl. Vivamus semper nunc ut pulvinar lacinia. 
+# Hi there,
+I'm a freelance designer / art director based in Berlin. I offer visual storytelling services for screen or print in the level of fidelity that suits your requirements. 
 
-- Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-- Aliquam sit amet turpis lobortis, molestie ante nec, rutrum mi.
-- Nam lobortis nulla quis congue pulvinar.
-- Nulla mollis nulla id purus scelerisque vestibulum.
-- Aenean porta orci at ex molestie, eu ultrices leo condimentum.
-- Etiam quis orci vitae elit placerat aliquam in at quam.
+If you have a project that needs:
+
+- graphic and motion design;
+- drawings and illustrations;
+- medical illustration and data visualisation;
+- brand and marketing design and conceptualisation;
+- web design and development;
+- photo and video editing;
+
+or any other design service whether it's making slides look good to designing a book make sure to ![contact me](https://kapazoglu.info/contact.html) and I'll be happy to discuss your project.
+
+# Hey gamer,
+If you are a game designer or if you have an idea for a board game I can also offer you:
+
+- game design
+- prototyping
+- graphics and illustrations
+
+for your card or board game.
+
+
+
+If you like what I do and would like to support me, why don't you ![buy me a coffee](https://www.buymeacoffee.com/kapazoglou)
 
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee?</a>
