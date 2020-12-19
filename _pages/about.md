@@ -1,5 +1,5 @@
 ---
-title: "Hi there!"
+title: "Hi there"
 permalink: "/about.html"
 image: "/assets/images/herovatar.png"
 ---
@@ -24,7 +24,7 @@ or any other design service whether it's making a few slides look good or design
 
 <br>
 
-### Hey gamer,
+### Hey gamer
 If you are a game designer or if you have an idea for a board game I can offer you:
 
 - game design and playtesting
