@@ -1,5 +1,5 @@
 ---
-title:  "Photography for Headland Archaeology"
+title:  "Photography for Headland Archaeology [CW: Skulls"
 metadate: "hide"
 categories: [ Photography, 3D ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ZG-resized.jpg"
