@@ -51,10 +51,9 @@ I look forward to hearing from you,
 
 ## Resume
 
-# Education
+### Education
 
-2014.08  **MSc Medical Art (Distinction)** 
-University of Dundee, UK {: .note}
+2014.08  **MSc Medical Art (Distinction)** *University of Dundee, UK*
 
 2012.01  **Diploma in Animation** *VIA University College, Viborg DK*
 
@@ -64,7 +63,7 @@ University of Dundee, UK {: .note}
 
 <br>
 
-# Experience
+### Experience
 
 2020.01 – present  **Freelancer**
 
