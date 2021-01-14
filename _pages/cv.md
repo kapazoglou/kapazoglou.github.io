@@ -1,7 +1,6 @@
 ---
 title: "Resume"
-permalink: "/resume.md"
-image: "/assets/images/herovatar.png"
+permalink: "/cv.md"
 ---
 
 # Resume
