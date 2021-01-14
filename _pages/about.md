@@ -49,9 +49,7 @@ I look forward to hearing from you,
 
 <br>
 
-<details>
-
-<summary markdown="span"> ## Resume </summary>
+## Resume
 
 # Education
 
@@ -83,5 +81,3 @@ University of Dundee, UK {: .note}
 2008.09 – 2009.09  **Animation Assistant** *‘The Village’ SP Film Productions, Athens GR*
 
 2004.01 – 2009.05  **Art Teacher** *Bleu Telia Art and Communication Workshop, Athens GR*
-
-</details>
