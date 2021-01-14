@@ -44,6 +44,7 @@ I look forward to hearing from you,
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee? </a>
 
 <br>
+<br>
 
 ----
 
@@ -67,9 +68,9 @@ I look forward to hearing from you,
 
 2020.01 – present  **Freelancer**
 
-2018.06 – 2019.12  **Senior Designer** *8fit, Berlin DE*
+2018.06 – 2019.12  **Design Lead** *8fit, Berlin DE*
 
-2015.08 – 2018.04  **Graphic Designer** *Headland Archaeology, Edinburgh UK*
+2015.08 – 2018.04  **Graphics Supervisor** *Headland Archaeology, Edinburgh UK*
 
 2015.03 – 2015.08  **Clinical Photographer** *NHS Tayside, Dundee UK*
 
