@@ -49,7 +49,7 @@ I look forward to hearing from you,
 
 <br>
 
-## Resume
+# Resume
 
 ### Education
 
