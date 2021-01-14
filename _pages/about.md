@@ -64,6 +64,8 @@ University of Dundee, UK {: .note}
 
 2009.08  **BA (Hons) in Graphic Design** *Technological Educational Institute of Athens, GR & Moholy-Nagy Művészeti Egyetem, Budapest HU*
 
+<br>
+
 # Experience
 
 2020.01 – present  **Freelancer**
