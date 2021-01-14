@@ -1,5 +1,5 @@
 ---
-title:  "Illustations for Ninewells Hospital"
+title:  "Illustrations for Ninewells Hospital"
 metadate: "hide"
 categories: [ Illustration, Medical Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Study29.jpg"
