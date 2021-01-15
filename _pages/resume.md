@@ -1,6 +1,6 @@
 ---
 title: "Resume"
-permalink: "/cv.md"
+permalink: "/resume.md"
 ---
 
 # Resume

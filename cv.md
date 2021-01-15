@@ -23,7 +23,7 @@ permalink: "/cv.md"
 
 2018.06 – 2019.12  **Design Lead** *8fit, Berlin DE*
 
-2015.08 – 2018.04  **Graphic Designer** *Headland Archaeology, Edinburgh UK*
+2015.08 – 2018.04  **Graphics Supervisor** *Headland Archaeology, Edinburgh UK*
 
 2015.03 – 2015.08  **Clinical Photographer** *NHS Tayside, Dundee UK*
 
