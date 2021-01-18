@@ -8,9 +8,7 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 The Centre for Anatomy and Human Identification encourages collaboration between different faculties. I created  illustrations and animations as a product of these collaborations, usually focusing at a single anatomical topic at a time. 
 
-Some of my illustrations have been published in PLOS biology:
-
-![plos](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Capture.PNG)
+![clavicle](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/clavicle.png)
 
 ![heart](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_3.png)
 
