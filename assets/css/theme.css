@@ -100,7 +100,7 @@ footer.footer {
     transition:ease .1s;
 }
 .card-pin:hover .overlay {
-	opacity:.5;
+	opacity:.7;
 	border:5px solid #f3f3f3;
 	-webkit-transition:ease .2s;
 	transition:ease .1s;
