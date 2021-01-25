@@ -220,7 +220,7 @@ article .card-body {
 .btn-gray:hover {
     background-color:#ddd;
 }
-.btn-toolbar > .btn {
+#navbarsExplore > .btn {
     margin: .25rem .25rem;
 }
 .navbar-nav.categories  a   {
