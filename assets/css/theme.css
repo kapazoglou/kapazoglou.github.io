@@ -165,7 +165,7 @@ button.bg-dark:focus {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: #04070b;
+    background-color: #23272b;
     transition: all 0.2s;
 }
 .social {
@@ -213,13 +213,7 @@ article .card-body {
 .dropdown-item.active, .dropdown-item:active {
     background-color:transparent;
 }
-.btn-gray {
-    background-color: #efefef;
-    color:#333;
-}
-.btn-gray:hover {
-    background-color:#ddd;
-}
+
 #navbarsExplore > .btn {
     margin: .25rem .25rem;
 }
