@@ -220,8 +220,8 @@ article .card-body {
 .btn-gray:hover {
     background-color:#ddd;
 }
-.btn-toolbar{
-  margin:.25rem .125rem;
+.btn-toolbar > .btn {
+    margin: .25rem .25rem;
 }
 .navbar-nav.categories  a   {
     font-size: 15px;
