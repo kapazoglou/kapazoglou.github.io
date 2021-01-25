@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Vampiro+One');
 body {
-  background-color: #43494c;
+  background-color: #3e454c;
   color: #fff;
 	padding-top:70px;
 }
@@ -26,6 +26,9 @@ a,.a:hover {
 }
 .border-round-0 {
 	border-radius: 0;
+}
+.bg-dark {
+    background-color: #30363b !important;
 }
 hr{
   border-top: 1px solid rgb(255 255 255)
@@ -133,7 +136,7 @@ footer.footer {
 }
 
 .notraco {
-    background: #343a40;
+    background: #32383e;
     color: #333;
     border: 0;
     border-top: 0;
