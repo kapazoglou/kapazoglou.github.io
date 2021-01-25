@@ -171,13 +171,13 @@ sup {
 
 /* line 198, node_modules/bootstrap/scss/_reboot.scss */
 a {
-  color: #ffc107;
+  color: #bd081c;
   text-decoration: none;
   background-color: transparent;
   -webkit-text-decoration-skip: objects; }
   /* line 13, node_modules/bootstrap/scss/mixins/_hover.scss */
   a:hover {
-    color: #ffe8a1;
+    color: #740511;
     text-decoration: underline; }
 
 /* line 216, node_modules/bootstrap/scss/_reboot.scss */
@@ -2894,35 +2894,33 @@ fieldset:disabled a.btn {
 /* line 64, node_modules/bootstrap/scss/_buttons.scss */
 .btn-indigo {
   color: #fff;
-  background-color: #111;/*#6610f2;*/
-  border-color: #111;/*#6610f2;*/ }
+  background-color: #6610f2;
+  border-color: #6610f2; }
   /* line 13, node_modules/bootstrap/scss/mixins/_hover.scss */
   .btn-indigo:hover {
     color: #fff;
-    background-color: #080808; /*#560bd0;*/
-    border-color: #000 /*#510bc4;*/ }
+    background-color: #560bd0;
+    border-color: #510bc4; }
   /* line 18, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo:focus, .btn-indigo.focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5); }
-    /*-webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }*/
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }
   /* line 29, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo.disabled, .btn-indigo:disabled {
     color: #fff;
-  background-color: #111;/*#6610f2;*/
-  border-color: #111;/*#6610f2;*/ }
+    background-color: #6610f2;
+    border-color: #6610f2; }
   /* line 36, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo:not(:disabled):not(.disabled):active, .btn-indigo:not(:disabled):not(.disabled).active,
   .show > .btn-indigo.dropdown-toggle {
     color: #fff;
-    background-color: #080808; /*#560bd0;*/
-    border-color: #000 /*#510bc4;*/ }
+    background-color: #510bc4;
+    border-color: #4c0ab8; }
     /* line 46, node_modules/bootstrap/scss/mixins/_buttons.scss */
     .btn-indigo:not(:disabled):not(.disabled):active:focus, .btn-indigo:not(:disabled):not(.disabled).active:focus,
     .show > .btn-indigo.dropdown-toggle:focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5); }
+      -webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
+              box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }
 
 /* line 64, node_modules/bootstrap/scss/_buttons.scss */
 .btn-pink {
@@ -5201,8 +5199,8 @@ input[type="button"].btn-block {
 @media (min-width: 576px) {
   /* line 256, node_modules/bootstrap/scss/_card.scss */
   .card-columns {
-    -webkit-column-count: 4;
-            column-count: 4;
+    -webkit-column-count: 5;
+            column-count: 5;
     -webkit-column-gap: 1.25rem;
             column-gap: 1.25rem;
     orphans: 1;
@@ -10913,8 +10911,8 @@ a.text-light:hover, a.text-light:focus {
   color: #343a40 !important; }
 
 /* line 17, node_modules/bootstrap/scss/mixins/_hover.scss */
-a.text-dark:hover, a.text-dark:focus { 
-  color: #eee !important; } /*#1d2124*/
+a.text-dark:hover, a.text-dark:focus {
+  color: #1d2124 !important; }
 
 /* line 6, node_modules/bootstrap/scss/mixins/_text-emphasis.scss */
 .text-purple {
