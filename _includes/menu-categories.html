@@ -8,11 +8,11 @@
     {% assign categories_list = site.categories %}
       {% if categories_list.first[0] == null %}
         {% for category in categories_list %}
-          <a class="btn btn-dark" href="{{site.baseurl}}/categories.html#{{ category | downcase }}">{{ category }} ({{ site.tags[category].size }})</a></li>
+          <a class="btn btn-indigo" href="{{site.baseurl}}/categories.html#{{ category | downcase }}">{{ category }} ({{ site.tags[category].size }})</a></li>
         {% endfor %}
       {% else %}
         {% for category in categories_list %}
-          <a class="btn btn-dark" href="{{site.baseurl}}/categories.html#{{ category[0] | downcase }}"> {{ category[0] }} </a></li>
+          <a class="btn btn-indigo" href="{{site.baseurl}}/categories.html#{{ category[0] | downcase }}"> {{ category[0] }} </a></li>
         {% endfor %}
       {% endif %}
     {% assign categories_list = nil %}
