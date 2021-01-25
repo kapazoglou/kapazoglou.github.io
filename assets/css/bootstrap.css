@@ -2899,14 +2899,12 @@ fieldset:disabled a.btn {
   /* line 13, node_modules/bootstrap/scss/mixins/_hover.scss */
   .btn-indigo:hover {
     color: #fff;
-    background-color: #080808; /*#560bd0;*/
-    border-color: #000 /*#510bc4;*/ }
+    background-color: #6610f2; /*#560bd0;*/
+    border-color: #560bd0; /*#510bc4;*/ }
   /* line 18, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo:focus, .btn-indigo.focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5); }
-    /*-webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }*/
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }
   /* line 29, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo.disabled, .btn-indigo:disabled {
     color: #fff;
