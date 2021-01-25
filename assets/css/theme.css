@@ -137,7 +137,7 @@ footer.footer {
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,
 button.bg-dark:focus {
-  background-color: #1d2124 !important; }
+  background-color: #000 !important; }
 
 .notraco {
     background: #343a40;
