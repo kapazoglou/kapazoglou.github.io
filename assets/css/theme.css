@@ -129,16 +129,6 @@ footer.footer {
     text-align: left;
 }
 
-/* line 6, node_modules/bootstrap/scss/mixins/_background-variant.scss */
-.bg-dark {
-  background-color: #343a40 !important; }
-
-/* line 17, node_modules/bootstrap/scss/mixins/_hover.scss */
-a.bg-dark:hover, a.bg-dark:focus,
-button.bg-dark:hover,
-button.bg-dark:focus {
-  background-color: #1d2124 !important; }
-
 .notraco {
     background: #343a40;
     color: #333;
@@ -165,7 +155,7 @@ button.bg-dark:focus {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: #545a60;
+    background-color: #560bd0;
     transition: all 0.2s;
 }
 .social {
