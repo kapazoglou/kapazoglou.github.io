@@ -165,7 +165,7 @@ button.bg-dark:focus {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: indigo;
+    background-color: #000;
     transition: all 0.2s;
 }
 .social {
