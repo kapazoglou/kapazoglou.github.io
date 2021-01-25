@@ -128,6 +128,17 @@ footer.footer {
 .card-pin.raco .card-title {
     text-align: left;
 }
+
+/* line 6, node_modules/bootstrap/scss/mixins/_background-variant.scss */
+.bg-dark {
+  background-color: #343a40 !important; }
+
+/* line 17, node_modules/bootstrap/scss/mixins/_hover.scss */
+a.bg-dark:hover, a.bg-dark:focus,
+button.bg-dark:hover,
+button.bg-dark:focus {
+  background-color: #1d2124 !important; }
+
 .notraco {
     background: #343a40;
     color: #333;
@@ -208,6 +219,9 @@ article .card-body {
 }
 .btn-gray:hover {
     background-color:#ddd;
+}
+.btn-toolbar{
+  margin:.25rem .125rem;
 }
 .navbar-nav.categories  a   {
     font-size: 15px;
