@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Vampiro+One');
 body {
-  background-color: #24272b;
+  background-color: #23262b;
   color: #fff;
 	padding-top:70px;
 }
@@ -100,7 +100,7 @@ footer.footer {
     transition:ease .1s;
 }
 .card-pin:hover .overlay {
-	opacity:.7;
+	opacity:.5;
 	border:5px solid #f3f3f3;
 	-webkit-transition:ease .2s;
 	transition:ease .1s;
@@ -137,7 +137,7 @@ footer.footer {
 a.bg-dark:hover, a.bg-dark:focus,
 button.bg-dark:hover,
 button.bg-dark:focus {
-  background-color: #000 !important; }
+  background-color: #1d2124 !important; }
 
 .notraco {
     background: #343a40;
@@ -165,7 +165,7 @@ button.bg-dark:focus {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: #23272b;
+    background-color: #545a60;
     transition: all 0.2s;
 }
 .social {
@@ -213,7 +213,13 @@ article .card-body {
 .dropdown-item.active, .dropdown-item:active {
     background-color:transparent;
 }
-
+.btn-gray {
+    background-color: #efefef;
+    color:#333;
+}
+.btn-gray:hover {
+    background-color:#ddd;
+}
 #navbarsExplore > .btn {
     margin: .25rem .25rem;
 }
