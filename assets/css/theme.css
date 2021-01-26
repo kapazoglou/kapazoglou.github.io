@@ -100,7 +100,11 @@ footer.footer {
 }
 .card {
 	border: 0;
-    transition:ease .1s;
+  transition:ease .1s;
+}
+.card-img{
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
 }
 .card-pin:hover .overlay {
 	opacity:.5;
