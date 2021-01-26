@@ -4590,7 +4590,7 @@ input[type="button"].btn-block {
 
 /* line 61, node_modules/bootstrap/scss/_navbar.scss */
 .navbar-nav {
-  background-color: #140729;
+  background-color: none;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -4746,15 +4746,15 @@ input[type="button"].btn-block {
 
 @media (max-width: 991.98px) {
   /* line 147, node_modules/bootstrap/scss/_navbar.scss */
+  .navbar-nav{
+   background-color: #140729
+  }
   .navbar-expand-lg > .container,
   .navbar-expand-lg > .container-fluid {
     padding-right: 0;
     padding-left: 0; } }
 
 @media (min-width: 992px) {
-  .navbar-nav{
-    background-color: none;
-  }
   /* line 145, node_modules/bootstrap/scss/_navbar.scss */
   .navbar-expand-lg {
     -webkit-box-orient: horizontal;
