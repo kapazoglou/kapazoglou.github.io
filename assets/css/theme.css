@@ -5,6 +5,9 @@ body {
   color: #fff;
 	padding-top:70px;
 }
+.bg-dark {
+  background-color: #343a40 !important; 
+}
 .logotype {
   font-family: 'Vampiro One', serif;
   font-size: 27px;
@@ -134,8 +137,6 @@ footer.footer {
 }
 
 .notraco {
-    background: #384a53;
-    color: #333;
     border: 0;
     border-top: 0;
     border-bottom-left-radius: 0.25rem;
