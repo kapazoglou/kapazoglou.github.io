@@ -169,7 +169,7 @@ footer.footer {
 	color: #ffffff;
 }
 .card-pin.raco:hover .notraco {
-    background-color: #140729;
+    background-color: #000;
     transition: all 0.2s;
 }
 .social {
