@@ -90,8 +90,6 @@ footer.footer {
 	border-top: 1px solid #140729;
   background: linear-gradient(0deg, indigo -43%, #201b29 90%);
 }
-
-}
 .nav-link,.dropdown-item {
 	font-weight: 700;
 }
