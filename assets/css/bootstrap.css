@@ -4590,6 +4590,7 @@ input[type="button"].btn-block {
 
 /* line 61, node_modules/bootstrap/scss/_navbar.scss */
 .navbar-nav {
+  background-color: none;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -4751,6 +4752,9 @@ input[type="button"].btn-block {
     padding-left: 0; } }
 
 @media (min-width: 992px) {
+  .navbar-nav{
+    background-color: #140729;
+  }
   /* line 145, node_modules/bootstrap/scss/_navbar.scss */
   .navbar-expand-lg {
     -webkit-box-orient: horizontal;
