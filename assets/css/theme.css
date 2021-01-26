@@ -88,6 +88,9 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 }
 footer.footer {
 	border-top: 1px solid #140729;
+  background: linear-gradient(0deg, indigo -43%, #201b29 90%);
+}
+
 }
 .nav-link,.dropdown-item {
 	font-weight: 700;
