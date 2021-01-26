@@ -22,6 +22,9 @@ a,.a:hover {
 	-webkit-transition:all 0.2s;
 	transition: all 0.2s;
 }
+hr {
+  border-top: 1px solid #fff;
+}
 .container-fluid {
 	width:94%;
 	margin:0px auto;
