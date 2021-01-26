@@ -132,14 +132,17 @@ footer.footer {
 .card-pin.raco .card-title {
     text-align: left;
 }
-
+.card > img {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
 .notraco {
     background: #384a53;
     color: #333;
     border: 0;
     border-top: 0;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
     padding: 15px 18px;
     position: relative;
 }
@@ -206,13 +209,6 @@ article .card-body {
 }
 .dropdown-item.active, .dropdown-item:active {
     background-color:transparent;
-}
-.btn-gray {
-    background-color: #efefef;
-    color:#333;
-}
-.btn-gray:hover {
-    background-color:#ddd;
 }
 #navbarsExplore > .btn {
     margin: .25rem .25rem;
