@@ -138,8 +138,8 @@ footer.footer {
     color: #333;
     border: 0;
     border-top: 0;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
     padding: 15px 18px;
     position: relative;
 }
@@ -250,7 +250,7 @@ article .card-body {
     -moz-box-flex-direction: row;
     -webkit-flex-direction: row;
     flex-direction: row;
-    border-radius:6px;
+    border-radius:0.25rem;
      transition: all 0.2s;
 }
 .card-pin.raco:hover i.text-muted {
