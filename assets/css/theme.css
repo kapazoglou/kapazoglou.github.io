@@ -137,6 +137,8 @@ footer.footer {
 }
 
 .notraco {
+    background: none;
+    color: #333;
     border: 0;
     border-top: 0;
     border-bottom-left-radius: 0.25rem;
