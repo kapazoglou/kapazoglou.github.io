@@ -2581,42 +2581,36 @@ a.btn.disabled,
 fieldset:disabled a.btn {
   pointer-events: none; }
 
+/* line 64, node_modules/bootstrap/scss/_buttons.scss */
 .btn-primary {
   color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:hover {
-  color: #fff;
-  background-color: #0069d9;
-  border-color: #0062cc;
-}
-
-.btn-primary:focus, .btn-primary.focus {
-  color: #fff;
-  background-color: #0069d9;
-  border-color: #0062cc;
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-}
-
-.btn-primary.disabled, .btn-primary:disabled {
-  color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
-.show > .btn-primary.dropdown-toggle {
-  color: #fff;
-  background-color: #0062cc;
-  border-color: #005cbf;
-}
-
-.btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
-.show > .btn-primary.dropdown-toggle:focus {
-  box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-}
+  background-color: #bd081c;
+  border-color: #bd081c; }
+  /* line 13, node_modules/bootstrap/scss/mixins/_hover.scss */
+  .btn-primary:hover {
+    color: #fff;
+    background-color: #980617;
+    border-color: #8c0615; }
+  /* line 18, node_modules/bootstrap/scss/mixins/_buttons.scss */
+  .btn-primary:focus, .btn-primary.focus {
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(189, 8, 28, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(189, 8, 28, 0.5); }
+  /* line 29, node_modules/bootstrap/scss/mixins/_buttons.scss */
+  .btn-primary.disabled, .btn-primary:disabled {
+    color: #fff;
+    background-color: #bd081c;
+    border-color: #bd081c; }
+  /* line 36, node_modules/bootstrap/scss/mixins/_buttons.scss */
+  .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
+  .show > .btn-primary.dropdown-toggle {
+    color: #fff;
+    background-color: #8c0615;
+    border-color: #800513; }
+    /* line 46, node_modules/bootstrap/scss/mixins/_buttons.scss */
+    .btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
+    .show > .btn-primary.dropdown-toggle:focus {
+      -webkit-box-shadow: 0 0 0 0.2rem rgba(189, 8, 28, 0.5);
+              box-shadow: 0 0 0 0.2rem rgba(189, 8, 28, 0.5); }
 
 /* line 64, node_modules/bootstrap/scss/_buttons.scss */
 .btn-secondary {
@@ -2905,12 +2899,14 @@ fieldset:disabled a.btn {
   /* line 13, node_modules/bootstrap/scss/mixins/_hover.scss */
   .btn-indigo:hover {
     color: #fff;
-    background-color: #6610f2; /*#560bd0;*/
-    border-color: #560bd0; /*#510bc4;*/ }
+    background-color: #080808; /*#560bd0;*/
+    border-color: #000 /*#510bc4;*/ }
   /* line 18, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo:focus, .btn-indigo.focus {
-    -webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
-            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }
+    -webkit-box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(5, 5, 5, 0.5); }
+    /*-webkit-box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5);
+            box-shadow: 0 0 0 0.2rem rgba(102, 16, 242, 0.5); }*/
   /* line 29, node_modules/bootstrap/scss/mixins/_buttons.scss */
   .btn-indigo.disabled, .btn-indigo:disabled {
     color: #fff;
