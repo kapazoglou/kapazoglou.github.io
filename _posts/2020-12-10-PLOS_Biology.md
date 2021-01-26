@@ -1,7 +1,7 @@
 ---
 title:  "Illustrations in PLOS Biology"
 metadate: "hide"
-categories: [ Illustration, Medical Illustration, 3D ]
+categories: [ Illustration, Medical Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/infusion.png"
 
 ---
