@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Vampiro+One');
 body {
   background-color: #084940;
-  background: linear-gradient(0deg, #095449 0%, #1e282c 90%);
+  background: linear-gradient(0deg, #03433a 0%, #1e282c 90%);
   color: #fff;
 	padding-top:70px;
 }
@@ -104,6 +104,7 @@ footer.footer {
 }
 .card {
 	border: 0;
+  border-radius: 0.25rem;
     transition:ease .1s;
 }
 .card-pin:hover .overlay {
