@@ -6,7 +6,7 @@ permalink: "/categories.html"
 
 <section class="mt-4 mb-5">
     
-    <div class="container mb-1">
+    <div class="container mb-1" href="top">
         <h3 class="font-weight-bold title">Jump to projects with </h3>    
         <div class="row">
         {% include menu-categories.html %}
@@ -19,10 +19,11 @@ permalink: "/categories.html"
     {% for category in site.categories %}
     </div> 
     
-    <br><br><br>
+    <div id="{{ category[0] | downcase }}">
+        <br><br><br>
+    </div>
 
-
-    <h3 class="mt-4 display-4" id="{{ category[0] | downcase }}"><small class="text-muted"></small> {{ category[0] }}</h3><hr>
+    <h3 class="mt-4 display-4"><small class="text-muted"></small> {{ category[0] }}</h3><hr>
     
     <div class="card-columns">
 
@@ -38,6 +39,8 @@ permalink: "/categories.html"
         {% assign group = nil %}
     {% endfor %}
     </div>
+
+    <a target="#top" class="btn btn-cyan" href="https://kapazoglou.info/contact.html"><i class="fa fa-arrow-up"></i> Back to Top </a>
 
 </div>
     
