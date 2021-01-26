@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Vampiro+One');
 body {
-  background-color: #222;
+  background-color: #201b29;
 
   color: #fff;
 	padding-top:70px;
@@ -88,7 +88,7 @@ footer.footer {
 }
 .navbar {
 	padding: 0;
-  background: linear-gradient(90deg, rgb(23 190 192) 0%, rgb(207 230 33) 54%, rgb(255 93 75) 100%)
+  background: linear-gradient(90deg, rgb(23 190 192) 0%, rgb(207 230 33) 56%, rgb(255 93 75) 100%)
 }
 .overlay {
 	position:absolute;
