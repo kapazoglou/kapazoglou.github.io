@@ -41,7 +41,7 @@ I look forward to hearing from you,
 
 <i class="fa fa-heart"></i> Mano
 
-<a target="_blank" class="btn btn-success" href="https://kapazoglou.info/contact.html"><i class="fa-paper-plane"></i> Get in touch! </a>
+<a target="_blank" class="btn btn-success" href="https://kapazoglou.info/contact.html"><i class="fa fa-send"></i> Get in touch! </a>
 <a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee? </a>
 
 <br>
