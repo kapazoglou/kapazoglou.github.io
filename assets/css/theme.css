@@ -5,6 +5,9 @@ body {
   color: #fff;
 	padding-top:70px;
 }
+.bg-dark{
+    background-color: #2b2e3a !important;
+}
 .logotype {
   font-family: 'Vampiro One', serif;
   font-size: 27px;
