@@ -94,7 +94,7 @@ footer.footer {
 }
 .navbar {
 	padding: 0;
-  background: linear-gradient(30deg, rgb(23 190 192) 10%, rgb(219 209 28) 60%, rgb(255 93 75) 100%);
+  background: linear-gradient(150deg, rgb(23 190 192) 10%, rgb(219 209 28) 60%, rgb(255 93 75) 100%);
 }
 .overlay {
 	position:absolute;
