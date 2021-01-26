@@ -23,7 +23,9 @@ permalink: "/categories.html"
         <br><br><br>
     </div>
 
-    <h3 class="mt-4 display-4"><small class="text-muted"></small> {{ category[0] }}</h3><hr>
+    <h3 class="mt-4 display-4"><small class="text-muted"></small> {{ category[0] }}</h3>
+    <a target="_blank" class="btn btn-sm btn-outline-cyan" href="#top"><i class="fa fa-arrow-up"></i> Back to Top </a>
+    <hr>
     
     <div class="card-columns">
 
@@ -38,10 +40,6 @@ permalink: "/categories.html"
         {% assign pages_list = nil %}
         {% assign group = nil %}
     {% endfor %}
-
-<div class="d-grid gap-2 d-md-flex justify-content-md-end">
-    <a target="_blank" class="btn btn-outline-cyan" href="#top"><i class="fa fa-arrow-up"></i> Get in touch! </a>
-</div>
 
     </div>
 
