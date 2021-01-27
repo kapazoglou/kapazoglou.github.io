@@ -6,10 +6,11 @@ layout: default
     	<div class="row justify-content-center">
     		<div class="col-md-8">
 
-                <div class="btn-group">
+                <div class="btn-group mx-auto">
                   {% if page.next.url %}
                     <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.next.url}}"><i class="fa fa-angle-left"></i> </a>
                   {% endif %}
+
                   {% if page.previous.url %}
                     <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.previous.url}}"><i class="fa fa-angle-right"></i></a>
                   {% endif %}
