@@ -26,7 +26,7 @@ body {
     color: #9b64ff !important;
 }
 details{
-  margin: 0 1rem;
+  margin: 1rem 0;
 }
 a:hover {
 	text-decoration: none;
