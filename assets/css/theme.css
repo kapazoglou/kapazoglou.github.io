@@ -25,7 +25,10 @@ body {
 .text-secondary:hover {
     color: #9b64ff !important;
 }
-details, summary{
+details {
+  margin: 1rem 0;
+}
+summary{
   margin: 0.5rem 0;
 }
 a:hover {
