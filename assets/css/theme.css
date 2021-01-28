@@ -22,6 +22,9 @@ body {
 .text-secondary {
     color: #6f42c1 !important;
 }
+.text-secondary:hover {
+    color: #9b64ff !important;
+}
 a:hover {
 	text-decoration: none;
 }
