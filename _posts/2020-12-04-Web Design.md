@@ -1,7 +1,7 @@
 ---
 title:  "Web Design for individuals"
 metadate: "hide"
-categories: [ Web Design ]
+categories: [ Web Design , UX/UI]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/matt.png"
 
 ---
