@@ -1,7 +1,7 @@
 ---
 title:  "Illustrations for Ninewells Hospital"
 metadate: "hide"
-categories: [ Illustration, Medical Illustration ]
+categories: [ Illustration, Medical Illustration , UX/UI]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Study29.jpg"
 
 ---
