@@ -6,7 +6,7 @@ baseurl: '/'
 url: 'https://kapazoglou.info'
 favicon: 'assets/images/logo.png'
 avatar: 'assets/images/avatar.jpg'
-email: 'mano@kapazoglou.info'
+email: 'kapazoglu@gmail.com'
 
 include: ["_pages"]
 permalink: /:title/
