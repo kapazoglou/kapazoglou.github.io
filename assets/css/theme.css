@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Vampiro+One');
 body {
   background-color: #201b29;
-
   color: #fff;
 	padding-top:70px;
+  font-family: "Asap Condensed";
 }
 .bg-dark{
     background-color: #2b2e3a !important;
