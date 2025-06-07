@@ -13,7 +13,7 @@ description: "Freelance Designer"
     
 <div class="container-fluid">
     
-    <div class="card-columns">        
+    <div class="card-deck">        
         {% for post in paginator.posts reversed %}
             {% include card-post.html %}
         {% endfor %}            
@@ -51,7 +51,7 @@ description: "Freelance Designer"
 </div>    
 
     <div class="container mb-4">
-        <h3 class="font-weight-bold title">I can help you with</h3>    
+        <h3 class="font-weight-bold title">Main Skills</h3>    
         <div class="row">
         {% include menu-categories.html %}
         </div>
