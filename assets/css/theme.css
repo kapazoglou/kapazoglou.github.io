@@ -4,6 +4,7 @@ body {
   color: #fff;
 	padding-top:70px;
   font-family: "Asap Condensed";
+  font-weight:300;
 }
 .bg-dark{
     background-color: #2b2e3a !important;
