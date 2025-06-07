@@ -259,6 +259,7 @@ article .card-body {
 .showcat {
     margin: auto;
     padding: 0 15px 40px 15px;
+    font-weight:300;
 }
 .wrapcat .btn {
     border: 0;
