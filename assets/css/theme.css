@@ -126,7 +126,6 @@ footer.footer {
 .card {
 	border: 0;
   transition:ease .1s;
-  margin-bottom: 1.5rem;
 }
 .card-img{
     border-bottom-left-radius: 0px;
@@ -160,6 +159,7 @@ footer.footer {
 }
 .card-pin.raco .card-title {
     text-align: left;
+    margin-bottom: 1.5rem;
 }
 .notraco {
     background: none;
