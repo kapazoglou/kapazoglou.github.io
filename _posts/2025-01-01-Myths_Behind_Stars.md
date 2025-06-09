@@ -2,7 +2,7 @@
 title:  "Myths Behind Stars"
 metadate: "hide"
 categories: [ Dramaturgy, Research ]
-image: ""
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/azeqN_starchart_Kall.png"
 
 ---
 
