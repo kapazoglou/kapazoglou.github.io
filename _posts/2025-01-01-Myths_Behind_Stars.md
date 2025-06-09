@@ -6,8 +6,4 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-![head](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/sistra.jpg)
-
-blablabla
-
 
