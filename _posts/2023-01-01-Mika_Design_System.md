@@ -1,5 +1,5 @@
 ---
-title:  "Design System Implementation & Management"
+title:  "Design System Rollout & Management"
 metadate: "hide"
 categories: [ Product Design ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/NorthstarDS.png"
