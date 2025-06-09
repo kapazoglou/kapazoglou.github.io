@@ -13,9 +13,8 @@ description: "Freelance Designer"
 <div class="container-fluid">
     
     <div class="card-columns">
-        {% include card-post.html %}        
         {% for post in paginator.posts <!--reversed--> %}
-
+              {% include card-post.html %}
         {% endfor %}            
     </div>
 
