@@ -1,6 +1,6 @@
 # Site
 name: 'Mano Kapazoglou'
-description: 'Some samples of my work'
+description: 'Samples of my work'
 logo: 'assets/images/logo.png'
 baseurl: '/'
 url: 'https://kapazoglou.info'
@@ -39,7 +39,7 @@ markdown: kramdown
 highlighter: rouge
 
 # Pagination
-paginate: 20
+paginate: 100
 
 
 # Exclude metadata and development time dependencies (like Grunt plugins)
