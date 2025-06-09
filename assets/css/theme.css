@@ -140,6 +140,9 @@ footer.footer {
 	cursor:-webkit-zoom-in;
 	cursor: zoom-in;
 }
+.card-columns .card {
+    margin-bottom: 1.5rem;
+}
 .more {
 	color:white;
 	font-size:14px;
