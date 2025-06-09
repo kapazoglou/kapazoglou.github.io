@@ -2,7 +2,7 @@
 title:  "Study Induction Patient Experience"
 metadate: "hide"
 categories: [ Product Design ]
-image: ""
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/unbox.png"
 
 ---
 
