@@ -1,5 +1,5 @@
 ---
-title:  "Brand Identity"
+title:  "User Trust Building"
 metadate: "hide"
 categories: [ Art Direction, Presentation Design , UX/UI]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-1.png"
