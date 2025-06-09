@@ -1,7 +1,7 @@
 ---
 title:  "Design System Rollout & Management"
 metadate: "hide"
-categories: [ Product Design ]
+categories: [ Product Design, Team Leadership ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/NorthstarDS.png"
 
 ---

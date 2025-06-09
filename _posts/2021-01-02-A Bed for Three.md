@@ -1,7 +1,7 @@
 ---
-title:  "A Bed for Three"
+title:  "Short film scriptwriting"
 metadate: "hide"
-categories: [ Game Design, Print Design ]
+categories: [ Storytelling]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Bettina.jpg"
 
 ---

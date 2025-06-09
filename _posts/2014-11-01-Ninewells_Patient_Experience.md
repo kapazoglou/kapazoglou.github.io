@@ -1,7 +1,7 @@
 ---
 title:  "Patient Experience Reasearch"
 metadate: "hide"
-categories: [ Illustration, UX/UI]
+categories: [ Illustration, Patient Communication]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_1.png"
 
 ---

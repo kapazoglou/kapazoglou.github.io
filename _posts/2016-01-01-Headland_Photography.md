@@ -1,7 +1,7 @@
 ---
 title:  "Finds & Remains Photography [CW: Skulls]"
 metadate: "hide"
-categories: [ Photography, 3D ]
+categories: [ Photography ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/ZG-resized.jpg"
 
 ---

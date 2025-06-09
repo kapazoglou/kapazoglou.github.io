@@ -1,7 +1,7 @@
 ---
-title:  "App Architecture for Behavioural Change"
+title:  "Healthcare App for Behavioural Change"
 metadate: "hide"
-categories: [ Product Design ]
+categories: [ Product Design, Patient Communication ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/MK-101.png"
 
 ---

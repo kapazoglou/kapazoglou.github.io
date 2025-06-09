@@ -1,7 +1,7 @@
 ---
-title:  "Flow Optimisation & Regulatory Rehaul"
+title:  "Regulatory Rehaul & Flow Optimisation"
 metadate: "hide"
-categories: [ Product Design ]
+categories: [ Product Design, Patient Communication ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/optimisation.png"
 
 ---

@@ -1,7 +1,7 @@
 ---
 title:  "User Trust Building"
 metadate: "hide"
-categories: [ Art Direction, Presentation Design , UX/UI]
+categories: [ Product Design, Graphic Design]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-1.png"
 
 ---
