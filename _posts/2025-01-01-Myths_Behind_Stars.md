@@ -1,5 +1,5 @@
 ---
-title:  "Myths Behind Stars"
+title:  "Myths Behind Stars [pending publication]"
 metadate: "hide"
 categories: [ Storytelling, Data Viz, Research]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/azeqN_starchart_Kall.png"
