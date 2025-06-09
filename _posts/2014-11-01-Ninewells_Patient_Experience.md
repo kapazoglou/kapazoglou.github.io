@@ -1,5 +1,5 @@
 ---
-title:  "Patient Experience Reasearch"
+title:  "Patient Experience Research"
 metadate: "hide"
 categories: [ Medical Illustration, Patient Communication, Research]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_1.png"
