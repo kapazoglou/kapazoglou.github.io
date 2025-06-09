@@ -1,5 +1,5 @@
 ---
-title:  "Product Design"
+title:  "Design System Implementation & Management"
 metadate: "hide"
 categories: [ Product Design ]
 image: ""

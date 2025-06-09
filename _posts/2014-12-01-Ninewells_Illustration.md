@@ -1,7 +1,7 @@
 ---
-title:  "Ninewells Hospital Illustration [CW: Surgery]"
+title:  "Hospital Illustration [CW: Surgery]"
 metadate: "hide"
-categories: [ Photography ]
+categories: [ Photography, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_1.png"
 
 ---

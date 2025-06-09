@@ -1,7 +1,7 @@
 ---
-title:  "Product Design"
+title:  "Myths Behind Stars"
 metadate: "hide"
-categories: [ Product Design ]
+categories: [ Dramaturgy, Research ]
 image: ""
 
 ---

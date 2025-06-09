@@ -1,5 +1,5 @@
 ---
-title:  "Illustrations in PLOS Biology"
+title:  "PLOS Biology Article Illustration"
 metadate: "hide"
 categories: [ Illustration, Medical Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/infusion.png"

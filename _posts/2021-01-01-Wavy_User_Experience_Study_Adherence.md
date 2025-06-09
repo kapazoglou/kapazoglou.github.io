@@ -1,5 +1,5 @@
 ---
-title:  "Product Design"
+title:  "Study Induction Patient Experience"
 metadate: "hide"
 categories: [ Product Design ]
 image: ""

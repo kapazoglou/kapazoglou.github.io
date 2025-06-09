@@ -1,5 +1,5 @@
 ---
-title:  "Self-published Game Design"
+title:  "Game Design & Playtesting"
 metadate: "hide"
 categories: [ Game Design, Print Design ]
 image: "https://raw.githubusercontent.com/kapazoglou/kapazoglou.github.io/refs/heads/master/assets/images/item/taromino.jpg"

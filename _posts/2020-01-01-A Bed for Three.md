@@ -1,8 +1,8 @@
 ---
-title:  "Data Visualisation & Generative Design"
+title:  "A Bed for Three"
 metadate: "hide"
 categories: [ Game Design, Print Design ]
-image: "https://raw.githubusercontent.com/kapazoglou/kapazoglou.github.io/refs/heads/master/assets/images/item/taromino.jpg"
+image: ""
 
 ---
 

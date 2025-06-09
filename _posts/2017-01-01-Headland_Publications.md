@@ -1,5 +1,5 @@
 ---
-title:  "Publication Design for Headland Archaeology"
+title:  "Publication Design"
 metadate: "hide"
 categories: [ Print Design, Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_7.png"

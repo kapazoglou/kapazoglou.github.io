@@ -1,5 +1,5 @@
 ---
-title:  "Product Design"
+title:  "Regulatory Rehaul & Flow Optimisation"
 metadate: "hide"
 categories: [ Product Design ]
 image: ""
