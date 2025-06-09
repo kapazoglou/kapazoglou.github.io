@@ -7,7 +7,7 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 ---
 
 I have written a book, currently pending publication, which is an astronomical anthology of Greek myths. Below you can see an excerpt from the Foreword along with the data visualisations I created to help me while researching the mythographic sources.
-
+<br>
 
 > ##### FOREWORD
 >
