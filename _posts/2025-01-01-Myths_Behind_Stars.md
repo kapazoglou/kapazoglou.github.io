@@ -6,4 +6,4 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-![Genealogy](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/stargen.png)
+![Genealogy](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/stargens.png)
