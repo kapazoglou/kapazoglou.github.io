@@ -2,11 +2,11 @@
 title:  "Design System Implementation & Management"
 metadate: "hide"
 categories: [ Product Design ]
-image: ""
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/NorthstarDS"
 
 ---
 
-![head](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/sistra.jpg)
+![context](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/DScontext.png)
 
 blablabla
 
