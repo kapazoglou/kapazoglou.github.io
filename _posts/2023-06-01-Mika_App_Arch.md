@@ -1,5 +1,5 @@
 ---
-title:  "Behavioural Change App Architecture"
+title:  "App Architecture for Behavioural Change"
 metadate: "hide"
 categories: [ Product Design ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/MK-101.png"
