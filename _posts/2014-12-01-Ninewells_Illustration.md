@@ -1,5 +1,5 @@
 ---
-title:  "Photography for Ninewells Hospital [CW: Surgery]"
+title:  "Ninewells Hospital Illustration [CW: Surgery]"
 metadate: "hide"
 categories: [ Photography ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_1.png"
