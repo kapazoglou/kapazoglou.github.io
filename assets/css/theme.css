@@ -7,6 +7,9 @@ body {
   font-weight:300;
   letter-spacing: 0.3px;
 }
+p{
+  font-weight: 300;
+}
 .bg-dark{
     background-color: #2b2e3a !important;
 }
@@ -71,7 +74,7 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
     margin-bottom:1rem;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-weight:700;
+    font-weight:600;
 }
 @keyframes pulse {
   0% {
@@ -159,7 +162,7 @@ footer.footer {
 	font-size:14px;
 	position:absolute;
 	bottom: 9px;
-    right: 10px;
+  right: 10px;
 	text-transform:uppercase;
 	-webkit-transform:translate(-20%,-20%);
 	transform:translate(-20%,-20%);
@@ -187,9 +190,9 @@ footer.footer {
 .card-pin.raco .notraco .card-title {
     color: #fff;
     font-size: 1em;
-    font-weight: 700;
+    font-weight: 300;
     font-family: "Asap Condensed";
-    font-style:normal;
+    font-style: normal;
 }
 .card-pin .more a {
 	text-decoration:none;
