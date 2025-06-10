@@ -14,7 +14,7 @@ As I analyzed the app’s flow, I discovered duplicate entry points, dead ends, 
 
 <br>
 
-[![loop](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/loop.png)](https://www.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=1-13168&t=BPjmrzLh8y9JKLGk-1)
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
 The project focus was designing a user-centered mobile app experience for managing mental health and therapy progress for cancer patients. My goal was to create an intuitive calendar-based system where users could easily track their daily recommendations, monitor therapy plans, and take actionable steps toward improvement.
 
@@ -24,7 +24,7 @@ To reinforce motivation, I incorporated reward mechanisms—each completed actio
 
 <br>
 
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/_Project-Selection?node-id=4-6589&embed-host=share" allowfullscreen></iframe>
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=4-6589&embed-host=share" allowfullscreen></iframe>
 
 Leveraging the platform’s expansive content library, I mapped out ways to enhance accessibility and pinpointed new opportunities for expansion. A user-centric approach guided my decision-making, prioritizing transparent and supportive design principles to avoid predatory flow structures.
 This project challenged me to blend UX research, behavioral design, information architecture, and ethical user flows into a seamless and impactful experience.
