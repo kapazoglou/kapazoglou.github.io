@@ -42,4 +42,4 @@ Supporting medication adherence was a priority, so I implemented personalized re
 
 <br>
 
-This project exemplifies the power of empathetic, patient-centered design in healthcare. By combining clinical considerations with user experience best practices, I created a tool that not only meets regulatory and business requirements but also provides tangible support, reassurance, and guidance for patients navigating their treatment journey.
+This work exemplifies the power of empathetic, patient-centered design in healthcare. By combining clinical considerations with user experience best practices, I created tools that not only meet regulatory and business requirements but also provide tangible support, reassurance, and guidance for patients navigating their treatment journey.
