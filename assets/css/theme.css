@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Vampiro+One');
 body {
-  background-color: #201b29;
+  background-color: #160335;
   color: #fff;
 	padding-top:70px;
   font-family: "Asap Condensed";
@@ -40,10 +40,12 @@ img, figure, video, iframe{
 	max-width: 100%;
 }
 a,.a:hover {
-  border-color: #6610f2;
-  border: 1px;
 	-webkit-transition:all 0.2s;
 	transition: all 0.2s;
+}
+a img{
+  border: 1px solid #6610f2;
+  border-left-width: 6px;
 }
 hr {
   border-top: 1px solid #fff;
