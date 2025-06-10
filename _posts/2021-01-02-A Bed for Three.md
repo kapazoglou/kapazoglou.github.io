@@ -6,8 +6,10 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-![head](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/sistra.jpg)
+<br>
 
-I have always loved board games and I think they are the perfect design project that combines all the skills of a good designer. I made up a game, playtested it, designed the cards and self-published it.
+![bed](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/bett.jpg)
 
+<br>
 
+![shop](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/bettkauf.jpg)
