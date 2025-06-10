@@ -47,6 +47,9 @@ a img{
   border: 1px solid #6610f2;
   border-left-width: 6px;
 }
+img:hover{
+  border-color: white;
+}
 hr {
   border-top: 1px solid #fff;
 }
@@ -133,8 +136,9 @@ footer.footer {
   transition:ease .1s;
 }
 .card-img{
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+  border: none;
 }
 .card-pin:hover .overlay {
 	opacity:.5;
