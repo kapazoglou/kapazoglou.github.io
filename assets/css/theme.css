@@ -44,8 +44,8 @@ a,.a:hover {
 	transition: all 0.2s;
 }
 a img{
-  border: 1px solid #6610f2;
-  border-left-width: 6px;
+  border: 2px solid #6610f2;
+  border-left-width: 7px;
 }
 img:hover{
   border-color: white;
