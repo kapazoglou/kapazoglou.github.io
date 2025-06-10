@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>&xutri; &xutri; &xutri;</title>
+    <meta name='author' content= 'Mano Kapazoglou'>
+    <meta name='description' content='arrange elements into polygons'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script src='../d3/d3.js'></script>
+
+ <style>
+        html,body {
+            background-color: white ;
+            font-family: 'Lucida Console', sans-serif;
+            font-size:12px; 
+            color: black;
+        }
+        
+        span {
+            font-size:12px; 
+            color: gold; 
+            cursor:pointer;
+            transition: 0.3s;
+        }
+        
+        a {
+            text-decoration: none;
+            font-size: 12px;
+            color: black;
+            transition: 0.3s;
+        }
+        
+        a:hover, a:active, a:focus{
+            color: gold;
+        }
+        svg{
+            overflow: visible;
+            margin-top: 
+        }
+        input{
+            font-family: 'Lucida Console';
+            font-size: 9px;
+        }
+        text {
+            font-family: 'Lucida Console';
+            font-size: 9px;
+            text-anchor: middle;
+            fill: black;
+        }
+
+    </style>
+</head>
+<body>
+<div id='main'>
+    <link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+    <a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: black; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a> /
+    <span onclick="init();">&xutri;&nbsp;&xutri;&nbsp;&xutri;</span>&nbsp;/
+    <input id="input" type="number" min="3" value="10" onchange="init()">
+    <!--a href='http://www.maths.surrey.ac.uk/hosted-sites/R.Knott/Figurate/figurate.html'>ref</a-->
+</div><br>
+</body>
+<script>
+
+//DECLARE
+let num = 0
+let txt = 0
+let sz = 100
+let hsz = sz/2
+let pad = 15
+
+init();
+
+//DRAWING
+function init(){
+    d3.select('#cont').remove();
+    num = parseInt( document.getElementById("input").value )
+    d3.select('body').append('div').attr('id','cont')
+    centred( num )
+    //d3.select('#cont').append('br')
+    //simplex( num )
+}
+
+function addSVG(){
+    txt = num-1
+    d3.select('#cont')
+        .append('svg')
+        .attr('width', '0' )
+        .attr('height', '0' )
+        .append('g')
+}
+
+function drawPoint(val,x,y){
+        var svg = d3.selectAll('svg:last-child')
+        var bbox = svg.node().getBBox()
+
+        svg.append('text')
+            .text( val )
+            .attr('x', x)
+            .attr('y', y)
+            .attr('transform','rotate(0,'+x+','+y+')')
+
+        svg = d3.selectAll('svg:last-child')
+        svg
+           .attr("viewBox", (bbox.x-20)+" "+(bbox.y-20)+" "+(bbox.width+40)+" "+(bbox.height+40))
+           .attr("width", (bbox.width+40)  + "px")
+           .attr("height",(bbox.height+40) + "px")
+}
+
+//GEOMETRY
+function simplex(number){
+    for ( let j = unchoose(number).length-1; j > 0; j--){
+        let x = 0;
+        let y = 0;
+        let n = unchoose(number)[j][0];
+        let k = unchoose(number)[j][1];
+        let d = [];
+
+        addSVG();
+
+        (function loop(index) {
+          let start = (index === 0 ? 0 : d[index-1]+1);   
+          if (index === k) {
+
+            return drawPoint(txt--,x*pad,y*pad);
+          }
+
+          x += Math.sqrt(3)/2;
+          for (let i = start; i < n; i++) {
+            y = i-start/2;
+            d[index] = i;
+            loop(index + 1);
+          }
+        }(0));
+    }
+}
+
+function polygon(number) {    
+    for(let side = 3; side < number ; side++) {
+        for(let count = 1 ; count <= 30 ; count++) {
+            if((side*count*count + side*count +2) / 2 == number) { 
+                
+                addSVG(); // A
+
+                for(let ring = count ; ring > 0 ; ring--) {
+                    let pts = [];
+                    let interval = (pad+hsz)/count;
+                    let radius = ring * interval;
+
+                    pts.push([hsz+radius, hsz]);
+
+                    let cor = 1;
+                    let angle = 0;
+
+                    for(let s = side; s > cor; s--) {
+
+                        angle += Math.PI * 2 / side;
+                        let x = Math.cos(angle) * radius -cor*radius;
+                        let y = Math.sin(angle) * radius;
+                        pts.push([hsz + x, hsz + y]);
+                    }
+
+                    for(let j = 0; j < pts.length; j++) {
+
+                        let x = pts[j][0];
+                        let y = pts[j][1];
+                        let dx = pts[(j+1) % side][0] - x;;
+                        let dy = pts[(j+1) % side][1] - y;
+
+                       drawPoint(txt--,x,y)//rings B
+
+                        for(let k = ring; k > 1; k--) {
+                            x += dx / ring;
+                            y += dy / ring;
+
+                           drawPoint(txt--,x,y)//intervals B
+
+                        }
+                    }
+                }
+
+                x = hsz
+                y = hsz
+                drawPoint(txt--,x,y); //centre point B
+
+                break;
+            }
+        }
+    }
+}
+
+function centred(number) {    
+    for(let side = 3; side < number+1 ; side++) {
+        for(let count = 1 ; count <= 30 ; count++) {
+            if((side*count*count + side*count + 2) / 2 == number) { 
+                
+                addSVG(); // A
+
+                let interval = (pad+hsz)/count;
+
+                for(let ring = count ; ring > 0 ; ring--) {
+
+                    let pts = [], radius = ring * interval;
+                    pts.push([hsz + radius, hsz]);
+
+                    let angle = 0;
+                    for(let s = side ; s > 0; s--) {
+                        angle += Math.PI * (2 / side);
+                        let x = Math.cos(angle) * radius;
+                        let y = Math.sin(angle) * radius;
+                        pts.push([hsz + x, hsz + y]);
+                    }
+
+                    for(let j = 1; j < pts.length; j++) {
+                        let x = pts[j][0];
+                        let y = pts[j][1];
+                        let dx = pts[(j+1) % side][0] - x;
+                        let dy = pts[(j+1) % side][1] - y;
+
+                        drawPoint(txt--,x,y)//rings B
+
+                        for(let k = ring; k > 1 ; k--) {
+                            x += dx / ring;
+                            y += dy / ring;
+
+                        drawPoint(txt--,x,y)//intervals B
+                        }
+                    }
+                }
+                x = hsz
+                y = hsz
+
+                drawPoint(txt--,x,y); // centre point B
+                break;
+            }
+        }
+    }
+}
+
+//COMBINATORICS
+function choose(n,k){
+    let result = 1;
+    for (let i=1; i <= k; i++){
+        result *= (n+1-i)/i;
+    }
+    return result;
+}
+
+function multichoose(n,k){
+    choose(n+k-1,k)
+}
+
+function unchoose(number){
+    let result=[]
+    for( let n = 0; n <= number; n++ ){
+        for( let k=0; k <= 1+n/2; k++ ){
+            if( choose(n,k) == number){
+                result.push([n,k])
+            }
+        }
+    }
+    return result.reverse()
+}
+
+</script>
+</body>
+</html>
