@@ -18,6 +18,6 @@ The story follows Fred, Timo, and Jona, whose search for the perfect sleeping ar
 
 ![shop](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/bettkauf.jpg)
 
-The film was selected for festivals like BFI Flare: London LGBTQIA+ Film Festival 2024, bringing its playful take on relationships and space to audiences. Writing this project was an exciting and collaborative process, blending humor and heartfelt moments into a unique story.
+The film was selected for festivals like BFI Flare: London LGBTQIA+ Film Festival 2024 and Cannes, bringing its playful take on relationships and space to audiences. Writing this project was an exciting and collaborative process, blending humor and heartfelt moments into a unique story.
 
 [VIMEO](https://vimeo.com/780827126) [IMDB](https://www.imdb.com/title/tt28539742/) [REVIEWS](https://letterboxd.com/film/a-bed-for-three-or-the-extraordinary-and-surprising-complexity-of-bedroom-furniture/) 
