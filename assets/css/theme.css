@@ -40,6 +40,8 @@ img, figure, video, iframe{
 	max-width: 100%;
 }
 a,.a:hover {
+  border-color: #6610f2;
+  border: 1px;
 	-webkit-transition:all 0.2s;
 	transition: all 0.2s;
 }
