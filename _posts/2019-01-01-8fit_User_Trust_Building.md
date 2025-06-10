@@ -2,14 +2,14 @@
 title:  "User Trust Building"
 metadate: "hide"
 categories: [ Product Design, Storytelling ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-1.png"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit_trust.png"
 
 ---
 
-8fit, the fitness app, needed a soft rebrand to align better with the new company values. I conceptualised the new identity, wrote the brand guidelines and designed the presentation slides. 
+During internally turbulent times, 8fit was losing the trust of its prospective users which was only made worse with an unfortunate data breach
 
-![moodboard](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-2.png)
+<br>
 
-![collage](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-3.png)
+![chest](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/HipFlexors.png)
 
-![colors](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit-artDir-prezDes-4.png)
+The challenge was to regain user trust, reduce negative reviews, improve company image as well as a soft pivot and rebrand.
