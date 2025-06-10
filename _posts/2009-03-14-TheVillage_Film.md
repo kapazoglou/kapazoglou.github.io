@@ -1,5 +1,5 @@
 ---
-title:  "'The Village' stop-motion film"
+title:  "'The Village' Stop-motion Film"
 metadate: "hide"
 categories: [ Animation, Storytelling ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/chorio-artDir-anim-2.png"
