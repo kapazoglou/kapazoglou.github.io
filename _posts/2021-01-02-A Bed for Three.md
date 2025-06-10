@@ -10,7 +10,7 @@ A Bed for Three or The Extraordinary and Surprising Complexity of Bedroom Furnit
 
 <br>
 
-![bed](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/bett.jpg)
+![bed](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/bett.jpeg)
 
 The story follows Fred, Timo, and Jona, whose search for the perfect sleeping arrangement turns into a relationship crisis—with a vaping fairy godmother unexpectedly stepping in to help. 
 
