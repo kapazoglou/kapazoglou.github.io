@@ -24,9 +24,7 @@ To reinforce motivation, I incorporated reward mechanisms—each completed actio
 
 <br>
 
-[![discover](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/discover.png)](https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=1-23229)
-
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=1-23229&embed-host=share" allowfullscreen></iframe>
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/_Project-Selection?node-id=4-6589&embed-host=share" allowfullscreen></iframe>
 
 Leveraging the platform’s expansive content library, I mapped out ways to enhance accessibility and pinpointed new opportunities for expansion. A user-centric approach guided my decision-making, prioritizing transparent and supportive design principles to avoid predatory flow structures.
 This project challenged me to blend UX research, behavioral design, information architecture, and ethical user flows into a seamless and impactful experience.

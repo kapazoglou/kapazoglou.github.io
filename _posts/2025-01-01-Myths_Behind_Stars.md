@@ -24,4 +24,5 @@ I have written a book, currently pending publication, which is an astronomical a
 > And so an alternative way to organise the constellations emerged, through the characters they stand for. By using names as starting points and drawing lines between them a genealogy was figured out. These lines united dozens of names into families, making them easier to recognise and remember, often providing further context to their stories and serving as pathways for an exploration of Greek myth. Additionally, this family tree engendered a sense of time, or at least timing, as some names had to precede others simply due to their blood relation. This meant there was a sequence that could be traced from the earliest creation myths down to some of the most well known heroic deeds.
 
 <br>
-[![genealogy](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/stargens.png)](https://drive.google.com/file/d/1Z-i7lT0JNe--8IUeHVzYBpjU_by14m0G/view?usp=sharing)
+
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=10-6592&embed-host=share"></iframe>
