@@ -1,5 +1,5 @@
 ---
-title:  "Hospital Illustration [CW: Surgery]"
+title:  "NHS Hospital Illustration [CW: Surgery]"
 metadate: "hide"
 categories: [ Photography, Medical Illustration ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_1.png"

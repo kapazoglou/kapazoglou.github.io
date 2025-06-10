@@ -1,5 +1,5 @@
 ---
-title:  "Feature Development for Cancer Patients"
+title:  "Cancer Patient Support Features"
 metadate: "hide"
 categories: [ Product Design, Patient Communication ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/distress.png"

@@ -1,5 +1,5 @@
 ---
-title:  "Short film scriptwriting"
+title:  "Short Film Scriptwriting"
 metadate: "hide"
 categories: [ Storytelling]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Bettina.jpg"
