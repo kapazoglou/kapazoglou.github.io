@@ -2,7 +2,7 @@
 title:  "Archaeological Publication Design"
 metadate: "hide"
 categories: [ Print Design, Data Viz, Illustration ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_7.png"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/kinfauns.jpg"
 
 ---
 
