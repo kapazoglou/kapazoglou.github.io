@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0062)http://users.telenet.be/vdmoortel/dirk/Maths/permutations.html -->
+<HTML><HEAD><TITLE>JavaScript Permutations Generator v3.9</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="Dirk Van de moortel" name=Author>
+<META content=permutations,permutation,generator,duplicates,javascript 
+name=Keywords>
+<SCRIPT language=javascript>
+
+var d=0;
+  var inputstring= 'abcdef'
+  var maxoutput=1000;
+  var sort_input=true;
+  var display_list=true;
+  var allow_adjacent_equals=true;
+  var circular_only=true;
+  var necklace_only=false;
+  var derange_only=false;
+  var shuffle=false;
+
+function GeneratePermutations() {
+  var chars = new Array();
+  var charray = new Array();
+  var frequency = new Array();
+  var inputchar, ii, jj, cc, ccc, numchars, nn=0;
+
+  var perms = 0;
+  var output_text = "\n";
+  var new_perm = "";
+  var circular = false;
+  var test_perm = "";
+  var okay = true;
+  var firstcomma = -1;
+  var busy = true
+  var insertat = 0;
+  var dmax=d;
+  
+  for (ii=0; ii<numchars; ii++) {
+    inputchar = chars[ii];
+    cc = -1;
+
+    for (ccc=0; ccc<charray.length; ccc++) { if (inputchar == charray[ccc]) cc = ccc; }
+
+    if (cc<0) {
+      charray[charray.length] = inputchar;
+      frequency[frequency.length] = 1;
+    } else {
+      frequency[cc]++;
+    }
+  }
+
+  d = 0;
+
+  for (ii=0; ii<frequency.length; ii++) {
+    cc = frequency[ii];
+    for (jj=0; jj<cc; jj++) {
+      a[d] = nn;
+      d++;
+    }
+    nn++;
+  }
+
+
+  do {    
+      okay = true;
+      new_perm = "";
+
+        for (ii=0; ii<dmax; ii++) {
+          new_perm = new_perm + charray[a[ii]];
+        }
+        if (circular_only) {
+          test_perm = new_perm;
+          for (ii=0; ii<dmax-1; ii++) {
+            test_perm = test_perm.substring(1,dmax) + test_perm.substring(0,1);
+            if ( output_text.indexOf(test_perm) >-1 ) okay = false;
+          }
+          if (! allow_adjacent_equals) {
+            if (a[0] == a[dmax-1]) okay = false;
+          }
+
+          if (necklace_only) {
+            test_perm = "";
+            for (ii=0; ii<dmax; ii++) {
+              test_perm = new_perm.substring(ii,ii+1) + test_perm;
+            }
+            for (ii=0; ii<dmax; ii++) {
+              test_perm = test_perm.substring(1,dmax) + test_perm.substring(0,1);
+              if ( output_text.indexOf(test_perm) >-1 ) okay = false;
+            }
+          }    
+        }
+
+      if (okay) {
+        perms++;
+      }
+
+  } while( nextperm() && busy );
+
+return test_perm
+}
+
+
+function nextperm() {
+  var i, j, k, swap, s, si;
+  a = new Array();
+
+  for (k=d-2; k>=0; k--) {
+    if (a[k] < a[k+1]) {
+      s  = a[k+1];
+      si = k+1;
+      for (i=k+2; i<d; i++) {
+        if ((a[i]>a[k])&&(a[i]<s)) {
+          s = a[i];
+          si = i;
+        }
+      }
+      swap  = a[si];
+      a[si] = a[k];
+      a[k]  = swap;
+      for (i=k+1; i<d-1; i++) {
+        for (j=i+1; j<d; j++) {
+          if (a[i]>a[j]) {
+            swap = a[i];
+            a[i] = a[j];
+            a[j] = swap;
+          }
+        }
+      }
+      return(true);
+    }
+  }
+  return(false);
+}
+
+console.log(GeneratePermutations())
+
+</SCRIPT>
+
+</HEAD>
+
+<BODY>
+
+</BODY>
+
+</HTML>

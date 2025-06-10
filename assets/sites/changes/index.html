@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3-scale-radial.js"></script>
+<style>
+    html, body{
+        background-color: gainsboro;
+        color: white;
+        font-family: 'Lucida Console', sans-serif;
+        font-size:12px;
+    }
+
+    #main{
+        text-align: left;
+        }
+
+    a {
+        cursor:pointer;
+        text-decoration: none;
+        font-size: 12px;
+        text-align: right;
+        color: white;
+        transition: 0.3s;
+    }
+
+    a:hover, a:active, a:focus{
+        color: gray;
+    }
+
+    path {
+        stroke: white;
+	    	stroke-width: 1px;
+	    	stroke-linecap: round;
+	    	stroke-linejoin: round;
+	    	fill: none ;
+	    }
+
+    text{
+        fill: gray;
+        cursor: pointer;
+    }
+
+    text:hover {
+        fill: ivory;
+    }
+
+</style>
+</head>
+<body>
+<div id='main'>
+<link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+<a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: tomato; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a>&nbsp;/&nbsp;changes&nbsp;/
+<a onclick="clearInterval(int)"></a>
+</div>
+
+<div id='cast'></div>
+
+<div id='44'></div>
+
+<script>
+var int;
+var wen = [2,24,7,19,15,36,46,11,16,51,40,54,62,55,32,34,8,3,29,60,39,63,48,5,45,17,47,58,31,49,28,43,23,27,4,41,52,22,18,26,35,21,64,38,56,30,50,14,20,42,59,61,53,37,57,9,12,25,6,10,33,13,44,1];
+
+var bin = [];
+var cnt = [];
+var obj;
+var rec = 65;
+var pks = []
+var hexO;
+var hexN;
+
+var phi = d3.scaleLinear()
+    .range([0, 2*Math.PI]).domain([0,64]);
+
+var rad = d3.scaleRadial().domain([0,0]).range([0,180])
+
+var line = d3.radialLine()
+             .angle( d => phi(d.key) )
+             .radius(d => rad(d.value) )
+             //.curve(d3.curveBasisClosed)
+             //.curve(d3.curveCardinalClosed)
+
+for (var i = 0; i < 64; i++) {
+    cnt.push([]);
+    cnt[i].push(64)
+    cnt[i].push(i)
+
+}
+
+    d3.select('#cast')
+      .append('svg')
+      .attr('width',400)
+      .attr('height',400)
+
+
+    d3.select('svg')
+      .append('g')
+      .attr('transform', 'translate(200,200)')
+
+    d3.select('g')
+      .selectAll('text').data(d3.range(0, 64, 1)).enter()
+      .append("a")
+      .attr("xlink:href", d => "#"+wen[d])
+      .attr("onclick", clearInterval(int))
+      .append('text')
+      .attr('x', d => 180*Math.cos((-Math.PI/2)+phi(d)) )
+      .attr('y', d => 180*Math.sin((-Math.PI/2)+phi(d)) )
+      .attr('dominant-baseline','middle')
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 14)
+      .attr('font', 'Lucida Console')
+      .attr('fill', '#000')
+      .attr('stroke', 'none')
+      .attr('transform', d => 'rotate('+phi(d)*18.25*Math.PI+' '+180*Math.cos((-Math.PI/2)+phi(d))+' '+180*Math.sin((-Math.PI/2)+phi(d))+')')
+      .text( d => String.fromCharCode(19903+ wen[d] ));
+
+
+hexagram();
+
+function hexagram(){
+    var lines = [];
+    var hexes = [];
+    var hex;
+
+    for(var i = 6; i > 0; i--){
+       line();
+    }
+
+    function line(){
+        var lineN;
+        var ascii;
+    
+        var arr = [];
+        var trend = [];
+        var sign = 1
+        var max = 1;
+
+        int = setInterval(cast,40);
+    
+        function cast(){
+            var check = (arr.filter(d => d < 0.5).length - arr.filter(d => d > 0.5).length);
+            var yarrow = 8*sign*check/max;
+
+            arr.push(Math.random());
+
+            (Math.abs(check) > max)? max = Math.abs(check) : max = max;
+            ( check == 0)? trend = [] : trend = trend;
+            (arr[arr.length-1] > arr[arr.length-2])? trend.push(1): trend.push(-1);
+            
+            if( yarrow > 0 ){
+                lineN = 1; 
+                ascii = "=========";
+            }else
+
+            if( yarrow < 0 ){
+                lineN = 0; 
+                ascii = "===   ==="; 
+            }else
+
+            if( yarrow == 0){
+                return
+            }
+
+            
+            lines.push(lineN)
+            
+            if (lines.length%6 == 0){
+                for (var i=0; i < lines.length; i+=6) {
+                    hexes.push(lines.slice(i,i+6));
+                }
+            obj =  d3.nest().key(d => d).rollup(d => d.length).entries(bin.sort( (a,b) => (b-a) ));
+            hex = hexes[hexes.length-1].join('')
+            bin.push( parseInt(hex,2) )
+            }
+            
+            cnt[parseInt(hex,2)][0] += 1;
+
+            rec = d3.max( cnt, d => d3.max(d) )
+
+            for( var i = 0; i < cnt.length; i++){
+                ( cnt[i][0] == rec)? (pks.push(cnt[i][1]), hexO = pks[pks.length-1], (hexO != pks[pks.length-2])? hexN = pks[pks.length-2]: hexN = hexN): hexO = hexO;
+            }
+
+            draw();
+            //console.log(obj)
+            //console.log(ascii+'  '+yarrow)
+            console.log( rec +'  '+ hex +'  '+ wen[parseInt(hex,2)] +'  new:'+ wen[hexN] +' old:'+ wen[hexO] +' change:'+ (hexO ^ hexN).toString(2))
+        } 
+
+    }
+    
+}
+
+    
+function draw(){
+    rad = d3.scaleRadial().domain([0, rec/9]).range([40,149])
+
+    d3.selectAll('path').remove()
+    d3.select('g')
+      .append('path')
+      .attr('d', line(obj)+'z')
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<head>
+    <title>364+1</title>
+    <meta name='author' content= 'Mano Kapazoglou'>
+    <meta name='description' content='Arrangements of one and 12 multichoose 3 as 365 days in a calendar'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script src='../d3/d3-grid.js'></script>
+    <script src='../d3/d3-comparator.js'></script>
+    <style>
+        body {
+            background-color: gray;
+            font-family: 'Lucida Console';
+            font-size: 12px;
+            color: darkgray;
+        }
+        span{ 
+            color: azure;
+         }
+        a {
+            text-decoration: none;
+            transition: 0.3s;
+
+        }
+        a:link, a:visited{
+            color: darkgray;
+        }
+        a:hover {
+            color: azure;
+        }
+        a:active, a:focus{
+            color: azure;
+        }
+    </style>
+</head>
+
+<body>
+<link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+<a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: white; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a> /
+<span>364 days</span> /
+<a href='#' class='sort-btn' data-sort='week'>fortnights</a>&nbsp;/
+<a href='#' class='sort-btn' data-sort='part'>thirty&#8209;one</a>&nbsp;/
+<a href='#' class='update' onclick='part()'>smooth&nbsp;31</a>&nbsp;/
+<a href='#' class='update' onclick='reset()'>polygon&nbsp;31</a>
+
+<script>
+//DECLARE
+var num = 12;
+var len = 3;
+var data = multi(Array.from(Array(num).keys()), len).map( (d,i) => ({
+       v: d
+    ,
+       i: d.join(' ')
+    }));
+
+//SORT
+var layout = {
+    week: { order: d3.comparator()
+            .order(d3.ascending, d => d.v[0] )
+            .order(d3.ascending, d => d.v[1] )
+            .order(d3.ascending, d => d.v[2] )
+            ,
+            clm: 14 
+        },
+
+    indx: { order: d3.comparator()
+            .order(d3.ascending, d => d.v[0] )
+            .order(d3.ascending, d => d.v[1] )
+            .order(d3.ascending, d => d.v[2] )
+            ,
+            clm: 13 
+        },
+
+    mont: { order: d3.comparator()
+            .order(d3.ascending, d => d.v[0] )
+            .order(d3.ascending, d => d.v[1] )
+            .order(d3.ascending, d => d.v[2] )
+            ,
+            clm: 12 
+        },
+
+    part: { order: d3.comparator()
+            .order(d3.ascending, d => [d.v[1] - d.v[0], d.v[2] - d.v[1], num+d.v[0] - d.v[2]].sort( (a,b) => (a-b) )) // PERMUTATION
+            .order(d3.ascending, d => parity([d.v[1] - d.v[0], d.v[2] - d.v[1], num+d.v[0] - d.v[2]]) )//PERMUTATION PARITY
+            .order(d3.ascending, d => [d.v[1] - d.v[0], d.v[2] - d.v[1], num+d.v[0] - d.v[2]] ) //PARTITION ORDER
+            .order(d3.ascending, d => Math.min(d.v[0], d.v[1], d.v[2])) //VALUE
+            ,
+            clm: 12 
+        }
+}
+
+var colorScale = d3.scaleLinear().domain([0,4.33,8.66,13]).range(['yellow','cyan','lightpink','yellow']).interpolate(d3.interpolateHcl)
+
+//GRID
+var grid = d3.grid()
+    .cols([layout.indx.clm])
+    .size([(layout.indx.clm-1) * 32, (Math.ceil(data.length / layout.indx.clm) - 1) * 16])
+
+d3.selectAll('.sort-btn')
+    .on('click', function(d) {
+    data.sort(layout[this.dataset.sort].order)
+    grid = d3.grid()
+        .cols([layout[this.dataset.sort].clm])
+        .size([(layout[this.dataset.sort].clm - 1) * 32, (Math.ceil(data.length / layout[this.dataset.sort].clm) - 1) * 16])
+        update();
+    });
+
+//WINDOW
+var svg = d3.select('body')
+    .append('svg')
+    .attr('width', '100%')
+    .attr('height', '600px')
+    .append('g')
+    .attr('transform', 'translate(0,20)')
+
+update();
+
+function update(){
+var node = svg.selectAll('.node')
+    .data(grid(data), d => d.v );
+
+    vert = node.enter()
+    .append('g')
+    .attr('class','node')
+    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')')
+
+    node.transition().duration(42*8).delay( (d,i) => i )
+    .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')' );
+
+    vert.selectAll('text')
+    .data( d => d.v ).enter()
+    .append('text')
+    .text( d => String.fromCharCode( ( d < 9 ) ? (d + 49) : (d + 79) )) // d + 9800 ) //zodiac
+    .attr('transform', (d,i) => 'translate(' + i*8+ ', 0)' )
+    .style('fill', (d,i) => colorScale(d) )
+
+    node.exit().transition().remove();
+}
+
+function part(){
+    data = [].concat.apply([], chunk(data.sort(layout.part.order), layout.part.clm).sort( d3.comparator()
+    .order(d3.ascending, d => d[0].v[0] )
+    .order(d3.ascending, d => d[0].v[1] )
+    .order(d3.ascending, d => d[0].v[2] ) 
+))
+    grid.cols([layout.part.clm])
+        .size([(layout.part.clm-1) * 32, (Math.ceil(data.length / layout.part.clm) - 1) * 16])
+
+    update();
+}
+
+function reset(){
+svg.selectAll('.node')//.data(data, d => d.v )
+    .transition().duration(42*8).delay( (d,i) => i )
+    .attr('transform', (d,i) => 'translate(' + Math.round(100*( // offset, radius, polygon divisor
+
+            176 + 0*(i%12) +
+             44 * (4 - Math.min( d.v[1] - d.v[0], d.v[2] - d.v[1], num + d.v[0] - d.v[2] )) * Math.sin( Math.PI * (1 + i * 2  / (
+              3 * (4 - Math.min( d.v[1] - d.v[0], d.v[2] - d.v[1], num + d.v[0] - d.v[2] )) + Number.EPSILON)) ) ))/100
+
+    + ',' + Math.round(100*(
+
+            176 + 0*(i%12) +
+             44 * (4 - Math.min( d.v[1] - d.v[0], d.v[2] - d.v[1], num + d.v[0] - d.v[2] )) * Math.cos( Math.PI * (1 + i * 2  / (
+              3 * (4 - Math.min( d.v[1] - d.v[0], d.v[2] - d.v[1], num + d.v[0] - d.v[2] )) + Number.EPSILON)) ) ))/100
+
+    + ')' )
+}
+
+//FUNCTIONS
+function multi(a, l) {
+    if (l === void 0) l = a.length;
+    var d = Array(l),
+        c = [];
+    (function f(p, s) {
+        if (p === l) {
+            c.push(d.slice());
+            return;
+        }
+        for (var i = s; i < a.length; i++) {
+            d[p] = a[i];
+            f(p + 1, i);
+        }
+    })(0, 0); 
+    return c;
+}
+
+function parity(p){
+        var sgn = 1
+    for(var i=0; i<p.length; ++i) {
+      for(var j=0; j<i; ++j) {
+        if(p[i] < p[j]) {
+          sgn = -sgn
+        } else if(p[i] === p[j]) {
+          return 0
+        }
+      }
+    }
+    return sgn
+}
+
+chunk = (arr, n) => arr.slice(0,(arr.length+n-1)/n|0).map( (c,i) => arr.slice(n*i,n*i+n) )
+
+flip = (a,b) => [].concat.apply([], d3.transpose(chunk(a, a.length/b)))
+
+</script>
+</body>

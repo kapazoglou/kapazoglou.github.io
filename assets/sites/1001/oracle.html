@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+<title></title>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="../d3/d3-scale-radial.js"></script>
+<script src="./qrng.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Nunito:300,400,300i|Arvo|Vampiro+One" rel="stylesheet">
+<style>
+    html, body{
+        overflow-x: hidden;
+        background-color: whitesmoke;
+        color: gray;
+        font-family: 'Nunito', sans-serif;
+        font-size:12px;
+        font-weight: 400;
+        text-align: left;
+    }
+
+    ::selection {
+        background: tomato; /* WebKit/Blink Browsers */
+    }
+    ::-moz-selection {
+        background: tomato; /* Gecko Browsers */
+    }
+    
+    /* width */
+    ::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    /* Track */
+    ::-webkit-scrollbar-track {
+        width: 4px;
+        background: gainsboro; 
+    }
+     
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background: tomato; 
+    }
+    
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: white; 
+    }
+
+    a {
+        cursor:pointer;
+        text-decoration: none;
+        font-size: 12px;
+        text-align: right;
+        color: gray;
+        transition: 0.3s;
+    }
+
+    a:hover, a:active, a:focus{
+        color: tomato;
+    }
+
+    path {
+        stroke-width: 1px;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none ;
+      }
+
+    #mainline{
+        stroke: tomato;
+    }
+
+    #probline{
+        stroke: white;
+        fill: white ;
+    }
+
+    text{
+        fill: white;
+        cursor: pointer;
+    }
+
+    tspan:hover {
+        fill: tomato;
+    }
+
+    tspan:active {
+        fill: tomato;
+    }
+
+    h1 {
+        margin: 16px 0 20px 0;
+        font-family: 'Vampiro One', serif;
+        font-size: 36px;
+        color: black;
+    }
+
+    h3{
+        margin: 0;
+        padding: 0;
+        font-family: Arvo, sans-serif;
+    }
+
+    #old h3{
+        color: tomato;
+    }
+
+    svg{
+      height: auto;
+      width: 90%;
+      min-width: 320px;
+      max-width: 400px;
+      overflow: visible;
+      margin: 10px;
+    }
+    #intro, #console {
+        margin: 20px;
+        color: gray;
+        text-align: center;
+    }
+    #console{
+      color: gray;
+      font-weight: 300;
+    }
+    #cast{
+      display:flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #wilhelm, #legge{
+        display: flex;
+        padding: 0 20px;
+      font-weight: 400;
+      color: dimgray;
+    }
+    #old{
+      display:block;
+      text-align: left;
+      width: 67%;
+    }
+    #new{
+      display: none;
+      width: 33%;
+      text-align: right;
+      background: none; /*ivory*/
+    }
+    .hexLn{
+       letter-spacing: -1px;
+       fill: gray;
+    }
+    .hexNo{
+        letter-spacing: normal;
+        fill: gray;
+    }
+    .selectedH{
+      fill: tomato;
+      font-weight: bold
+    }
+    .previousH{
+      fill: darkslategray;
+      font-weight: bold  
+    }
+    .hexagram{
+        display: none;
+        flex-direction: row-invert;
+        width: 100%;
+    }
+    #old .text{
+        order: 0;
+        width: 50%;
+        background: none; /*azure;*/
+        text-align: left;
+    }
+    #new .text{
+        width: 100%;
+    }
+    .judgment,.image{
+      margin-top: 10px;
+    }
+    .visible{
+      display: flex;
+      margin: 10px 0;
+    }
+    .lines{
+        padding: 20px;
+        order: 1;
+        width: 47%;
+        text-align: center;
+        background: none; /*lavenderblush;*/
+    }
+    .line{
+      margin-top: 10px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .comment{
+        font-weight: 300;
+        display: none;
+        color: gray;
+        margin: 20px 0
+    }
+
+    #curve, #comswitch, #crvswitch{
+      display:none;
+    }
+    .btn{
+      cursor: pointer;
+      fill: tomato;
+    }
+    text.btn{
+      font-family: Arvo;
+      font-size: 12px;
+      fill: white;
+    }
+
+    @media(max-width: 600px ){
+        #wilhelm{
+            display: block;
+        }
+      .visible{
+        display: block;
+      }
+      #old{
+        width: 100%;
+        margin: 0 0 20px 0;
+      }
+      #new{
+        width: 100%;
+        margin: 0 0 20px 0;
+        text-align: center;
+      }
+      #old .text{
+        margin: 10px 0;
+        width: 100%;
+        text-align: center;
+      }
+      .lines{
+          width: auto;
+      }
+    }
+</style>
+</head>
+<body>
+
+  <!--<h1>
+<span id="logo">
+          <svg width="24" height="24" viewBox='0 0 8 8'>
+            <g>
+              <polygon style="fill: tomato" points="8,8 0,8 0,0   "/>
+              <polygon style="fill: gray;" points="0,8 0,0 8,0   "/>
+              <circle  style="fill: tomato;" cx="1" cy="2" r="2"/>
+              <rect    style="fill: tomato;" width="1" height="4"/>
+            </g>
+          </svg>
+        </span>
+      Statistical&nbsp;Yi&nbsp;Jing
+    </h1>-->
+
+<br>
+<div id='cast'></div>
+<div id="intro"><br>A statistical perspective on the Yi Jing oracle.<br><br>
+  <!--Lots are constantly being cast and the most frequent hexagram at the moment is pointed out by a spike.<br>-->
+</div><br>
+<div id='console'></div>
+
+
+<script>
+
+    //var q = new QRNG();
+
+    var sz = 180;
+    var pad = sz+sz/9; 
+
+    var phi = d3.scaleLinear().domain([0,77]).range([Math.PI/2,-3*Math.PI/2]);
+    var rad = d3.scaleRadial().range([0,sz*2])
+    var prad = d3.scaleRadial().range([0,1])
+
+    var char = 19903;
+    drawRing();
+
+    var curve = d3.curveLinear
+    var radial = d3.radialLine()
+                 .radius(d => rad( d[1] ))
+                 .angle( d => phi(ring(d[0]))+Math.PI/2 )
+                 .curve(curve)
+    var pradial = d3.radialLine()
+             .radius(d => prad( d[1] ))
+             .angle( d => phi(ring(d[0]))+Math.PI/2 )
+             .curve(curve)
+    var roll;
+    var obj;
+    var avg;
+    var avg2;
+    var avg3;
+    var sum = Object.assign({}, [...Array(64)])
+    var oldhex;
+    var newhex;
+    var changes;
+    var chex = '';
+
+    var peak;
+    var peak2;
+    var rec = 1;
+    var rec2 =1;
+    var dom = 64;
+    var dom2 = 64;
+    var oldom;
+    var bhex
+
+    function fuxi(a){
+      var arr = [2,23,8,20,16,35,45,12,15,52,39,53,62,56,31,33,7,4,29,59,40,64,47,6,46,18,48,57,32,50,28,44,1,43,14,34,9,5,26,11,10,58,38,54,61,60,41,19,13,49,30,55,37,63,22,36,25,17,21,51,42,3,27,24];
+      return arr[a]
+    }
+
+    function ring(a){
+      var arr = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,63,62,61,60,59,58,57,56,55,54,53,52,51,50,49,48,47,46,45,44,43,42,41,40,39,38,37,36,35,34,33,32]
+      return arr[a]
+    }
+
+    function xbin(a){
+
+      return ("000000"+ a.toString(2) ).substr(-6);
+    }
+
+    function flip(a){
+
+      return a.split('').reverse().join('')
+    }
+
+    function hexagram(){
+        d3.selectAll('#intro').style('display','none')
+        d3.selectAll('.btn').style('display','none')
+
+        var lines = [];
+        var sextet = [];
+        var hex;
+    
+        for(var i = 6; i > 0; i--){
+           castLine();
+        }
+    
+        function castLine(){
+            var lineN;        
+            var arr = [];
+            var sign = 1
+            var max = 1;
+    
+            setInterval(cast, 120)
+        
+            function cast(){
+
+                //var random = q.getInteger(0,255)
+                var random = Math.random()*255
+                var check = (arr.filter(d => d == 0).length - arr.filter(d => d == 1).length);
+                var yarrow = 8*sign*check/max;
+                arr.push( ((random < 128)? 0: ((random >= 128)? 1 : -1) )) ;
+                (Math.abs(check) > max)? max = Math.abs(check) : max = max;
+
+                if( yarrow > 0 ){
+                    lineN = 7;
+                    if ( yarrow < 3 ){
+                      lineN = 9
+                    }
+                }else 
+                if( yarrow < 0 ){
+                    lineN = 8; 
+                    if ( yarrow > -1 ){
+                      lineN = 6
+                    }
+                }else
+                if( yarrow == 0){
+                    return
+                }
+
+                lines.unshift(lineN)
+                if (lines.length == 6){
+                    bhex = lines.reverse().join('').replace(/6/g,'1').replace(/7/g,'1').replace(/8/g,'0').replace(/9/g,'0')
+                    hex = parseInt(bhex,2)
+                    
+                  if(sum[hex] != undefined ){
+                    sum[hex] += parseFloat(comp(xbin(dom),flip(xbin(hex))));
+                    for(var k in sum){
+                      (sum[k] != undefined)? sum[k] /= rec/100 : sum[k];
+                    }
+                  }else{ 
+                    sum[hex] = 1;
+                  }
+                  lines = []
+                }
+
+                if(sum != null){
+                  obj = Object.entries(sum).filter( d => d[1] != undefined )
+                  rec = parseFloat(obj.sort( (a,b) => (b[1]-a[1]))[0][1])
+                  peak = parseInt(obj.sort( (a,b) => (b[1]-a[1]))[0][0])
+                  rec2 = parseFloat(obj.sort( (a,b) => (b[1]-a[1]))[1][1])
+                  peak2 = parseInt(obj.sort( (a,b) => (b[1]-a[1]))[1][0])
+                  avg = d3.mean([...Object.values( obj )].sort( (a,b) => (b[1]-a[1]) ).map( x => x[1]).slice(1))
+                  avg2 = d3.mean([...Object.values( obj )].sort( (a,b) => (b[1]-a[1]) ).map( x => x[1]).slice(2))
+                  avg3 = d3.variance([...Object.values( obj )].sort( (a,b) => (b[1]-a[1]) ).map( x => x[1]).slice(1))
+
+                  obj.sort( (a,b) => ring(b[0])-ring(a[0]) )
+
+                  if(peak != dom){ 
+                    oldom = dom
+                    dom = peak;
+                    dom2 = peak2
+                    for(var k in sum){ (sum[k] != undefined)? sum[k] *= 32/parseFloat((Object.entries( compR( xbin( k ) ) ).sort( (a,b) => ring(b[0])-ring(a[0]) ) )[1]) : sum[k]; }
+                    showHex(dom);
+                    drawProbs();
+                    sum[dom2] = 1;
+                  }
+
+                    if(peak2 != dom2){ 
+                    dom2 = peak2
+                    showHex(dom);
+                  }                
+
+                  d3.selectAll('#console').select('div').remove()
+                  d3.select('#console').insert('div',":first-child")
+                    .attr('class','console')
+                    .html( d => ("0"+fuxi(ring(hex))).substr(-2)+' '+flip(xbin(hex)).replace(/0/g,'¦').replace(/1/g,'|')+'  '+(1-avg3/1000).toFixed(2)//lineN.toString().replace(/6/g,'x').replace(/7/g,'|').replace(/8/g,'¦').replace(/9/g,'o')+'&nbsp;
+                      +'<br>'+
+                      ("0"+fuxi(oldhex)).substr(-2)+' '+chex.replace(/0/g,'¦').replace(/1/g,'|').split('').reverse().join('')+' '+("0"+fuxi(newhex)).substr(-2))
+
+                  d3.selectAll('.lines').style('opacity', ( rec2-avg2 )/100)
+                  d3.selectAll('#new').style('opacity', ( rec2-avg2 )/100)
+                  //d3.selectAll('#old').style('opacity', 1-avg3/1000)
+                  d3.selectAll('#wilhelm').style('opacity', (1-avg3/1000) )
+
+                  drawLine();
+
+                  console.log(random)
+                }
+            } 
+        }
+    }
+
+
+    function calc(a,b){ 
+              if( a == '1' && b == '1'){
+                                        return 11/38;
+        }else if( a == '1' && b == '0'){
+                                        return  8/38;
+        }else if( a == '0' && b == '0'){
+                                        return 17/38;
+        }else if( a == '0' && b == '1'){
+                                        return  2/38;
+        }
+    }
+
+    function comp(a,b){
+            var nn = 1
+            for(j = 0; j < a.length; j++){
+                nn *= calc(a[j],b[j])*64
+            }
+        return (Math.log(nn)/64)
+    } 
+
+/*
+    function compR(a){
+      arr = [...Array(64).keys()].map(x => xbin(x));
+         var ar = []
+         for(i=0; i<arr.length; i++){
+           ar.push(comp(a,arr[i]))
+         }
+          return ar
+      }
+*/
+    function compR(a){
+      arr = [...Array(64).keys()].map(x => xbin(x));
+       var ar = []
+       for(i=0; i<arr.length; i++){
+       var nn = 1
+         for(j=0; j<a.length; j++){
+           nn *= calc(a[j],arr[i][j])*1024
+         }
+         ar.push(((Math.log(nn))).toFixed(3))
+       }
+        return ar
+    }
+
+    function drawProbs(){
+        radial.curve(d3.curveCatmullRomClosed)
+        rad = d3.scaleRadial().domain([0, 33]).range([1,sz-sz/12])
+        d3.selectAll('#probline').remove()
+        d3.select('g')
+          .append('path')
+          .attr('id','probline')
+          .attr("transform", null)
+          .attr('d', radial(  Object.entries( compR( xbin( oldom ) ) ).sort( (a,b) => ring(b[0])-ring(a[0]) ) ) +'z')
+            .transition()
+              .duration(500)
+              .ease(d3.easeLinear)
+            .attr('d', radial(  Object.entries( compR( xbin( dom ) ) ).sort( (a,b) => ring(b[0])-ring(a[0]) ) ) +'z')
+
+    }
+
+    function drawLine(){
+        radial.curve(d3.curveLinear)
+        rad = d3.scaleRadial().domain([-1, rec]).range([1,sz-sz/18])
+        d3.selectAll('#mainline').remove()
+        d3.select('g')
+          .append('path')
+          .attr('id','mainline')
+          .attr('d', radial(obj)+'z')
+              .transition()
+              .duration(500)
+              .ease(d3.easeLinear)
+          .attr('d', radial(obj)+'z')
+
+    }
+
+    function drawRing(){
+        d3.select('#cast')
+          .append('svg')
+          .attr('width', pad*2)
+          .attr('height', pad*2)
+          .attr('viewBox', '0 0 '+ pad*2 +' '+ pad*2)
+    
+        d3.select('svg')
+          .append('circle')
+          .attr('fill','none')
+          .attr('stroke','none')
+          .attr('cx', pad)
+          .attr('cy', pad)
+          .attr('r', pad )
+
+/*
+        d3.select('svg')
+          .append('circle')
+          .attr('fill','none')
+          .attr('stroke','lightgray')
+          .attr('stroke-width','1px')
+          .attr('cx', pad)
+          .attr('cy', pad)
+          .attr('r', sz-sz/12)
+ */ 
+        d3.select('svg')
+          .append('circle')
+          .attr('cx', pad)
+          .attr('cy', pad)
+          .attr('r', (pad)/5)
+          .attr('class','btn')
+          //.on('click', d => hexagram() );
+    
+        d3.select('svg')
+          .append('text')
+          .text('cast')
+          .attr('dominant-baseline','middle')
+          .attr('text-anchor', 'middle')
+          .attr('transform', 'translate('+pad+','+pad+')')
+          .attr('class','btn')
+          .on('click', d => hexagram() );
+    
+        d3.select('svg')
+          .append('g')
+          .attr('transform', 'translate('+pad+','+pad+')')
+    
+        hextext = d3.select('g')
+          .selectAll('.triplet').data(d3.range(0, 77, 1)).enter()
+          .append("a")
+          //.attr("xlink:href", d => "#"+ fuxi(d) )
+          .append('text')
+          .attr('class','triplet')
+          .attr('x', d => sz*Math.cos( phi(d) ))
+          .attr('y', d => sz*Math.sin( phi(d) ))
+          .attr('dominant-baseline','middle')
+          .attr('text-anchor', 'start')
+          .attr('transform', d => 'rotate('+(phi(d)*(18.227*Math.PI))+' '+sz*Math.cos( phi(d) )+' '+sz*Math.sin( phi(d) )+')')
+          //.on('click', d => showHex(d) );
+
+          hextext
+          .append('tspan')
+          .attr('class', d => 'hexLn '+'h'+fuxi(d) )
+          //.text( d => xbin(ring(d)).replace(/0/g,'¦').replace(/1/g,'|') )
+          .append('tspan')
+          .attr('class', d => 'hexNo '+'h'+ d )
+          .text( d => '\u2002' + d )
+    }
+
+    function showHex(a){
+      d3.selectAll('#comswitch').style("display", "inline");
+      d3.selectAll('#intro').style("display", "none");
+      (newhex == undefined)? oldhex = ring(dom2) : oldhex = ring(a);
+      newhex = ring(dom2);
+
+        d3.selectAll('tspan').classed("selectedH", false);
+        d3.selectAll('.h'+fuxi(oldhex)).classed("selectedH", true);
+        d3.selectAll('tspan').classed("previousH", false);
+        d3.selectAll('.h'+fuxi(newhex)).classed("previousH", true);
+      
+      if(oldhex > 63){
+        d3.selectAll('.hexagram').classed("visible", false);
+        d3.select('#hex'+fuxi(ring(a))).classed("visible", true);
+        d3.select('#old').selectAll('.lines').style("display", "none");
+        d3.select('#old').selectAll('.line').style("display", "none");
+      
+      }else{
+        (newhex < 64 && newhex < 64)? changes = xbin(ring(oldhex)^ring(newhex)) : changes = changes;             
+        if( oldhex == newhex || oldhex > 63 ){ 
+          d3.select('#new').style("display", "none");
+          d3.selectAll('.lines').style("display", "none");
+        }else{
+          d3.select('#old').selectAll('.lines').style("display", "block");
+          d3.select('#new').style("display", "block");
+        }
+      
+        d3.selectAll('#old').selectAll('.hexagram').classed("visible", false);
+        d3.selectAll('#old').select('#hex'+fuxi(oldhex)).classed("visible", true);
+        d3.select('#old').selectAll('.line').style("display", "none");
+        d3.selectAll('#new').selectAll('.hexagram').classed("visible", false);
+        d3.selectAll('#new').select('#hex'+fuxi(newhex)).classed("visible", true);
+        
+        if( (a == 0 || a == 32) && changes == 111111){
+              (xbin(oldhex)[0] == 1)? chex = 'oooooo' : chex = 'xxxxxx';
+              d3.select('#old').selectAll('.lines').style("display", "block");
+              d3.select('#old').selectAll('.line').style("display", "none");
+              d3.selectAll('#hex'+fuxi(oldhex)).select('.changeAll').style("display", "block");
+        }else{
+            chex = '';
+          for(let i = 0; i < 6; i++){
+            if(changes[i] == 1){
+              ( xbin(ring(oldhex))[i] == 1)? chex += 'o' : chex += 'x';
+              d3.select('#old').selectAll('.lines').style("display", "block");
+              d3.selectAll('#hex'+fuxi(oldhex)).select('.change'+(i+1)).style("display", "block");
+            }else{
+              chex += ( xbin(ring(oldhex))[i] )
+            }
+          }
+        }
+      }/*
+      if( oldom == peak2 ){
+        d3.selectAll('#new').style("display", "none");
+        d3.selectAll('.lines').style("display", "none");
+
+      }*/
+    }
+
+    function numSwitch(a){
+      if ( char == 19903){
+        return String.fromCharCode(19903+a)
+      }else{
+        return a
+      }
+      d3.selectAll('svg').remove()
+      drawRing();
+    }
+    
+    function clickCom(){
+        if ( d3.selectAll('.comment').style("display") == 'none'){
+          d3.selectAll('.comment').style("display", "inline");
+        }else{
+          d3.selectAll('.comment').style("display", "none");
+        }
+    }
+
+    function revert(){
+        showHex(ring(oldhex))
+        showHex(ring(newhex))
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<head>
+<style type="text/css">
+  pre{
+    font-family: 'Lucida Console', monospace;
+    font-size: 10px;
+    color: tomato;
+}
+
+a{
+    text-decoration: none;
+    color: tomato;
+    transition: 0.3s;
+}
+
+a:hover, a:active, a:focus{
+    color: tomato;
+}
+
+</style>
+<body>
+<pre>
+&#9711; ABSTRACTION
+    (7 multichoose 3) = (9 choose 3) = 84
+    [0,1,2,3,4,5,6], [1,2,3,4,5,6,7,8,9]
+    
+    Tetrahedral Arrangement
+    Multicombinations                                 Partitions
+                                                    
+    777 776 775 774 773 772 771                           (7)
+      766 755 744 733 722 711                          60
+        756 745 734 723 712                            51
+          746 735 724 713                              42
+            736 725 714                                33
+              726 715                                  24
+                716                                    15        
+                                                         (21)
+      666 555 444 333 222 111                         600
+        556 445 334 223 112                           510
+          446 335 224 113                             420
+            336 225 114                               330
+              226 115                                 240
+                116                                   150
+                                                     
+        566 455 344 233 122                           150
+          466 355 244 133                             240
+            366 255 144                               330
+              266 155                                 420
+                166                                   510
+                                                     
+          456 345 234 123                             411
+            346 235 124                               321
+              236 125                                 321
+                126                                   411
+                                                     
+            356 245 134                               321
+              256 145                                 321
+                156                                   411
+                                                     
+              246 135                                 222
+                136                                   321
+                                                     
+                146                                   321
+                                                         (56)
+                                                    
+      by Partition                                  
+                                                    
+      776 775 774 773 772 771                           
+      766 755 744 733 722 711                          60
+      761 765 754 743 732 721                          51
+      762 751 764 753 742 731                          42
+      763 752 741                                      33
+                  707                                   &#8531;
+                      531 642                         222
+      652 541 643 532 421 631                         321
+      653 542 431 632 521 641                         321
+      663 552 441 633 522 411                         330
+      651 654 543 432 321 621                         411
+      662 551 644 533 422 311                         420
+      664 553 442 331 622 511                         420
+      661 655 544 433 322 211                         510
+      665 554 443 332 221 611                         510
+      666 555 444 333 222 111                         600
+                                                         (84)
+
+&#9711; DESIGN
+      Triples                     Doubles             
+      -6- -5- -4- -3- -2- -1-     -7-                 by Core
+                                   60  51  42  33     by Partition
+                                                      by Flank
+
+      161 151 141 131 121 111     171                 Twos
+          251 241 231 221             271             Threes
+          351 242 331 222         272     371         Fours
+          451 342 431 322             372     471     Fives
+      363 552 442 333 323         373     472         Sixes
+          552 443 433 522             473     572     Sevens
+          454 444 533 523 414     474     573         Eights
+          554 643 534 623             574     673     Nines
+          555 644 535 624         575     674         Tens
+          655 645 635 625             675             Elevens
+      666 656 646 636 626 616     676                 Twelves
+                                                      
+      767 757 747 737 727 717 707                     Singles
+                                                      
+      561 551                             571         Sharp Sixes
+              641 631                 671             Sharp Sevens
+                      622 612             672         Sharp Eights
+                                                      
+          mym hum myr hun                             Units
+
+
+sums                                                 
+1001   70 162 150 137 125  49  14         294         All Dots
+
+ 364   30  65  52  39  26   5  -          147         Core
+ 497   20  77  77  77  77  22  -          147         Flank
+  98   14  14  14  14  14  14  14          -          Singles
+ 448   34  91  91  91  91  36  14          -          Singles + Flank
+  42    6   6   7   7   8   8  -           -          Sharps 
+ 490   40  97  98  98  99  44  14          -          Sharps + Singles + Flank
+           +1  +1  +1  +1                             Units 
+        *  98  99  99 100  *  *98 cents               Hundreds and Myriads
+                     &times;100<sup>2</sup> cents                      百 hundreds
+                 &times;100<sup>3</sup> cents                          萬 myriads
+             &times;100<sup>4</sup> cents                              兆 hundred myriads 
+         &times;100<sup>5</sup> cents                                  垓 myriad myriads
+
+          9,9 0 0,0 0 0,0 0 0                        
+
+
+gross__ 3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20 
+        /   /   /   /   /   /   /   /   /   /   /   /   /   /   /   /   /   /
+0__                                               707  /   /   /   /   /   /
+                                                      /   /   /   /   /   /
+1__ 111                     414             616     717  /   /   /   /   /
+                             612                        /   /   /   /   /
+2__   121 221 222 322 323 522 523 623 624 625 626     727  /   /   /   /
+                           631 622                        /   /   /   /
+3__     131 231 331 431 333 433 533 534 535 635 636     737  /   /   /
+                                                            /   /   /
+4__       141 241 242 342 442 443 444 643 644 645 646     747  /   /
+                           551 641                            /   /
+5__         151 251 351 451 552 552 454 554 555 655 656     757  /
+                             561                                /
+6__           161             363                     666     767
+                \   \   \   \   \   \   \   \   \   \   \       \
+ __tare    net__ 2   3   4   5   6   7   8   9   10  11  12      14
+                  \   \   \   \   \   \   \   \   \   \   \       \
+7__               171     272     373     474     575     676 
+                       271     372     473     574     675
+                            371     472     573     674
+                                 471     572     673
+                                      571     672
+                                           671
+
+&#9711; ETYMOLOGIES
+    Hazard Tarot or the 1001 dot tarot
+
+    az-zuhra     / zahra    / zahr    / zahr an-nard / hazard
+    morningstar / shinning / blossom / dice
+  &female; Venus
+    eveningstar / striking / gilding   / cards 
+    at-tariq   / taraqa   / taroccare / tarocchi / tarot 
+
+&#9711; HISTORICAL REVIEW
+    Structure
+      [ numerals + figures ]
+    × [ suits ] + [ trumps ]
+    × [ sets ] + [ extras ]
+
+    Dice Cards
+      [ 11, 12, 13, 14, 15, 16, 26,
+                22, 23, 24, 25, 35, 45, 55,
+                        33, 34, 44, 36, 46, 56, 66 ]
+    + [ listen/use, god of wealth ]
+
+    Gwat Pai
+      [ 66, 11, 44, 13, 55, 33, 22, 56, 46, 16, 15 ] × [ civilian ] × 2
+      [ 36, 45, 26, 35, 25, 34, 24, 14, 23, 12 ] × [ military ]
+    
+    Chaturanga ~ Shatranj ~ Chess
+      [ K/Q, R, B, N, P×8 ] × [ white, black ]
+    
+    XiangQi ~ Four Colour Cards
+      [ G, A, E, R, K, C, S ] × [ yellow, red, green, white ]
+    + [ duke, marquis, count, earl, barron ]
+                    
+    Money Cards
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ] 
+    × [ coins, strings, myriads, tens of myriads]
+    + [ white flower, red flower, old thousand, ghost ]
+    + [ minor, major, money, string, myriad, king ]
+
+    Madiao
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ] 
+    × [strings, myriads ]
+    + [ 0, &frac12;, 1, 2, 3, 4, 5, 6, 7, 8, 9] cash
+    + [ 2, 3, 4, 5, 6, 7, 8, 9, 100, 1000, 10000] tens of myriads
+
+    Mahjong
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+    × [ coins, bamboo, characters ]
+    + [ red, green, white ] dragon
+    + [ east, south, west, north ] wind
+    × 4
+    + [ plum, orchid, chrysanthemum, bamboo ]
+    + [ spring, summer, autumn, winter ]
+
+    Tujeon
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, G]
+    × [ man, fish, crow, pheasant, roe deer, star, rabbit, horse]
+    G:( king, dragon, phoenix, falcon, tiger, north star, eagle, wagon )
+
+    Ganjifa
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, V, K ]
+    × [ vary between 8 and 12 ]
+
+    Muluk Wa Nuwwab
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, T, N, M ]
+    × [ darāhim, jawkān, tūmān, suyūf ]
+
+    Naibi
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, V, C, R ] 
+    + [ denari, bastoni, coppe, spade ]
+    
+    Tarocchi / Tarot
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, V, C, D, R ] 
+    × [ coins, staves, cups, spades ]
+    + [ fool, I, II, III, IV, V, VI, VII, VIII, IX, X, XI, 
+        XII, XIII, XIV, XV, XVI, XVII, XVIII, XIX, XX, XXI ]
+    
+    Naipes / Komatsufuda
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, S, C, R ]
+    × [ ouros, paus, copas, espadas ]
+
+    Unsun Karuta
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, K, R, S, S, U, R ]
+    × [ ouru, pao, kotsu, isu, guru ]
+
+    Kabufuda
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, S]
+    × 4
+    
+    German Cards
+      [ 7, 8, 9, 10, U, O, K, D ]
+    × [ schelle, eichel, herz, blatt ]
+    + [ weli ]
+    
+    Swiss Cards
+      [ 6, 7, 8, 9, X, U, O, K, D ]
+    × [ schellen, eicheln, schilten, rose ]
+    
+    French Cards
+      [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, V, D, R ] 
+    × [ carreaux, trèfles, cœurs, piques ] 
+    + [ joker ]
+
+    Common Cards
+      [ 2, 3, 4, 5, 6, 7, 8, 9, 10, J, Q, K, A ] 
+    × [ diamonds, clubs, hearts, spades ] 
+    + [ joker ]
+    
+    Double Six Dominoes
+      [ 00, 01, 02, 03, 04, 05, 06
+                11, 12, 13, 14, 15, 16, 26,
+                    22, 23, 24, 25, 35, 45, 55,
+                            33, 34, 44, 36, 46, 56, 66 ]
+
+&#9711; INTERPRETATION
+  Weight  Net  Flank             Names       Analogues
+   stone   14  7-7          _____four over   king
+           \8          6\2                   
+           \7      6\1           seam        ace
+           \6          5\1   ____            
+   livre   12  6-6               two over    over / cavaliere / queen / deputy
+   deunx   11      5-6        ___one over    under / fante / sota / 2nd deputy
+ dextans   10  5-5     4-6       ten         banner
+ dodrans    9      4-5     3-6               
+     bes    8  4-4     3-5                   
+ septunx    7      3-4     2-5               
+   semis    6  3-3     2-4       numbers     
+quincunx    5      2-3     1-4               
+  triens    4  2-2     1-3                   
+quadrans    3      1-2                       
+ sextans    2  1-1            ___two         daus
+
+               Core
+               -0-       1       hub         excuse / joker / fool / matto
+               -1-   4 + 1       buds                       moors
+               -2-  12 + 1       canes       acorns / clubs / staves
+               -3-  12 + 1       swords      shields / spades / swords
+               -4-  12 + 1       shields     bells / diamonds / coins
+               -5-  12 + 1       cups        roses / hearts / cups
+               -6-   4 + 1       bugs                        popes
+               -7-  21           blossoms    trumps / atout / trionfi
+
+               Core Pairings
+       slanted 1,2,3 / 4,5,6 square
+      civilian 1,2,5 / 3,4,6 military
+        loaded 1,3,5 / 2,4,6 hollow                          
+                                                             &copy; mano kapazoglou
+</pre>
+</body>
