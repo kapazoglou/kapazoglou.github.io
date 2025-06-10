@@ -2,7 +2,7 @@
 title:  "Incubator Product Design Support"
 metadate: "hide"
 categories: [ Product Design, Design Leadership, Patient Communication]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/wavyvhp.jpg"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/wavyvhp.jpeg"
 ---
 
 As part of the Virtual Health Pioneers incubator, I provided design leadership to a promising healthcare start-up, helping them shape their minimum viable product (MVP) into a scalable, user-friendly solution.
