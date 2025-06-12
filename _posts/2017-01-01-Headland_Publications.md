@@ -16,7 +16,7 @@ I had the opportunity to illustrate Highway Through History, an archaeological m
 
 <br>
 
-![popup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_8.png)
+![popup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/popup_test.jpg)
 
 I created a detailed pop-up model of an old church in Kinfauns, commissioned by Tayside Landscape, to visually celebrate the region’s architectural heritage. This project combined historical accuracy with interactive design, offering an engaging way for people to explore the structure and significance of this site.
 
