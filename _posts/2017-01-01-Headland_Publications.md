@@ -6,27 +6,20 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
-Headland was publishing a monograph about excavations around Aberdeen. I designed the infographics and illustrations for the book and then typeset and prepared it to be sent to print.
+As an illustrator for Headland Archaeology Ltd, I played a key role in translating complex archaeological findings into engaging visual narratives or accurate reports. My work focused on creating detailed maps based on surveys and thematic illustrations that helped bring excavation discoveries to life for both academic audiences and the general public.
 
-![cover](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/highway-through-history_Page_001.png)
+<br>
 
-![map](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/highway-through-history_Page_024.png)
+![cover](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/awnr.png)
 
-![ceremony](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/highway-through-history_Page_079.png)
+I had the opportunity to illustrate Highway Through History, an archaeological monograph by Headland Archaeology Ltd, which presents discoveries spanning 15,000 years of land use and settlement in northeast Scotland. The book brings to life key findings from excavations along the Aberdeen Western Peripheral Route (AWPR), including prehistoric roundhouses, Roman bread ovens, and burial sites.
 
-I also designed some publications for internal circulation:
-
-![manual](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_10.png)
-
-
-The back-cover of the Chartered Institute for Archaeologists Catalog has a full page ad space that Headland purchased. I put together this design based on a concept that the directors of the company were keen on and I made sure it would print well. 
-
-Some additional marketing designs I did for Headland is this pop-up card of a derelict abbey from one of their projects:
+<br>
 
 ![popup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_8.png)
 
-and some informational posters for internal circulation:
+I created a detailed pop-up model of an old church in Kinfauns, commissioned by Tayside Landscape, to visually celebrate the region’s architectural heritage. This project combined historical accuracy with interactive design, offering an engaging way for people to explore the structure and significance of this site.
 
-![poster](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/gra_9.png)
+<iframe title="Kinfauns Old Parish Church" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/83264dc11daf48be97c4bbc974e47b96/embed?autostart=1&transparent=1"> </iframe>
 
-![lyme](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/2016-1HAS-Plant-Lyme-Services_Page_2.png)
+This pop-up served as an engaging visual storytelling tool, bringing a hands-on, immersive experience to history enthusiasts, educators, and local communities. By combining paper mechanics with historical research, it transformed the legacy of Kinfauns Church into a tangible, interactive piece of heritage preservation.
