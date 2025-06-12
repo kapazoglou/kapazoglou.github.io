@@ -14,4 +14,4 @@ I provided scientific illustrations for the PLOS Biology article From “Silent 
 
 This project required a balance of technical accuracy and engaging storytelling, ensuring that complex anatomical concepts were accessible to researchers, educators, and students. By collaborating with authors and editors, I created clear, informative visuals that enhanced the article’s impact.
 
-![PLOS Biology](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1001971)
+[PLOS Biology](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.1001971)
