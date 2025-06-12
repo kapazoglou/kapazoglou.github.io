@@ -20,6 +20,6 @@ I had the opportunity to illustrate Highway Through History, an archaeological m
 
 I created a detailed pop-up model of an old church in Kinfauns, commissioned by Tayside Landscape, to visually celebrate the region’s architectural heritage. This project combined historical accuracy with interactive design, offering an engaging way for people to explore the structure and significance of this site.
 
-<iframe title="Kinfauns Old Parish Church" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/83264dc11daf48be97c4bbc974e47b96/embed?autostart=1&transparent=1"> </iframe>
+<iframe title="Kinfauns Old Parish Church" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="800" height="600" src="https://sketchfab.com/models/83264dc11daf48be97c4bbc974e47b96/embed?autostart=1&transparent=1"> </iframe>
 
 This pop-up served as an engaging visual storytelling tool, bringing a hands-on, immersive experience to history enthusiasts, educators, and local communities. By combining paper mechanics with historical research, it transformed the legacy of Kinfauns Church into a tangible, interactive piece of heritage preservation.
