@@ -1,5 +1,5 @@
 ---
-title:  "User Trust Building"
+title:  "Fitness App User Trust Building"
 metadate: "hide"
 categories: [ Product Design, Storytelling ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/8fit_trust.png"

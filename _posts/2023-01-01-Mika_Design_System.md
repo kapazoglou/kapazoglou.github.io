@@ -1,5 +1,5 @@
 ---
-title:  "Design System Rollout & Management"
+title:  "Healthcare App Design System Rollout & Management"
 metadate: "hide"
 categories: [ Product Design, Design Leadership ]
 image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/NorthstarDS.png"
