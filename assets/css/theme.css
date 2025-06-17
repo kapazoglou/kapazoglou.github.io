@@ -264,7 +264,7 @@ article .card-body {
     font-weight: 700;
 }
 .wrapcat {
-    background-color: rgba(0,0,0,0.2);
+    background-color: #575aff;
     display: none;
     transition: all 0.2s;
     position: absolute;
