@@ -19,7 +19,3 @@ The illustrations guided patients through pre-surgical preparations, key surgica
 ![poster](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/Study29.jpg)
 
 This project highlighted the importance of thoughtful visual communication in medical settings, ensuring that complex procedures were accessible, patient-friendly, and engaging.
-
-<br>
-
-![intubation](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/med_5.png)
