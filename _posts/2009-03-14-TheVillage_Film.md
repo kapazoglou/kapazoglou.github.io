@@ -21,10 +21,9 @@ Using a collection of architectural references, I meticulously built the sets to
 Beyond set construction, I planned and animated camera movement, ensuring that each frame conveyed the right perspective, depth, and cinematic flow. I also created auxiliary animation elements, enhancing the scene's immersive storytelling through subtle environmental interactions.
 
 <br>
-This project blended architectural research, craftsmanship, and animation techniques to create a visually compelling stop-motion world, bringing the spirit of northern Greek design into the realm of storytelling.
-
-Here's the trailer:
 
 <figure class="video_container">
   <iframe width="560" height="315" src="https://www.youtube.com/embed/e7lbRNwveWw" frameborder="0" allowfullscreen></iframe>
 </figure>
+
+This project blended architectural research, craftsmanship, and animation techniques to create a visually compelling stop-motion world, bringing the spirit of northern Greek design into the realm of storytelling.
