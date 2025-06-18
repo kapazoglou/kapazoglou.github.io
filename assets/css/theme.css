@@ -137,17 +137,13 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: solid #2b2e3a;
+	border: solid ;
   transition:ease .1s;
 }
 .card-img{
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
   border: none;
-}
-.card-pin:hover {
-  border: solid white;
-  color: white;
 }
 .card-pin:hover .overlay {
 	opacity:.5;
@@ -191,7 +187,7 @@ footer.footer {
     position: relative;
 }
 .card-pin.raco .notraco .card-title {
-    color: ##c0c0d0;
+    color: #fff;
     font-size: 1em;
     font-weight: 300;
     font-family: "Asap Condensed";
