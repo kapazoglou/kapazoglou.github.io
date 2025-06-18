@@ -137,7 +137,7 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: 0;
+	border: solid white;
   transition:ease .1s;
 }
 .card-img{
@@ -145,9 +145,12 @@ footer.footer {
   border-bottom-right-radius: 0px;
   border: none;
 }
+.card-pin:hover {
+  border: solid white;
+  color: white;
+}
 .card-pin:hover .overlay {
 	opacity:.5;
-	border:5px solid #f3f3f3;
 	-webkit-transition:ease .2s;
 	transition:ease .1s;
 	background-color:#fff;
@@ -188,7 +191,7 @@ footer.footer {
     position: relative;
 }
 .card-pin.raco .notraco .card-title {
-    color: #fff;
+    color: ##c0c0d0;
     font-size: 1em;
     font-weight: 300;
     font-family: "Asap Condensed";
@@ -294,18 +297,18 @@ article .card-body {
     -webkit-flex-direction: row;
     flex-direction: row;
     border-radius:6px;
-     transition: all 0.2s;
+    transition: all 0.2s;
 }
 .card-pin.raco:hover i.text-muted {
     color: #fff !Important;
-     transition: all 0.2s;
+    transition: all 0.2s;
     position: relative;
 }
 .card-pin.raco:hover .fa:before {
     
 }
 .car-pin.raco:hover .fa:before {    
-     -webkit-animation: pulse 2s ease-in;
+    -webkit-animation: pulse 2s ease-in;
     -moz-animation: pulse 2s ease-in;
      animation: pulse 2s ease-in;
     -webkit-animation-iteration-count: infinite;
