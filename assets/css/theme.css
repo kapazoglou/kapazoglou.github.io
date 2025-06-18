@@ -267,7 +267,7 @@ article .card-body {
     font-weight: 700;
 }
 .wrapcat {
-    background-color: rgba(0,0,0,0.2);
+    background-color: #00000088;
     display: none;
     transition: all 0.2s;
     position: absolute;
@@ -283,8 +283,7 @@ article .card-body {
 }
 .wrapcat .btn {
     border: 0;
-    padding: 0 6px 2px 6px;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    padding: 2px 6px 2px 6px;
     font-size:13px;
 }
 .card-pin.raco:hover .wrapcat {
@@ -301,7 +300,7 @@ article .card-body {
 }
 .card-pin.raco:hover i.text-muted {
     color: #fff !Important;
-     transition: all 0.2s;
+    transition: all 0.2s;
     position: relative;
 }
 .card-pin.raco:hover .fa:before {
