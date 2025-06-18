@@ -137,7 +137,7 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: solid white;
+	border: solid #2b2e3a;
   transition:ease .1s;
 }
 .card-img{
