@@ -134,7 +134,7 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: solid ;
+	border: none;
   transition:ease .1s;
 }
 .card-img{
@@ -164,8 +164,8 @@ footer.footer {
 	color:white;
 	font-size:14px;
 	position:absolute;
-	bottom: 9px;
-    right: 10px;
+	bottom: 0px;
+  right: 2px;
 	text-transform:uppercase;
 	-webkit-transform:translate(-20%,-20%);
 	transform:translate(-20%,-20%);
