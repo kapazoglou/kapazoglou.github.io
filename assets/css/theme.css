@@ -134,13 +134,19 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: none;
+	border: solid ;
   transition:ease .1s;
 }
 .card-img{
   border-bottom-left-radius: 0px;
   border-bottom-right-radius: 0px;
   border: none;
+}
+.card-pin {
+    border: solid #19052e;
+}
+.card-pin:hover {
+    border: solid white;
 }
 .card-pin:hover .overlay {
 	opacity:.5;
