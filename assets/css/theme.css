@@ -7,9 +7,6 @@ body {
   font-weight:300;
   letter-spacing: 0.3px;
 }
-p{
-  font-weight: 300;
-}
 .bg-dark{
     background-color: #2b2e3a !important;
 }
@@ -74,7 +71,7 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
     margin-bottom:1rem;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-weight:600;
+    font-weight:700;
 }
 @keyframes pulse {
   0% {
@@ -137,7 +134,7 @@ footer.footer {
 	background-color: #008CBA;
 }
 .card {
-	border: solid ;
+	border: 0;
   transition:ease .1s;
 }
 .card-img{
@@ -147,6 +144,7 @@ footer.footer {
 }
 .card-pin:hover .overlay {
 	opacity:.5;
+	border:5px solid #f3f3f3;
 	-webkit-transition:ease .2s;
 	transition:ease .1s;
 	background-color:#fff;
@@ -154,14 +152,14 @@ footer.footer {
 	cursor: zoom-in;
 }
 .card-columns .card {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
 }
 .more {
 	color:white;
 	font-size:14px;
 	position:absolute;
 	bottom: 9px;
-  right: 10px;
+    right: 10px;
 	text-transform:uppercase;
 	-webkit-transform:translate(-20%,-20%);
 	transform:translate(-20%,-20%);
@@ -189,9 +187,9 @@ footer.footer {
 .card-pin.raco .notraco .card-title {
     color: #fff;
     font-size: 1em;
-    font-weight: 300;
+    font-weight: 700;
     font-family: "Asap Condensed";
-    font-style: normal;
+    font-style:normal;
 }
 .card-pin .more a {
 	text-decoration:none;
@@ -293,18 +291,18 @@ article .card-body {
     -webkit-flex-direction: row;
     flex-direction: row;
     border-radius:6px;
-    transition: all 0.2s;
+     transition: all 0.2s;
 }
 .card-pin.raco:hover i.text-muted {
     color: #fff !Important;
-    transition: all 0.2s;
+     transition: all 0.2s;
     position: relative;
 }
 .card-pin.raco:hover .fa:before {
     
 }
 .car-pin.raco:hover .fa:before {    
-    -webkit-animation: pulse 2s ease-in;
+     -webkit-animation: pulse 2s ease-in;
     -moz-animation: pulse 2s ease-in;
      animation: pulse 2s ease-in;
     -webkit-animation-iteration-count: infinite;
