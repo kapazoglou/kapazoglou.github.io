@@ -2,10 +2,23 @@
 body {
   background-color: #19052e;
   color: #fff;
-	padding-top:70px;
+	padding-top:52px;
   font-family: "Asap Condensed";
   font-weight:300;
   letter-spacing: 0.3px;
+}
+.btn-toolbar {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: center;
+    /* overflow: scroll; */
+    flex-direction: row;
+    align-content: center;
 }
 .bg-dark{
     background-color: #2b2e3a !important;
