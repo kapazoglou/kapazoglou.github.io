@@ -459,7 +459,15 @@
 		if( e.includes(1) && e.includes(4) && e.includes(5) ){ return true; } else
 		{ return false; }
 	}
-
+/*
+	- only   1 | 6
+	- both   1 & 6
+	- either 1 | 6
+		if 6 choose highest
+		if 1 choose lowest
+	- doubles
+	- no finals or doubles
+*/
 	// select lowest or highest value as suit
 	function cenSel(e){
 		if( check(e) === false ){
