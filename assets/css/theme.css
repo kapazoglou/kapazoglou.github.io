@@ -19,6 +19,7 @@ body {
     /* overflow: scroll; */
     flex-direction: row;
     align-content: center;
+    padding: 15px;
 }
 .bg-dark{
     background-color: #2b2e3a !important;
