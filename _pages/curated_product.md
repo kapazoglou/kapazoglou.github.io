@@ -23,6 +23,7 @@ Through the implementation of the Design Process we managed to:
 * Establish clear accountability
 * Get timely and explicit stakeholder buy-in
 * Smoothly fit within Tech processes such as Sprints
+* Well documented steps that facilitate auditing processes
 
 #### 1. Opportunity/Problem Definition & Research
 Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or anything reducing tech debt. The project is then allocated a time estimate and a priority in the roadmap.
@@ -101,6 +102,8 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 Design System
 
 Other examples of real User/Product challenges
+
+App map & Architecture
 
 App Architecture
 
