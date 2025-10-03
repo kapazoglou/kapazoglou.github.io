@@ -90,9 +90,6 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: "Inter";
     font-weight: 600;
 }
-h2.card-title.title{
-    font-weight: 500;
-}
 @keyframes pulse {
   0% {
     -webkit-transform: scale(1);
@@ -213,8 +210,8 @@ footer.footer {
 .card-pin.raco .notraco .card-title {
     color: #fff;
     font-size: 1em;
-    font-weight: 400;
-    font-family: "Asap Condensed";
+    font-weight: 500;
+    font-family: "Inter";
     font-style:normal;
 }
 .card-pin .more a {
