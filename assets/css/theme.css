@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Inter&family=Inter+Tight&family=PT+Sans+Narrow&family=Vampiro+One');
+@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Inter&family=Inter+Tight&family=IBM+Plex+Sans+Condensed&family=Vampiro+One');
 body {
   background-color: #19052e;
   color: #fff;
@@ -48,7 +48,6 @@ details {
 }
 summary{
   margin: 0.5rem 0;
-}
 a:hover {
 	text-decoration: none;
 }
@@ -87,8 +86,8 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
     margin-bottom:1rem;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-family: "PT Sans Narrow";
-    font-weight: 700;
+    font-family: "IBM Plex Sans Condensed";
+    font-weight: 600;
 }
 @keyframes pulse {
   0% {
@@ -210,8 +209,8 @@ footer.footer {
 .card-pin.raco .notraco .card-title {
     color: #fff;
     font-size: 1em;
-    font-weight: 400;
-    font-family: "Archivo Narrow";
+    font-weight: 500;
+    font-family: "IBM Plex Sans Condensed";
     font-style:normal;
 }
 .card-pin .more a {
