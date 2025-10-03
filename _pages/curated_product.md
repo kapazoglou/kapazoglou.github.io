@@ -108,14 +108,27 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 
 <br>
 
-## Better Content Delivery for Measurable Outcomes
+## Reducing Friction in User Acquisition
 
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
+Mika Health operated within a strict regulatory framework, requiring adherence to multiple standards, including DiGA, MDR, GDPR, CCPA, HIPAA, and ePA. This meant that every design and development decision had to align with legal requirements to protect patient data, ensure accessibility, and meet market approval standards.
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/X0ZgrfqI35FSQFjSucUyjs/%F0%9F%94%97-Onboarding?node-id=4001-46385&embed-host=share" allowfullscreen></iframe>
+
+DiGA registration introduced particularly intricate onboarding flows, including a mail-based code verification process, which added friction to user activation. While these stringent processes ensured compliance, they also posed challenges for user adoption.
+
+After the business strategy shifted away from DiGA registration, the app’s onboarding flow required a complete overhaul. The focus shifted to reducing barriers for new users, streamlining access, and improving acquisition rates. This transformation was not just about technical improvements—it required a user-centered redesign to ensure smooth, intuitive entry points.
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/X0ZgrfqI35FSQFjSucUyjs/%F0%9F%94%97-Onboarding?node-id=4001-46681&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
-## Reducing Friction in User Acquisition
-Onboarding flow
+---
+
+<br>
+
+## Better Content Delivery for Measurable Outcomes
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
