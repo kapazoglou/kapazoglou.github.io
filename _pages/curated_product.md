@@ -42,9 +42,9 @@ image: "/assets/images/hero.jpg"
 * AI suggestions i.e. Stitch
 * In-House User Reasearch & Behavioural Science
 
-> ##### Example: Distress Management
+> ##### Example: Treatment Plan Best Prcatice Analysis
 >   
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=2104-2431&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
@@ -52,23 +52,24 @@ image: "/assets/images/hero.jpg"
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
 * iterate as needed and annotate behaviour
 
-> ##### Example: Distress Management Material
-> This was the flow diagram I designed for the Distsress Management Feature
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
+> ##### Example: Treatment Plan Diagram
+> This was the flow diagram I designed for the Treatment Plan Feature
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-6&embed-host=share" allowfullscreen></iframe>
+>
+> This was the flow diagram I designed for the Treatment Plan Feature
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-6&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
 #### 3. Wireframes
 stakeholder buy-in; frontend for feasability & prep (design system components)
 user testing recommended, Clickdummy
-
-> ##### Example: Distress Management
->
-> - Revenue was off the chart.
-> - Profits were higher than ever.
->
-
 * iterate as needed and annotate behaviour
+
+> ##### Example: Treatment Plan Wireframes
+> 
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-242&embed-host=share" allowfullscreen></iframe>
+
 
 <br>
 
@@ -77,11 +78,9 @@ apply design system components, templates and interaction patterns; refinement w
 
 * iterate as needed and annotate behaviour
 
-> ##### Example: Distress Management
->
-> - Revenue was off the chart.
-> - Profits were higher than ever.
->
+> ##### Example: Treatment Plan
+> 
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4008-62401&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
