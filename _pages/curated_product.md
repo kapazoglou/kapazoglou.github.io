@@ -29,9 +29,12 @@ image: "/assets/images/hero.jpg"
 > * Smoothly fit within Tech processes such as Sprints
 
 
+#### Opportunity/Problem Definition 
+* stakeholder expectation management
+* manage scope creep
+* tackle tech debt
+* prioritisation according to roadmap
 
-
-* Opportunity/Problem Definition: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap;
 
 * Research: best practices Mobbin; AI suggestions i.e. Stitch"; In House User Reasearch
 
