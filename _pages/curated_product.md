@@ -8,6 +8,13 @@ image: "/assets/images/screenshot.jpg"
 
 ### Design Process
 
+* Brief/Ticket: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap;
+* Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment
+* iterate as needed
+* Wireframes: 
+
+
+
 
 some text some **bold** text
 
