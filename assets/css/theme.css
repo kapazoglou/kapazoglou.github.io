@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Vampiro+One');
+@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Asap&family=Vampiro+One');
 body {
   background-color: #19052e;
   color: #fff;
@@ -88,7 +88,12 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
     margin-bottom:1rem;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
-    font-weight:700;
+    font-family: "Asap";
+    font-weight: 700;
+}
+h2.card-title.title{
+    font-family: "Asap Condensed";
+    font-weight: 700;
 }
 @keyframes pulse {
   0% {

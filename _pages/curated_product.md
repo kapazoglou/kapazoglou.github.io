@@ -4,7 +4,7 @@ permalink: "/curated_product.html"
 image: "/assets/images/screenshot.jpg"
 ---
 
-# Testssss
+# A curated selection of projects
 
 ## Hello test
 
