@@ -8,13 +8,15 @@ image: "/assets/images/hero.jpg"
 
 > *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
-* [Design Process with Examples](#design-process)
+* [Design Process with Examples](#design-process-with-examples)
 * [Better Content Delivery for Measurable Outcomes](#better-content-delivery-for-measurable-outcomes)
 * [Reducing Friction in User Acquisition](#reducing-friction-in-user-acquisition)
 * [Improving Retention through Medical Adherence](#improving-retention-through-medical-adherence)
 * [Design Systems](#design-systems)
 
-## Design Process
+<br>
+
+## Design Process with Examples
 
 The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
 
@@ -99,37 +101,33 @@ The process is iterated, feedback is incorporated and documented as required.
 Definition of Readiness
 Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
 
-> ##### Example: Distress Management
->
-> - Revenue was off the chart.
-> - Profits were higher than ever.
->
-
 <br>
 
 ---
 
-### Better Content Delivery for Measurable Outcomes
+## Better Content Delivery for Measurable Outcomes
 
-### Reducing Friction in User Acquisition
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
+
+<br>
+
+## Reducing Friction in User Acquisition
 Onboarding flow
 
-### Improving Retention through Medical Adherence
+<br>
+
+## Improving Retention through Medical Adherence
 App Architecture
 
-### Implementing New Processess
+<br>
 
+## Implementing New Processess
 
-### Design Systems
+<br>
 
+## Design Systems
 
-Other examples of real User/Product challenges
-
-App map & Architecture
-
-
-Onboarding Flow 
-
+<br>
 
 
 * CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
