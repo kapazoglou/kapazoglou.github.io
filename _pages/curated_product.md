@@ -4,22 +4,31 @@ permalink: "/curated_product.html"
 image: "/assets/images/hero.jpg"
 ---
 
-* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
-* REAL user/product challenges
-* STRONG UI/UX execution
-* collaboration context, metrics, results
-* IMPACT: Design System, Localisation, HTML for content 
-
-
-
 # A curated selection of projects
+
+* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
+
+* REAL user/product challenges
+
+* STRONG UI/UX execution
+
+* collaboration context, metrics, results
+
+* IMPACT: Design System, Localisation, HTML for content 
 
 ### Design Process
 
-* Brief/Ticket: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap;
+* Brief/Ticket: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap; user testing possible
+
 * Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment
+
 * iterate as needed
-* Wireframes: 
+
+* Wireframes: stakeholder buy-in; frontend for feasability & prep (design system components)
+
+user testing recommended
+
+*  
 
 
 
