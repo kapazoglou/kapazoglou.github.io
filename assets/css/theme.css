@@ -4,7 +4,6 @@ body {
   color: #fff;
 	padding-top:52px;
   font-family: "Asap Condensed";
-  font-weight:300;
   letter-spacing: 0.3px;
 }
 .btn-toolbar {
@@ -80,9 +79,9 @@ hr {
 }
 blockquote {
     background: #41444E;
-    border-left: 7px solid #6610f2;
-    padding-left: 20px;
-    margin-left: 20px;
+    border-left: 7px solid #7048da;
+    padding: 20px;
+    margin: 0 0 1rem;
 }
 article h1, article h2, article h3, article h4, article h5, article h6 {
     margin-bottom:1rem;
