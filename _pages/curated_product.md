@@ -8,9 +8,10 @@ image: "/assets/images/hero.jpg"
 
 > *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
-<br>
-
-<br>
+[Design Process with Examples](#design-process)
+[Better Content Delivery for Measurable Outcomes](#better-content-delivery-for-measurable-outcomes)
+[Design Systems](#design-systems)
+[Design Systems](#design-systems)
 
 ## Design Process
 
@@ -24,6 +25,8 @@ Through the implementation of the Design Process we managed to:
 * Get timely and explicit stakeholder buy-in
 * Smoothly fit within Tech processes such as Sprints
 * Well documented steps that facilitate auditing processes
+
+<br>
 
 #### 1. Opportunity/Problem Definition & Research
 Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or anything reducing tech debt. The project is then allocated a time estimate and a priority in the roadmap.
@@ -48,7 +51,7 @@ Once all the information is in place the next step is to generate a flow diagram
 * align with the content team 
 * perform high level user testing if necessary
 
-The process is iterated and documented as required.
+The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
 > Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more refined object diagram in order to refine requirements with backend.
@@ -64,7 +67,7 @@ Once the diagram has been agreed, the flow is then fleshed out more into wirefra
 * QA & frontend comment on error handling and exceptions
 * user feedback through user testing with clickdummies
 
-The process is iterated and documented as required.
+The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
 > Having done the work in advance, the diagram helped us to assess the scope of the project and parr it down to a feasible MVP. From there I defined the main user actions according to the agreed requirements and created wireframes.
@@ -75,9 +78,15 @@ The process is iterated and documented as required.
 <br>
 
 #### 4. Screen design
-apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
+Once there is enough feedback incorporated into the wireframes, the screen design process cas start where
+design system components, templates and interaction patterns are applied. These screens are then taken to refinement so that:
 
-* iterate as needed and annotate behaviour
+* We can run final user testing with full prototypes
+* QA, Front- & Backend are briefed as to the requirements
+* A development plan can start being formed
+* Work packages can be agreed upon with specified start dates/Sprints 
+
+The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Screen Design
 > 
@@ -99,7 +108,9 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 
 ---
 
-Design System
+### Design Systems
+
+### Better Content Delivery for Measurable Outcomes
 
 Other examples of real User/Product challenges
 
