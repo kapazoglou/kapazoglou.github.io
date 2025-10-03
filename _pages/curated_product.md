@@ -6,6 +6,8 @@ image: "/assets/images/hero.jpg"
 
 # A curated selection of projects
 
+> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. Thank you for your patience*  :)
+
 * CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
 
 * REAL user/product challenges (New Features vs Iterations)
@@ -99,7 +101,9 @@ Design System
 
 Other examples of real User/Product challenges
 
+App Architecture
 
+Onboarding Flow 
   
 
   
