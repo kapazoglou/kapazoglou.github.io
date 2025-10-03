@@ -8,29 +8,36 @@ image: "/assets/images/hero.jpg"
 
 * CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
 
-* REAL user/product challenges
+* REAL user/product challenges (New Features vs Iterations)
 
-* STRONG UI/UX execution
+* STRONG UI/UX execution (Design System)
 
 * collaboration context, metrics, results
 
-* IMPACT: Design System, Localisation, HTML for content 
+* IMPACT: Design System, Localisation, HTML for content (Onboarding)
+
 
 ### Design Process
 
-* Brief/Ticket: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap; user testing possible
+* Opportunity/Problem Definition: stakeholder expectation management; manage scope creep; tackle tech debt; prioritisation according to roadmap;
 
-* Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment
+* Research: best practices Mobbin; AI suggestions i.e. Stitch"; In House User Reasearch
 
-* iterate as needed
+* Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
+
+* iterate as needed and annotate behaviour
 
 * Wireframes: stakeholder buy-in; frontend for feasability & prep (design system components)
 
-user testing recommended
+user testing recommended, Clickdummy
 
-*  
+* iterate as needed and annotate behaviour
 
+* Screen designs: apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
 
+* iterate as needed and annotate behaviour
+
+* Handover readiness: Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
 
 
 some text some **bold** text
