@@ -6,36 +6,26 @@ image: "/assets/images/hero.jpg"
 
 # A curated selection of projects
 
-> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. Thank you for your patience*  :)
-
-* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
-
-* REAL user/product challenges (New Features vs Iterations)
-
-* STRONG UI/UX execution (Design System & Accessibility Guidelines & Sensitivity to Cognitive impairement)
-
-* collaboration context, metrics, results
-
-* IMPACT: Design System, Localisation, HTML for content (Onboarding)
+> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
 <br>
-
-> The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
->
->I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
-> 
-> Through the implementation of the Design Process we managed to:
-> * Improve inter-departmental communication
-> * Establish clear accountability
-> * Get timely and explicit stakeholder buy-in
-> * Smoothly fit within Tech processes such as Sprints
 
 <br>
 
 ## Design Process
 
+The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
+
+I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
+ 
+Through the implementation of the Design Process we managed to:
+* Improve inter-departmental communication
+* Establish clear accountability
+* Get timely and explicit stakeholder buy-in
+* Smoothly fit within Tech processes such as Sprints
+
 #### 1. Opportunity/Problem Definition & Research
-Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or tech debt. The project is then allocated a time estimate and a priority in the roadmap.
+Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or anything reducing tech debt. The project is then allocated a time estimate and a priority in the roadmap.
 
 After that I start research and ideation looking at:
 * best practices on Mobbin and in-house competitor analysis
@@ -90,7 +80,7 @@ apply design system components, templates and interaction patterns; refinement w
 
 > ##### Example: Treatment Plan Screen Design
 > 
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=4008-62401&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
@@ -115,7 +105,17 @@ Other examples of real User/Product challenges
 App Architecture
 
 Onboarding Flow 
-  
 
+
+
+* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
+
+* REAL user/product challenges (New Features vs Iterations)
+
+* STRONG UI/UX execution (Design System & Accessibility Guidelines & Sensitivity to Cognitive impairement)
+
+* collaboration context, metrics, results
+
+* IMPACT: Design System, Localisation, HTML for content (Onboarding)
   
 ---
