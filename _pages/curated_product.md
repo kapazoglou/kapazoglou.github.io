@@ -13,6 +13,7 @@ image: "/assets/images/hero.jpg"
 * [Reducing Friction in User Acquisition](#reducing-friction-in-user-acquisition)
 * [Improving Retention through Medical Adherence](#improving-retention-through-medical-adherence)
 * [Design Systems](#design-systems)
+* [Implementing New Processes](#implementing-new-processes)
 
 <br>
 
@@ -105,6 +106,8 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 
 ---
 
+<br>
+
 ## Better Content Delivery for Measurable Outcomes
 
 <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
@@ -116,16 +119,34 @@ Onboarding flow
 
 <br>
 
+---
+
+<br>
+
 ## Improving Retention through Medical Adherence
 App Architecture
 
 <br>
 
-## Implementing New Processess
+---
 
 <br>
 
 ## Design Systems
+
+<br>
+
+---
+
+<br>
+
+
+## Implementing New Processess
+
+
+<br>
+
+---
 
 <br>
 
