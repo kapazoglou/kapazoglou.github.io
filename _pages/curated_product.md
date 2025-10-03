@@ -6,7 +6,8 @@ image: "/assets/images/screenshot.jpg"
 
 # A curated selection of projects
 
-## Design Process
+### Design Process
+
 
 some text some **bold** text
 
