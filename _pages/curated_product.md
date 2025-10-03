@@ -10,7 +10,7 @@ image: "/assets/images/hero.jpg"
 
 * REAL user/product challenges (New Features vs Iterations)
 
-* STRONG UI/UX execution (Design System)
+* STRONG UI/UX execution (Design System & Accessibility Guidelines & Sensitivity to Cognitive impairement)
 
 * collaboration context, metrics, results
 
@@ -48,12 +48,11 @@ image: "/assets/images/hero.jpg"
 
 #### 2. Flow diagram
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
+* iterate as needed and annotate behaviour
 
 > ##### Example: Distress Management
 > This was the flow diagram I designed for the Distsress Management Feature
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
-
-* iterate as needed and annotate behaviour
 
 #### 3. Wireframes
 stakeholder buy-in; frontend for feasability & prep (design system components)
@@ -70,13 +69,14 @@ user testing recommended, Clickdummy
 #### 4. Screen design
 apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
 
+* iterate as needed and annotate behaviour
+
 > ##### Example: Distress Management
 >
 > - Revenue was off the chart.
 > - Profits were higher than ever.
 >
 
-* iterate as needed and annotate behaviour
 
 #### 5. Handover readiness
 Definition of Readiness
@@ -88,7 +88,9 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 > - Profits were higher than ever.
 >
 
+  
 ---
+  
 
 some text some **bold** text
 
@@ -101,4 +103,5 @@ some text some **bold** text
 > <br>
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
+  
 ---
