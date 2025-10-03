@@ -30,6 +30,8 @@ I implemented a step by step pipeline with multiple stakeholder touchpoints and 
 > * Smoothly fit within Tech processes such as Sprints
 > * Well documented steps that facilitate auditing processes
 
+In this section I will present you this process with examples from the Treatment Plan feature we built.
+
 <br>
 
 #### 1. Opportunity/Problem Definition & Research
