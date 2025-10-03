@@ -20,7 +20,7 @@ image: "/assets/images/hero.jpg"
 
 <br>
 
-> The following Design Process I developed in collaboration with the Product Manager at Mika Health. 
+> The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
 >
 >I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
 > 
@@ -35,24 +35,29 @@ image: "/assets/images/hero.jpg"
 ## Design Process
 
 #### 1. Opportunity/Problem Definition & Research
-* stakeholder expectation management
-* manage scope creep
-* tackle tech debt
-* prioritisation according to roadmap
+Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or tech debt. The project is then allocated a time estimate and a priority in the roadmap.
 
-* best practices through Mobbin and competitor analysis
+After that I start research and ideation looking at:
+* best practices on Mobbin and in-house competitor analysis
 * AI suggestions i.e. Stitch
-* In-House User Reasearch & Behavioural Science
+* data from in-House User Reasearch & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
->   
+> For the purposes of a partnership as well as a grant we were required to track user adherence to medication. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users.
+>
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan-Best-Practice-Analysis?node-id=4038-83822&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
 #### 2. Flow diagram
-establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
-* iterate as needed and annotate behaviour
+Once all the information is in place the next step is to generate a flow diagram and get it in front of the stakeholders as rapidly as possible. With this diagram as a talking point I can:
+* establish feedback loops
+* get stakeholder buy-in
+* check with backend for feasability & briefing them on requirements 
+* align with the content team 
+* perform high level user testing if necessary
+
+The process is iterated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
 > This was the flow diagram I designed for the Treatment Plan Feature
@@ -61,9 +66,14 @@ establish feedback loops; stakeholder buy-in; backend for feasability & prep; co
 <br>
 
 #### 3. Wireframes
-stakeholder buy-in; frontend for feasability & prep (design system components)
-user testing recommended, Clickdummy
-* iterate as needed and annotate behaviour
+Once the diagram has been agreed, the flow is then fleshed out more into wireframes where navigation and interactions start to be defined. By presenting the Wireframes I collect: 
+
+* further stakeholder buy-in. 
+* frontend comment for feasability and agreement on Design System components and interaction patterns to be used
+* QA & frontend comment on error handling and exceptions
+* user feedback through user testing with clickdummies
+
+The process is iterated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
 > 
