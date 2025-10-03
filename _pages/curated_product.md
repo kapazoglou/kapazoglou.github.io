@@ -18,11 +18,11 @@ image: "/assets/images/hero.jpg"
 
 <br>
 
-> The following Design Process was co-developed with the Product Manager at Mika Health. 
+> The following Design Process I developed in collaboration with the Product Manager at Mika Health. 
 >
->Through our collaboration we implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
+>I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
 > 
-> By implementing it we managed to:
+> Through the implementation of the Design Process I managed to:
 > * Improve inter-departmental communication
 > * Establish clear accountability
 > * Get timely and explicit stakeholder buy-in
