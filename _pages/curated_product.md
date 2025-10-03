@@ -30,11 +30,15 @@ image: "/assets/images/hero.jpg"
 
 ## Design Process
 
-#### Opportunity/Problem Definition 
+#### 1. Opportunity/Problem Definition & Research
 * stakeholder expectation management
 * manage scope creep
 * tackle tech debt
 * prioritisation according to roadmap
+
+* best practices through Mobbin and competitor analysis
+* AI suggestions i.e. Stitch
+* In-House User Reasearch
 
 > ##### Example: Distress Management
 >
@@ -42,12 +46,7 @@ image: "/assets/images/hero.jpg"
 > - Profits were higher than ever.
 >
 
-#### Research
-* best practices through Mobbin and competitor analysis
-* AI suggestions i.e. Stitch
-* In-House User Reasearch
-
-#### Flow diagram
+#### 2. Flow diagram
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
 
 > ##### Example: Distress Management
@@ -56,7 +55,7 @@ establish feedback loops; stakeholder buy-in; backend for feasability & prep; co
 
 * iterate as needed and annotate behaviour
 
-#### Wireframes
+#### 3. Wireframes
 stakeholder buy-in; frontend for feasability & prep (design system components)
 user testing recommended, Clickdummy
 
@@ -68,7 +67,7 @@ user testing recommended, Clickdummy
 
 * iterate as needed and annotate behaviour
 
-#### Screen design
+#### 4. Screen design
 apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
 
 > ##### Example: Distress Management
@@ -79,7 +78,7 @@ apply design system components, templates and interaction patterns; refinement w
 
 * iterate as needed and annotate behaviour
 
-#### Handover readiness
+#### 5. Handover readiness
 Definition of Readiness
 Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
 
