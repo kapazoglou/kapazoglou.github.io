@@ -13,7 +13,7 @@ image: "/assets/images/hero.jpg"
 * [Design Systems](#design-systems)
 * [Implementing New Processes](#implementing-new-processes)
 
-> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
+> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but I also find it to be a straightforard way to share Figma files. You can view them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
 <br>
 
