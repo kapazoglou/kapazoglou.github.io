@@ -40,7 +40,7 @@ After that I start research and ideation looking at:
 * data from in-House User Reasearch & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
-> For the purposes of a partnership as well as a grant we were required to track user adherence to medication. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users.
+> *For the purposes of a partnership as well as a grant we were required to track user adherence to medication. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users.*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan-Best-Practice-Analysis?node-id=4038-83822&embed-host=share" allowfullscreen></iframe>
 
@@ -57,7 +57,7 @@ Once all the information is in place the next step is to generate a flow diagram
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
-> Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more refined object diagram in order to refine requirements with backend.
+> *Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more refined object diagram in order to refine requirements with backend.*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/4W5mpXGi4lT1gpFiJd5k10/%F0%9F%94%97-Treatment-Plan-Diagrams?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
@@ -73,7 +73,7 @@ Once the diagram has been agreed, the flow is then fleshed out more into wirefra
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
-> Having done the work in advance, the diagram helped us to assess the scope of the project and parr it down to a feasible MVP. From there I defined the main user actions according to the agreed requirements and created wireframes.
+> *Having done the work in advance, the diagram helped us to assess the scope of the project and parr it down to a feasible MVP. From there I defined the main user actions according to the agreed requirements and created wireframes. The wireframes were sucessfuly tested with users with a clickdummy*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>
 
@@ -92,7 +92,7 @@ design system components, templates and interaction patterns are applied. These 
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Screen Design
-> 
+> *The screen designs were finalised in suggested work packages for devs, starting with the MVP. Most of the components were already existing in the Design System and the reuse of templates made it easier to generate all of them quickly. After that all interactions were defined as per the interaction patterns commonly used in the app. The screens were then taken into Tech refinement to ensure that readiness is achieved*
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
