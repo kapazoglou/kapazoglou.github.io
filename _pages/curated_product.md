@@ -58,7 +58,7 @@ Once all the information is in place the next step is to generate a flow diagram
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
-> *Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more refined object diagram in order to refine requirements with backend.*
+> *Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more in-depth object diagram in order to refine requirements with backend.*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/4W5mpXGi4lT1gpFiJd5k10/%F0%9F%94%97-Treatment-Plan-Diagrams?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
