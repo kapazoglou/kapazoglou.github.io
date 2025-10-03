@@ -6,14 +6,14 @@ image: "/assets/images/hero.jpg"
 
 # A curated selection of projects
 
-> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
-
 * [Design Process with Examples](#design-process-with-examples)
 * [Better Content Delivery for Measurable Outcomes](#better-content-delivery-for-measurable-outcomes)
 * [Reducing Friction in User Acquisition](#reducing-friction-in-user-acquisition)
 * [Improving Retention through Medical Adherence](#improving-retention-through-medical-adherence)
 * [Design Systems](#design-systems)
 * [Implementing New Processes](#implementing-new-processes)
+
+> *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
 <br>
 
@@ -109,6 +109,10 @@ After this the screens with their comments are marked as Ready for Development t
 
 <br>
 
+[go back to top](#a-curated-selection-of-projects)
+
+<br>
+
 ---
 
 <br>
@@ -127,6 +131,10 @@ I partnered with marketing to align messaging, user expectations, and brand posi
 
 <br>
 
+[go back to top](#a-curated-selection-of-projects)
+
+<br>
+
 ---
 
 <br>
@@ -137,7 +145,11 @@ Mika Health was partnered was conducting a study into Behavioural Change Techniq
 
 <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
-In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which imrpoved retention and met our partnership responsibilities.
+In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which improved retention and met our partnership responsibilities.
+
+<br>
+
+[go back to top](#a-curated-selection-of-projects)
 
 <br>
 
@@ -156,13 +168,31 @@ I designed a user-centered mobile app for cancer patients to manage mental healt
 
 <br>
 
+[go back to top](#a-curated-selection-of-projects)
+
+<br>
+
 ---
 
 <br>
 
 ## Design Systems
 
-Accessibility Guidelines & Sensitivity to Cognitive impairement
+Before implementing the design system, the healthcare application faced several challenges. There was no centralized design system, leading to inconsistencies in user interface and experience. Developers lacked a single source of truth, which often resulted in discrepancies between design and implementation. 
+
+Additionally, design elements were disconnected across different platforms, creating a fragmented experience. Documentation was incomplete, making it difficult to track various use cases, variants, and error states. As a result, technical debt increased, slowing down development. Moreover, there was no framework for scaling or localizing the product, which limited its growth potential.
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/VBnScDLbMBmHqbmeKMJsXa/%F0%9F%94%97Design-System?node-id=2-54414&embed-host=share" allowfullscreen></iframe>
+
+To address these issues, I was tasked with creating a branded look and feel that would bring consistency to the product. My first step was conducting a comprehensive audit of the UI elements currently in use, identifying redundancies and inconsistencies. I then introduced industry standards for native iOS and Android platforms, ensuring that the designs aligned with best practices and user expectations. Additionally, I led the effort to migrate text strings into a localization manager, enabling easy adaptation for different regions and languages.
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/VBnScDLbMBmHqbmeKMJsXa/%F0%9F%94%97Design-System?node-id=2-14322&embed-host=share" allowfullscreen></iframe>
+
+The implementation of the design system had a significant impact on efficiency, consistency, and scalability. By providing a shared source of truth, we streamlined collaboration between designers and developers, reducing errors and improving workflow. The new framework also made scalability and localization seamless, allowing for expansion into new markets. Most importantly, it improved accessibility and usability, enhancing the experience for both healthcare professionals and patients with limited cognitive capacity.
+
+<br>
+
+[go back to top](#a-curated-selection-of-projects)
 
 <br>
 
@@ -173,11 +203,17 @@ Accessibility Guidelines & Sensitivity to Cognitive impairement
 
 ## Implementing New Processess
 
-UX Artifacts: Personas; User Journey; App Map
+Beside the various design projects I led, there were a few projects out of the scope of Design that I championed in order to achieve company goals and/or to improve internal processes. 
 
-Localisation
+One of the biggest ones was the Design System mentioned above which is a central artifact of UX/UI.
+In addition, collaborating with the in house User Researcher we had began the developement and refinement of **Personas** and the **User Journey**. Moreover, in order to have a clear overview of the app structure, I took it upon myself to create an **App Map** listing all the screens included in Mika Health in a way that could help us maintain the overview of our development. It became an indispensible tool for the PMs and was of value to other departments as well.
 
-HTML editor for content
+Another big undertaking was championing the localisation effort before the app was released in the UK and the US. Prior to that, all text strings were hard-coded in the app and had no keys. In collaboration with the devs, we created keys that I maintained on Phrase while they painstakingly went through all the text strings in the app and connected them to the keys. Then, I trained our external translators to use Phrase and managed the project until its completion. This enabled us to release the App in the UK and the US in a timely manner.
+
+
+<br>
+
+[go back to top](#a-curated-selection-of-projects)
 
 <br>
 
@@ -186,14 +222,5 @@ HTML editor for content
 <br>
 
 
-* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
+Thank you for your attention.
 
-* REAL user/product challenges (New Features vs Iterations)
-
-* STRONG UI/UX execution (Design System & Accessibility Guidelines & Sensitivity to Cognitive impairement)
-
-* collaboration context, metrics, results
-
-* IMPACT: Design System, Localisation, HTML for content (Onboarding)
-  
----
