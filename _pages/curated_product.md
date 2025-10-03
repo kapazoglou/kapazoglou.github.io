@@ -20,10 +20,8 @@ image: "/assets/images/hero.jpg"
 ## Design Process with Examples
 
 The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
+I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next.
 
-> I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
-
->  
 > Through the implementation of the Design Process we managed to:
 > * Improve inter-departmental communication
 > * Establish clear accountability
@@ -100,8 +98,14 @@ The process is iterated, feedback is incorporated and documented as required.
 <br>
 
 #### 5. Handover readiness
-Definition of Readiness
-Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
+Once the screens are approved, the project is checked against the Definition of Readiness for the Design team and prepared for handover.
+
+* Screens for both iOS & Android
+* Design System components are checked, updated or incorporated as necessary
+* Section and frame names, localisation keys and tokens are checked 
+* Behaviour annotation is added as necessary
+
+After this the screens with their comments are marked as Ready for Development together with all the annotations and attached to the relevant Tech tickets.
 
 <br>
 
@@ -133,7 +137,9 @@ Mika Health was partnered was conducting a study into Behavioural Change Techniq
 
 <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
-In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which imrpoved retention and met our partnership responsibilities
+In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which imrpoved retention and met our partnership responsibilities.
+
+<br>
 
 ---
 
@@ -156,6 +162,8 @@ I designed a user-centered mobile app for cancer patients to manage mental healt
 
 ## Design Systems
 
+Accessibility Guidelines & Sensitivity to Cognitive impairement
+
 <br>
 
 ---
@@ -165,6 +173,11 @@ I designed a user-centered mobile app for cancer patients to manage mental healt
 
 ## Implementing New Processess
 
+UX Artifacts: Personas; User Journey; App Map
+
+Localisation
+
+HTML editor for content
 
 <br>
 
