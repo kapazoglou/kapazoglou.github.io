@@ -53,30 +53,31 @@ After that I start research and ideation looking at:
 Once all the information is in place the next step is to generate a flow diagram and get it in front of the stakeholders as rapidly as possible. With this diagram as a talking point I can:
 * establish feedback loops
 * get stakeholder buy-in
-* check with backend for feasability & briefing them on requirements 
+* check with backend for feasibility & briefing them on requirements 
 * align with the content team 
 * perform high level user testing if necessary
 
 The process is iterated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
-> This was the flow diagram I designed for the Treatment Plan Feature
+> Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more refined object diagram in order to refine requirements with backend.
+>
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/4W5mpXGi4lT1gpFiJd5k10/%F0%9F%94%97-Treatment-Plan-Diagrams?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
 #### 3. Wireframes
 Once the diagram has been agreed, the flow is then fleshed out more into wireframes where navigation and interactions start to be defined. By presenting the Wireframes I collect: 
-
 * further stakeholder buy-in. 
-* frontend comment for feasability and agreement on Design System components and interaction patterns to be used
+* frontend comment for feasibility and agreement on Design System components and interaction patterns to be used
 * QA & frontend comment on error handling and exceptions
 * user feedback through user testing with clickdummies
 
 The process is iterated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
-> 
+> Having done the work in advance, the diagram helped us to assess the scope of the project and parr it down to a feasible MVP. From there I defined the main user actions according to the agreed requirements and created wireframes.
+>
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>
 
 
