@@ -16,14 +16,17 @@ image: "/assets/images/hero.jpg"
 
 * IMPACT: Design System, Localisation, HTML for content (Onboarding)
 
+<br>
 
 ### Design Process
 
-> The following Design Process was co-developed with the Product Manager at Mika Health. Through our collaboration we implemented a step by step process with multiple stakeholder touchpoints and clear transitions from each step to the next. By implementing it we managed to:
+> The following Design Process was co-developed with the Product Manager at Mika Health. 
+>
+>Through our collaboration we implemented a step by step process with multiple stakeholder touchpoints and clear transitions from each step to the next. By implementing it we managed to:
 > * Improve inter-departmental communication
 > * Establish clear accountability
-> * Get explicit stakeholder buy-in early
-> * Align with Tech processes like Sprints
+> * Get timely and explicit stakeholder buy-in
+> * Smoothly fit within Tech processes such as Sprints
 
 
 
