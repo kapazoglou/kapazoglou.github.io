@@ -4,6 +4,14 @@ permalink: "/curated_product.html"
 image: "/assets/images/screenshot.jpg"
 ---
 
+* CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
+* REAL user/product challenges
+* STRONG UI/UX execution
+* collaboration context, metrics, results
+* IMPACT: Design System, Localisation, HTML for content 
+
+
+
 # A curated selection of projects
 
 ### Design Process
@@ -24,11 +32,8 @@ some text some **bold** text
 > - Profits were higher than ever.
 >
 >  *Everything* is going according to **plan**.
-
-
-<br>
-
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
+> <br>
+> <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
 - First item
 - Second item
