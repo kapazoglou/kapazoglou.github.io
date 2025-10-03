@@ -6,16 +6,17 @@ image: "/assets/images/screenshot.jpg"
 
 # A curated selection of projects
 
-## Hello test
+## Design Process
 
->  
+some text some **bold** text
+
 > #### The quarterly results look great!
 >
 > - Revenue was off the chart.
 > - Profits were higher than ever.
 >
 >  *Everything* is going according to **plan**.
->  
+
 
 <br>
 
