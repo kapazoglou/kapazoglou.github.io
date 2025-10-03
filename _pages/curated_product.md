@@ -1,5 +1,5 @@
 ---
-title: "About"
+title: " "
 permalink: "/curated_product.html"
 image: "/assets/images/screenshot.jpg"
 ---
