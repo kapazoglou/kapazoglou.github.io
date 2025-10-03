@@ -18,8 +18,6 @@ image: "/assets/images/hero.jpg"
 
 <br>
 
-## Design Process
-
 > The following Design Process was co-developed with the Product Manager at Mika Health. 
 >
 >Through our collaboration we implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
@@ -30,6 +28,7 @@ image: "/assets/images/hero.jpg"
 > * Get timely and explicit stakeholder buy-in
 > * Smoothly fit within Tech processes such as Sprints
 
+## Design Process
 
 #### Opportunity/Problem Definition 
 * stakeholder expectation management
