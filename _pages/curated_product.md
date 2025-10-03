@@ -30,7 +30,7 @@ Through the implementation of the Design Process we managed to:
 <br>
 
 #### 1. Opportunity/Problem Definition & Research
-Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in, clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or anything reducing tech debt. The project is then allocated a time estimate and a priority in the roadmap.
+Upon receiving a brief I check to see that I have all the relevant information, then note the stakeholders to loop in and clearly define the limits of the scope with them and the PM in order to avoid scope creep. The PM and I look for opportunities to minimise and combine the project with backlog issues or anything reducing tech debt. The project is then allocated a time estimate and a priority in the roadmap.
 
 After that I start research and ideation looking at:
 * best practices on Mobbin and in-house competitor analysis
