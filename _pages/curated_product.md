@@ -114,11 +114,11 @@ Mika Health operated within a strict regulatory framework, requiring adherence t
 
 <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/X0ZgrfqI35FSQFjSucUyjs/%F0%9F%94%97-Onboarding?node-id=4001-46385&embed-host=share" allowfullscreen></iframe>
 
-DiGA registration introduced particularly intricate onboarding flows, including a mail-based code verification process, which added friction to user activation. While these stringent processes ensured compliance, they also posed challenges for user adoption.
-
-After the business strategy shifted away from DiGA registration, the app’s onboarding flow required a complete overhaul. The focus shifted to reducing barriers for new users, streamlining access, and improving acquisition rates. This transformation was not just about technical improvements—it required a user-centered redesign to ensure smooth, intuitive entry points.
+DiGA registration added complex onboarding that increased friction during activation; while these measures ensured compliance, they hampered user adoption, so after the business strategy moved away from DiGA the onboarding was completely overhauled to remove barriers, streamline access, boost acquisition, and deliver a user-centered redesign with smoother, more intuitive entry points.
 
 <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/X0ZgrfqI35FSQFjSucUyjs/%F0%9F%94%97-Onboarding?node-id=4001-46681&embed-host=share" allowfullscreen></iframe>
+
+I partnered with marketing to align messaging, user expectations, and brand positioning so acquisition funnels were optimized and the app became more accessible to a broader audience; the redesigned onboarding improved conversion rates, reduced drop-offs, and created a more intuitive entry point, demonstrating my ability to balance regulatory compliance with usability while driving strategic, scalable growth in a complex healthcare environment.
 
 <br>
 
@@ -128,16 +128,24 @@ After the business strategy shifted away from DiGA registration, the app’s onb
 
 ## Better Content Delivery for Measurable Outcomes
 
+Mika Health was partnered was conducting a study into Behavioural Change Techniques (BCTs) where it was required to be able to perform AB tests between different techniques for different patients in a way that created measurable outcomes. This project was also addressing several user wishes for closer personalisation to their needs.
+
 <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
-<br>
+In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which imrpoved retention and met our partnership responsibilities
 
 ---
 
 <br>
 
 ## Improving Retention through Medical Adherence
-App Architecture
+Stepping into a Lead role, I leveraged two years of hands-on UX work to address structural issues. I conducted extensive user research with to surface patient motivations and frustrations and collaborated with a behavioural psychologist to select Behavioural Change Techniques that support healthier routines; I mapped the app flow, removed duplicate entry points, dead ends, and misdirected paths, redesigned the experience into a cohesive, purposeful loop, and introduced progression and personalization techniques to sustain motivation and make the app feel increasingly tailored and rewarding.
+
+<iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
+
+<br>
+
+I designed a user-centered mobile app for cancer patients to manage mental health and therapy progress, creating an intuitive calendar system to track daily recommendations, monitor therapy plans, and take actionable steps; to prevent overwhelm I implemented gentle notifications, surfaced relevant personalized recommendations, and added reward mechanisms that visually represented completed actions as progress, while weekly insights were structured to reveal meaningful patterns over time. The wireframes tested well with users and an MVP was commissioned.
 
 <br>
 
