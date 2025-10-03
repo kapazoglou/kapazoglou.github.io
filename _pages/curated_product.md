@@ -37,27 +37,41 @@ image: "/assets/images/hero.jpg"
 * tackle tech debt
 * prioritisation according to roadmap
 
+> ##### Example: Distress Management
+>
+> - Revenue was off the chart.
+> - Profits were higher than ever.
+>
 
-#### Research: 
+#### Research
 * best practices through Mobbin and competitor analysis
 * AI suggestions i.e. Stitch
 * In-House User Reasearch
 
-* Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
+#### Flow diagram
+establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
+
+> ##### Example: 
+> <br>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
 * iterate as needed and annotate behaviour
 
-* Wireframes: stakeholder buy-in; frontend for feasability & prep (design system components)
+#### Wireframes
+stakeholder buy-in; frontend for feasability & prep (design system components)
 
 user testing recommended, Clickdummy
 
 * iterate as needed and annotate behaviour
 
-* Screen designs: apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
+#### Screen design
+apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
 
 * iterate as needed and annotate behaviour
 
-* Handover readiness: Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
+#### Handover readiness
+Definition of Readiness
+Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
 
 
 some text some **bold** text
