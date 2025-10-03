@@ -18,11 +18,13 @@ image: "/assets/images/hero.jpg"
 
 <br>
 
-### Design Process
+## Design Process
 
 > The following Design Process was co-developed with the Product Manager at Mika Health. 
 >
->Through our collaboration we implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. By implementing it we managed to:
+>Through our collaboration we implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
+> 
+> By implementing it we managed to:
 > * Improve inter-departmental communication
 > * Establish clear accountability
 > * Get timely and explicit stakeholder buy-in
@@ -36,7 +38,10 @@ image: "/assets/images/hero.jpg"
 * prioritisation according to roadmap
 
 
-* Research: best practices Mobbin; AI suggestions i.e. Stitch"; In House User Reasearch
+#### Research: 
+* best practices through Mobbin and competitor analysis
+* AI suggestions i.e. Stitch
+* In-House User Reasearch
 
 * Flow diagram: establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
 
