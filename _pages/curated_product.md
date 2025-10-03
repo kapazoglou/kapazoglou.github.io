@@ -8,10 +8,11 @@ image: "/assets/images/hero.jpg"
 
 > *Please allow a few seconds for each embedded Figma project to load. I am aware it is not the optimal user experience but it is the most straightforard way to share Figma files. I recommend viewing them in full-screen by clicking the button on the top-right of each frame. Thank you for your patience*  :)
 
-[Design Process with Examples](#design-process)
-[Better Content Delivery for Measurable Outcomes](#better-content-delivery-for-measurable-outcomes)
-[Design Systems](#design-systems)
-[Design Systems](#design-systems)
+* [Design Process with Examples](#design-process)
+* [Better Content Delivery for Measurable Outcomes](#better-content-delivery-for-measurable-outcomes)
+* [Reducing Friction in User Acquisition](#reducing-friction-in-user-acquisition)
+* [Improving Retention through Medical Adherence](#improving-retention-through-medical-adherence)
+* [Design Systems](#design-systems)
 
 ## Design Process
 
@@ -108,15 +109,24 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 
 ---
 
+### Better Content Delivery for Measurable Outcomes
+
+### Reducing Friction in User Acquisition
+Onboarding flow
+
+### Improving Retention through Medical Adherence
+App Architecture
+
+### Implementing New Processess
+
+
 ### Design Systems
 
-### Better Content Delivery for Measurable Outcomes
 
 Other examples of real User/Product challenges
 
 App map & Architecture
 
-App Architecture
 
 Onboarding Flow 
 
