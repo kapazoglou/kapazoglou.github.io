@@ -1,7 +1,7 @@
 ---
 title: " "
 permalink: "/curated_product.html"
-image: "/assets/images/screenshot.jpg"
+image: "/assets/images/item/pht_4.png"
 ---
 
 * CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
@@ -34,10 +34,5 @@ some text some **bold** text
 >  *Everything* is going according to **plan**.
 > <br>
 > <iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
-
-- First item
-- Second item
-- Third item
-- Fourth item
 
 ---
