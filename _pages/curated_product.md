@@ -21,14 +21,15 @@ image: "/assets/images/hero.jpg"
 
 The following Design Process I developed in collaboration with the Product Manager at Mika Health. The app was focused on providing information and support to cancer patients throughout their patient journey. 
 
-I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
- 
-Through the implementation of the Design Process we managed to:
-* Improve inter-departmental communication
-* Establish clear accountability
-* Get timely and explicit stakeholder buy-in
-* Smoothly fit within Tech processes such as Sprints
-* Well documented steps that facilitate auditing processes
+> I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
+
+>  
+> Through the implementation of the Design Process we managed to:
+> * Improve inter-departmental communication
+> * Establish clear accountability
+> * Get timely and explicit stakeholder buy-in
+> * Smoothly fit within Tech processes such as Sprints
+> * Well documented steps that facilitate auditing processes
 
 <br>
 
