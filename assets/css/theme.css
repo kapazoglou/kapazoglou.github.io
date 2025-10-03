@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Inter&family=Vampiro+One');
+@import url('https://fonts.googleapis.com/css2?family=Asap+Condensed&family=Inter&family=Inter+Tight&family=Vampiro+One');
 body {
   background-color: #19052e;
   color: #fff;
@@ -211,8 +211,9 @@ footer.footer {
     color: #fff;
     font-size: 1em;
     font-weight: 500;
-    font-family: "Inter";
+    font-family: "Inter Tight";
     font-style:normal;
+    letter-spacing: 0.1px;
 }
 .card-pin .more a {
 	text-decoration:none;
