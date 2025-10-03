@@ -41,16 +41,15 @@ image: "/assets/images/hero.jpg"
 * In-House User Reasearch
 
 > ##### Example: Distress Management
->
-> - Revenue was off the chart.
-> - Profits were higher than ever.
->
+> 
+> 
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=2104-2431&embed-host=share" allowfullscreen></iframe>
 
 #### 2. Flow diagram
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
 * iterate as needed and annotate behaviour
 
-> ##### Example: Distress Management
+> ##### Example: Distress Management Material
 > This was the flow diagram I designed for the Distsress Management Feature
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
