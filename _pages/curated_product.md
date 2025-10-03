@@ -42,9 +42,9 @@ image: "/assets/images/hero.jpg"
 * AI suggestions i.e. Stitch
 * In-House User Reasearch & Behavioural Science
 
-> ##### Example: Treatment Plan Best Prcatice Analysis
+> ##### Example: Treatment Plan Best Practice Analysis
 >   
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan-Best-Practice-Analysis?node-id=4038-83822&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
@@ -54,10 +54,7 @@ establish feedback loops; stakeholder buy-in; backend for feasability & prep; co
 
 > ##### Example: Treatment Plan Diagram
 > This was the flow diagram I designed for the Treatment Plan Feature
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-6&embed-host=share" allowfullscreen></iframe>
->
-> This was the flow diagram I designed for the Treatment Plan Feature
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-6&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/4W5mpXGi4lT1gpFiJd5k10/%F0%9F%94%97-Treatment-Plan-Diagrams?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
@@ -68,7 +65,7 @@ user testing recommended, Clickdummy
 
 > ##### Example: Treatment Plan Wireframes
 > 
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4003-242&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>>
 
 
 <br>
@@ -80,7 +77,7 @@ apply design system components, templates and interaction patterns; refinement w
 
 > ##### Example: Treatment Plan
 > 
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan?node-id=4008-62401&embed-host=share" allowfullscreen></iframe>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=4008-62401&embed-host=share" allowfullscreen></iframe>
 
 <br>
 
@@ -97,18 +94,11 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 <br>
 
 ---
+
+Other examples of real User/Product challenges
+
+
   
-
-some text some **bold** text
-
-> #### The quarterly results look great!
->
-> - Revenue was off the chart.
-> - Profits were higher than ever.
->
->  *Everything* is going according to **plan**.
-> <br>
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
   
 ---
