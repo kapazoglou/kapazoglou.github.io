@@ -37,6 +37,7 @@ Upon receiving a brief I check to see that I have all the relevant information, 
 After that I start research and ideation looking at:
 * best practices on Mobbin and in-house competitor analysis
 * AI suggestions i.e. Stitch
+* the User Journey and relevant Personas
 * data from in-House User Reasearch & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
