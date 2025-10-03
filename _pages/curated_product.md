@@ -51,7 +51,7 @@ image: "/assets/images/hero.jpg"
 #### Flow diagram
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
 
-> ##### Example: 
+> ##### Example: Distress Management
 > <br>
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
 
@@ -59,13 +59,24 @@ establish feedback loops; stakeholder buy-in; backend for feasability & prep; co
 
 #### Wireframes
 stakeholder buy-in; frontend for feasability & prep (design system components)
-
 user testing recommended, Clickdummy
+
+> ##### Example: Distress Management
+>
+> - Revenue was off the chart.
+> - Profits were higher than ever.
+>
 
 * iterate as needed and annotate behaviour
 
 #### Screen design
 apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
+
+> ##### Example: Distress Management
+>
+> - Revenue was off the chart.
+> - Profits were higher than ever.
+>
 
 * iterate as needed and annotate behaviour
 
@@ -73,6 +84,13 @@ apply design system components, templates and interaction patterns; refinement w
 Definition of Readiness
 Design System check/update; Screens for iOS & Android; Frame names, localisation keys and tokens checked & behaviour annotation versus Tech Tickets checked
 
+> ##### Example: Distress Management
+>
+> - Revenue was off the chart.
+> - Profits were higher than ever.
+>
+
+---
 
 some text some **bold** text
 
