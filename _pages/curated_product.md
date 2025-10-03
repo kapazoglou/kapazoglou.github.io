@@ -28,6 +28,8 @@ image: "/assets/images/hero.jpg"
 > * Get timely and explicit stakeholder buy-in
 > * Smoothly fit within Tech processes such as Sprints
 
+<br>
+
 ## Design Process
 
 #### 1. Opportunity/Problem Definition & Research
@@ -38,12 +40,13 @@ image: "/assets/images/hero.jpg"
 
 * best practices through Mobbin and competitor analysis
 * AI suggestions i.e. Stitch
-* In-House User Reasearch
+* In-House User Reasearch & Behavioural Science
 
 > ##### Example: Distress Management
-> 
-> 
+>   
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=2104-2431&embed-host=share" allowfullscreen></iframe>
+
+<br>
 
 #### 2. Flow diagram
 establish feedback loops; stakeholder buy-in; backend for feasability & prep; content for alignment; high level user testing possible
@@ -52,6 +55,8 @@ establish feedback loops; stakeholder buy-in; backend for feasability & prep; co
 > ##### Example: Distress Management Material
 > This was the flow diagram I designed for the Distsress Management Feature
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/____Curated?node-id=10-6593&embed-host=share" allowfullscreen></iframe>
+
+<br>
 
 #### 3. Wireframes
 stakeholder buy-in; frontend for feasability & prep (design system components)
@@ -65,6 +70,8 @@ user testing recommended, Clickdummy
 
 * iterate as needed and annotate behaviour
 
+<br>
+
 #### 4. Screen design
 apply design system components, templates and interaction patterns; refinement with Front- & Backend; QA briefing; user testing recommended; Prototype;
 
@@ -76,6 +83,7 @@ apply design system components, templates and interaction patterns; refinement w
 > - Profits were higher than ever.
 >
 
+<br>
 
 #### 5. Handover readiness
 Definition of Readiness
@@ -87,7 +95,8 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 > - Profits were higher than ever.
 >
 
-  
+<br>
+
 ---
   
 
