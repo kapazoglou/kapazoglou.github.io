@@ -1,7 +1,7 @@
 ---
 title: " "
 permalink: "/curated_product.html"
-image: "/assets/images/item/pht_4.png"
+image: "/assets/images/hero.jpg"
 ---
 
 * CLEAR walkthrough of visual design process and decisions (Distress MGMT / Treatment Plan)
