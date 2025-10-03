@@ -22,7 +22,7 @@ image: "/assets/images/hero.jpg"
 >
 >I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next. 
 > 
-> Through the implementation of the Design Process I managed to:
+> Through the implementation of the Design Process we managed to:
 > * Improve inter-departmental communication
 > * Establish clear accountability
 > * Get timely and explicit stakeholder buy-in
@@ -65,7 +65,7 @@ user testing recommended, Clickdummy
 
 > ##### Example: Treatment Plan Wireframes
 > 
-> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>>
+> <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>
 
 
 <br>
@@ -75,7 +75,7 @@ apply design system components, templates and interaction patterns; refinement w
 
 * iterate as needed and annotate behaviour
 
-> ##### Example: Treatment Plan
+> ##### Example: Treatment Plan Screen Design
 > 
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=4008-62401&embed-host=share" allowfullscreen></iframe>
 
@@ -94,6 +94,8 @@ Design System check/update; Screens for iOS & Android; Frame names, localisation
 <br>
 
 ---
+
+Design System
 
 Other examples of real User/Product challenges
 
