@@ -24,10 +24,10 @@ The following Design Process I developed in collaboration with the Product Manag
 I implemented a step by step pipeline with multiple stakeholder touchpoints and clear transitions from each step to the next.
 
 > Through the implementation of the Design Process I managed to:
-> * Improve inter-departmental communication
-> * Establish clear accountability
-> * Get timely and explicit stakeholder buy-in
-> * Smoothly fit within Tech processes such as Sprints
+> * improve inter-departmental communication
+> * establish clear accountability
+> * get timely and explicit stakeholder buy-in
+> * smoothly fit within Tech processes such as Sprints
 > * Keep well documented decisions on each step that facilitate auditing processes
 
 <br>
@@ -42,7 +42,7 @@ After that I start research and ideation looking at:
 * collated reports from in-House User Research & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
-> *For the purposes of a partnership as well as a grant we were required to track user adherence to medication administered both at home and at clinics. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. We started our research by analysing best practices in competitive apps*
+> *For the purposes of a partnership as well as a grant we were required to track user adherence to medication administered both at home and at clinics. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. By researching apps like Jasper the backend complexity of the project became apparent*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan-Best-Practice-Analysis?node-id=4038-83822&embed-host=share" allowfullscreen></iframe>
 
@@ -75,7 +75,7 @@ Once the diagram has been agreed, the flow is then fleshed out more into wirefra
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
-> *The diagram helped me to assess usability pitfalls early on since it required a lot of user data input. I ironed those out by making wireframes which I user tested with click dummy prototypes.At this step it became obvious that the feature would be too big to release in one go and so I created an MVP version of the feature as well as a series of functionality extensions to be planned in a series of upcoming releases*
+> *The diagram helped me to assess usability pitfalls early on since it required a lot of user data input. I ironed those out by making wireframes which I user tested with click dummy prototypes. At this step it became obvious that the feature would be too big to release in one go persuaded the stakeholders to release the feature incrementally. I created an MVP version as well as a series of functionality extensions to be planned in a series of upcoming releases*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>
 
@@ -85,15 +85,15 @@ The process is iterated, feedback is incorporated and documented as required.
 ##### 4. Screen design
 Once there is enough feedback incorporated into the wireframes, the screen design process can start where design system components, templates and interaction patterns are applied. These screens are then taken to refinement so that:
 
-* We can run final user testing with full prototypes
+* we can run final user testing with full prototypes
 * QA, Front- & Backend are briefed as to the requirements
-* A development plan can start being formed
-* Work packages can be agreed upon with specified start dates/Sprints 
+* s development plan can start being formed
+* work packages can be agreed upon with specified start dates/Sprints 
 
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Screen Design
-> *At the wireframe stage I decided that the feature could be split between the at-home and clinic administration of medication so I persuaded the stakeholders to release the feature incrementally. I started by designing the MVP screens using only using pre-existing Design System components and leaving any improvements for upcoming feature extensions. We tested the MVP to ensure that it had retained user value. Splitting the project helped us avoid a huge development bottleneck and bought us time while meeting the requirements of our partnership*
+> *At the wireframe stage I decided that the feature could be split between the at-home and clinic administration of medication. I started by designing the MVP screens using only using pre-existing Design System components and leaving any improvements for upcoming feature extensions. We tested the MVP to ensure that it had retained user value. Splitting the project helped us avoid a huge development bottleneck and bought us time while meeting the requirements of our partnership.*
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
@@ -101,10 +101,10 @@ The process is iterated, feedback is incorporated and documented as required.
 ##### 5. Handover readiness
 Once the screens are approved, the project is checked against the Definition of Readiness for the Design team and prepared for handover. At this step I ensure that: 
 
-* Screens exist for both iOS & Android behaviours
+* screens exist for both iOS & Android behaviours
 * Design System components are checked, updated or incorporated as necessary
-* Section and frame names, localisation keys and tokens are consistent
-* Behaviour annotation is added as necessary
+* section and frame names, localisation keys and tokens are consistent
+* behaviour annotation is added as necessary
 
 After this the screens with their comments are marked as Ready for Development together with all the annotations and attached to the relevant Tech tickets.
 
