@@ -28,7 +28,7 @@ I implemented a step by step pipeline with multiple stakeholder touchpoints and 
 > * establish clear accountability
 > * get timely and explicit stakeholder buy-in
 > * smoothly fit within Tech processes such as Sprints
-> * Keep well documented decisions on each step that facilitate auditing processes
+> * keep well documented decisions on each step that facilitate auditing processes
 
 <br>
 
@@ -39,7 +39,7 @@ After that I start research and ideation looking at:
 * best practices on Mobbin and in-house competitor analysis
 * AI suggestions i.e. Stitch
 * the User Journey and relevant Personas
-* collated reports from in-House User Research & Behavioural Science
+* collated reports from in-house User Research & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
 > *For the purposes of a partnership as well as a grant we were required to track user adherence to medication administered both at home and at clinics. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. By researching apps like Jasper the backend complexity of the project became apparent.*
