@@ -87,7 +87,7 @@ Once there is enough feedback incorporated into the wireframes, the screen desig
 
 * we can run final user testing with full prototypes
 * QA, Front- & Backend are briefed as to the requirements
-* s development plan can start being formed
+* a development plan can start being formed
 * work packages can be agreed upon with specified start dates/Sprints 
 
 The process is iterated, feedback is incorporated and documented as required.
