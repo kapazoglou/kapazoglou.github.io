@@ -42,7 +42,7 @@ After that I start research and ideation looking at:
 * collated reports from in-House User Research & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
-> *For the purposes of a partnership as well as a grant we were required to track user adherence to medication. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. We started our research by analysing best practices in competitive apps*
+> *For the purposes of a partnership as well as a grant we were required to track user adherence to medication administered both at home and at clinics. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. We started our research by analysing best practices in competitive apps*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/HX3mj9ddgNqlu3wOlYc6Ld/%F0%9F%94%97-Treatment-Plan-Best-Practice-Analysis?node-id=4038-83822&embed-host=share" allowfullscreen></iframe>
 
@@ -59,7 +59,7 @@ Once all the information is in place the next step is to generate a flow diagram
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Diagram
-> *Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more in-depth object diagram in order to refine requirements with backend.*
+> *Because of the scope of this feature, or rather feature collection, I designed a high level diagram along with a more in-depth object diagram in order to refine requirements with backend. This step saved us a lot of time since a lot of the ambiguities were expressely discussed and resolved. It also gave a good headstart to backend so that when the final designs were ready, frontend would be able to use the APIs right away*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/4W5mpXGi4lT1gpFiJd5k10/%F0%9F%94%97-Treatment-Plan-Diagrams?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
@@ -75,7 +75,7 @@ Once the diagram has been agreed, the flow is then fleshed out more into wirefra
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Wireframes
-> *Having done the work in advance, the diagram helped us to assess the scope of the project and parr it down to a feasible MVP. From there I defined the main user actions according to the agreed requirements and created wireframes. The wireframes were sucessfuly tested with users with a clickdummy*
+> *The diagram helped me to assess usability pitfalls early on since it required a lot of user data input. I ironed those out by making wireframes which I user tested with click dummy prototypes.At this step it became obvious that the feature would be too big to release in one go and so I created an MVP version of the feature as well as a series of functionality extensions to be planned in a series of upcoming releases*
 >
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/p5jXXfAPMNSAZmGhhuWwXw/%F0%9F%94%97-Treatment-Plan-Wireframes?node-id=4003-11949&embed-host=share" allowfullscreen></iframe>
 
@@ -93,7 +93,7 @@ Once there is enough feedback incorporated into the wireframes, the screen desig
 The process is iterated, feedback is incorporated and documented as required.
 
 > ##### Example: Treatment Plan Screen Design
-> *The screen designs were finalised in suggested work packages for devs, starting with the MVP. Most of the components were already existing in the Design System and the reuse of templates made it easier to generate all of them quickly. After that all interactions were defined as per the interaction patterns commonly used in the app. The screens were then taken into Tech refinement to ensure that readiness is achieved*
+> *At the wireframe stage I decided that the feature could be split between the at-home and clinic administration of medication so I persuaded the stakeholders to release the feature incrementally. I started by designing the MVP screens using only using pre-existing Design System components and leaving any improvements for upcoming feature extensions. We tested the MVP to ensure that it had retained user value. Splitting the project helped us avoid a huge development bottleneck and bought us time while meeting the requirements of our partnership*
 > <iframe style="border: 1px solid white;" width="800" height="450" src="https://embed.figma.com/design/W28UGT8CPwbK3pdXhDMV3k/%F0%9F%94%97-Treatment-Plan-Screens?node-id=1-17403&embed-host=share" allowfullscreen></iframe>
 
 <br>
