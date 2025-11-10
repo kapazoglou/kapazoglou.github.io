@@ -6,6 +6,10 @@ image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/ima
 
 ---
 
+![maps1](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx1.png)
+![maps2](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx2.png)
+![maps3](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx3.png)
+
 As an illustrator for Headland Archaeology Ltd, I played a key role in translating complex archaeological findings into engaging visual narratives or accurate reports. My work focused on creating detailed maps based on surveys and thematic illustrations that helped bring excavation discoveries to life for both academic audiences and the general public.
 
 <br>
