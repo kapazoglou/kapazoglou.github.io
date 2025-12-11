@@ -1,8 +1,8 @@
 ---
-title:  "'Myths Behind Stars' Book"
+title:  "'Myths Upon Stars' Book"
 metadate: "hide"
 categories: [ Storytelling, Data Viz, Research]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/azeqN_starchart_Kall.png"
+image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/sympan.jpg"
 
 ---
 
