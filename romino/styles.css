@@ -1,0 +1,632 @@
+@import url('https://fonts.googleapis.com/css2?family=Averia+Libre&display=swap');
+
+@font-face {
+  font-family: 'Numbers Deuce';
+  src: url('NumbersDeuce.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #334466;
+  --die-face:     #070d1a;
+  --accent:       #ffe500;
+  --card-bg:      #ffffff;
+  --card-border:  #d3d6e5;
+  --holder:       #d3d6e5;
+  --tile-border:  #5c5e66;
+  --text-primary: #ffffff;
+  --text-dim:     rgba(255, 255, 255, 0.66);
+  --die-size:     40px;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+}
+
+body {
+  font-family: 'Averia Libre', serif;
+  color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── TEMPLATE ─── */
+.template {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.template.template--score-sweep {
+  overflow: visible;
+  z-index: 3;
+}
+
+/* ─── DISCARDS (hidden in new UI, kept for game logic) ─── */
+.discards {
+  display: none;
+}
+
+/* ─── GRID OVERLAY (tint strip + HUD) ─── */
+.grid-overlay {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.grid-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #404040;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.grid-overlay__mid {
+  flex: 0 0 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ─── GRID CONTAINER (always 3x3) ─── */
+#grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 110px);
+  grid-template-rows: repeat(3, 167px);
+  gap: 8px;
+  padding: 10px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+#grid-container.is-scoring-sweep {
+  overflow: visible;
+  z-index: 2;
+}
+
+#app.is-scoring-exit {
+  pointer-events: none;
+}
+
+/* ─── GRID SLOT (empty placeholder) ─── */
+.grid-slot {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.1s ease;
+}
+
+.grid-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+.grid-slot.is-filled::before {
+  display: none;
+}
+
+.grid-slot.is-filled.grid-slot--score-pending::before,
+.grid-slot.is-filled.grid-slot--score-sweep::before {
+  display: block;
+}
+
+.grid-slot.drag-over {
+  box-shadow: 0 0 0 4px var(--accent);
+}
+
+/* ─── Scoring exit: beat + sweep along line axis ─── */
+.grid-slot--score-pending .converter-card {
+  opacity: 0.93;
+  transition: opacity 0.22s ease;
+}
+
+.grid-slot--score-sweep {
+  overflow: visible;
+  z-index: 6;
+}
+
+.grid-slot--score-sweep .converter-card {
+  overflow: visible;
+  animation-duration: 0.58s;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.33, 1, 0.45, 1);
+  animation-delay: calc(var(--exit-order, 0) * 68ms);
+}
+
+@keyframes score-sweep-h {
+  to {
+    transform: translateX(135%);
+    opacity: 0;
+  }
+}
+
+@keyframes score-sweep-v {
+  to {
+    transform: translateY(142%);
+    opacity: 0;
+  }
+}
+
+@keyframes score-sweep-d1 {
+  to {
+    transform: translate(128%, 128%);
+    opacity: 0;
+  }
+}
+
+@keyframes score-sweep-d2 {
+  to {
+    transform: translate(-128%, 128%);
+    opacity: 0;
+  }
+}
+
+.grid-slot--score-sweep--h .converter-card {
+  animation-name: score-sweep-h;
+}
+
+.grid-slot--score-sweep--v .converter-card {
+  animation-name: score-sweep-v;
+}
+
+.grid-slot--score-sweep--d1 .converter-card {
+  animation-name: score-sweep-d1;
+}
+
+.grid-slot--score-sweep--d2 .converter-card {
+  animation-name: score-sweep-d2;
+}
+
+/* ─── CONVERTER CARD ─── */
+@keyframes score-preview-pop {
+  0%   { transform: scale(0);    opacity: 0; }
+  65%  { transform: scale(1.33); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+.score-preview {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 36px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 1;
+}
+
+.score-preview.is-new {
+  animation: score-preview-pop 0.22s cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+.converter-card {
+  width: 110px;
+  height: 167px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: none;
+  padding: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.converter-card.in-tray {
+  cursor: grab;
+}
+
+.converter-card.in-tray:active {
+  cursor: grabbing;
+}
+
+.converter-card--grid-draggable {
+  cursor: grab;
+}
+
+.converter-card--grid-draggable:active {
+  cursor: grabbing;
+}
+
+.converter-card.is-dragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Empty placeholder left behind when dragging a tray card */
+.converter-card.in-tray.is-dragging {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.07);
+}
+.converter-card.in-tray.is-dragging > * {
+  opacity: 0;
+}
+
+/* Empty placeholder left behind when dragging a repositionable grid card */
+.grid-slot.is-filled:has(.converter-card.is-dragging)::before {
+  display: block;
+}
+
+/* ─── CARD INDEX — active state (top-left, 48px) ─── */
+.card-index {
+  position: absolute;
+  left: 8px;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 4px;
+  border-radius: 4px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 48px;
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+  pointer-events: none;
+  /* colour inherits from .converter-card's inline style */
+}
+
+.card-rank,
+.card-suit {
+  display: block;
+  width: 40px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* tighten rank/suit spacing only for unfinished cards */
+.card-index:not(.card-index--filled) > .card-suit {
+  margin-top: -6px;
+}
+
+/* ─── CARD INDEX — filled state (centred, 72px) ─── */
+.card-index--filled {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 86px;           /* anchor to widest child; removes auto-sizing ambiguity */
+  font-size: 72px;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0;
+  text-align: center;
+}
+
+.card-rank--filled {
+  width: 86px;
+  text-align: center;
+}
+
+.card-suit--filled {
+  width: 86px;           /* same width as rank so glyphs share the same visual centre */
+  text-align: center;
+}
+
+/* ─── CONVERTER CARD — filled state ─── */
+.converter-card--filled {
+  gap: 8px;
+  cursor: default;
+}
+
+/* ─── CARD DICE AREA ─── */
+.card-dice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* ─── DICE TILE (container for holder-dice slots) ─── */
+.dice-tile {
+  border: 1px solid var(--tile-border);
+  border-radius: 12px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.dice-tile--top {
+  justify-content: center;
+}
+
+.dice-tile--bottom {
+  width: fit-content;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+/* ─── HOLDER DICE SLOT (inside a card) ─── */
+.holder-dice {
+  width: var(--die-size);
+  height: var(--die-size);
+  min-width: var(--die-size);
+  min-height: var(--die-size);
+  max-width: var(--die-size);
+  max-height: var(--die-size);
+  border-radius: 8px;
+  background: var(--holder);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: box-shadow 0.18s ease;
+}
+
+.holder-dice.drag-over {
+  box-shadow: 0 0 0 4px var(--accent);
+}
+
+
+.holder-dice.is-new {
+  box-shadow: 0 0 0 4px var(--accent);
+}
+
+/* ─── DIE WRAPPER (the draggable die inside a holder or tray) ─── */
+@keyframes action-bar-slide-in {
+  0%   { transform: translateY(44px) scale(0.88); opacity: 0; }
+  65%  { transform: translateY(-5px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+.die-wrapper.is-new {
+  animation: action-bar-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+.converter-card.is-new {
+  animation: action-bar-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+.die-wrapper {
+  width: var(--die-size);
+  height: var(--die-size);
+  min-width: var(--die-size);
+  min-height: var(--die-size);
+  max-width: var(--die-size);
+  max-height: var(--die-size);
+  flex-basis: var(--die-size);
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+  position: relative;
+  border-radius: 8px;
+  display: block;
+}
+
+.die-wrapper:active {
+  cursor: grabbing;
+}
+
+svg[data-name="dice_master"] {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+  min-width: var(--die-size);
+  min-height: var(--die-size);
+  max-width: var(--die-size);
+  max-height: var(--die-size);
+}
+
+.die-wrapper.is-dragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.die-wrapper.is-locked {
+  cursor: default;
+  opacity: 1;
+}
+
+.die-wrapper.tray-swap-target {
+  outline: 4px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 9px;
+}
+
+/* ─── ACTION BAR ─── */
+.action-bar {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start; /* cards overflow downward; dice are centred via padding */
+  justify-content: center;
+  overflow: hidden;
+  padding: 20px;
+  height: 80px;
+  min-width: 0;
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* When showing dice, centre them vertically in the 40px content area */
+.action-bar.mode-dice {
+  align-items: center;
+}
+
+#replay-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 8px 20px;
+  line-height: 1;
+}
+
+#replay-btn:hover {
+  opacity: 0.8;
+}
+
+.action-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #404040;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ─── DRAG GHOST ─── */
+#drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) scale(1.05);
+  opacity: 0.92;
+  border-radius: 9px;
+  display: none;
+}
+
+#drag-ghost.die-drag {
+  transform: translate(-50%, -50%) scale(1.35);
+}
+
+#drag-ghost.is-visible {
+  display: block;
+}
+
+/* ─── GAME-OVER DIALOG ─── */
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 13, 26, 0.75);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.game-over-overlay.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.game-over-dialog {
+  background: var(--bg);
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 280px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+  transform: translateY(12px);
+  transition: transform 0.3s ease;
+}
+
+.game-over-overlay.is-visible .game-over-dialog {
+  transform: translateY(0);
+}
+
+.game-over-title {
+  font-family: 'Averia Libre', serif;
+  font-size: 36px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.game-over-reason {
+  font-family: 'Averia Libre', serif;
+  font-size: 16px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.4;
+  min-height: 1.4em;
+}
+
+.game-over-btn {
+  margin-top: 8px;
+  background: white;
+  height: 40px;
+  padding: 0 28px;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Averia Libre', serif;
+  font-size: 20px;
+  color: #364254;
+  white-space: nowrap;
+}
+
+.game-over-btn:active {
+  transform: scale(0.95);
+}
+
+/* ─── DISCARD ENTRY (kept for potential future display) ─── */
+.discard-entry.is-dim {
+  opacity: 0.1;
+}
+
+
+/* ─── HUD (card countdown left, score right) ─── */
+#hud {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 28px;
+  color: var(--text-primary);
+  pointer-events: none;
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+  <title>römino</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+  <div class="template" data-name="template">
+
+    <!-- Discards (hidden visually, used for game logic) -->
+    <div class="discards" data-name="discards" aria-hidden="true">
+      <div class="discard-labels" id="discard-labels"></div>
+      <div class="discard-stacks" id="discard-stacks"></div>
+    </div>
+
+    <!-- Overlay region: tint strip + HUD (card countdown left, score right) -->
+    <div class="grid-overlay">
+      <div id="hud">
+        <span id="card-count">52</span>
+        <span id="score-display">0 🪙</span>
+      </div>
+    </div>
+
+    <!-- Card grid -->
+    <div id="grid-container"></div>
+
+    <!-- Action bar: shows converter cards or dice depending on phase -->
+    <div class="action-bar" data-name="action_bar" id="action-bar"></div>
+
+  </div>
+</div>
+
+<!-- Drag ghost -->
+<div id="drag-ghost"></div>
+
+<!-- Game-over dialog -->
+<div id="game-over-overlay" class="game-over-overlay" aria-hidden="true">
+  <div class="game-over-dialog" role="alertdialog" aria-modal="true" aria-labelledby="game-over-title">
+    <div class="game-over-title" id="game-over-title">game over</div>
+    <div class="game-over-reason" id="game-over-reason"></div>
+    <button class="game-over-btn" id="game-over-restart">play again</button>
+  </div>
+</div>
+
+<script src="main.js"></script>
+</body>
+</html>
