@@ -182,7 +182,7 @@ function cardRank(cardId) {
   // if (allThreeColoredCard(cardId)) return 'A';
   if (isJokerCard(cardId)) return 'A';
   const sum = cardSlotValue(cardId, 0) + cardSlotValue(cardId, 2);
-  return ndTranscribe(sum);
+  return sum === 0 ? ' ' : ndTranscribe(sum);
 }
 
 function cardMiddleValue(cardId) {
@@ -459,7 +459,11 @@ function updateScorePreview(cardId) {
   const qualifies = card.slots.every(s => s !== null) && evaluateCardScore(cardId) > 0;
   if (qualifies && !card.showScorePreview) {
     card.showScorePreview = true;
-    card.scorePreviewNew  = true;  // triggers pop-in animation once
+    card.scorePreviewNew  = true;
+    // Keep the flag alive for the full animation duration so re-renders within
+    // that window still include the is-new class and the pop-in always completes.
+    const cid = cardId;
+    setTimeout(() => { const c = state.cards[cid]; if (c) c.scorePreviewNew = false; }, 260);
   } else if (!qualifies) {
     card.showScorePreview = false;
     card.scorePreviewNew  = false;
@@ -548,10 +552,21 @@ function processCardFills(queue, index, onDone) {
   if (index >= queue.length) { setTimeout(() => onDone?.(), 420); return; }
   const { cardId, pts } = queue[index];
 
+  const CONVERT_MS = 240;
   const next = () => {
-    fillOneCard(cardId);
-    render();
-    processCardFills(queue, index + 1, onDone);
+    const cardEl = document.querySelector(`.converter-card[data-card-id="${cardId}"]`);
+    if (cardEl) {
+      cardEl.classList.add('is-converting');
+      setTimeout(() => {
+        fillOneCard(cardId);
+        render();
+        processCardFills(queue, index + 1, onDone);
+      }, CONVERT_MS);
+    } else {
+      fillOneCard(cardId);
+      render();
+      processCardFills(queue, index + 1, onDone);
+    }
   };
 
   if (pts === 0) { setTimeout(next, 320); return; }
@@ -787,12 +802,11 @@ function renderCardHTML(cardId, inTray = false, gridDraggable = false) {
   }
 
   const gridDragCls = gridDraggable ? ' converter-card--grid-draggable' : '';
+  const selectedCls = state.selectedCardId === cardId ? ' is-selected' : '';
 
-  // Consume the one-shot animation flag before building the HTML
   const previewIsNew = !!card.scorePreviewNew;
-  card.scorePreviewNew = false;
 
-  return `<div class="converter-card${inTray ? ' in-tray' : ''}${gridDragCls}" data-card-id="${cardId}" style="color:${textColor}">
+  return `<div class="converter-card${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}" data-card-id="${cardId}" style="color:${textColor}">
     ${card.showScorePreview ? `<div class="score-preview${previewIsNew ? ' is-new' : ''}">🪙</div>` : ''}
     <div class="card-index">
       <span class="card-rank">${rank}</span>${suit ? `<span class="card-suit">${suit}</span>` : ''}
@@ -802,7 +816,6 @@ function renderCardHTML(cardId, inTray = false, gridDraggable = false) {
       <div class="dice-tile dice-tile--bottom">${renderHolderDice(cardId, 0)}${renderHolderDice(cardId, 2)}</div>
     </div>
   </div>`;
-  card.scorePreviewNew = false; // consumed — subsequent renders won't replay animation
 }
 
 function renderGrid() {
@@ -880,6 +893,7 @@ function renderActionBar() {
         }
         w.dataset.name = 'dice_filled_pips';
         w.dataset.dieId = dieId;
+        if (state.selectedDieId === dieId) w.classList.add('is-selected');
         w.innerHTML = dieSVG(state.dice[dieId].value, 40);
         tray.appendChild(w);
       }
@@ -1001,6 +1015,8 @@ function resetGame() {
   state.newDice = null;
   state.newCards = null;
   state.newPreview = null;
+  state.selectedDieId = null;
+  state.selectedCardId = null;
   clearScoreExitTimers();
   initDiscards();
   const c0 = spawnCard(), c1 = spawnCard();
@@ -1020,12 +1036,99 @@ document.getElementById('game-over-restart').addEventListener('click', () => {
 });
 
 document.addEventListener('click', e => {
-  if (e.target.closest('#replay-btn')) resetGame();
+  if (e.target.closest('#replay-btn')) { resetGame(); return; }
+
+  // ── Tap-to-select / tap-to-place ──
+
+  // Tray die: toggle selection
+  const dieWrapper = e.target.closest('.die-wrapper');
+  if (dieWrapper && !dieWrapper.dataset.locked && !dieWrapper.dataset.slot) {
+    const dieId = parseInt(dieWrapper.dataset.dieId, 10);
+    if (!isNaN(dieId) && dieInCard(dieId) === null) {
+      state.selectedCardId = null;
+      state.selectedDieId = state.selectedDieId === dieId ? null : dieId;
+      render();
+      return;
+    }
+  }
+
+  // Holder-dice slot: place selected die
+  const holderEl = e.target.closest('.holder-dice');
+  if (holderEl) {
+    if (state.selectedDieId !== null) {
+      const slotKey = holderEl.dataset.slot;
+      if (slotKey) {
+        const [cidStr, siStr] = slotKey.split('-');
+        const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
+        const card = state.cards[cardId];
+        if (card && card.slots[si] === null) {
+          card.slots[si] = state.selectedDieId;
+          state.selectedDieId = null;
+          updateScorePreview(cardId);
+          render();
+          checkPhaseTransition();
+          return;
+        }
+      }
+    }
+    // Occupied or no die selected — deselect
+    state.selectedDieId = null;
+    render();
+    return;
+  }
+
+  // Tray card: toggle selection
+  const cardEl = e.target.closest('.converter-card.in-tray');
+  if (cardEl) {
+    const cardId = parseInt(cardEl.dataset.cardId, 10);
+    if (!isNaN(cardId)) {
+      state.selectedDieId = null;
+      state.selectedCardId = state.selectedCardId === cardId ? null : cardId;
+      render();
+      return;
+    }
+  }
+
+  // Grid slot: place selected card
+  const gridSlotEl = e.target.closest('.grid-slot');
+  if (gridSlotEl && state.selectedCardId !== null) {
+    const i = parseInt(gridSlotEl.dataset.gridSlot, 10);
+    if (!isNaN(i) && state.grid[i] === null) {
+      const placedCardId = state.selectedCardId;
+      state.actionBarCards = state.actionBarCards.filter(id => id !== placedCardId);
+      if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
+      state.cardsPlaced++;
+      state.grid[i] = placedCardId;
+      state.diceAccentActive = false;
+      state.selectedCardId = null;
+      render();
+      setTimeout(() => {
+        convertFilledCards(() => {
+          resolveAllScoringSets();
+          render();
+          checkPhaseTransition();
+        });
+      }, 220);
+      return;
+    }
+    state.selectedCardId = null;
+    render();
+    return;
+  }
+
+  // Tapped elsewhere — clear selection
+  if (state.selectedDieId !== null || state.selectedCardId !== null) {
+    state.selectedDieId = null;
+    state.selectedCardId = null;
+    render();
+  }
 });
 
 /* ── Drag & Drop ── */
 const ghost = document.getElementById('drag-ghost');
 let drag = null;
+let dragStartX = 0, dragStartY = 0, dragCommitted = false;
+const DRAG_THRESHOLD = 6;
 
 document.addEventListener('pointerdown', e => {
   // ── Card drag (from action bar or repositionable grid card) ──
@@ -1033,7 +1136,6 @@ document.addEventListener('pointerdown', e => {
     || e.target.closest('.converter-card.converter-card--grid-draggable');
   if (cardEl) {
     e.preventDefault();
-    ghost.classList.remove('die-drag');
     const cardId = parseInt(cardEl.dataset.cardId, 10);
     const fromGrid = cardEl.classList.contains('converter-card--grid-draggable');
     const slotEl = fromGrid ? cardEl.closest('.grid-slot') : null;
@@ -1044,12 +1146,8 @@ document.addEventListener('pointerdown', e => {
         return;
       }
     }
-    ghost.innerHTML = renderCardHTML(cardId);
-    ghost.style.left = e.clientX + 'px';
-    ghost.style.top  = e.clientY + 'px';
-    ghost.classList.add('is-visible');
-    cardEl.classList.add('is-dragging');
     drag = { type: 'card', cardId, originEl: cardEl, fromGrid, fromGridIndex };
+    dragStartX = e.clientX; dragStartY = e.clientY; dragCommitted = false;
     cardEl.setPointerCapture(e.pointerId);
     return;
   }
@@ -1059,23 +1157,38 @@ document.addEventListener('pointerdown', e => {
   if (!wrapper || wrapper.dataset.locked) return;
   e.preventDefault();
 
-  const dieId     = parseInt(wrapper.dataset.dieId, 10);
-  const die       = state.dice[dieId];
+  const dieId      = parseInt(wrapper.dataset.dieId, 10);
   const originSlot = wrapper.dataset.slot || null;
 
-  ghost.classList.add('die-drag');
-  ghost.innerHTML = dieSVG(die.value, 40);
-  ghost.style.left = e.clientX + 'px';
-  ghost.style.top  = e.clientY + 'px';
-  ghost.classList.add('is-visible');
-  wrapper.classList.add('is-dragging');
-
   drag = { type: 'die', dieId, originSlot, originEl: wrapper };
+  dragStartX = e.clientX; dragStartY = e.clientY; dragCommitted = false;
   wrapper.setPointerCapture(e.pointerId);
 }, { passive: false });
 
 document.addEventListener('pointermove', e => {
   if (!drag) return;
+
+  if (!dragCommitted) {
+    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+    if (dx * dx + dy * dy < DRAG_THRESHOLD * DRAG_THRESHOLD) return;
+    // Threshold crossed — commit to drag, clear any selection
+    dragCommitted = true;
+    state.selectedDieId = null;
+    state.selectedCardId = null;
+    if (drag.type === 'card') {
+      ghost.classList.remove('die-drag');
+      ghost.innerHTML = renderCardHTML(drag.cardId);
+      drag.originEl.classList.add('is-dragging');
+    } else {
+      ghost.classList.add('die-drag');
+      ghost.innerHTML = dieSVG(state.dice[drag.dieId].value, 40);
+      drag.originEl.classList.add('is-dragging');
+    }
+    ghost.style.left = e.clientX + 'px';
+    ghost.style.top  = e.clientY + 'px';
+    ghost.classList.add('is-visible');
+  }
+
   ghost.style.left = e.clientX + 'px';
   ghost.style.top  = e.clientY + 'px';
 
@@ -1119,6 +1232,12 @@ document.addEventListener('pointermove', e => {
 
 document.addEventListener('pointerup', e => {
   if (!drag) return;
+
+  if (!dragCommitted) {
+    // Tap — let the click event handle selection/placement
+    drag = null;
+    return;
+  }
 
   ghost.classList.remove('is-visible');
   const under = document.elementFromPoint(e.clientX, e.clientY);
@@ -1241,7 +1360,7 @@ document.addEventListener('pointerup', e => {
 
 document.addEventListener('pointercancel', () => {
   if (!drag) return;
-  if (drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
+  if (dragCommitted && drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
   ghost.classList.remove('is-visible');
   ghost.classList.remove('die-drag');
   drag = null;

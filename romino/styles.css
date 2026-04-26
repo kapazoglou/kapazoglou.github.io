@@ -45,6 +45,8 @@ body {
   position: fixed;
   inset: 0;
   display: flex;
+  background: #000;
+  justify-content: center;
   align-items: center;
   justify-content: center;
 }
@@ -53,6 +55,7 @@ body {
 .template {
   position: relative;
   width: 100vw;
+  max-width: 500px;
   height: 100dvh;
   min-height: 0;
   display: flex;
@@ -107,7 +110,7 @@ body {
   grid-template-columns: repeat(3, 110px);
   grid-template-rows: repeat(3, 167px);
   gap: 8px;
-  padding: 10px;
+  padding: 20px;
   flex-shrink: 0;
   position: relative;
 }
@@ -322,6 +325,11 @@ body {
   flex-shrink: 0;
 }
 
+.card-rank {
+  line-height: 1;
+  min-height: 1em;
+}
+
 /* tighten rank/suit spacing only for unfinished cards */
 .card-index:not(.card-index--filled) > .card-suit {
   margin-top: -6px;
@@ -354,6 +362,57 @@ body {
 .converter-card--filled {
   gap: 8px;
   cursor: default;
+}
+
+/* ─── CARD CONVERSION ANIMATION ─── */
+@keyframes card-dice-fadeout {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: scale(0.85); }
+}
+
+@keyframes card-index-expand {
+  from {
+    left: 8px;
+    top: 12px;
+    transform: none;
+    font-size: 48px;
+    width: 40px;
+    padding-bottom: 4px;
+    justify-content: flex-end;
+  }
+  to {
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 72px;
+    width: 86px;
+    padding-bottom: 0;
+    justify-content: center;
+  }
+}
+
+@keyframes card-span-expand {
+  from { width: 40px; }
+  to   { width: 86px; }
+}
+
+.converter-card.is-converting .card-dice {
+  animation: card-dice-fadeout 0.16s ease forwards;
+}
+
+.converter-card.is-converting .card-index {
+  animation: card-index-expand 0.22s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+}
+
+.converter-card.is-converting .card-index > .card-rank,
+.converter-card.is-converting .card-index > .card-suit {
+  animation: card-span-expand 0.22s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+  text-align: center;
+}
+
+.converter-card.is-converting .card-index > .card-suit {
+  margin-top: 0;
+  transition: margin-top 0.22s cubic-bezier(0.2, 0, 0.4, 1);
 }
 
 /* ─── CARD DICE AREA ─── */
@@ -472,10 +531,14 @@ svg[data-name="dice_master"] {
   opacity: 1;
 }
 
-.die-wrapper.tray-swap-target {
+.die-wrapper.tray-swap-target,
+.die-wrapper.is-selected {
   outline: 4px solid var(--accent);
-  outline-offset: 2px;
   border-radius: 9px;
+}
+
+.converter-card.is-selected {
+  box-shadow: 0 0 0 4px var(--accent);
 }
 
 /* ─── ACTION BAR CARD GHOST ─── */
