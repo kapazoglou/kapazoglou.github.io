@@ -529,7 +529,7 @@ svg[data-name="dice_master"] {
 
 .upcoming-preview {
   position: absolute;
-  bottom: 0;
+  top: 72px;
   left: 20px;
   height: 56px;
   display: flex;
