@@ -116,6 +116,14 @@ function drawDiceCombination() {
   return state.diceDeck.pop();
 }
 
+/** Peek at the next combination without consuming it. Refills deck if empty. */
+function peekNextDiceCombination() {
+  if (state.diceDeck.length === 0) {
+    state.diceDeck = shuffleArray([...ALL_DICE_COMBOS]);
+  }
+  return state.diceDeck[state.diceDeck.length - 1];
+}
+
 /* ── Card & die spawning ── */
 function spawnCard() {
   const id = state.cards.length;
@@ -368,6 +376,11 @@ function commitScoringExit() {
       const nc1 = spawnCard(), nc2 = spawnCard();
       state.actionBarCards = [nc1, nc2];
       state.newCards = new Set([nc1, nc2]);
+    } else if (state.pendingSecondBatchAfterScoring) {
+      // Full-grid first batch: scoring resolved — now spawn the second batch.
+      state.pendingSecondBatchAfterScoring = false;
+      spawnSecondDiceBatch();
+      return;
     } else {
       // 3-dice path: scoring was triggered by placing the last grid card;
       // the phase transition was deferred — resume it now.
@@ -645,6 +658,26 @@ function showReplay() {
   render();
 }
 
+function renderWithPreviewFade() {
+  const previewEl = document.querySelector('.upcoming-preview');
+  if (previewEl) {
+    previewEl.classList.add('is-exiting');
+    setTimeout(() => render(), 180);
+  } else {
+    render();
+  }
+}
+
+function spawnSecondDiceBatch() {
+  state.isSecondDiceBatch = true;
+  const ids = spawnDice(3);
+  state.currentRoll = ids;
+  state.trayOrder   = ids;
+  state.diceAccentActive = true;
+  state.newPreview = true;
+  renderWithPreviewFade();
+}
+
 function checkPhaseTransition() {
   if (state.phase === 'place-card' && state.actionBarCards.length === 0) {
     // If a scoring animation is running, wait — commitScoringExit will call us again.
@@ -652,13 +685,18 @@ function checkPhaseTransition() {
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
     const allSlotsFilled = state.grid.every(id => id !== null);
-    const ids = spawnDice(allSlotsFilled ? 6 : 3);
+    state.pendingSecondDiceBatch = allSlotsFilled;
+    state.isSecondDiceBatch = false;
+    const ids = spawnDice(3);
     state.currentRoll = ids;
     state.trayOrder   = ids;
     state.diceAccentActive = true;
-    render();
+    state.newPreview = true;
+    renderWithPreviewFade();
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
-    if (state.currentRoll.length === 6) {
+    if (state.isSecondDiceBatch) {
+      // Second batch of the full-grid round — convert all cards, score, offer new cards.
+      state.isSecondDiceBatch = false;
       convertAllGridCards(() => {
         const willScore = peekAnyScoringMatch();
         state.pendingSixDiceNewCard = !!willScore;
@@ -671,6 +709,33 @@ function checkPhaseTransition() {
       });
       return;
     }
+    if (state.pendingSecondDiceBatch) {
+      // First batch of the full-grid round — convert any newly filled cards,
+      // resolve scoring, then spawn the second batch.
+      state.pendingSecondDiceBatch = false;
+      const queue = [];
+      for (const cardId of state.grid) {
+        if (cardId === null) continue;
+        const card = state.cards[cardId];
+        if (card.filled || card.scoreQueued) continue;
+        if (card.slots.every(s => s !== null)) {
+          card.scoreQueued = true;
+          queue.push({ cardId, pts: evaluateCardScore(cardId) });
+        }
+      }
+      const afterConversion = () => {
+        resolveAllScoringSets();
+        if (state.scoringExit) {
+          state.pendingSecondBatchAfterScoring = true;
+        } else {
+          spawnSecondDiceBatch();
+        }
+      };
+      if (queue.length === 0) afterConversion();
+      else processCardFills(queue, 0, afterConversion);
+      return;
+    }
+    // Normal 3-dice path: offer a new hand card.
     state.phase = 'place-card';
     const cardId = spawnCard();
     state.actionBarCards = [cardId];
@@ -801,6 +866,8 @@ function renderActionBar() {
     state.newCards?.clear();
   } else {
     bar.classList.add('mode-dice');
+    const tray = document.createElement('div');
+    tray.className = 'dice-tray';
     let newIdx = 0;
     state.trayOrder.forEach(dieId => {
       if (dieInCard(dieId) === null) {
@@ -814,10 +881,56 @@ function renderActionBar() {
         w.dataset.name = 'dice_filled_pips';
         w.dataset.dieId = dieId;
         w.innerHTML = dieSVG(state.dice[dieId].value, 40);
-        bar.appendChild(w);
+        tray.appendChild(w);
       }
     });
+    bar.appendChild(tray);
     state.newDice?.clear(); // only animate on first render after spawn
+
+    // Compute animation timing shared by the card ghost and preview dice.
+    const isNewPreview = !!state.newPreview;
+    state.newPreview = false;
+    const playableCount = state.trayOrder.filter(id => dieInCard(id) === null).length;
+    // Delay for the first preview die (starts after last playable die finishes).
+    const basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
+    // Card ghost appears after the last preview die (index 2) finishes + small gap.
+    const cardGhostDelay = isNewPreview ? basePreviewDelay + 2 * 60 + 320 + 40 : 0;
+
+    // Empty card ghost — preview of the next hand card, right side, below the dice.
+    const cardGhostEl = document.createElement('div');
+    cardGhostEl.className = `action-bar-card-ghost${isNewPreview ? ' is-new' : ''}`;
+    if (isNewPreview) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
+    cardGhostEl.innerHTML = `<div class="converter-card" style="color:#D3D6E5">
+      <div class="card-index"><span class="card-rank"></span></div>
+      <div class="card-dice">
+        <div class="dice-tile dice-tile--top"><div class="holder-dice"></div></div>
+        <div class="dice-tile dice-tile--bottom"><div class="holder-dice"></div><div class="holder-dice"></div></div>
+      </div>
+    </div>`;
+    bar.appendChild(cardGhostEl);
+
+    // Upcoming dice preview strip.
+    const combo = peekNextDiceCombination();
+    const preview = document.createElement('div');
+    preview.className = 'upcoming-preview';
+    preview.innerHTML = combo.map((v, idx) => {
+      const cls = `die-wrapper${isNewPreview ? ' preview-is-new' : ''}`;
+      const style = `pointer-events:none${isNewPreview ? `;animation-delay:${basePreviewDelay + idx * 60}ms` : ''}`;
+      return `<div class="${cls}" style="${style}">${dieSVG(v, 40)}</div>`;
+    }).join('');
+    bar.appendChild(preview);
+    return; // preview already appended; skip the block below
+  }
+
+  // Upcoming dice preview — place-card and replay phases
+  if (state.phase !== 'replay') {
+    const combo = peekNextDiceCombination();
+    const preview = document.createElement('div');
+    preview.className = 'upcoming-preview';
+    preview.innerHTML = combo.map(v =>
+      `<div class="die-wrapper" style="pointer-events:none">${dieSVG(v, 40)}</div>`
+    ).join('');
+    bar.appendChild(preview);
   }
 }
 
@@ -878,12 +991,16 @@ function resetGame() {
   state.awaitingPostDiceGridPlace = false;
   state.scoringExit = null;
   state.pendingSixDiceNewCard = false;
+  state.pendingSecondDiceBatch = false;
+  state.isSecondDiceBatch = false;
+  state.pendingSecondBatchAfterScoring = false;
   state.diceDeck = [];
   state.score = 0;
   state.cardsPlaced = 0;
   state.diceAccentActive = true;
   state.newDice = null;
   state.newCards = null;
+  state.newPreview = null;
   clearScoreExitTimers();
   initDiscards();
   const c0 = spawnCard(), c1 = spawnCard();
@@ -1019,7 +1136,8 @@ document.addEventListener('pointerup', e => {
         return;
       }
       if (state.grid[i] === null) {
-        if (drag.fromGrid) state.grid[drag.fromGridIndex] = null;
+        const fromGrid = drag.fromGrid;
+        if (fromGrid) state.grid[drag.fromGridIndex] = null;
         else {
           state.actionBarCards = state.actionBarCards.filter(id => id !== drag.cardId);
           if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
@@ -1027,7 +1145,7 @@ document.addEventListener('pointerup', e => {
         }
         state.grid[i] = drag.cardId;
         drag = null;
-        state.diceAccentActive = false;
+        if (!fromGrid) state.diceAccentActive = false; // only drop accent on fresh placement, not grid repositions
         render(); // accent borders drop here; CSS transition plays
         setTimeout(() => {
           convertFilledCards(() => {
