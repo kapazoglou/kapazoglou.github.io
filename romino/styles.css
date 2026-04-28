@@ -535,7 +535,6 @@ svg[data-name="dice_master"] {
 .die-wrapper.tray-swap-target,
 .die-wrapper.is-selected {
   outline: 4px solid var(--accent);
-  border-radius: 9px;
 }
 
 .converter-card.is-selected {
