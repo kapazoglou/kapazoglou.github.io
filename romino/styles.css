@@ -503,8 +503,9 @@ body {
   cursor: grab;
   touch-action: none;
   position: relative;
-  border-radius: 8px;
+  border-radius: 9px;
   display: block;
+  outline: 1px solid var(--card-bg);
 }
 
 .die-wrapper:active {
