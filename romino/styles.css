@@ -537,9 +537,7 @@ svg[data-name="dice_master"] {
   outline: 4px solid var(--accent);
 }
 
-.converter-card.is-selected {
-  box-shadow: 0 0 0 4px var(--accent);
-}
+
 
 /* ─── ACTION BAR CARD GHOST ─── */
 .action-bar-card-ghost {
