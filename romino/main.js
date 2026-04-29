@@ -385,7 +385,12 @@ function commitScoringExit() {
       // 3-dice path: scoring was triggered by placing the last grid card;
       // the phase transition was deferred — resume it now.
       // Grid slots were cleared by scoring so allSlotsFilled will be false → 3 dice.
+      // Return early: checkPhaseTransition → renderWithPreviewFade already handles
+      // rendering (immediately or after the 180 ms preview-fade delay). A second
+      // render() here would fire before or after that window, consuming newDice /
+      // newPreview flags and stripping the is-new animation classes from the DOM.
       checkPhaseTransition();
+      return;
     }
   }
   render();
@@ -697,6 +702,18 @@ function checkPhaseTransition() {
   if (state.phase === 'place-card' && state.actionBarCards.length === 0) {
     // If a scoring animation is running, wait — commitScoringExit will call us again.
     if (state.scoringExit) return;
+
+    // Before the very first dice round: show preview dice alongside a new card
+    // rather than jumping straight to the dice phase. Only fires once (cardsPlaced === 1).
+    if (state.currentRoll.length === 0 && state.cardsPlaced === 1) {
+      const cardId = spawnCard();
+      state.actionBarCards = [cardId];
+      state.newCards = new Set([cardId]);
+      state.newPreviewInCard = true; // preview dice appear from nothing — animate them in
+      render();
+      return;
+    }
+
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
     const allSlotsFilled = state.grid.every(id => id !== null);
@@ -905,10 +922,10 @@ function renderActionBar() {
     const isNewPreview = !!state.newPreview;
     state.newPreview = false;
     const playableCount = state.trayOrder.filter(id => dieInCard(id) === null).length;
-    // Delay for the first preview die (starts after last playable die finishes).
-    const basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
-    // Card ghost appears after the last preview die (index 2) finishes + small gap.
-    const cardGhostDelay = isNewPreview ? basePreviewDelay + 2 * 60 + 320 + 40 : 0;
+    // Card ghost appears first, right after the last active die finishes animating in.
+    const cardGhostDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
+    // Preview dice follow after the card ghost animation completes + small gap.
+    const basePreviewDelay = isNewPreview ? cardGhostDelay + 320 + 40 : 0;
 
     // Empty card ghost — preview of the next hand card, right side, below the dice.
     const cardGhostEl = document.createElement('div');
@@ -923,7 +940,7 @@ function renderActionBar() {
     </div>`;
     bar.appendChild(cardGhostEl);
 
-    // Upcoming dice preview strip.
+    // Upcoming dice preview strip — animates in after the card ghost.
     const combo = peekNextDiceCombination();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
@@ -936,14 +953,22 @@ function renderActionBar() {
     return; // preview already appended; skip the block below
   }
 
-  // Upcoming dice preview — place-card and replay phases
-  if (state.phase !== 'replay') {
+  // Upcoming dice preview — place-card phase.
+  // Hidden when no card is in the bar AND no dice round has started yet, to avoid
+  // flashing during the 220 ms gap between card placement and checkPhaseTransition.
+  if (state.phase !== 'replay' &&
+      (state.actionBarCards.length > 0 && state.cardsPlaced > 0 || state.currentRoll.length > 0)) {
+    const isNewPreview = !!state.newPreviewInCard;
+    state.newPreviewInCard = false;
+    // Card animates in at 0 ms; give it ~320 ms before preview dice stagger in.
     const combo = peekNextDiceCombination();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
-    preview.innerHTML = combo.map(v =>
-      `<div class="die-wrapper" style="pointer-events:none">${dieSVG(v, 40)}</div>`
-    ).join('');
+    preview.innerHTML = combo.map((v, idx) => {
+      const cls = `die-wrapper${isNewPreview ? ' preview-is-new' : ''}`;
+      const style = `pointer-events:none${isNewPreview ? `;animation-delay:${320 + idx * 60}ms` : ''}`;
+      return `<div class="${cls}" style="${style}">${dieSVG(v, 40)}</div>`;
+    }).join('');
     bar.appendChild(preview);
   }
 }
@@ -1015,12 +1040,13 @@ function resetGame() {
   state.newDice = null;
   state.newCards = null;
   state.newPreview = null;
+  state.newPreviewInCard = null;
   state.selectedDieId = null;
   state.selectedCardId = null;
   clearScoreExitTimers();
   initDiscards();
-  const c0 = spawnCard(), c1 = spawnCard();
-  state.actionBarCards = [c0, c1];
+  const c0 = spawnCard();
+  state.actionBarCards = [c0];
   render();
 }
 
@@ -1372,6 +1398,6 @@ document.addEventListener('pointercancel', () => {
 /* ── Init ── */
 initDiscards();
 renderHUD();
-const _c0 = spawnCard(), _c1 = spawnCard();
-state.actionBarCards = [_c0, _c1];
+const _c0 = spawnCard();
+state.actionBarCards = [_c0];
 render();

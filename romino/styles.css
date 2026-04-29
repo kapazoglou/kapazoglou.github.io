@@ -537,8 +537,6 @@ svg[data-name="dice_master"] {
   outline: 4px solid var(--accent);
 }
 
-
-
 /* ─── ACTION BAR CARD GHOST ─── */
 .action-bar-card-ghost {
   flex-shrink: 0;
