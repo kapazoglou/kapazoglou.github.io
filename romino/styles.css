@@ -152,7 +152,8 @@ body {
   display: block;
 }
 
-.grid-slot.drag-over {
+.grid-slot.drag-over,
+.grid-slot:has(.converter-card.is-selected) {
   box-shadow: 0 0 0 4px var(--accent);
 }
 
@@ -430,7 +431,7 @@ body {
 /* ─── DICE TILE (container for holder-dice slots) ─── */
 .dice-tile {
   border: 1px solid var(--tile-border);
-  border-radius: 12px;
+  border-radius: 13px;
   padding: 4px;
   display: flex;
   align-items: center;
@@ -471,9 +472,25 @@ body {
   box-shadow: 0 0 0 4px var(--accent);
 }
 
-
 .holder-dice.is-new {
+  box-shadow: 0 0 0 4px var(--new-border-color, var(--holder));
+}
+
+.holder-dice.is-selected {
   box-shadow: 0 0 0 4px var(--accent);
+  z-index: 100;
+}
+
+.holder-dice.is-forbidden {
+  opacity: 1;
+  transition: opacity 0.12s ease;
+  cursor: pointer;
+}
+
+.holder-dice.is-forbidden::after {
+  content: '🪙';
+  font-size: 24px;
+  line-height: 1;
 }
 
 /* ─── DIE WRAPPER (the draggable die inside a holder or tray) ─── */
@@ -534,6 +551,15 @@ svg[data-name="dice_master"] {
 
 .die-wrapper.tray-swap-target,
 .die-wrapper.is-selected {
+  outline: 4px solid var(--accent);
+}
+
+.die-wrapper.is-selected {
+  position: relative;
+  z-index: 100;
+}
+
+.converter-card.is-selected {
   outline: 4px solid var(--accent);
 }
 

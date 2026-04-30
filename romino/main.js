@@ -1,3 +1,11 @@
+/* ── Helpers ── */
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 /* ── Color & pip data ── */
 const PIP_COLOR = {
   1: '#FFFFFF', 2: '#7161FF', 3: '#CC5529',
@@ -100,7 +108,8 @@ const ALL_DICE_COMBOS = (() => {
     for (let b = a; b <= 6; b++)
       for (let c = b; c <= 6; c++)
         combos.push([a, b, c]);
-  return combos; // 56 entries
+  // Remove combinations that are entirely 1s and 6s (no suit die possible).
+  return combos.filter(([a, b, c]) => !(a === 1 || a === 6) || !(b === 1 || b === 6) || !(c === 1 || c === 6));
 })();
 
 function shuffleArray(arr) {
@@ -200,6 +209,39 @@ function cardSuit(cardId) {
 function cardColor(cardId) {
   const v = cardMiddleValue(cardId);
   return v !== null ? PIP_COLOR[v] : null;
+}
+
+/**
+ * Returns true if placing dieId into slot si of cardId would complete the card
+ * with a rank+suit that already exists on another grid card.
+ */
+function wouldCreateDuplicate(cardId, si, dieId) {
+  const card = state.cards[cardId];
+  if (!card) return false;
+
+  // Simulate the placement
+  const sim = [...card.slots];
+  sim[si] = dieId;
+
+  // Rank+suit only determinable when all 3 slots are filled
+  if (sim.some(s => s === null)) return false;
+
+  const v0 = state.dice[sim[0]].value;
+  const v1 = state.dice[sim[1]].value;
+  const v2 = state.dice[sim[2]].value;
+
+  const isJoker = (v0 === 1 && v2 === 6) || (v0 === 6 && v2 === 1);
+  const rank = isJoker ? 'A' : ndTranscribe(v0 + v2);
+  const suit = SUIT_LETTER[v1];
+
+  for (const gid of state.grid) {
+    if (gid === null || gid === cardId) continue;
+    const gc = state.cards[gid];
+    if (!gc) continue;
+    if (!gc.filled && gc.slots.some(s => s === null)) continue; // identity not yet determined
+    if (cardRank(gid) === rank && cardSuit(gid) === suit) return true;
+  }
+  return false;
 }
 
 /** Grid card may be moved to another slot until any die is placed on it. */
@@ -379,10 +421,11 @@ function commitScoringExit() {
       const nc1 = spawnCard();
       state.actionBarCards = [nc1];
       state.newCards = new Set([nc1]);
+      state.selectedCardId = nc1;
+      state.selectedDieId  = null;
       if (state.pendingPostSweepCards > 1) {
-        // Card 1 appears alone; preview dice hidden until card 1 is placed.
-        state.suppressPreviewDice = true;
-        state.pendingSecondNewCard = spawnCard(); // offered after nc1 placed (preview-first)
+        // Preview dice stay visible throughout. Card 2 is queued and offered after card 1 is placed.
+        state.pendingSecondNewCard = spawnCard();
       }
       state.pendingPostSweepCards = 0;
     } else {
@@ -601,9 +644,11 @@ function processCardFills(queue, index, onDone) {
 
 /* ── Phase management ── */
 // Mark any grid card that has all 3 dice as filled, recording its tile in discards.
-function convertFilledCards(onDone) {
-  if (state.phase === 'place-dice')          { onDone?.(); return; }
-  if (state.awaitingPostDiceGridPlace)       { onDone?.(); return; }
+// Pass force=true to skip the place-dice phase guard (used by the full-grid endgame
+// handler so the phase stays 'place-dice' and the action bar keeps the ghost visible).
+function convertFilledCards(onDone, force = false) {
+  if (!force && state.phase === 'place-dice') { onDone?.(); return; }
+  if (state.awaitingPostDiceGridPlace)        { onDone?.(); return; }
 
   const queue = [];
   for (const cardId of state.grid) {
@@ -698,12 +743,15 @@ function countEmptyDiceSlots() {
 }
 
 /**
- * Spawn a full-grid dice round (5a): preview fades out, tray dice appear,
- * no card ghost, no new preview strip.
+ * Spawn a full-grid dice round: preview fades out, tray dice appear.
+ * The ghost was already visible from the previous render, so we suppress
+ * its slide-in animation — it just stays put.
  */
 function spawnFullGridDiceRound() {
+  state.phase = 'place-dice';
   state.fullGridDiceRound = true;
-  state.newPreview = false; // no ghost / preview this round
+  state.suppressGhostAnimation = true; // ghost already visible — don't re-animate
+  state.newPreview = true;
   const ids = spawnDice(3);
   state.currentRoll = ids;
   state.trayOrder   = ids;
@@ -717,13 +765,14 @@ function checkPhaseTransition() {
     if (state.scoringExit) return;
 
     // Post-sweep: second card offered sequentially after the first is placed.
+    // Preview dice are already visible (not suppressed), so card 2 just slides in normally.
     if (state.pendingSecondNewCard != null) {
       const nc2 = state.pendingSecondNewCard;
       state.pendingSecondNewCard = null;
-      state.suppressPreviewDice = false; // reveal preview dice alongside card 2
       state.actionBarCards = [nc2];
       state.newCards = new Set([nc2]);
-      state.newCardAfterPreview = true; // preview dice first, card after
+      state.selectedCardId = nc2;
+      state.selectedDieId  = null;
       render();
       return;
     }
@@ -734,6 +783,8 @@ function checkPhaseTransition() {
       const cardId = spawnCard();
       state.actionBarCards = [cardId];
       state.newCards = new Set([cardId]);
+      state.selectedCardId = cardId;
+      state.selectedDieId  = null;
       state.newCardAfterPreview = true; // preview dice first, card after
       render();
       return;
@@ -743,20 +794,19 @@ function checkPhaseTransition() {
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
     const allSlotsFilled = state.grid.every(id => id !== null);
-    // Full-grid round: tray only, no card ghost, no preview strip.
+    // Full-grid round: tray + preview animate in; card ghost suppressed (no empty grid slots).
     state.fullGridDiceRound = allSlotsFilled;
     const ids = spawnDice(3);
     state.currentRoll = ids;
     state.trayOrder   = ids;
     state.diceAccentActive = true;
-    state.newPreview = !allSlotsFilled; // animate ghost+preview only for normal rounds
+    state.newPreview = true; // always animate tray + preview; ghost guard is fullGridDiceRound
     renderWithPreviewFade();
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
     if (state.fullGridDiceRound) {
       // Full-grid endgame: convert naturally-filled cards, check scoring, then decide next step.
+      // Stay in place-dice throughout so the action bar keeps the ghost visible during conversion.
       state.fullGridDiceRound = false;
-      // Leave place-dice so convertFilledCards doesn't bail out on its phase guard.
-      state.phase = 'place-card';
       convertFilledCards(() => {
         const emptySlots = countEmptyDiceSlots();
         const willScore = peekAnyScoringMatch();
@@ -776,7 +826,7 @@ function checkPhaseTransition() {
           return;
         }
         render();
-      });
+      }, true /* force: stay in place-dice, ghost stays visible */);
       return;
     }
     // Normal 3-dice path: offer a new hand card.
@@ -784,6 +834,8 @@ function checkPhaseTransition() {
     const cardId = spawnCard();
     state.actionBarCards = [cardId];
     state.newCards = new Set([cardId]);
+    state.selectedCardId = cardId;
+    state.selectedDieId  = null;
     /* Filled conversion + scoring run only after this new card is placed on the grid. */
     state.awaitingPostDiceGridPlace = true;
     render();
@@ -797,17 +849,28 @@ function renderHolderDice(cardId, si) {
   const slotKey = `${cardId}-${si}`;
 
   if (dieId === null) {
-    return `<div class="holder-dice" data-slot="${slotKey}" data-card-id="${cardId}" data-slot-idx="${si}"></div>`;
+    let isForbidden = false;
+    if (state.selectedDieId !== null) {
+      const selVal = state.dice[state.selectedDieId]?.value;
+      isForbidden = (si === 1 && (selVal === 1 || selVal === 6))
+                 || wouldCreateDuplicate(cardId, si, state.selectedDieId);
+    }
+    return `<div class="holder-dice${isForbidden ? ' is-forbidden' : ''}" data-slot="${slotKey}" data-card-id="${cardId}" data-slot-idx="${si}"></div>`;
   }
 
   // const joker = isJokerCard(cardId);
   let dv = state.dice[dieId].value;
   // if (joker && dv === 1) dv = 7;
 
-  const locked = !state.currentRoll.includes(dieId);
-  const isNew  = state.currentRoll.includes(dieId) && state.diceAccentActive;
+  const locked      = !state.currentRoll.includes(dieId);
+  const isNew       = state.currentRoll.includes(dieId) && state.diceAccentActive;
+  const isSelected  = state.selectedDieId === dieId;
+  const newBorderHex = (dv === 1 || dv === 6) ? '#5c5e66' : (PIP_COLOR[dv] ?? '#5c5e66');
+  const newBorderStyle = isNew
+    ? ` style="--new-border-color:${hexToRgba(newBorderHex, 0.5)}"`
+    : '';
 
-  return `<div class="holder-dice${isNew ? ' is-new' : ''}" data-slot="${slotKey}" data-card-id="${cardId}" data-slot-idx="${si}">
+  return `<div class="holder-dice${isNew ? ' is-new' : ''}${isSelected ? ' is-selected' : ''}"${newBorderStyle} data-slot="${slotKey}" data-card-id="${cardId}" data-slot-idx="${si}">
     <div class="die-wrapper${locked ? ' is-locked' : ''}" data-name="dice_filled_pips" data-die-id="${dieId}" data-slot="${slotKey}"${locked ? ' data-locked="true"' : ''}>
       ${dieSVG(dv, 40)}
     </div>
@@ -955,21 +1018,23 @@ function renderActionBar() {
     }).join('');
     bar.appendChild(preview);
 
-    // Card ghost — only during normal rounds (grid has empty positions to place into).
-    if (!state.fullGridDiceRound) {
-      const cardGhostDelay = isNewPreview ? basePreviewDelay + 2 * 60 + 320 + 40 : 0;
-      const cardGhostEl = document.createElement('div');
-      cardGhostEl.className = `action-bar-card-ghost${isNewPreview ? ' is-new' : ''}`;
-      if (isNewPreview) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
-      cardGhostEl.innerHTML = `<div class="converter-card" style="color:#D3D6E5">
-        <div class="card-index"><span class="card-rank"></span></div>
-        <div class="card-dice">
-          <div class="dice-tile dice-tile--top"><div class="holder-dice"></div></div>
-          <div class="dice-tile dice-tile--bottom"><div class="holder-dice"></div><div class="holder-dice"></div></div>
-        </div>
-      </div>`;
-      bar.appendChild(cardGhostEl);
-    }
+    // Card ghost — always visible during dice phase.
+    // Animates in after the preview in normal rounds. During a full-grid consecutive round
+    // (preview→tray) the ghost was already visible, so we skip the animation to keep it still.
+    const animateGhost = isNewPreview && !state.suppressGhostAnimation;
+    state.suppressGhostAnimation = false; // consume flag
+    const cardGhostDelay = animateGhost ? basePreviewDelay + 2 * 60 + 320 + 40 : 0;
+    const cardGhostEl = document.createElement('div');
+    cardGhostEl.className = `action-bar-card-ghost${animateGhost ? ' is-new' : ''}`;
+    if (animateGhost) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
+    cardGhostEl.innerHTML = `<div class="converter-card" style="color:#D3D6E5">
+      <div class="card-index"><span class="card-rank"></span></div>
+      <div class="card-dice">
+        <div class="dice-tile dice-tile--top"><div class="holder-dice"></div></div>
+        <div class="dice-tile dice-tile--bottom"><div class="holder-dice"></div><div class="holder-dice"></div></div>
+      </div>
+    </div>`;
+    bar.appendChild(cardGhostEl);
     return; // place-card preview section below is not reached
   }
 
@@ -1060,6 +1125,7 @@ function resetGame() {
   state.pendingSecondNewCard = null;
   state.fullGridDiceRound = false;
   state.suppressPreviewDice = false;
+  state.suppressGhostAnimation = false;
   state.diceDeck = [];
   state.score = 0;
   state.cardsPlaced = 0;
@@ -1075,6 +1141,8 @@ function resetGame() {
   initDiscards();
   const c0 = spawnCard();
   state.actionBarCards = [c0];
+  state.selectedCardId = c0;
+  state.selectedDieId  = null;
   render();
 }
 
@@ -1094,11 +1162,11 @@ document.addEventListener('click', e => {
 
   // ── Tap-to-select / tap-to-place ──
 
-  // Tray die: toggle selection
+  // Die: toggle selection — works for both tray dice and freshly placed (unlocked) slot dice.
   const dieWrapper = e.target.closest('.die-wrapper');
-  if (dieWrapper && !dieWrapper.dataset.locked && !dieWrapper.dataset.slot) {
+  if (dieWrapper && !dieWrapper.dataset.locked) {
     const dieId = parseInt(dieWrapper.dataset.dieId, 10);
-    if (!isNaN(dieId) && dieInCard(dieId) === null) {
+    if (!isNaN(dieId)) {
       state.selectedCardId = null;
       state.selectedDieId = state.selectedDieId === dieId ? null : dieId;
       render();
@@ -1106,27 +1174,38 @@ document.addEventListener('click', e => {
     }
   }
 
-  // Holder-dice slot: place selected die
+  // Holder-dice slot: place selected die.
+  // Only handle elements that belong to a real grid-card slot (have data-slot).
+  // Decorative holder-dice inside the action-bar card have no data-slot and must
+  // fall through so the converter-card.in-tray handler can process the click.
   const holderEl = e.target.closest('.holder-dice');
-  if (holderEl) {
+  if (holderEl && holderEl.dataset.slot) {
     if (state.selectedDieId !== null) {
       const slotKey = holderEl.dataset.slot;
-      if (slotKey) {
-        const [cidStr, siStr] = slotKey.split('-');
-        const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
-        const card = state.cards[cardId];
-        if (card && card.slots[si] === null) {
-          card.slots[si] = state.selectedDieId;
-          state.selectedDieId = null;
-          updateScorePreview(cardId);
-          render();
-          checkPhaseTransition();
-          return;
+      const [cidStr, siStr] = slotKey.split('-');
+      const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
+      const card = state.cards[cardId];
+      const forbidden = card && card.slots[si] === null && isSlotForbidden(cardId, si, state.selectedDieId);
+      if (card && card.slots[si] === null && (!forbidden || state.score > 0)) {
+        if (forbidden) { state.score--; renderHUD(); }
+        // If the die is currently sitting in another slot, vacate it first.
+        const prevSlotKey = dieInCard(state.selectedDieId);
+        if (prevSlotKey) {
+          const [pcStr, psStr] = prevSlotKey.split('-');
+          state.cards[parseInt(pcStr, 10)].slots[parseInt(psStr, 10)] = null;
         }
+        card.slots[si] = state.selectedDieId;
+        state.selectedDieId = null;
+        updateScorePreview(cardId);
+        render();
+        checkPhaseTransition();
       }
+      // Placement failed (occupied or restricted slot) — keep die selected so the
+      // player can try a different slot without having to re-tap the die.
+      return;
     }
-    // Occupied or no die selected — deselect
-    state.selectedDieId = null;
+    // No die selected and clicked a real card slot — clear any stale selection.
+    state.selectedCardId = null;
     render();
     return;
   }
@@ -1143,40 +1222,107 @@ document.addEventListener('click', e => {
     }
   }
 
+  // Grid card (repositionable): toggle selection.
+  // Clicks on .holder-dice slots are handled above (die placement).
+  // Clicks in the dice area with a die selected (e.g. passing through a forbidden slot
+  // whose pointer-events:none lets the event fall to .dice-tile) must not select the card.
+  const gridCardEl = e.target.closest('.converter-card.converter-card--grid-draggable');
+  if (gridCardEl) {
+    const cardId = parseInt(gridCardEl.dataset.cardId, 10);
+    if (!isNaN(cardId) && cardIsGridRepositionable(cardId)) {
+      if (state.selectedDieId !== null && e.target.closest('.card-dice')) return;
+      state.selectedDieId = null;
+      state.selectedCardId = state.selectedCardId === cardId ? null : cardId;
+      render();
+      return;
+    }
+  }
+
   // Grid slot: place selected card
   const gridSlotEl = e.target.closest('.grid-slot');
   if (gridSlotEl && state.selectedCardId !== null) {
     const i = parseInt(gridSlotEl.dataset.gridSlot, 10);
-    if (!isNaN(i) && state.grid[i] === null) {
+    if (!isNaN(i)) {
       const placedCardId = state.selectedCardId;
-      state.actionBarCards = state.actionBarCards.filter(id => id !== placedCardId);
-      if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
-      state.cardsPlaced++;
-      state.grid[i] = placedCardId;
-      state.diceAccentActive = false;
-      state.selectedCardId = null;
-      render();
-      setTimeout(() => {
-        convertFilledCards(() => {
-          resolveAllScoringSets();
+      const fromGridIndex = state.grid.indexOf(placedCardId);
+      const fromGrid = fromGridIndex !== -1;
+
+      if (fromGrid && fromGridIndex === i) {
+        // Tapped the same slot — deselect
+        state.selectedCardId = null;
+        render();
+        return;
+      }
+
+      if (state.grid[i] === null) {
+        if (fromGrid) {
+          // Grid-to-grid reposition
+          state.grid[fromGridIndex] = null;
+          state.grid[i] = placedCardId;
+          state.selectedCardId = null;
           render();
-          checkPhaseTransition();
-        });
-      }, 220);
-      return;
+        } else {
+          // Action-bar card placed onto grid
+          state.actionBarCards = state.actionBarCards.filter(id => id !== placedCardId);
+          if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
+          state.cardsPlaced++;
+          state.grid[i] = placedCardId;
+          state.diceAccentActive = false;
+          state.selectedCardId = null;
+          render();
+          setTimeout(() => {
+            convertFilledCards(() => {
+              resolveAllScoringSets();
+              render();
+              checkPhaseTransition();
+            });
+          }, 220);
+        }
+        return;
+      }
     }
     state.selectedCardId = null;
     render();
     return;
   }
 
-  // Tapped elsewhere — clear selection
+  // Tapped elsewhere — clear selection.
+  // Exception: forbidden slots have pointer-events:none so clicks pass through to the
+  // parent .dice-tile. Don't deselect the die when that happens — the player is just
+  // tapping around inside the card looking for a valid slot.
+  if (state.selectedDieId !== null && e.target.closest('.card-dice')) return;
   if (state.selectedDieId !== null || state.selectedCardId !== null) {
     state.selectedDieId = null;
     state.selectedCardId = null;
     render();
   }
 });
+
+/* ── Forbidden-slot helpers (used by both drag and selection rendering) ── */
+function isSlotForbidden(cardId, si, dieId) {
+  const dieVal = state.dice[dieId]?.value;
+  return (si === 1 && (dieVal === 1 || dieVal === 6))
+      || wouldCreateDuplicate(cardId, si, dieId);
+}
+
+/** Mark / unmark every empty holder-dice slot as forbidden for dieId. */
+function markForbiddenHolders(dieId) {
+  document.querySelectorAll('.holder-dice[data-slot]').forEach(el => {
+    const slotKey = el.dataset.slot;
+    if (!slotKey) return;
+    const [cidStr, siStr] = slotKey.split('-');
+    const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
+    const card = state.cards[cardId];
+    if (!card || card.slots[si] !== null) return; // occupied — leave as-is
+    el.classList.toggle('is-forbidden', isSlotForbidden(cardId, si, dieId));
+  });
+}
+
+function clearForbiddenHolders() {
+  document.querySelectorAll('.holder-dice.is-forbidden').forEach(el => {
+    el.classList.remove('is-forbidden');
+  });
+}
 
 /* ── Drag & Drop ── */
 const ghost = document.getElementById('drag-ghost');
@@ -1189,6 +1335,16 @@ document.addEventListener('pointerdown', e => {
   const cardEl = e.target.closest('.converter-card.in-tray')
     || e.target.closest('.converter-card.converter-card--grid-draggable');
   if (cardEl) {
+    // Skip drag setup when the tap is on an unlocked die in a slot (either selecting it
+    // or placing the currently-selected die there). Without this the pointer-capture
+    // redirects the click event to the card element, bypassing the die/holder handlers.
+    const tapDieEl = e.target.closest('.die-wrapper');
+    if (tapDieEl && !tapDieEl.dataset.locked) return;
+    if (state.selectedDieId !== null
+        && cardEl.classList.contains('converter-card--grid-draggable')
+        && e.target.closest('.holder-dice')?.dataset.slot) {
+      return;
+    }
     e.preventDefault();
     const cardId = parseInt(cardEl.dataset.cardId, 10);
     const fromGrid = cardEl.classList.contains('converter-card--grid-draggable');
@@ -1237,6 +1393,7 @@ document.addEventListener('pointermove', e => {
       ghost.classList.add('die-drag');
       ghost.innerHTML = dieSVG(state.dice[drag.dieId].value, 40);
       drag.originEl.classList.add('is-dragging');
+      markForbiddenHolders(drag.dieId);
     }
     ghost.style.left = e.clientX + 'px';
     ghost.style.top  = e.clientY + 'px';
@@ -1275,7 +1432,8 @@ document.addEventListener('pointermove', e => {
     const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
     const card = state.cards[cardId];
     const isLocked = card && card.slots[si] !== null && !state.currentRoll.includes(card.slots[si]);
-    if (!isLocked) holderEl.classList.add('drag-over');
+    const isForbidden = holderEl.classList.contains('is-forbidden');
+    if (!isLocked && (!isForbidden || state.score > 0)) holderEl.classList.add('drag-over');
   } else {
     const trayDie = under?.closest('.die-wrapper');
     if (trayDie && !trayDie.dataset.slot && parseInt(trayDie.dataset.dieId, 10) !== drag.dieId) {
@@ -1293,6 +1451,7 @@ document.addEventListener('pointerup', e => {
     return;
   }
 
+  clearForbiddenHolders();
   ghost.classList.remove('is-visible');
   const under = document.elementFromPoint(e.clientX, e.clientY);
   ghost.classList.remove('is-visible');
@@ -1366,6 +1525,16 @@ document.addEventListener('pointerup', e => {
       return;
     }
 
+    if (isSlotForbidden(cardId, si, drag.dieId)) {
+      if (state.score <= 0) {
+        if (drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
+        drag = null;
+        return;
+      }
+      state.score--;
+      renderHUD();
+    }
+
     // Remove die from its origin slot (if it came from a card slot)
     if (drag.originSlot) {
       const [ocStr, osiStr] = drag.originSlot.split('-');
@@ -1415,6 +1584,7 @@ document.addEventListener('pointerup', e => {
 document.addEventListener('pointercancel', () => {
   if (!drag) return;
   if (dragCommitted && drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
+  clearForbiddenHolders();
   ghost.classList.remove('is-visible');
   ghost.classList.remove('die-drag');
   drag = null;
@@ -1428,4 +1598,5 @@ initDiscards();
 renderHUD();
 const _c0 = spawnCard();
 state.actionBarCards = [_c0];
+state.selectedCardId = _c0;
 render();
