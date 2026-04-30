@@ -159,6 +159,12 @@ function spawnDice(count) {
   return ids;
 }
 
+/** Auto-select the leftmost unplaced tray die (respects existing user selection). */
+function selectLeftmostTrayDie() {
+  const first = state.trayOrder.find(id => dieInCard(id) === null);
+  state.selectedDieId = first ?? null;
+}
+
 /* ── Card helpers ── */
 function dieInCard(dieId) {
   for (const card of state.cards) {
@@ -768,6 +774,7 @@ function spawnFullGridDiceRound() {
   state.currentRoll = ids;
   state.trayOrder   = ids;
   state.diceAccentActive = true;
+  selectLeftmostTrayDie();
   renderWithPreviewFade();
 }
 
@@ -813,6 +820,7 @@ function checkPhaseTransition() {
     state.trayOrder   = ids;
     state.diceAccentActive = true;
     state.newPreview = true; // always animate tray + preview; ghost guard is fullGridDiceRound
+    selectLeftmostTrayDie();
     renderWithPreviewFade();
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
     if (state.fullGridDiceRound) {
@@ -1241,6 +1249,7 @@ document.addEventListener('click', e => {
         card.slots[si] = state.selectedDieId;
         state.selectedDieId = null;
         updateScorePreview(cardId);
+        selectLeftmostTrayDie(); // auto-select next leftmost unplaced die
         render();
         checkPhaseTransition();
       }
@@ -1595,6 +1604,7 @@ document.addEventListener('pointerup', e => {
     // Show preview immediately on any affected card
     updateScorePreview(cardId);
     if (originCardId !== null && originCardId !== cardId) updateScorePreview(originCardId);
+    selectLeftmostTrayDie(); // auto-select next leftmost unplaced die
     render();
     checkPhaseTransition();
 
