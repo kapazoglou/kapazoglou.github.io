@@ -1257,9 +1257,7 @@ document.addEventListener('click', e => {
       // player can try a different slot without having to re-tap the die.
       return;
     }
-    // No die selected and clicked a real card slot — clear any stale selection.
-    state.selectedCardId = null;
-    render();
+    // No die selected, real card slot clicked — do nothing (no deselect on random taps).
     return;
   }
 
@@ -1334,21 +1332,12 @@ document.addEventListener('click', e => {
         return;
       }
     }
-    state.selectedCardId = null;
-    render();
+    // Clicked an occupied or out-of-bounds slot with a card selected — do nothing.
     return;
   }
-
-  // Tapped elsewhere — clear selection.
-  // Exception: forbidden slots have pointer-events:none so clicks pass through to the
-  // parent .dice-tile. Don't deselect the die when that happens — the player is just
-  // tapping around inside the card looking for a valid slot.
-  if (state.selectedDieId !== null && e.target.closest('.card-dice')) return;
-  if (state.selectedDieId !== null || state.selectedCardId !== null) {
-    state.selectedDieId = null;
-    state.selectedCardId = null;
-    render();
-  }
+  // Tapped somewhere with no matching handler — do nothing.
+  // Selection is only cleared by tapping the active die/card again (toggle off)
+  // or by switching to a different die/card.
 });
 
 /* ── Forbidden-slot helpers (used by both drag and selection rendering) ── */
