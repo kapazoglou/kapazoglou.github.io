@@ -69,8 +69,10 @@ const state = {
   awaitingPostDiceGridPlace: false,
   /** When set, grid slots still hold cards while a sweep-out animation runs. */
   scoringExit:      null,
-  /** 6-dice endgame: deal a new hand card after scoring animations finish (if any line scored). */
-  pendingSixDiceNewCard: false,
+  /** 6-dice endgame: cards to offer sequentially after the sweep resolves (0 = replay, 1 = one card, 2 = two cards). */
+  pendingPostSweepCards: 0,
+  /** When non-null, offer this card id as a second sequential card after the first is placed. */
+  pendingSecondNewCard: null,
   /** Remaining shuffled 3-dice combinations; refilled from ALL_DICE_COMBOS when empty. */
   diceDeck: [],
   /** Running score from card-level scoring rules. */
@@ -369,26 +371,24 @@ function commitScoringExit() {
   resolveAllScoringSets();
 
   if (!state.scoringExit && !peekAnyScoringMatch()) {
-    if (state.pendingSixDiceNewCard) {
-      // 6-dice path: offer 2 new cards to place
-      state.pendingSixDiceNewCard = false;
+    if (state.pendingPostSweepCards > 0) {
+      // Post-sweep cards:
+      //   1 card  (5b, 3 slots remain) — normal offer with preview dice visible.
+      //   2 cards (5b, 0 slots remain) — card 1 alone (no preview), card 2 with preview.
       state.phase = 'place-card';
-      const nc1 = spawnCard(), nc2 = spawnCard();
-      state.actionBarCards = [nc1, nc2];
-      state.newCards = new Set([nc1, nc2]);
-    } else if (state.pendingSecondBatchAfterScoring) {
-      // Full-grid first batch: scoring resolved — now spawn the second batch.
-      state.pendingSecondBatchAfterScoring = false;
-      spawnSecondDiceBatch();
-      return;
+      const nc1 = spawnCard();
+      state.actionBarCards = [nc1];
+      state.newCards = new Set([nc1]);
+      if (state.pendingPostSweepCards > 1) {
+        // Card 1 appears alone; preview dice hidden until card 1 is placed.
+        state.suppressPreviewDice = true;
+        state.pendingSecondNewCard = spawnCard(); // offered after nc1 placed (preview-first)
+      }
+      state.pendingPostSweepCards = 0;
     } else {
-      // 3-dice path: scoring was triggered by placing the last grid card;
-      // the phase transition was deferred — resume it now.
-      // Grid slots were cleared by scoring so allSlotsFilled will be false → 3 dice.
-      // Return early: checkPhaseTransition → renderWithPreviewFade already handles
-      // rendering (immediately or after the 180 ms preview-fade delay). A second
-      // render() here would fire before or after that window, consuming newDice /
-      // newPreview flags and stripping the is-new animation classes from the DOM.
+      // 3-dice path or resumed full-grid path: let checkPhaseTransition decide.
+      // Return early — a second render() here would consume animation flags before the
+      // 180 ms preview-fade delay fires, stripping is-new classes from the DOM.
       checkPhaseTransition();
       return;
     }
@@ -688,13 +688,26 @@ function renderWithPreviewFade() {
   }
 }
 
-function spawnSecondDiceBatch() {
-  state.isSecondDiceBatch = true;
+/** Count unfilled dice slots across all cards currently on the grid. */
+function countEmptyDiceSlots() {
+  return state.grid.reduce((sum, id) => {
+    if (id === null) return sum;
+    const card = state.cards[id];
+    return sum + (card ? card.slots.filter(s => s === null).length : 0);
+  }, 0);
+}
+
+/**
+ * Spawn a full-grid dice round (5a): preview fades out, tray dice appear,
+ * no card ghost, no new preview strip.
+ */
+function spawnFullGridDiceRound() {
+  state.fullGridDiceRound = true;
+  state.newPreview = false; // no ghost / preview this round
   const ids = spawnDice(3);
   state.currentRoll = ids;
   state.trayOrder   = ids;
   state.diceAccentActive = true;
-  state.newPreview = true;
   renderWithPreviewFade();
 }
 
@@ -703,68 +716,67 @@ function checkPhaseTransition() {
     // If a scoring animation is running, wait — commitScoringExit will call us again.
     if (state.scoringExit) return;
 
-    // Before the very first dice round: show preview dice alongside a new card
-    // rather than jumping straight to the dice phase. Only fires once (cardsPlaced === 1).
-    if (state.currentRoll.length === 0 && state.cardsPlaced === 1) {
-      const cardId = spawnCard();
-      state.actionBarCards = [cardId];
-      state.newCards = new Set([cardId]);
-      state.newPreviewInCard = true; // preview dice appear from nothing — animate them in
+    // Post-sweep: second card offered sequentially after the first is placed.
+    if (state.pendingSecondNewCard != null) {
+      const nc2 = state.pendingSecondNewCard;
+      state.pendingSecondNewCard = null;
+      state.suppressPreviewDice = false; // reveal preview dice alongside card 2
+      state.actionBarCards = [nc2];
+      state.newCards = new Set([nc2]);
+      state.newCardAfterPreview = true; // preview dice first, card after
       render();
       return;
     }
 
+    // Step 2 — first card just placed: preview dice animate in, then second card appears.
+    // Only fires once (cardsPlaced === 1, no dice round yet).
+    if (state.currentRoll.length === 0 && state.cardsPlaced === 1) {
+      const cardId = spawnCard();
+      state.actionBarCards = [cardId];
+      state.newCards = new Set([cardId]);
+      state.newCardAfterPreview = true; // preview dice first, card after
+      render();
+      return;
+    }
+
+    // → place-dice phase (step 3).
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
     const allSlotsFilled = state.grid.every(id => id !== null);
-    state.pendingSecondDiceBatch = allSlotsFilled;
-    state.isSecondDiceBatch = false;
+    // Full-grid round: tray only, no card ghost, no preview strip.
+    state.fullGridDiceRound = allSlotsFilled;
     const ids = spawnDice(3);
     state.currentRoll = ids;
     state.trayOrder   = ids;
     state.diceAccentActive = true;
-    state.newPreview = true;
+    state.newPreview = !allSlotsFilled; // animate ghost+preview only for normal rounds
     renderWithPreviewFade();
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
-    if (state.isSecondDiceBatch) {
-      // Second batch of the full-grid round — convert all cards, score, offer new cards.
-      state.isSecondDiceBatch = false;
-      convertAllGridCards(() => {
+    if (state.fullGridDiceRound) {
+      // Full-grid endgame: convert naturally-filled cards, check scoring, then decide next step.
+      state.fullGridDiceRound = false;
+      // Leave place-dice so convertFilledCards doesn't bail out on its phase guard.
+      state.phase = 'place-card';
+      convertFilledCards(() => {
+        const emptySlots = countEmptyDiceSlots();
         const willScore = peekAnyScoringMatch();
-        state.pendingSixDiceNewCard = !!willScore;
+        if (willScore) {
+          // Tell commitScoringExit how many cards to offer after the sweep resolves.
+          // 0 empty slots → all remaining cards filled → offer 2 cards (5b).
+          // Any other → some card still has open slots → offer 1 card (5b).
+          state.pendingPostSweepCards = emptySlots === 0 ? 2 : 1;
+        }
         resolveAllScoringSets();
-        if (!state.scoringExit && isGridFullyFilled()) {
-          showReplay();
+        if (!state.scoringExit) {
+          if (emptySlots === 0) {
+            showReplay(); // 5a: all slots filled, no sweep → game over
+          } else {
+            spawnFullGridDiceRound(); // 5a: slots remain → another tray-only dice round
+          }
           return;
         }
         render();
       });
-      return;
-    }
-    if (state.pendingSecondDiceBatch) {
-      // First batch of the full-grid round — convert any newly filled cards,
-      // resolve scoring, then spawn the second batch.
-      state.pendingSecondDiceBatch = false;
-      const queue = [];
-      for (const cardId of state.grid) {
-        if (cardId === null) continue;
-        const card = state.cards[cardId];
-        if (card.filled || card.scoreQueued) continue;
-        if (card.slots.every(s => s !== null)) {
-          card.scoreQueued = true;
-          queue.push({ cardId, pts: evaluateCardScore(cardId) });
-        }
-      }
-      const afterConversion = () => {
-        resolveAllScoringSets();
-        if (state.scoringExit) {
-          state.pendingSecondBatchAfterScoring = true;
-        } else {
-          spawnSecondDiceBatch();
-        }
-      };
-      if (queue.length === 0) afterConversion();
-      else processCardFills(queue, 0, afterConversion);
       return;
     }
     // Normal 3-dice path: offer a new hand card.
@@ -869,6 +881,12 @@ function renderActionBar() {
   const bar = document.getElementById('action-bar');
   bar.innerHTML = '';
 
+  // Capture and clear card/preview animation order flags before any rendering.
+  const cardAfterPreview = !!state.newCardAfterPreview; // preview dice first, card after
+  const previewAfterCard = !!state.newPreviewInCard;    // card first, preview dice after
+  state.newCardAfterPreview = false;
+  state.newPreviewInCard = false;
+
   if (state.phase === 'replay') {
     bar.classList.remove('mode-dice');
     const btn = document.createElement('button');
@@ -888,7 +906,8 @@ function renderActionBar() {
       const el = div.firstElementChild;
       if (state.newCards?.has(cardId)) {
         el.classList.add('is-new');
-        el.style.animationDelay = `${newIdx * 80}ms`;
+        // cardAfterPreview: card appears after 3 preview dice (0 + 60 + 120 ms stagger + ~320 ms animation + gap).
+        el.style.animationDelay = cardAfterPreview ? `${2 * 60 + 320 + 40}ms` : `${newIdx * 80}ms`;
         newIdx++;
       }
       bar.appendChild(el);
@@ -918,29 +937,14 @@ function renderActionBar() {
     bar.appendChild(tray);
     state.newDice?.clear(); // only animate on first render after spawn
 
-    // Compute animation timing shared by the card ghost and preview dice.
+    // Compute animation timing: tray dice → preview dice → card ghost.
     const isNewPreview = !!state.newPreview;
     state.newPreview = false;
     const playableCount = state.trayOrder.filter(id => dieInCard(id) === null).length;
-    // Card ghost appears first, right after the last active die finishes animating in.
-    const cardGhostDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
-    // Preview dice follow after the card ghost animation completes + small gap.
-    const basePreviewDelay = isNewPreview ? cardGhostDelay + 320 + 40 : 0;
+    // Preview dice start after the last tray die finishes animating in.
+    const basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
 
-    // Empty card ghost — preview of the next hand card, right side, below the dice.
-    const cardGhostEl = document.createElement('div');
-    cardGhostEl.className = `action-bar-card-ghost${isNewPreview ? ' is-new' : ''}`;
-    if (isNewPreview) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
-    cardGhostEl.innerHTML = `<div class="converter-card" style="color:#D3D6E5">
-      <div class="card-index"><span class="card-rank"></span></div>
-      <div class="card-dice">
-        <div class="dice-tile dice-tile--top"><div class="holder-dice"></div></div>
-        <div class="dice-tile dice-tile--bottom"><div class="holder-dice"></div><div class="holder-dice"></div></div>
-      </div>
-    </div>`;
-    bar.appendChild(cardGhostEl);
-
-    // Upcoming dice preview strip — animates in after the card ghost.
+    // Upcoming dice preview strip — always visible during dice phase.
     const combo = peekNextDiceCombination();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
@@ -950,23 +954,46 @@ function renderActionBar() {
       return `<div class="${cls}" style="${style}">${dieSVG(v, 40)}</div>`;
     }).join('');
     bar.appendChild(preview);
-    return; // preview already appended; skip the block below
+
+    // Card ghost — only during normal rounds (grid has empty positions to place into).
+    if (!state.fullGridDiceRound) {
+      const cardGhostDelay = isNewPreview ? basePreviewDelay + 2 * 60 + 320 + 40 : 0;
+      const cardGhostEl = document.createElement('div');
+      cardGhostEl.className = `action-bar-card-ghost${isNewPreview ? ' is-new' : ''}`;
+      if (isNewPreview) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
+      cardGhostEl.innerHTML = `<div class="converter-card" style="color:#D3D6E5">
+        <div class="card-index"><span class="card-rank"></span></div>
+        <div class="card-dice">
+          <div class="dice-tile dice-tile--top"><div class="holder-dice"></div></div>
+          <div class="dice-tile dice-tile--bottom"><div class="holder-dice"></div><div class="holder-dice"></div></div>
+        </div>
+      </div>`;
+      bar.appendChild(cardGhostEl);
+    }
+    return; // place-card preview section below is not reached
   }
 
   // Upcoming dice preview — place-card phase.
-  // Hidden when no card is in the bar AND no dice round has started yet, to avoid
-  // flashing during the 220 ms gap between card placement and checkPhaseTransition.
+  // Show when:  a card is in the bar (normal), OR a dice round is active (currentRoll),
+  //             OR we have placed ≥2 cards (transition window: action bar just emptied but
+  //             the dice round hasn't started yet — needed so renderWithPreviewFade can find
+  //             the element and animate it out rather than hard-cutting).
+  // Hidden during initial load (cardsPlaced ≤ 1, no roll), and when explicitly suppressed.
   if (state.phase !== 'replay' &&
-      (state.actionBarCards.length > 0 && state.cardsPlaced > 0 || state.currentRoll.length > 0)) {
-    const isNewPreview = !!state.newPreviewInCard;
-    state.newPreviewInCard = false;
-    // Card animates in at 0 ms; give it ~320 ms before preview dice stagger in.
+      !state.suppressPreviewDice &&
+      (state.actionBarCards.length > 0 && state.cardsPlaced > 0 ||
+       state.currentRoll.length > 0 ||
+       state.cardsPlaced > 1)) {
+    const isAnimated = cardAfterPreview || previewAfterCard;
+    // cardAfterPreview: preview dice start immediately (0 ms), card follows after them.
+    // previewAfterCard: card starts immediately (0 ms), preview dice follow after it (320 ms).
+    const previewBaseDelay = cardAfterPreview ? 0 : 320;
     const combo = peekNextDiceCombination();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
     preview.innerHTML = combo.map((v, idx) => {
-      const cls = `die-wrapper${isNewPreview ? ' preview-is-new' : ''}`;
-      const style = `pointer-events:none${isNewPreview ? `;animation-delay:${320 + idx * 60}ms` : ''}`;
+      const cls = `die-wrapper${isAnimated ? ' preview-is-new' : ''}`;
+      const style = `pointer-events:none${isAnimated ? `;animation-delay:${previewBaseDelay + idx * 60}ms` : ''}`;
       return `<div class="${cls}" style="${style}">${dieSVG(v, 40)}</div>`;
     }).join('');
     bar.appendChild(preview);
@@ -1029,10 +1056,10 @@ function resetGame() {
   state.scoredSets     = [];
   state.awaitingPostDiceGridPlace = false;
   state.scoringExit = null;
-  state.pendingSixDiceNewCard = false;
-  state.pendingSecondDiceBatch = false;
-  state.isSecondDiceBatch = false;
-  state.pendingSecondBatchAfterScoring = false;
+  state.pendingPostSweepCards = 0;
+  state.pendingSecondNewCard = null;
+  state.fullGridDiceRound = false;
+  state.suppressPreviewDice = false;
   state.diceDeck = [];
   state.score = 0;
   state.cardsPlaced = 0;
@@ -1041,6 +1068,7 @@ function resetGame() {
   state.newCards = null;
   state.newPreview = null;
   state.newPreviewInCard = null;
+  state.newCardAfterPreview = null;
   state.selectedDieId = null;
   state.selectedCardId = null;
   clearScoreExitTimers();

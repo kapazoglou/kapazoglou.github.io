@@ -1,0 +1,10 @@
+---
+description: Always ask the user when something is unclear or ambiguous before making changes
+alwaysApply: true
+---
+
+# Ask Before Assuming
+
+When anything is ambiguous — intent, scope, expected behaviour, edge cases — **ask the user first** before proceeding.
+
+Do not guess or make assumptions and silently act on them. A short clarifying question prevents wasted work and keeps the user in control.
