@@ -586,6 +586,38 @@ function launchPip(fromRect, toRect, onArrival, onDone) {
   setTimeout(onDone,    POP_TOTAL_MS + FADE_DONE_MS);
 }
 
+/** Reverse pip: coin flies FROM the score counter TO a target slot, then disappears.
+ *  Used for forbidden-slot penalties. */
+function launchPenaltyPip(toRect) {
+  const scoreEl = document.getElementById('score-display');
+  if (!scoreEl) return;
+  const fromRect = scoreEl.getBoundingClientRect();
+  const TRAVEL_MS = 480;
+  const pip = document.createElement('div');
+  pip.textContent = '🪙';
+  Object.assign(pip.style, {
+    position:      'fixed',
+    left:          `${fromRect.left + fromRect.width  / 2}px`,
+    top:           `${fromRect.top  + fromRect.height / 2}px`,
+    transform:     'translate(-50%, -50%) scale(1)',
+    fontSize:      '56px',
+    lineHeight:    '1',
+    pointerEvents: 'none',
+    zIndex:        '9998',
+    transition:    'none',
+  });
+  document.body.appendChild(pip);
+  pip.getBoundingClientRect(); // force layout
+  const tx = (toRect.left + toRect.width  / 2) - (fromRect.left + fromRect.width  / 2);
+  const ty = (toRect.top  + toRect.height / 2) - (fromRect.top  + fromRect.height / 2);
+  requestAnimationFrame(() => {
+    pip.style.transition = `transform ${TRAVEL_MS}ms cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease ${(TRAVEL_MS * 0.7 / 1000).toFixed(2)}s`;
+    pip.style.transform  = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0.55)`;
+    pip.style.opacity    = '0';
+    pip.addEventListener('transitionend', e => { if (e.propertyName === 'opacity') pip.remove(); });
+  });
+}
+
 /** Fire pts pips one after the other (each waits for the previous to finish). */
 function firePipsSequential(fromRect, toRect, pts, pipIndex, onAllDone) {
   if (pipIndex >= pts) { onAllDone(); return; }
@@ -1239,7 +1271,11 @@ document.addEventListener('click', e => {
       const card = state.cards[cardId];
       const forbidden = card && card.slots[si] === null && isSlotForbidden(cardId, si, state.selectedDieId);
       if (card && card.slots[si] === null && (!forbidden || state.score > 0)) {
-        if (forbidden) { state.score--; renderHUD(); }
+        if (forbidden) {
+          state.score--;
+          renderHUD();
+          launchPenaltyPip(holderEl.getBoundingClientRect());
+        }
         // If the die is currently sitting in another slot, vacate it first.
         const prevSlotKey = dieInCard(state.selectedDieId);
         if (prevSlotKey) {
@@ -1575,6 +1611,7 @@ document.addEventListener('pointerup', e => {
       }
       state.score--;
       renderHUD();
+      launchPenaltyPip(holderEl.getBoundingClientRect());
     }
 
     // Remove die from its origin slot (if it came from a card slot)
