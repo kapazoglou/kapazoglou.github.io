@@ -54,7 +54,7 @@ function ndTranscribe(str) {
 /* ── Suit / rank constants ── */
 const SUIT_LETTER   = { 1:'V', 2:'Z', 3:'X', 4:'Y', 5:'W', 6:'V' };
 const DISCARD_RANKS = ['★','A','b','c','d','e','f','g','h','i','aj','aa','ab','ac'];
-const SUIT_COLOR    = { V:'#FFFFFF', Z:'#7161FF', X:'#CC5529', Y:'#5DB22D', W:'#25A5CC' };
+const SUIT_COLOR    = { V:'#CCB400', Z:'#7161FF', X:'#CC5529', Y:'#5DB22D', W:'#25A5CC' };
 const DISPLAY_SUITS = ['Z','X','Y','W'];
 
 /* ── State ── */
@@ -882,7 +882,7 @@ function renderCardHTML(cardId, inTray = false, gridDraggable = false) {
   const rank      = cardRank(cardId);
   const suit      = cardSuit(cardId);
   const color     = cardColor(cardId);
-  const textColor = color && color.toUpperCase() !== '#FFFFFF' ? color : '#D3D6E5';
+  const textColor = suit ? SUIT_COLOR[suit] : (color && color.toUpperCase() !== '#FFFFFF' ? color : '#D3D6E5');
 
   if (card.filled) {
     // Filled state: large centred index, no dice tiles
