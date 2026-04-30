@@ -239,7 +239,19 @@ function wouldCreateDuplicate(cardId, si, dieId) {
     const gc = state.cards[gid];
     if (!gc) continue;
     if (!gc.filled && gc.slots.some(s => s === null)) continue; // identity not yet determined
-    if (cardRank(gid) === rank && cardSuit(gid) === suit) return true;
+    if (cardSuit(gid) !== suit) continue;
+    if (suit === 'V') {
+      // V-suit cards: duplicates only when the outer dice pair is identical (order-independent).
+      // Two V-suit cards with the same rank but different outer dice are allowed.
+      const gv0 = state.dice[gc.slots[0]]?.value;
+      const gv2 = state.dice[gc.slots[2]]?.value;
+      if (gv0 === undefined || gv2 === undefined) continue;
+      const me   = [v0, v2].sort((a, b) => a - b).join(',');
+      const them = [gv0, gv2].sort((a, b) => a - b).join(',');
+      if (me === them) return true;
+    } else {
+      if (cardRank(gid) === rank) return true;
+    }
   }
   return false;
 }
@@ -885,7 +897,21 @@ function renderCardHTML(cardId, inTray = false, gridDraggable = false) {
   const textColor = suit ? SUIT_COLOR[suit] : (color && color.toUpperCase() !== '#FFFFFF' ? color : '#D3D6E5');
 
   if (card.filled) {
-    // Filled state: large centred index, no dice tiles
+    if (suit === 'V') {
+      // Domino layout: large rank + the two outer rank dice in a gold-bordered tile.
+      // The middle slot (1 or 6) is intentionally hidden.
+      return `<div class="converter-card converter-card--filled converter-card--domino" data-card-id="${cardId}" style="color:${textColor}">
+        <div class="card-index card-index--filled">
+          <span class="card-rank card-rank--filled">${rank}</span><span class="card-suit card-suit--filled">&nbsp;</span>
+        </div>
+        <div class="card-dice">
+          <div class="dice-tile dice-tile--bottom dice-tile--v-suit">
+            ${renderHolderDice(cardId, 0)}${renderHolderDice(cardId, 2)}
+          </div>
+        </div>
+      </div>`;
+    }
+    // Normal filled state: large centred index, no dice tiles.
     return `<div class="converter-card converter-card--filled" data-card-id="${cardId}" style="color:${textColor}">
       <div class="card-index card-index--filled">
         <span class="card-rank card-rank--filled">${rank}</span>${suit ? `<span class="card-suit card-suit--filled">${suit}</span>` : ''}
@@ -895,13 +921,15 @@ function renderCardHTML(cardId, inTray = false, gridDraggable = false) {
 
   const gridDragCls = gridDraggable ? ' converter-card--grid-draggable' : '';
   const selectedCls = state.selectedCardId === cardId ? ' is-selected' : '';
+  const vSuitCls    = suit === 'V' ? ' converter-card--v-suit' : '';
+  const suitDisplay = suit === 'V' ? '&nbsp;' : suit;
 
   const previewIsNew = !!card.scorePreviewNew;
 
-  return `<div class="converter-card${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}" data-card-id="${cardId}" style="color:${textColor}">
+  return `<div class="converter-card${inTray ? ' in-tray' : ''}${gridDragCls}${vSuitCls}${selectedCls}" data-card-id="${cardId}" style="color:${textColor}">
     ${card.showScorePreview ? `<div class="score-preview${previewIsNew ? ' is-new' : ''}">🪙</div>` : ''}
     <div class="card-index">
-      <span class="card-rank">${rank}</span>${suit ? `<span class="card-suit">${suit}</span>` : ''}
+      <span class="card-rank">${rank}</span>${suit ? `<span class="card-suit">${suitDisplay}</span>` : ''}
     </div>
     <div class="card-dice">
       <div class="dice-tile dice-tile--top">${renderHolderDice(cardId, 1)}</div>
@@ -1155,6 +1183,22 @@ function showGameOver(reason) {
 document.getElementById('game-over-restart').addEventListener('click', () => {
   document.getElementById('game-over-overlay').classList.remove('is-visible');
   resetGame();
+});
+
+/* ── Secret settings panel (tap card-count 4×) ── */
+let _settingsTapCount = 0;
+let _settingsTapTimer = null;
+document.getElementById('card-count').addEventListener('click', () => {
+  _settingsTapCount++;
+  clearTimeout(_settingsTapTimer);
+  _settingsTapTimer = setTimeout(() => { _settingsTapCount = 0; }, 2000);
+  if (_settingsTapCount >= 4) {
+    _settingsTapCount = 0;
+    document.getElementById('settings-panel').classList.add('is-open');
+  }
+});
+document.getElementById('settings-back').addEventListener('click', () => {
+  document.getElementById('settings-panel').classList.remove('is-open');
 });
 
 document.addEventListener('click', e => {
