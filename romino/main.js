@@ -77,12 +77,19 @@ const state = {
   awaitingPostDiceGridPlace: false,
   /** When set, grid slots still hold cards while a sweep-out animation runs. */
   scoringExit:      null,
+  /** Queue of additional line sweeps detected simultaneously. Cards stay in grid (or overlay) until all drain. */
+  pendingLineSweeps: [],
+  /** Ghost copies of cards already cleared from the grid but still needed for a pending cross-line sweep.
+   *  Keys are grid slot indices; values are card IDs. */
+  sweepOverlay: {},
   /** 6-dice endgame: cards to offer sequentially after the sweep resolves (0 = replay, 1 = one card, 2 = two cards). */
   pendingPostSweepCards: 0,
   /** When non-null, offer this card id as a second sequential card after the first is placed. */
   pendingSecondNewCard: null,
   /** Remaining shuffled 3-dice combinations; refilled from ALL_DICE_COMBOS when empty. */
   diceDeck: [],
+  /** Display order (values) for the upcoming preview combo, frozen at spawn time. */
+  previewOrder: [],
   /** Running score from card-level scoring rules. */
   score: 0,
   /** Total cards placed from the action bar onto the grid (drives the 52-card countdown). */
@@ -100,6 +107,58 @@ function clearScoreExitTimers() {
   scoreExitBeatTimer = null;
   scoreExitDoneTimer = null;
 }
+
+/* ── Settings ──────────────────────────────────────────────────────────── */
+// Edit SETTINGS_CONFIG to add/reorder/group toggles.
+// Each group has a label and an items array; each item needs key, label, default.
+const SETTINGS_CONFIG = [
+  {
+    group: 'grid',
+    label: 'Grid',
+    items: [
+      { key: 'extendedGrid', label: 'Extended grid (4 × 4)', default: false },
+    ],
+  },
+  {
+    group: 'scoring',
+    label: 'Scoring',
+    items: [
+      { key: 'scoreSuitRepeat',  label: 'Suit die scores when it matches an outer die',             default: true },
+      { key: 'scoreSuitExtreme', label: 'Suit die scores when extreme and card has 1 or 6',         default: true },
+      { key: 'scoreRankSum7',    label: 'Score when the two rank dice sum to 7',            default: true },
+      { key: 'sortDice',         label: 'Sort dice in action bar',                             default: false  },
+    ],
+  },
+  {
+    group: 'payments',
+    label: 'Payments',
+    items: [
+      { key: 'forbiddenSlots', label: 'Forbidden dice holders', default: true },
+      { key: 'refundOnMove',   label: 'Refund coin when moving from forbidden slot', default: false },
+      { key: 'swapDice',       label: 'Swap placed dice by tapping one then the other', default: false },
+    ],
+  },
+  {
+    group: 'sweeps',
+    label: 'Sweeps',
+    items: [
+      { key: 'set',        label: 'Set — same number',                              default: true  },
+      { key: 'runFlush',   label: 'Run flush — consecutive numbers, same suit',      default: true  },
+      { key: 'runDiff',    label: 'Run diff — consecutive numbers, all diff suits',  default: true  },
+      { key: 'runAny',     label: 'Run any — consecutive numbers, any suits',        default: false },
+      { key: 'wildTarok',  label: 'Wild tarok — V counts as any suit in runs',       default: true },
+      { key: 'flush',      label: 'Flush — same suit',                               default: false },
+      { key: 'tarokFlush', label: 'Tarok flush — V suit sweep',                      default: false },
+    ],
+  },
+];
+
+const settings = Object.fromEntries(
+  SETTINGS_CONFIG.flatMap(g => g.items.map(i => [i.key, i.default]))
+);
+
+/** Tracks which die IDs were placed into a forbidden slot (costing a coin). */
+const forbiddenDieSlots = new Set();
 
 /* ── Dice combination deck (all 56 unordered 3-dice combos, values 1–6) ── */
 const ALL_DICE_COMBOS = (() => {
@@ -160,6 +219,79 @@ function spawnDice(count) {
 }
 
 /** Auto-select the leftmost unplaced tray die (respects existing user selection). */
+/** Return the next preview combo in display order (sorted or random per setting). */
+function nextComboForDisplay() {
+  const combo = peekNextDiceCombination();
+  return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
+}
+
+/**
+ * Sort an array of die values for action-bar display:
+ *  - 1s and 6s are always rightmost (all of them, preserving count).
+ *  - Both present  → [others asc …, all 6s, all 1s]
+ *  - Only 6s       → [others asc …, all 6s]
+ *  - Only 1s       → [others desc …, all 1s]
+ *  - Neither       → duplicates leftmost, rest ascending
+ */
+function sortDiceValuesForDisplay(values) {
+  const ones   = values.filter(v => v === 1);
+  const sixes  = values.filter(v => v === 6);
+  const others = values.filter(v => v !== 1 && v !== 6);
+
+  if (ones.length === 0 && sixes.length === 0) {
+    // All-different values: find the pair summing to 7, place non-pair leftmost,
+    // pair-member closest to non-pair in the middle, farthest on the right.
+    if (new Set(others).size === others.length) {
+      for (let i = 0; i < others.length; i++) {
+        for (let j = i + 1; j < others.length; j++) {
+          if (others[i] + others[j] === 7) {
+            const [pA, pB] = [others[i], others[j]];
+            const nonPair = others.filter((_, k) => k !== i && k !== j);
+            const np = nonPair[0]; // single non-pair value (may be absent if N>3)
+            if (np !== undefined) {
+              const [closer, farther] = Math.abs(np - pA) <= Math.abs(np - pB)
+                ? [pA, pB] : [pB, pA];
+              return [...nonPair, closer, farther];
+            }
+          }
+        }
+      }
+    }
+    // Duplicates (or no 7-pair): duplicates leftmost, then ascending.
+    const freq = {};
+    for (const v of others) freq[v] = (freq[v] || 0) + 1;
+    return [...others].sort((a, b) => freq[b] - freq[a] || a - b);
+  }
+  if (ones.length > 0 && sixes.length > 0) {
+    return [...others.sort((a, b) => a - b), ...sixes, ...ones];
+  }
+  if (sixes.length > 0) {
+    return [...others.sort((a, b) => a - b), ...sixes];
+  }
+  return [...others.sort((a, b) => b - a), ...ones];
+}
+
+/** Sort an array of die IDs by their values using sortDiceValuesForDisplay.
+ *  When the sortDice setting is off, returns the IDs in a random order instead. */
+function sortDiceIdsForDisplay(ids) {
+  if (!settings.sortDice) return shuffleArray([...ids]);
+  const sorted = sortDiceValuesForDisplay(ids.map(id => state.dice[id].value));
+  const pool = [...ids];
+  return sorted.map(v => {
+    const i = pool.findIndex(id => state.dice[id].value === v);
+    return pool.splice(i, 1)[0];
+  });
+}
+
+/** Order die IDs to match a pre-determined value sequence (e.g. from a saved preview order). */
+function orderDiceIdsByValues(ids, valueOrder) {
+  const pool = [...ids];
+  return valueOrder.map(v => {
+    const i = pool.findIndex(id => state.dice[id].value === v);
+    return pool.splice(i, 1)[0];
+  });
+}
+
 function selectLeftmostTrayDie() {
   const first = state.trayOrder.find(id => dieInCard(id) === null);
   state.selectedDieId = first ?? null;
@@ -262,6 +394,21 @@ function wouldCreateDuplicate(cardId, si, dieId) {
   return false;
 }
 
+/* ── Grid geometry helpers (3×3 or 4×4) ─────────────────────────────── */
+function getGridSize()  { return settings.extendedGrid ? 4 : 3; }
+function getGridTotal() { return getGridSize() ** 2; }
+
+/** All lines of length N on an N×N grid: rows, cols, both diagonals. */
+function getGridLines() {
+  const N = getGridSize();
+  const lines = [];
+  for (let r = 0; r < N; r++) lines.push(Array.from({ length: N }, (_, c) => r * N + c));
+  for (let c = 0; c < N; c++) lines.push(Array.from({ length: N }, (_, r) => r * N + c));
+  lines.push(Array.from({ length: N }, (_, i) => i * N + i));           // top-left → bottom-right
+  lines.push(Array.from({ length: N }, (_, i) => i * N + (N - 1 - i))); // top-right → bottom-left
+  return lines;
+}
+
 /** Grid card may be moved to another slot until any die is placed on it. */
 function cardIsGridRepositionable(cardId) {
   const c = state.cards[cardId];
@@ -273,117 +420,131 @@ function cardIsGridRepositionable(cardId) {
  * Presets bundle which rules are active and in what order (first match wins per line).
  * Switch at runtime for testing: __setScoringPreset('default' | 'triple_same_rank_only' | 'consecutive_suit_only')
  */
-const GRID_LINES = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6],
-];
-
-/** Sweep axis for CSS: rows → horizontal, cols → vertical, diagonals → along / or \\ */
+/** Sweep axis for CSS derived from the line's pattern on the current grid. */
 function lineExitKey(line) {
-  const key = line.join(',');
-  if (key === '0,1,2' || key === '3,4,5' || key === '6,7,8') return 'h';
-  if (key === '0,3,6' || key === '1,4,7' || key === '2,5,8') return 'v';
-  if (key === '0,4,8') return 'd1';
-  if (key === '2,4,6') return 'd2';
-  return 'h';
+  const N = getGridSize();
+  const [a, b] = line;
+  if (Math.floor(a / N) === Math.floor(b / N)) return 'h';  // same row
+  if (a % N === b % N) return 'v';                           // same col
+  if (b - a === N + 1) return 'd1';                          // top-left → bottom-right
+  return 'd2';                                               // top-right → bottom-left
 }
 
-function peekAnyScoringMatch() {
-  for (const line of GRID_LINES) {
-    if (findScoringMatchOnLine(line)) return true;
+/* ── Sweep rules ──────────────────────────────────────────────────────── */
+
+/** Ordered list of rule keys. wildTarok is a modifier, not a standalone rule. */
+const SWEEP_RULE_ORDER = ['set', 'runFlush', 'runDiff', 'runAny', 'flush', 'tarokFlush'];
+
+const SCORING_RULE_LABELS = {
+  set:        'Set',
+  runFlush:   'Run flush',
+  runDiff:    'Run diff',
+  runAny:     'Run any',
+  flush:      'Flush',
+  tarokFlush: 'Tarok flush',
+};
+
+/** Returns true when all N rank-positions form a consecutive circular run (wraps at A/12).
+ *  Works for any line length (3 in 3×3, 4 in 4×4). */
+function isConsecutiveRanks(cardIds) {
+  const indices = cardIds.map(id => DISCARD_RANKS.indexOf(cardRank(id)));
+  if (indices.some(i => i <= 0)) return false; // ★ or not found
+  const sorted = indices.map(i => i - 1).sort((a, b) => a - b); // circular 0–11
+  const N = sorted.length;
+  const WRAP = 12; // 12 playable ranks in the circular ring
+  // Try every rotation: if all consecutive differences mod WRAP equal 1, it's a run.
+  for (let start = 0; start < N; start++) {
+    let ok = true;
+    for (let i = 1; i < N; i++) {
+      const prev = sorted[(start + i - 1) % N];
+      const curr = sorted[(start + i) % N];
+      if (((curr - prev + WRAP) % WRAP) !== 1) { ok = false; break; }
+    }
+    if (ok) return true;
   }
   return false;
 }
 
+/**
+ * Resolve suits with wildTarok for "flush" mode (all same):
+ * V cards become the suit of the non-V cards when wildTarok is on.
+ */
+function effectiveSuitsFlush(cardIds) {
+  const raw = cardIds.map(id => cardSuit(id));
+  if (!settings.wildTarok) return raw;
+  const nonV = raw.filter(s => s && s !== 'V');
+  if (nonV.length === 0) return raw.map(() => 'Z'); // all V → any suit works
+  if (!nonV.every(s => s === nonV[0])) return raw;  // non-V conflict → can't unify
+  return raw.map(s => (s === 'V' ? nonV[0] : s));
+}
+
+/**
+ * Resolve suits with wildTarok for "diff" mode (all different):
+ * V cards fill in a missing suit when wildTarok is on.
+ */
+function effectiveSuitsDiff(cardIds) {
+  const raw = cardIds.map(id => cardSuit(id));
+  if (!settings.wildTarok) return raw;
+  const nonV = raw.filter(s => s && s !== 'V');
+  if (new Set(nonV).size !== nonV.length) return raw; // non-V cards conflict
+  const used = new Set(nonV);
+  const SUITS = ['Z', 'X', 'Y', 'W'];
+  return raw.map(s => {
+    if (s !== 'V') return s;
+    const fill = SUITS.find(x => !used.has(x)) ?? 'Z';
+    used.add(fill);
+    return fill;
+  });
+}
+
 /** @type {Record<string, (cardIds: number[]) => boolean>} */
 const SCORING_RULES = {
-  triple_same_rank(cardIds) {
+  set(cardIds) {
     const r0 = cardRank(cardIds[0]);
-    const r1 = cardRank(cardIds[1]);
-    const r2 = cardRank(cardIds[2]);
-    return r0 !== '' && r0 === r1 && r1 === r2;
+    return r0 !== '' && cardIds.every(id => cardRank(id) === r0);
   },
-  triple_consecutive_same_suit(cardIds) {
-    const suits = cardIds.map(id => cardSuit(id));
-    if (suits.some(s => !s)) return false;
-    const allSame = suits.every(s => s === suits[0]);
-    const allDiff = new Set(suits).size === 3;
-    if (!allSame && !allDiff) return false;
-
-    const indices = cardIds.map(id => DISCARD_RANKS.indexOf(cardRank(id)));
-    if (indices.some(i => i <= 0)) return false; // ★ or not found
-    // Circular positions: A(idx=1)→0, 2(idx=2)→1, …, 12(idx=12)→11
-    const sorted = indices.map(i => i - 1).sort((a, b) => a - b);
-    const [s0, s1, s2] = sorted;
-    return (s1 === s0 + 1 && s2 === s1 + 1) // normal run
-        || (s0 === 0 && s1 ===  1 && s2 === 11) // 12-A-2
-        || (s0 === 0 && s1 === 10 && s2 === 11); // 11-12-A
+  runFlush(cardIds) {
+    if (!isConsecutiveRanks(cardIds)) return false;
+    const suits = effectiveSuitsFlush(cardIds);
+    return suits.every(s => s) && suits.every(s => s === suits[0]);
   },
-};
-
-const SCORING_RULE_LABELS = {
-  triple_same_rank: 'Same rank',
-  triple_consecutive_same_suit: 'Run', // same suit OR all-different suits; A wraps
-};
-
-/** @type {Record<string, { id: string; label: string; ruleOrder: string[] }>} */
-const SCORING_PRESETS = {
-  default: {
-    id: 'default',
-    label: 'Default',
-    ruleOrder: ['triple_same_rank', 'triple_consecutive_same_suit'],
+  runDiff(cardIds) {
+    if (!isConsecutiveRanks(cardIds)) return false;
+    const suits = effectiveSuitsDiff(cardIds);
+    return suits.every(s => s) && new Set(suits).size === cardIds.length;
   },
-  triple_same_rank_only: {
-    id: 'triple_same_rank_only',
-    label: 'Same rank only',
-    ruleOrder: ['triple_same_rank'],
+  runAny(cardIds) {
+    return isConsecutiveRanks(cardIds);
   },
-  consecutive_suit_only: {
-    id: 'consecutive_suit_only',
-    label: 'Consecutive suit only',
-    ruleOrder: ['triple_consecutive_same_suit'],
+  flush(cardIds) {
+    const suits = effectiveSuitsFlush(cardIds);
+    return suits.every(s => s) && suits.every(s => s === suits[0]);
+  },
+  tarokFlush(cardIds) {
+    return cardIds.every(id => cardSuit(id) === 'V');
   },
 };
 
-let activeScoringPresetId = 'default';
-
-function getActiveScoringPreset() {
-  return SCORING_PRESETS[activeScoringPresetId] || SCORING_PRESETS.default;
-}
-
-/**
- * @param {string} presetId
- * @returns {boolean}
- */
-function setScoringPreset(presetId) {
-  if (!SCORING_PRESETS[presetId]) return false;
-  activeScoringPresetId = presetId;
-  render();
-  return true;
-}
-
-if (typeof window !== 'undefined') {
-  window.__setScoringPreset = setScoringPreset;
-  window.__getScoringPreset = () => activeScoringPresetId;
-  window.__listScoringPresets = () => Object.keys(SCORING_PRESETS);
-}
-
-/**
- * @param {number[]} lineSlots
- * @returns {{ ruleId: string, cardIds: number[] } | null}
- */
-function findScoringMatchOnLine(lineSlots) {
+/** Returns all matching rule IDs (in display order) for a fully-filled line. */
+function findAllMatchesOnLine(lineSlots) {
   const cardIds = lineSlots.map(i => state.grid[i]);
-  if (cardIds.some(id => id === null || id === undefined)) return null;
-  if (!cardIds.every(cid => state.cards[cid]?.filled)) return null;
+  if (cardIds.some(id => id === null || id === undefined)) return [];
+  if (!cardIds.every(cid => state.cards[cid]?.filled)) return [];
+  return SWEEP_RULE_ORDER
+    .filter(ruleId => settings[ruleId] && SCORING_RULES[ruleId]?.(cardIds))
+    .map(ruleId => ({ ruleId, cardIds: [...cardIds] }));
+}
 
-  const preset = getActiveScoringPreset();
-  for (const ruleId of preset.ruleOrder) {
-    const fn = SCORING_RULES[ruleId];
-    if (fn && fn(cardIds)) return { ruleId, cardIds };
+/** Returns the first match on any line (for quick peek). */
+function findScoringMatchOnLine(lineSlots) {
+  return findAllMatchesOnLine(lineSlots)[0] ?? null;
+}
+
+function peekAnyScoringMatch() {
+  for (const line of getGridLines()) {
+    if (findAllMatchesOnLine(line).length > 0) return true;
   }
-  return null;
+  return false;
 }
 
 function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
@@ -412,13 +573,12 @@ function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
   }, BEAT_MS);
 }
 
-/** After sweep: clear grid slots, record score, chain further lines or 6-dice hand card. */
+/** After one line sweep: record it, manage overlay for cross-line shared cards, then drain the queue. */
 function commitScoringExit() {
   clearScoreExitTimers();
   const se = state.scoringExit;
   if (!se) return;
 
-  for (const i of se.lineSlots) state.grid[i] = null;
   state.scoredSets.push({
     ruleId: se.ruleId,
     label: SCORING_RULE_LABELS[se.ruleId] || se.ruleId,
@@ -427,6 +587,31 @@ function commitScoringExit() {
   });
   state.scoringExit = null;
   document.getElementById('app')?.classList.remove('is-scoring-exit');
+
+  // Determine which of this line's slots are still needed by queued line sweeps.
+  const stillNeeded = new Set(state.pendingLineSweeps.flatMap(p => p.lineSlots));
+
+  for (let pos = 0; pos < se.lineSlots.length; pos++) {
+    const slotIdx = se.lineSlots[pos];
+    if (stillNeeded.has(slotIdx)) {
+      // Keep a ghost copy so the pending sweep can render and animate this card.
+      state.sweepOverlay[slotIdx] = se.cardIds[pos];
+    } else {
+      // No further line needs this slot — clear any lingering overlay.
+      delete state.sweepOverlay[slotIdx];
+    }
+    state.grid[slotIdx] = null; // always clear the live grid slot
+  }
+
+  // Animate next queued line sweep if any.
+  if (state.pendingLineSweeps.length > 0) {
+    const next = state.pendingLineSweeps.shift();
+    startScoringExitAnimation(next.lineSlots, next.ruleId, next.cardIds);
+    return;
+  }
+
+  // All cross-line sweeps done — wipe any leftover overlay entries.
+  state.sweepOverlay = {};
 
   resolveAllScoringSets();
 
@@ -457,16 +642,23 @@ function commitScoringExit() {
   render();
 }
 
-/** Start one scoring sweep if nothing is already animating; otherwise no-op. */
+/** Collect every qualifying line (first-match-wins per line), animate the first, queue the rest.
+ *  Cards shared between lines are kept alive via sweepOverlay until all cross-line sweeps finish. */
 function resolveOneScoringSet() {
   if (state.scoringExit) return false;
-  for (const line of GRID_LINES) {
-    const match = findScoringMatchOnLine(line);
-    if (!match) continue;
-    startScoringExitAnimation(line, match.ruleId, match.cardIds);
-    return true;
+
+  // Gather ALL simultaneously qualifying lines (one rule per line).
+  const allMatches = [];
+  for (const line of getGridLines()) {
+    const match = findScoringMatchOnLine(line); // first-match-wins
+    if (match) allMatches.push({ lineSlots: [...line], lineKey: lineExitKey(line), ...match });
   }
-  return false;
+  if (!allMatches.length) return false;
+
+  const [first, ...rest] = allMatches;
+  state.pendingLineSweeps = rest; // queue remaining lines
+  startScoringExitAnimation(first.lineSlots, first.ruleId, first.cardIds);
+  return true;
 }
 
 function resolveAllScoringSets() {
@@ -493,10 +685,7 @@ function detectCombo(tiles) {
 
 /* ── Card scoring rules ─ comment individual rules out to disable them ── */
 const CARD_SCORE_RULES = [
-  // The suit (single/middle) die scores exactly 1 point, but only when:
-  //   • its value is not 1 or 6, AND
-  //   • its value repeats within the card (matches slot 0 or slot 2), OR
-  //   • it is the highest or lowest of all three dice AND the card contains a 1 or 6
+  // The suit (middle) die scores 1 point when enabled conditions apply.
   function ruleSuitDie(cardId) {
     const v0 = cardSlotValue(cardId, 0);
     const v1 = cardSlotValue(cardId, 1); // suit die
@@ -504,11 +693,20 @@ const CARD_SCORE_RULES = [
     if (!v0 || !v1 || !v2) return 0;
     if (v1 === 1 || v1 === 6) return 0;
 
-    const repeats    = v1 === v0 || v1 === v2;
-    const isExtreme  = v1 >= Math.max(v0, v2) || v1 <= Math.min(v0, v2);
+    const repeats     = settings.scoreSuitRepeat  && (v1 === v0 || v1 === v2);
+    const isExtreme   = v1 >= Math.max(v0, v2) || v1 <= Math.min(v0, v2);
     const hasOneOrSix = v0 === 1 || v0 === 6 || v2 === 1 || v2 === 6;
+    const extreme     = settings.scoreSuitExtreme && isExtreme && hasOneOrSix;
 
-    return (repeats || (isExtreme && hasOneOrSix)) ? 1 : 0;
+    return (repeats || extreme) ? 1 : 0;
+  },
+  // The two outer (rank) dice sum to 7.
+  function ruleRankSum7(cardId) {
+    if (!settings.scoreRankSum7) return 0;
+    const v0 = cardSlotValue(cardId, 0);
+    const v2 = cardSlotValue(cardId, 2);
+    if (!v0 || !v2) return 0;
+    return v0 + v2 === 7 ? 1 : 0;
   },
 ];
 
@@ -804,7 +1002,9 @@ function spawnFullGridDiceRound() {
   state.newPreview = true;
   const ids = spawnDice(3);
   state.currentRoll = ids;
-  state.trayOrder   = ids;
+  const prevPreview = state.previewOrder;
+  state.trayOrder    = prevPreview.length ? orderDiceIdsByValues(ids, prevPreview) : sortDiceIdsForDisplay(ids);
+  state.previewOrder = nextComboForDisplay();
   state.diceAccentActive = true;
   selectLeftmostTrayDie();
   renderWithPreviewFade();
@@ -837,6 +1037,8 @@ function checkPhaseTransition() {
       state.selectedCardId = cardId;
       state.selectedDieId  = null;
       state.newCardAfterPreview = true; // preview dice first, card after
+      // Freeze preview order now so the tray will match it when dice are spawned.
+      state.previewOrder = nextComboForDisplay();
       render();
       return;
     }
@@ -849,7 +1051,10 @@ function checkPhaseTransition() {
     state.fullGridDiceRound = allSlotsFilled;
     const ids = spawnDice(3);
     state.currentRoll = ids;
-    state.trayOrder   = ids;
+    // Tray order must match what was shown in the preview — preserves the displayed sequence.
+    const prevPreview = state.previewOrder;
+    state.trayOrder    = prevPreview.length ? orderDiceIdsByValues(ids, prevPreview) : sortDiceIdsForDisplay(ids);
+    state.previewOrder = nextComboForDisplay();
     state.diceAccentActive = true;
     state.newPreview = true; // always animate tray + preview; ghost guard is fullGridDiceRound
     selectLeftmostTrayDie();
@@ -902,7 +1107,7 @@ function renderHolderDice(cardId, si) {
 
   if (dieId === null) {
     let isForbidden = false;
-    if (state.selectedDieId !== null) {
+    if (state.selectedDieId !== null && state.grid.includes(cardId)) {
       const selVal = state.dice[state.selectedDieId]?.value;
       isForbidden = (si === 1 && (selVal === 1 || selVal === 6))
                  || wouldCreateDuplicate(cardId, si, state.selectedDieId);
@@ -984,13 +1189,20 @@ function renderGrid() {
   if (se?.phase === 'run') el.classList.add('is-scoring-sweep');
   else el.classList.remove('is-scoring-sweep');
 
+  el.classList.toggle('grid-4x4', settings.extendedGrid);
+
   const tpl = document.querySelector('.template');
   if (se?.phase === 'run') tpl?.classList.add('template--score-sweep');
   else tpl?.classList.remove('template--score-sweep');
 
-  el.innerHTML = Array(9).fill(0).map((_, i) => {
-    const cardId = state.grid[i];
-    const gridDrag = cardId !== null && cardIsGridRepositionable(cardId);
+  el.innerHTML = Array(getGridTotal()).fill(0).map((_, i) => {
+    // Use a ghost copy when the grid slot was already cleared for a prior cross-line sweep
+    // but the card is still needed for the current sweep animation.
+    const liveId    = state.grid[i];
+    const cardId    = liveId ?? state.sweepOverlay[i] ?? null;
+    const isOverlay = liveId === null && cardId !== null;
+    // Overlay cards are not draggable — they are visual ghosts only.
+    const gridDrag  = !isOverlay && cardId !== null && cardIsGridRepositionable(cardId);
     let slotExtra = '';
     let slotStyle = '';
     if (se && cardId !== null && se.lineSlots.includes(i)) {
@@ -1076,7 +1288,7 @@ function renderActionBar() {
     const basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
 
     // Upcoming dice preview strip — always visible during dice phase.
-    const combo = peekNextDiceCombination();
+    const combo = state.previewOrder.length ? state.previewOrder : nextComboForDisplay();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
     preview.innerHTML = combo.map((v, idx) => {
@@ -1121,7 +1333,7 @@ function renderActionBar() {
     // cardAfterPreview: preview dice start immediately (0 ms), card follows after them.
     // previewAfterCard: card starts immediately (0 ms), preview dice follow after it (320 ms).
     const previewBaseDelay = cardAfterPreview ? 0 : 320;
-    const combo = peekNextDiceCombination();
+    const combo = state.previewOrder.length ? state.previewOrder : nextComboForDisplay();
     const preview = document.createElement('div');
     preview.className = 'upcoming-preview';
     preview.innerHTML = combo.map((v, idx) => {
@@ -1176,7 +1388,7 @@ function render() {
 
 /* ── Game reset (shared by game-over overlay and REPLAY button) ── */
 function resetGame() {
-  state.grid           = Array(9).fill(null);
+  state.grid           = Array(getGridTotal()).fill(null);
   state.cards          = [];
   state.actionBarCards = [];
   state.dice           = [];
@@ -1189,12 +1401,15 @@ function resetGame() {
   state.scoredSets     = [];
   state.awaitingPostDiceGridPlace = false;
   state.scoringExit = null;
+  state.pendingLineSweeps = [];
+  state.sweepOverlay = {};
   state.pendingPostSweepCards = 0;
   state.pendingSecondNewCard = null;
   state.fullGridDiceRound = false;
   state.suppressPreviewDice = false;
   state.suppressGhostAnimation = false;
   state.diceDeck = [];
+  state.previewOrder = [];
   state.score = 0;
   state.cardsPlaced = 0;
   state.diceAccentActive = true;
@@ -1205,6 +1420,7 @@ function resetGame() {
   state.newCardAfterPreview = null;
   state.selectedDieId = null;
   state.selectedCardId = null;
+  forbiddenDieSlots.clear();
   clearScoreExitTimers();
   initDiscards();
   const c0 = spawnCard();
@@ -1225,6 +1441,45 @@ document.getElementById('game-over-restart').addEventListener('click', () => {
   resetGame();
 });
 
+/* ── Settings panel rendering ── */
+function renderSettingsPanel() {
+  const container = document.getElementById('settings-toggles');
+  container.innerHTML = '';
+  for (const group of SETTINGS_CONFIG) {
+    const header = document.createElement('div');
+    header.className = 'settings-group-label';
+    header.textContent = group.label;
+    container.appendChild(header);
+    for (const item of group.items) {
+      const row = document.createElement('label');
+      row.className = 'settings-row';
+      const span = document.createElement('span');
+      span.className = 'settings-row-label';
+      span.textContent = item.label;
+      const track = document.createElement('span');
+      track.className = 'settings-toggle';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.checked = settings[item.key];
+      input.addEventListener('change', () => {
+        settings[item.key] = input.checked;
+        // Grid-size changes require a full restart; other settings just re-render.
+        if (item.key === 'extendedGrid') {
+          document.getElementById('settings-panel').classList.remove('is-open');
+          resetGame();
+        } else {
+          render();
+        }
+      });
+      track.appendChild(input);
+      track.insertAdjacentHTML('beforeend', '<span class="settings-toggle-thumb"></span>');
+      row.appendChild(span);
+      row.appendChild(track);
+      container.appendChild(row);
+    }
+  }
+}
+
 /* ── Secret settings panel (tap card-count 4×) ── */
 let _settingsTapCount = 0;
 let _settingsTapTimer = null;
@@ -1234,6 +1489,7 @@ document.getElementById('card-count').addEventListener('click', () => {
   _settingsTapTimer = setTimeout(() => { _settingsTapCount = 0; }, 2000);
   if (_settingsTapCount >= 4) {
     _settingsTapCount = 0;
+    renderSettingsPanel();
     document.getElementById('settings-panel').classList.add('is-open');
   }
 });
@@ -1252,7 +1508,30 @@ document.addEventListener('click', e => {
     const dieId = parseInt(dieWrapper.dataset.dieId, 10);
     if (!isNaN(dieId)) {
       state.selectedCardId = null;
-      state.selectedDieId = state.selectedDieId === dieId ? null : dieId;
+      if (state.selectedDieId === dieId) {
+        // Tap same die → deselect.
+        state.selectedDieId = null;
+      } else if (state.selectedDieId !== null) {
+        // Another die is selected — swap if both are in card slots and swapDice is on.
+        const slotA = dieInCard(state.selectedDieId);
+        const slotB = dieInCard(dieId);
+        if (settings.swapDice && slotA && slotB) {
+          const [acStr, asStr] = slotA.split('-');
+          const [bcStr, bsStr] = slotB.split('-');
+          const ac = parseInt(acStr, 10), as_ = parseInt(asStr, 10);
+          const bc = parseInt(bcStr, 10), bs  = parseInt(bsStr, 10);
+          state.cards[ac].slots[as_] = dieId;
+          state.cards[bc].slots[bs]  = state.selectedDieId;
+          state.selectedDieId = null;
+          updateScorePreview(ac);
+          if (bc !== ac) updateScorePreview(bc);
+        } else {
+          // Swap disabled, or one/both dice are in the tray — just re-select.
+          state.selectedDieId = dieId;
+        }
+      } else {
+        state.selectedDieId = dieId;
+      }
       render();
       return;
     }
@@ -1271,14 +1550,30 @@ document.addEventListener('click', e => {
       const card = state.cards[cardId];
       const forbidden = card && card.slots[si] === null && isSlotForbidden(cardId, si, state.selectedDieId);
       if (card && card.slots[si] === null && (!forbidden || state.score > 0)) {
+        const inGrid = state.grid.includes(cardId);
         if (forbidden) {
           state.score--;
           renderHUD();
-          launchPenaltyPip(holderEl.getBoundingClientRect());
+          if (inGrid) launchPenaltyPip(holderEl.getBoundingClientRect());
+          forbiddenDieSlots.add(state.selectedDieId);
         }
         // If the die is currently sitting in another slot, vacate it first.
         const prevSlotKey = dieInCard(state.selectedDieId);
+        const fromTray = !prevSlotKey; // die came from tray, not from another card slot
         if (prevSlotKey) {
+          // Refund coin if this die was previously placed in a forbidden slot.
+          if (settings.refundOnMove && forbiddenDieSlots.has(state.selectedDieId)) {
+            forbiddenDieSlots.delete(state.selectedDieId);
+            const prevCardId   = parseInt(prevSlotKey.split('-')[0], 10);
+            const prevHolderEl = document.querySelector(`[data-slot="${prevSlotKey}"]`);
+            const scoreEl      = document.getElementById('score-display');
+            if (state.grid.includes(prevCardId) && prevHolderEl && scoreEl) {
+              launchPip(prevHolderEl.getBoundingClientRect(), scoreEl.getBoundingClientRect(),
+                () => { state.score++; renderHUD(); }, () => {});
+            } else {
+              state.score++; renderHUD();
+            }
+          }
           const [pcStr, psStr] = prevSlotKey.split('-');
           state.cards[parseInt(pcStr, 10)].slots[parseInt(psStr, 10)] = null;
         }
@@ -1287,7 +1582,9 @@ document.addEventListener('click', e => {
         updateScorePreview(cardId);
         selectLeftmostTrayDie(); // auto-select next leftmost unplaced die
         render();
-        checkPhaseTransition();
+        // Only check phase transition for first-time placements (from tray).
+        // Rearranging between card slots must not re-trigger the "all placed" endgame.
+        if (fromTray) checkPhaseTransition();
       }
       // Placement failed (occupied or restricted slot) — keep die selected so the
       // player can try a different slot without having to re-tap the die.
@@ -1378,18 +1675,21 @@ document.addEventListener('click', e => {
 
 /* ── Forbidden-slot helpers (used by both drag and selection rendering) ── */
 function isSlotForbidden(cardId, si, dieId) {
+  if (!settings.forbiddenSlots) return false;
   const dieVal = state.dice[dieId]?.value;
   return (si === 1 && (dieVal === 1 || dieVal === 6))
       || wouldCreateDuplicate(cardId, si, dieId);
 }
 
-/** Mark / unmark every empty holder-dice slot as forbidden for dieId. */
+/** Mark / unmark every empty holder-dice slot as forbidden for dieId.
+ *  Only grid cards show forbidden indicators — tray/action-bar cards are skipped. */
 function markForbiddenHolders(dieId) {
   document.querySelectorAll('.holder-dice[data-slot]').forEach(el => {
     const slotKey = el.dataset.slot;
     if (!slotKey) return;
     const [cidStr, siStr] = slotKey.split('-');
     const cardId = parseInt(cidStr, 10), si = parseInt(siStr, 10);
+    if (!state.grid.includes(cardId)) return; // skip tray / action-bar cards
     const card = state.cards[cardId];
     if (!card || card.slots[si] !== null) return; // occupied — leave as-is
     el.classList.toggle('is-forbidden', isSlotForbidden(cardId, si, dieId));
@@ -1603,6 +1903,7 @@ document.addEventListener('pointerup', e => {
       return;
     }
 
+    const inGrid = state.grid.includes(cardId);
     if (isSlotForbidden(cardId, si, drag.dieId)) {
       if (state.score <= 0) {
         if (drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
@@ -1611,11 +1912,25 @@ document.addEventListener('pointerup', e => {
       }
       state.score--;
       renderHUD();
-      launchPenaltyPip(holderEl.getBoundingClientRect());
+      if (inGrid) launchPenaltyPip(holderEl.getBoundingClientRect());
+      forbiddenDieSlots.add(drag.dieId);
     }
 
     // Remove die from its origin slot (if it came from a card slot)
     if (drag.originSlot) {
+      // Refund coin if this die was previously placed in a forbidden slot.
+      if (settings.refundOnMove && forbiddenDieSlots.has(drag.dieId)) {
+        forbiddenDieSlots.delete(drag.dieId);
+        const prevCardId   = parseInt(drag.originSlot.split('-')[0], 10);
+        const prevHolderEl = document.querySelector(`[data-slot="${drag.originSlot}"]`);
+        const scoreEl      = document.getElementById('score-display');
+        if (state.grid.includes(prevCardId) && prevHolderEl && scoreEl) {
+          launchPip(prevHolderEl.getBoundingClientRect(), scoreEl.getBoundingClientRect(),
+            () => { state.score++; renderHUD(); }, () => {});
+        } else {
+          state.score++; renderHUD();
+        }
+      }
       const [ocStr, osiStr] = drag.originSlot.split('-');
       state.cards[parseInt(ocStr, 10)].slots[parseInt(osiStr, 10)] = null;
     }
@@ -1624,6 +1939,7 @@ document.addEventListener('pointerup', e => {
     const originCardId = drag.originSlot
       ? parseInt(drag.originSlot.split('-')[0], 10) : null;
 
+    const fromTray = !drag.originSlot; // die came from tray, not from a card slot
     card.slots[si] = drag.dieId;
     drag = null;
 
@@ -1632,7 +1948,8 @@ document.addEventListener('pointerup', e => {
     if (originCardId !== null && originCardId !== cardId) updateScorePreview(originCardId);
     selectLeftmostTrayDie(); // auto-select next leftmost unplaced die
     render();
-    checkPhaseTransition();
+    // Only check phase transition for first-time placements (from tray).
+    if (fromTray) checkPhaseTransition();
 
   } else if (targetTrayId !== null && targetTrayId !== drag.dieId) {
     // Swap tray order

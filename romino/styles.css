@@ -104,7 +104,7 @@ body {
   overflow: hidden;
 }
 
-/* ─── GRID CONTAINER (always 3x3) ─── */
+/* ─── GRID CONTAINER ─── */
 #grid-container {
   display: grid;
   grid-template-columns: repeat(3, 110px);
@@ -113,6 +113,12 @@ body {
   padding: 20px;
   flex-shrink: 0;
   position: relative;
+}
+
+/* 4×4 extended grid — same card size, larger grid */
+#grid-container.grid-4x4 {
+  grid-template-columns: repeat(4, 110px);
+  grid-template-rows: repeat(4, 167px);
 }
 
 #grid-container.is-scoring-sweep {
@@ -799,10 +805,10 @@ svg[data-name="dice_master"] {
 #settings-panel {
   position: fixed;
   inset: 0;
-  background: var(--bg);
+  background: #000;
   z-index: 1000;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   transform: translateY(100%);
   transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -812,11 +818,14 @@ svg[data-name="dice_master"] {
 }
 
 #settings-content {
+  width: 100%;
+  max-width: 500px;
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   padding: 24px 20px;
-  gap: 24px;
-  flex: 1;
+  gap: 20px;
+  overflow-y: auto;
 }
 
 #settings-back {
@@ -841,5 +850,74 @@ svg[data-name="dice_master"] {
 #settings-toggles {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
+}
+
+.settings-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary, #8892aa);
+  margin-top: 8px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+
+.settings-row-label {
+  font-size: 15px;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+/* iOS-style toggle switch */
+.settings-toggle {
+  position: relative;
+  width: 44px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.settings-toggle-thumb {
+  position: absolute;
+  inset: 0;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.15);
+  transition: background 0.2s ease;
+}
+
+.settings-toggle-thumb::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.settings-toggle input:checked + .settings-toggle-thumb {
+  background: var(--accent);
+}
+
+.settings-toggle input:checked + .settings-toggle-thumb::after {
+  transform: translateX(18px);
 }
