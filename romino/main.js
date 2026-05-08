@@ -126,7 +126,7 @@ const SETTINGS_CONFIG = [
       { key: 'scoreSuitRepeat',  label: 'Suit die scores when it matches an outer die',             default: true },
       { key: 'scoreSuitExtreme', label: 'Suit die scores when extreme and card has 1 or 6',         default: true },
       { key: 'scoreRankSum7',    label: 'Score when the two rank dice sum to 7',            default: true },
-      { key: 'sortDice',         label: 'Sort dice in action bar',                             default: false  },
+      { key: 'sortDice',         label: 'Sort dice in action bar',                             default: true  },
     ],
   },
   {
@@ -149,6 +149,7 @@ const SETTINGS_CONFIG = [
       { key: 'wildTarok',  label: 'Wild tarok — V counts as any suit in runs',       default: true },
       { key: 'flush',      label: 'Flush — same suit',                               default: false },
       { key: 'tarokFlush', label: 'Tarok flush — V suit sweep',                      default: false },
+      { key: 'domino',     label: 'Domino — V suit horizontal chain (outer dice match)', default: false },
     ],
   },
 ];
@@ -433,7 +434,7 @@ function lineExitKey(line) {
 /* ── Sweep rules ──────────────────────────────────────────────────────── */
 
 /** Ordered list of rule keys. wildTarok is a modifier, not a standalone rule. */
-const SWEEP_RULE_ORDER = ['set', 'runFlush', 'runDiff', 'runAny', 'flush', 'tarokFlush'];
+const SWEEP_RULE_ORDER = ['set', 'runFlush', 'runDiff', 'runAny', 'flush', 'tarokFlush', 'domino'];
 
 const SCORING_RULE_LABELS = {
   set:        'Set',
@@ -442,6 +443,7 @@ const SCORING_RULE_LABELS = {
   runAny:     'Run any',
   flush:      'Flush',
   tarokFlush: 'Tarok flush',
+  domino:     'Domino',
 };
 
 /** Returns true when all N rank-positions form a consecutive circular run (wraps at A/12).
@@ -523,6 +525,20 @@ const SCORING_RULES = {
   tarokFlush(cardIds) {
     return cardIds.every(id => cardSuit(id) === 'V');
   },
+  /** Horizontal lines of V-suit cards where adjacent outer dice match (domino chain). */
+  domino(cardIds, lineSlots) {
+    // Horizontal lines only.
+    if (!lineSlots || lineExitKey(lineSlots) !== 'h') return false;
+    // All cards must be V suit.
+    if (!cardIds.every(id => cardSuit(id) === 'V')) return false;
+    // Domino chain: right outer die of card[i] must equal left outer die of card[i+1].
+    for (let i = 0; i < cardIds.length - 1; i++) {
+      const right = cardSlotValue(cardIds[i],     2); // right outer of left card
+      const left  = cardSlotValue(cardIds[i + 1], 0); // left outer of right card
+      if (!right || !left || right !== left) return false;
+    }
+    return true;
+  },
 };
 
 /** Returns all matching rule IDs (in display order) for a fully-filled line. */
@@ -531,7 +547,7 @@ function findAllMatchesOnLine(lineSlots) {
   if (cardIds.some(id => id === null || id === undefined)) return [];
   if (!cardIds.every(cid => state.cards[cid]?.filled)) return [];
   return SWEEP_RULE_ORDER
-    .filter(ruleId => settings[ruleId] && SCORING_RULES[ruleId]?.(cardIds))
+    .filter(ruleId => settings[ruleId] && SCORING_RULES[ruleId]?.(cardIds, lineSlots))
     .map(ruleId => ({ ruleId, cardIds: [...cardIds] }));
 }
 
