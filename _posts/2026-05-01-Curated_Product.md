@@ -1,5 +1,6 @@
 ---
 title: " Product Design Dive In "
+metadate: "hide"
 permalink: "/curated_product.html"
 image: "/assets/images/hero.jpg"
 ---
