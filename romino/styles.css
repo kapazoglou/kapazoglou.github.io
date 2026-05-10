@@ -24,7 +24,11 @@
   --text-primary: #ffffff;
   --text-dim:     rgba(255, 255, 255, 0.66);
   --die-size:     40px;
+  /* Animation speed multiplier: 1 = normal, 0.5 = 2× faster */
+  --t: 1;
 }
+
+html.fast-anims { --t: 0.5; }
 
 html, body {
   height: 100%;
@@ -137,7 +141,7 @@ body {
   border-radius: 20px;
   position: relative;
   overflow: hidden;
-  transition: box-shadow 0.1s ease;
+  transition: box-shadow calc(0.1s * var(--t)) ease;
 }
 
 .grid-slot::before {
@@ -171,7 +175,7 @@ body {
 }
 
 .grid-slot--score-pending .converter-card {
-  animation: score-card-pop 0.22s ease calc(var(--exit-order, 0) * 75ms) both;
+  animation: score-card-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
 }
 
 .grid-slot--score-sweep {
@@ -181,10 +185,10 @@ body {
 
 .grid-slot--score-sweep .converter-card {
   overflow: visible;
-  animation-duration: 0.58s;
+  animation-duration: calc(0.58s * var(--t));
   animation-fill-mode: forwards;
   animation-timing-function: cubic-bezier(0.33, 1, 0.45, 1);
-  animation-delay: calc(var(--exit-order, 0) * 68ms);
+  animation-delay: calc(var(--exit-order, 0) * 68ms * var(--t));
 }
 
 @keyframes score-sweep-h {
@@ -250,7 +254,7 @@ body {
 }
 
 .score-preview.is-new {
-  animation: score-preview-pop 0.22s cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation: score-preview-pop calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
 .converter-card {
@@ -404,7 +408,7 @@ body {
 }
 
 .converter-card.is-converting .card-dice {
-  animation: card-dice-fadeout 0.16s ease forwards;
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
 }
 
 /* V-suit conversion: keep the domino (bottom) tile visible; only fade the suit (top) tile. */
@@ -412,22 +416,22 @@ body {
   animation: none;
 }
 .converter-card--v-suit.is-converting .dice-tile--top {
-  animation: card-dice-fadeout 0.16s ease forwards;
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
 }
 
 .converter-card.is-converting .card-index {
-  animation: card-index-expand 0.22s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+  animation: card-index-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
 }
 
 .converter-card.is-converting .card-index > .card-rank,
 .converter-card.is-converting .card-index > .card-suit {
-  animation: card-span-expand 0.22s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+  animation: card-span-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
   text-align: center;
 }
 
 .converter-card.is-converting .card-index > .card-suit {
   margin-top: 0;
-  transition: margin-top 0.22s cubic-bezier(0.2, 0, 0.4, 1);
+  transition: margin-top calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1);
 }
 
 /* ─── CARD DICE AREA ─── */
@@ -483,7 +487,7 @@ body {
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
-  transition: box-shadow 0.18s ease;
+  transition: box-shadow calc(0.18s * var(--t)) ease;
 }
 
 .holder-dice.drag-over {
@@ -501,7 +505,7 @@ body {
 
 .holder-dice.is-forbidden {
   opacity: 1;
-  transition: opacity 0.12s ease;
+  transition: opacity calc(0.12s * var(--t)) ease;
   cursor: pointer;
 }
 
@@ -529,11 +533,11 @@ body {
 }
 
 .die-wrapper.is-new {
-  animation: action-bar-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
 .converter-card.is-new {
-  animation: action-bar-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
 .die-wrapper {
@@ -605,7 +609,7 @@ svg[data-name="dice_master"] {
 }
 
 .action-bar-card-ghost.is-new {
-  animation: card-ghost-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation: card-ghost-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
 /* ─── DICE TRAY (inner row wrapping playable dice in dice mode) ─── */
@@ -658,13 +662,13 @@ svg[data-name="dice_master"] {
 }
 
 .upcoming-preview.is-exiting .die-wrapper {
-  animation: upcoming-preview-exit 0.18s ease-in forwards;
+  animation: upcoming-preview-exit calc(0.18s * var(--t)) ease-in forwards;
 }
-.upcoming-preview.is-exiting .die-wrapper:nth-child(2) { animation-delay: 40ms; }
-.upcoming-preview.is-exiting .die-wrapper:nth-child(3) { animation-delay: 80ms; }
+.upcoming-preview.is-exiting .die-wrapper:nth-child(2) { animation-delay: calc(40ms * var(--t)); }
+.upcoming-preview.is-exiting .die-wrapper:nth-child(3) { animation-delay: calc(80ms * var(--t)); }
 
 .upcoming-preview .die-wrapper.preview-is-new {
-  animation: action-bar-slide-in 0.32s cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
 #replay-btn {
@@ -712,72 +716,124 @@ svg[data-name="dice_master"] {
 }
 
 /* ─── GAME-OVER DIALOG ─── */
+/* ── Game-over bottom sheet ── */
 .game-over-overlay {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(7, 13, 26, 0.75);
-  backdrop-filter: blur(4px);
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  /* Backdrop fades in */
+  background: rgba(7, 13, 26, 0);
+  transition: background calc(0.35s * var(--t)) ease;
 }
 
 .game-over-overlay.is-visible {
-  opacity: 1;
   pointer-events: auto;
+  background: rgba(7, 13, 26, 0.55);
+}
+
+.game-over-overlay.is-minimized {
+  background: rgba(7, 13, 26, 0);
 }
 
 .game-over-dialog {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 500px;
+  transform: translateX(-50%) translateY(100%);
   background: var(--bg);
-  border-radius: 24px;
-  padding: 28px 20px 20px;
+  border-radius: 36px 36px 0 0;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  width: min(92vw, 360px);
-  max-height: 88vh;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
-  transform: translateY(12px);
-  transition: transform 0.3s ease;
+  max-height: 85vh;
+  transition: transform calc(0.4s * var(--t)) cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .game-over-overlay.is-visible .game-over-dialog {
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Minimized: show only the handle strip (pill + title/button row + padding) */
+.game-over-overlay.is-visible.is-minimized .game-over-dialog {
+  transform: translateX(-50%) translateY(calc(100% - 84px));
+}
+
+/* Handle bar at top of sheet */
+.go-handle {
+  width: 100%;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px 40px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.go-handle-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--text-dim);
+  opacity: 0.4;
+}
+
+.go-handle-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Stop the play-again tap from also toggling minimize */
+.go-handle-row .game-over-btn {
+  pointer-events: auto;
 }
 
 .game-over-title {
   font-family: 'Averia Libre', serif;
-  font-size: 36px;
+  font-size: 28px;
   color: var(--text-primary);
   line-height: 1;
 }
 
 .game-over-reason {
   font-family: 'Averia Libre', serif;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-dim);
-  text-align: center;
-  line-height: 1.4;
-  min-height: 1.4em;
+  text-align: left;
+  line-height: 1.3;
+}
+
+/* Inner padding wrapper */
+.go-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px 10px;
+  overflow: hidden;
 }
 
 .game-over-btn {
-  margin-top: 8px;
-  background: white;
-  height: 40px;
-  padding: 0 28px;
+  background: var(--accent);
+  height: 36px;
+  padding: 0 20px;
   border-radius: 99px;
   border: none;
   cursor: pointer;
   font-family: 'Averia Libre', serif;
-  font-size: 20px;
+  font-size: 18px;
   color: #364254;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .game-over-btn:active {
@@ -785,9 +841,12 @@ svg[data-name="dice_master"] {
 }
 
 /* ── Game-over scrollable body ── */
+.go-inner {
+  overflow-y: auto;
+}
+
 .go-body {
   width: 100%;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -915,7 +974,7 @@ svg[data-name="dice_master"] {
   display: flex;
   justify-content: center;
   transform: translateY(100%);
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform calc(0.28s * var(--t)) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #settings-panel.is-open {
@@ -1003,7 +1062,7 @@ svg[data-name="dice_master"] {
   inset: 0;
   border-radius: 13px;
   background: rgba(255,255,255,0.15);
-  transition: background 0.2s ease;
+  transition: background calc(0.2s * var(--t)) ease;
 }
 
 .settings-toggle-thumb::after {
@@ -1015,7 +1074,7 @@ svg[data-name="dice_master"] {
   background: #fff;
   top: 3px;
   left: 3px;
-  transition: transform 0.2s ease;
+  transition: transform calc(0.2s * var(--t)) ease;
   box-shadow: 0 1px 4px rgba(0,0,0,0.4);
 }
 

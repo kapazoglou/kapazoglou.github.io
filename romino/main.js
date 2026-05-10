@@ -1,4 +1,10 @@
 /* ── Helpers ── */
+
+/** Return ms scaled by the current animation-speed setting (0.5× when fast). */
+function spd(ms) {
+  return settings && settings.fastAnimations ? ms * 0.5 : ms;
+}
+
 function hexToRgba(hex, alpha) {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -121,14 +127,16 @@ const SETTINGS_CONFIG = [
     group: 'grid',
     label: 'Grid',
     items: [
-      { key: 'extendedGrid',   label: 'Extended grid (4 × 4)',              default: false },
+      { key: 'extendedGrid',    label: 'Extended grid (4 × 4)',              default: false },
+      { key: 'fastAnimations',  label: 'Fast animations (2×)',               default: true },
     ],
   },
   {
     group: 'deck',
     label: 'Deck',
     items: [
-      { key: 'blankDie',       label: 'Blank die (no pips → V suit)',        default: false },
+      { key: 'blankDie',       label: 'Blank die (no pips → V suit)',                    default: false },
+      { key: 'blanksInRank',   label: 'Allow blank in rank (both slots must match)',      default: true },
       { key: 'filterExtremes', label: 'Remove all-1s/6s dice combos',        default: true  },
       { key: 'sortDice',       label: 'Sort dice in action bar',               default: true  },
     ],
@@ -356,8 +364,14 @@ function allThreeColoredCard(cardId) {
 }
 
 function cardRank(cardId) {
-  // if (allThreeColoredCard(cardId)) return 'A';
   if (isJokerCard(cardId)) return 'A';
+  const c = state.cards[cardId];
+  if (c) {
+    const id0 = c.slots[0], id2 = c.slots[2];
+    // Double-blank rank dice → wildcard rank '*'
+    if (id0 !== null && id2 !== null &&
+        state.dice[id0]?.value === 0 && state.dice[id2]?.value === 0) return '*';
+  }
   const sum = cardSlotValue(cardId, 0) + cardSlotValue(cardId, 2);
   return sum === 0 ? ' ' : ndTranscribe(sum);
 }
@@ -474,22 +488,25 @@ const SCORING_RULE_LABELS = {
 };
 
 /** Returns true when all N rank-positions form a consecutive circular run (wraps at A/12).
- *  Works for any line length (3 in 3×3, 4 in 4×4). */
+ *  Works for any line length (3 in 3×3, 4 in 4×4).
+ *  Cards with rank '*' (double-blank) act as wildcards and fill any gap. */
 function isConsecutiveRanks(cardIds) {
-  const indices = cardIds.map(id => DISCARD_RANKS.indexOf(cardRank(id)));
-  if (indices.some(i => i <= 0)) return false; // ★ or not found
-  const sorted = indices.map(i => i - 1).sort((a, b) => a - b); // circular 0–11
-  const N = sorted.length;
-  const WRAP = 12; // 12 playable ranks in the circular ring
-  // Try every rotation: if all consecutive differences mod WRAP equal 1, it's a run.
-  for (let start = 0; start < N; start++) {
-    let ok = true;
-    for (let i = 1; i < N; i++) {
-      const prev = sorted[(start + i - 1) % N];
-      const curr = sorted[(start + i) % N];
-      if (((curr - prev + WRAP) % WRAP) !== 1) { ok = false; break; }
-    }
-    if (ok) return true;
+  const WRAP = 12;
+  const N    = cardIds.length;
+  const wildcards = cardIds.filter(id => cardRank(id) === '*').length;
+  if (wildcards === N) return true; // all wildcards → any run works
+
+  const nonWild = cardIds.filter(id => cardRank(id) !== '*');
+  const rawIdx  = nonWild.map(id => DISCARD_RANKS.indexOf(cardRank(id)));
+  if (rawIdx.some(i => i <= 0)) return false; // ★ or invalid rank
+  const sorted = rawIdx.map(i => i - 1).sort((a, b) => a - b); // 0-based circular
+  if (new Set(sorted).size !== sorted.length) return false; // duplicate non-wild ranks
+
+  // Try every start position: check if all non-wild indices fit inside a window of size N
+  // leaving enough room for the wildcards to fill the remaining positions.
+  for (let start = 0; start < WRAP; start++) {
+    const fits = sorted.every(idx => ((idx - start + WRAP) % WRAP) < N);
+    if (fits) return true;
   }
   return false;
 }
@@ -529,8 +546,19 @@ function effectiveSuitsDiff(cardIds) {
 /** @type {Record<string, (cardIds: number[]) => boolean>} */
 const SCORING_RULES = {
   set(cardIds) {
-    const r0 = cardRank(cardIds[0]);
-    return r0 !== '' && cardIds.every(id => cardRank(id) === r0);
+    // Both '*' (double-blank) and V-suit cards act as rank wildcards in sets.
+    const isWild  = id => cardRank(id) === '*' || cardSuit(id) === 'V';
+    const nonWild = cardIds.filter(id => !isWild(id));
+    const wilds   = cardIds.filter(id =>  isWild(id));
+    if (nonWild.length === 0) return true; // all wildcards
+    const r0 = cardRank(nonWild[0]);
+    if (r0 === '' || r0 === ' ' || !nonWild.every(id => cardRank(id) === r0)) return false;
+    // Each wildcard must contribute a suit not already present among the other set members.
+    for (const wild of wilds) {
+      const ws = cardSuit(wild);
+      if (cardIds.some(id => id !== wild && cardSuit(id) === ws)) return false;
+    }
+    return true;
   },
   runFlush(cardIds) {
     if (!isConsecutiveRanks(cardIds)) return false;
@@ -612,8 +640,8 @@ function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
     scoreExitDoneTimer = setTimeout(() => {
       scoreExitDoneTimer = null;
       commitScoringExit();
-    }, SWEEP_MS);
-  }, BEAT_MS);
+    }, spd(SWEEP_MS));
+  }, spd(BEAT_MS));
 }
 
 /** After one line sweep: record it, manage overlay for cross-line shared cards, then drain the queue. */
@@ -780,7 +808,7 @@ function updateScorePreview(cardId) {
     // Keep the flag alive for the full animation duration so re-renders within
     // that window still include the is-new class and the pop-in always completes.
     const cid = cardId;
-    setTimeout(() => { const c = state.cards[cid]; if (c) c.scorePreviewNew = false; }, 260);
+    setTimeout(() => { const c = state.cards[cid]; if (c) c.scorePreviewNew = false; }, spd(260));
   } else if (!qualifies) {
     card.showScorePreview = false;
     card.scorePreviewNew  = false;
@@ -791,11 +819,11 @@ function updateScorePreview(cardId) {
  *  Sequence: spawn → pop to 133% → back to 100% → travel to counter → fade out.
  *  Calls onArrival when it reaches the counter, onDone when fully faded. */
 function launchPip(fromRect, toRect, onArrival, onDone) {
-  const POP_UP_MS    = 110;
-  const POP_DOWN_MS  = 130;
+  const POP_UP_MS    = spd(110);
+  const POP_DOWN_MS  = spd(130);
   const POP_TOTAL_MS = POP_UP_MS + POP_DOWN_MS;
-  const TRAVEL_MS    = 550; // transform 0.55s
-  const FADE_DONE_MS = 750; // opacity 0.15s delay + 0.6s
+  const TRAVEL_MS    = spd(550);
+  const FADE_DONE_MS = spd(750);
 
   const pip = document.createElement('div');
   pip.textContent = '🪙';
@@ -811,7 +839,7 @@ function launchPip(fromRect, toRect, onArrival, onDone) {
     transition:    'none',
   });
   document.body.appendChild(pip);
-  pip.getBoundingClientRect(); // force layout before first transition
+  pip.getBoundingClientRect();
 
   // Phase 1: pop up to 133%
   pip.style.transition = `transform ${POP_UP_MS}ms cubic-bezier(0.2, 0, 0.4, 1)`;
@@ -827,7 +855,7 @@ function launchPip(fromRect, toRect, onArrival, onDone) {
   const tx = (toRect.left + toRect.width  / 2) - (fromRect.left + fromRect.width  / 2);
   const ty = (toRect.top  + toRect.height / 2) - (fromRect.top  + fromRect.height / 2);
   setTimeout(() => {
-    pip.style.transition = 'transform 0.55s cubic-bezier(0.2,0.8,0.3,1), opacity 0.6s ease 0.15s';
+    pip.style.transition = `transform ${TRAVEL_MS}ms cubic-bezier(0.2,0.8,0.3,1), opacity ${spd(600)}ms ease ${spd(150)}ms`;
     pip.style.transform  = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
     pip.style.opacity    = '0';
     pip.addEventListener('transitionend', e => { if (e.propertyName === 'opacity') pip.remove(); });
@@ -843,7 +871,7 @@ function launchPenaltyPip(toRect) {
   const scoreEl = document.getElementById('score-display');
   if (!scoreEl) return;
   const fromRect = scoreEl.getBoundingClientRect();
-  const TRAVEL_MS = 480;
+  const TRAVEL_MS = spd(480);
   const pip = document.createElement('div');
   pip.textContent = '🪙';
   Object.assign(pip.style, {
@@ -858,11 +886,11 @@ function launchPenaltyPip(toRect) {
     transition:    'none',
   });
   document.body.appendChild(pip);
-  pip.getBoundingClientRect(); // force layout
+  pip.getBoundingClientRect();
   const tx = (toRect.left + toRect.width  / 2) - (fromRect.left + fromRect.width  / 2);
   const ty = (toRect.top  + toRect.height / 2) - (fromRect.top  + fromRect.height / 2);
   requestAnimationFrame(() => {
-    pip.style.transition = `transform ${TRAVEL_MS}ms cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease ${(TRAVEL_MS * 0.7 / 1000).toFixed(2)}s`;
+    pip.style.transition = `transform ${TRAVEL_MS}ms cubic-bezier(0.4,0,0.2,1), opacity ${spd(300)}ms ease ${(TRAVEL_MS * 0.7 / 1000).toFixed(2)}s`;
     pip.style.transform  = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px)) scale(0.55)`;
     pip.style.opacity    = '0';
     pip.addEventListener('transitionend', e => { if (e.propertyName === 'opacity') pip.remove(); });
@@ -899,10 +927,10 @@ function fillOneCard(cardId) {
 
 /** Animate and fill cards in queue one by one; calls onDone when the whole queue is done. */
 function processCardFills(queue, index, onDone) {
-  if (index >= queue.length) { setTimeout(() => onDone?.(), 420); return; }
+  if (index >= queue.length) { setTimeout(() => onDone?.(), spd(420)); return; }
   const { cardId, pts } = queue[index];
 
-  const CONVERT_MS = 240;
+  const CONVERT_MS = spd(240);
   const next = () => {
     const cardEl = document.querySelector(`.converter-card[data-card-id="${cardId}"]`);
     if (cardEl) {
@@ -919,7 +947,7 @@ function processCardFills(queue, index, onDone) {
     }
   };
 
-  if (pts === 0) { setTimeout(next, 320); return; }
+  if (pts === 0) { setTimeout(next, spd(320)); return; }
 
   // Preview badge is already visible on the card (shown at die-placement time).
   // Fly the pip from the badge's position directly.
@@ -970,9 +998,8 @@ function convertFilledCards(onDone, force = false) {
 function convertAllGridCards(onDone) {
   const scoreEl = document.getElementById('score-display');
   let pipDelay = 0; // cumulative stagger for pip launches
-  // POP_TOTAL + FADE_DONE inside launchPip = 240 + 750 = 990 ms per pip tail
-  const PIP_TAIL_MS = 990;
-  const PIP_GAP_MS  = 830; // interval between consecutive pip starts
+  const PIP_TAIL_MS = spd(990);
+  const PIP_GAP_MS  = spd(830);
 
   for (const cardId of state.grid) {
     if (cardId === null) continue;
@@ -1047,6 +1074,9 @@ function checkStuck() {
 
 function showReplay(reason = '') {
   state.phase = 'replay';
+  // Freeze the action bar in place; disable pointer events so nothing is clickable.
+  const bar = document.getElementById('action-bar');
+  if (bar) bar.style.pointerEvents = 'none';
   render();
 
   document.getElementById('game-over-reason').textContent = reason;
@@ -1076,14 +1106,16 @@ function showReplay(reason = '') {
         .join('')
     : '<div class="go-sweep-empty">no sweeps</div>';
 
-  document.getElementById('game-over-overlay').classList.add('is-visible');
+  const overlay = document.getElementById('game-over-overlay');
+  overlay.classList.remove('is-minimized');
+  overlay.classList.add('is-visible');
 }
 
 function renderWithPreviewFade() {
   const previewEl = document.querySelector('.upcoming-preview');
   if (previewEl) {
     previewEl.classList.add('is-exiting');
-    setTimeout(() => render(), 180);
+    setTimeout(() => render(), spd(180));
   } else {
     render();
   }
@@ -1339,10 +1371,6 @@ function renderActionBar() {
   state.newCardAfterPreview = false;
   state.newPreviewInCard = false;
 
-  if (state.phase === 'replay') {
-    bar.classList.remove('mode-dice');
-    return;
-  }
 
   if (state.phase === 'place-card') {
     bar.classList.remove('mode-dice');
@@ -1484,7 +1512,8 @@ function renderHUD() {
 
 function render() {
   renderGrid();
-  renderActionBar();
+  // During game over leave the action bar exactly as it was — the bottom sheet overlays it.
+  if (state.phase !== 'replay') renderActionBar();
   renderDiscards();
   renderHUD();
 }
@@ -1492,6 +1521,9 @@ function render() {
 
 /* ── Game reset (shared by game-over overlay and REPLAY button) ── */
 function resetGame() {
+  // Restore action-bar interactivity in case it was frozen by a previous game over.
+  const bar = document.getElementById('action-bar');
+  if (bar) bar.style.pointerEvents = '';
   state.grid           = Array(getGridTotal()).fill(null);
   state.cards          = [];
   state.actionBarCards = [];
@@ -1540,8 +1572,15 @@ function showGameOver(reason) {
   showReplay(reason);
 }
 
+document.getElementById('go-handle').addEventListener('click', e => {
+  // Don't minimize when the play-again button inside the handle is tapped.
+  if (e.target.closest('#game-over-restart')) return;
+  document.getElementById('game-over-overlay').classList.toggle('is-minimized');
+});
+
 document.getElementById('game-over-restart').addEventListener('click', () => {
-  document.getElementById('game-over-overlay').classList.remove('is-visible');
+  const overlay = document.getElementById('game-over-overlay');
+  overlay.classList.remove('is-visible', 'is-minimized');
   resetGame();
 });
 
@@ -1578,6 +1617,10 @@ function renderSettingsPanel() {
           settings.paidSlots = false;
           const paidInput = document.querySelector('input[data-key="paidSlots"]');
           if (paidInput) paidInput.checked = false;
+        }
+        // Speed toggle: flip CSS variable immediately.
+        if (item.key === 'fastAnimations') {
+          document.documentElement.classList.toggle('fast-anims', input.checked);
         }
         // Grid-size and deck-composition changes require a full restart; other settings just re-render.
         if (item.key === 'extendedGrid' || item.key === 'blankDie' || item.key === 'filterExtremes') {
@@ -1777,7 +1820,7 @@ document.addEventListener('click', e => {
               render();
               checkPhaseTransition();
             });
-          }, 220);
+          }, spd(220));
         }
         return;
       }
@@ -1794,8 +1837,25 @@ document.addEventListener('click', e => {
 function isSlotForbidden(cardId, si, dieId) {
   if (!settings.forbiddenSlots && !settings.paidSlots) return false;
   const dieVal = state.dice[dieId]?.value;
-  // Blank die (value 0) may only go in the suit slot (middle, index 1).
-  if (dieVal === 0 && (si === 0 || si === 2)) return true;
+  const isBlank = dieVal === 0;
+
+  if (si === 0 || si === 2) {
+    // Rank slot rules for blank dice.
+    if (isBlank) {
+      // Blank forbidden in rank unless the toggle is on.
+      if (!settings.blanksInRank) return true;
+      // blanksInRank on: forbidden if the OTHER rank slot has a non-blank die.
+      const otherSi = si === 0 ? 2 : 0;
+      const otherId = state.cards[cardId]?.slots[otherSi];
+      if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value !== 0) return true;
+    } else if (settings.blanksInRank) {
+      // Non-blank forbidden in rank if the OTHER rank slot already has a blank die.
+      const otherSi = si === 0 ? 2 : 0;
+      const otherId = state.cards[cardId]?.slots[otherSi];
+      if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value === 0) return true;
+    }
+  }
+
   return (si === 1 && (dieVal === 1 || dieVal === 6))
       || wouldCreateDuplicate(cardId, si, dieId);
 }
@@ -1985,7 +2045,7 @@ document.addEventListener('pointerup', e => {
             render();
             checkPhaseTransition();
           });
-        }, 220); // wait for box-shadow transition to finish
+        }, spd(220)); // wait for box-shadow transition to finish
         return;
       }
     }
