@@ -52,6 +52,23 @@
   <div class="game-over-dialog" role="alertdialog" aria-modal="true" aria-labelledby="game-over-title">
     <div class="game-over-title" id="game-over-title">game over</div>
     <div class="game-over-reason" id="game-over-reason"></div>
+
+    <!-- scrollable body -->
+    <div class="go-body">
+      <!-- cards discovered -->
+      <div class="go-stat-row">
+        <span class="go-stat-value" id="go-cards-count">0</span>
+        <span class="go-stat-label">cards discovered</span>
+      </div>
+
+      <!-- discovered cards grid -->
+      <div class="go-cards-grid" id="go-cards-grid"></div>
+
+      <!-- sweeps breakdown -->
+      <div class="go-section-label">sweeps</div>
+      <div class="go-sweeps" id="go-sweeps"></div>
+    </div>
+
     <button class="game-over-btn" id="game-over-restart">play again</button>
   </div>
 </div>

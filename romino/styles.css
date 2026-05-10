@@ -511,6 +511,16 @@ body {
   line-height: 1;
 }
 
+.holder-dice.is-forbidden.is-hard-forbidden {
+  cursor: not-allowed;
+}
+
+.holder-dice.is-forbidden.is-hard-forbidden::after {
+  content: '✖️';
+  font-size: 20px;
+  line-height: 1;
+}
+
 /* ─── DIE WRAPPER (the draggable die inside a holder or tray) ─── */
 @keyframes action-bar-slide-in {
   0%   { transform: translateY(44px) scale(0.88); opacity: 0; }
@@ -724,12 +734,13 @@ svg[data-name="dice_master"] {
 .game-over-dialog {
   background: var(--bg);
   border-radius: 24px;
-  padding: 36px 32px 28px;
+  padding: 28px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  width: 280px;
+  width: min(92vw, 360px);
+  max-height: 88vh;
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
   transform: translateY(12px);
   transition: transform 0.3s ease;
@@ -771,6 +782,100 @@ svg[data-name="dice_master"] {
 
 .game-over-btn:active {
   transform: scale(0.95);
+}
+
+/* ── Game-over scrollable body ── */
+.go-body {
+  width: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px;
+}
+
+.go-stat-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.go-stat-value {
+  font-family: 'Averia Libre', serif;
+  font-size: 40px;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.go-stat-label {
+  font-family: 'Averia Libre', serif;
+  font-size: 15px;
+  color: var(--text-dim);
+}
+
+/* Discovered cards grid — scaled-down converter cards */
+.go-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.go-card-wrap {
+  width: 60px;
+  height: 92px;
+  position: relative;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.go-card-wrap .converter-card {
+  transform: scale(0.545);
+  transform-origin: top left;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+/* Sweep breakdown */
+.go-section-label {
+  font-family: 'Averia Libre', serif;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.go-sweeps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.go-sweep-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Averia Libre', serif;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.go-sweep-label {
+  color: var(--text-dim);
+}
+
+.go-sweep-count {
+  font-size: 20px;
+  color: var(--accent);
+}
+
+.go-sweep-empty {
+  font-family: 'Averia Libre', serif;
+  font-size: 15px;
+  color: var(--text-dim);
+  font-style: italic;
 }
 
 /* ─── DISCARD ENTRY (kept for potential future display) ─── */
