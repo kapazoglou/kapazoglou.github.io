@@ -127,8 +127,10 @@ const SETTINGS_CONFIG = [
     group: 'grid',
     label: 'Grid',
     items: [
-      { key: 'extendedGrid',    label: 'Extended grid (4 × 4)',              default: false },
-      { key: 'fastAnimations',  label: 'Fast animations (2×)',               default: true },
+      { key: 'extendedGrid',     label: 'Extended grid (4 × 4)',              default: false },
+      { key: 'fastAnimations',   label: 'Fast animations (2×)',               default: true  },
+      { key: 'autoplayLongPress',label: 'Autoplay on long press',             default: true },
+      { key: 'autoplayFirstTwo', label: 'Autoplay first two cards',           default: true },
     ],
   },
   {
@@ -1181,6 +1183,7 @@ function checkPhaseTransition() {
       // Freeze preview order now so the tray will match it when dice are spawned.
       state.previewOrder = nextComboForDisplay();
       render();
+      maybeAutoplayFirstTwo();
       return;
     }
 
@@ -1239,6 +1242,151 @@ function checkPhaseTransition() {
     state.awaitingPostDiceGridPlace = true;
     render();
   }
+}
+
+/* ── Autoplay ── */
+
+/**
+ * Fly a clone of fromEl to the centre of toEl, then call onLand.
+ * The original element is hidden (opacity 0) during flight and restored by onLand's re-render.
+ */
+function flyAutoplay(fromEl, toEl, type, onLand) {
+  const fromRect = fromEl.getBoundingClientRect();
+  const toRect   = toEl.getBoundingClientRect();
+
+  const clone = fromEl.cloneNode(true);
+  Object.assign(clone.style, {
+    position:      'fixed',
+    width:         fromRect.width  + 'px',
+    height:        fromRect.height + 'px',
+    left:          (fromRect.left + fromRect.width  / 2) + 'px',
+    top:           (fromRect.top  + fromRect.height / 2) + 'px',
+    transform:     'translate(-50%, -50%)',
+    margin:        '0',
+    pointerEvents: 'none',
+    zIndex:        '9998',
+    transition:    'none',
+    animationName: 'none',
+    opacity:       '1',
+  });
+  fromEl.style.opacity = '0';
+  document.body.appendChild(clone);
+  clone.getBoundingClientRect(); // flush layout
+
+  const tx  = (toRect.left + toRect.width  / 2) - (fromRect.left + fromRect.width  / 2);
+  const ty  = (toRect.top  + toRect.height / 2) - (fromRect.top  + fromRect.height / 2);
+  const dur = type === 'card' ? spd(300) : spd(220);
+
+  clone.style.transition = `transform ${dur}ms cubic-bezier(0.4, 0, 0.2, 1)`;
+  clone.style.transform  = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
+
+  setTimeout(() => {
+    clone.remove();
+    fromEl.style.opacity = ''; // restore (re-render will overwrite anyway)
+    onLand?.();
+  }, dur);
+}
+
+/** Place the first action-bar card on a random empty grid slot. Calls onDone when settled. */
+function autoplayCardStep(onDone) {
+  if (state.phase !== 'place-card') { onDone?.(); return; }
+  if (state.actionBarCards.length === 0) { onDone?.(); return; }
+  const emptySlots = state.grid.map((v, i) => v === null ? i : -1).filter(i => i >= 0);
+  if (emptySlots.length === 0) { onDone?.(); return; }
+
+  const targetSlotIdx = emptySlots[Math.floor(Math.random() * emptySlots.length)];
+  const cardId = state.actionBarCards[0];
+
+  const doPlace = () => {
+    state.actionBarCards = state.actionBarCards.filter(id => id !== cardId);
+    if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
+    state.cardsPlaced++;
+    state.grid[targetSlotIdx] = cardId;
+    state.diceAccentActive = false;
+    state.selectedCardId = null;
+    render();
+    setTimeout(() => {
+      convertFilledCards(() => {
+        resolveAllScoringSets();
+        render();
+        checkPhaseTransition();
+        setTimeout(() => onDone?.(), spd(380));
+      });
+    }, spd(220));
+  };
+
+  const sourceEl = document.querySelector(`.converter-card[data-card-id="${cardId}"]`);
+  const targetEl = document.querySelector(`.grid-slot[data-grid-slot="${targetSlotIdx}"]`);
+  if (sourceEl && targetEl) flyAutoplay(sourceEl, targetEl, 'card', doPlace);
+  else doPlace();
+}
+
+/** Place every unplaced tray die into a random valid (non-forbidden) slot, one at a time. Calls onDone when settled. */
+function autoplayDiceStep(onDone) {
+  if (state.phase !== 'place-dice') { onDone?.(); return; }
+  const trayDice = state.trayOrder.filter(id => dieInCard(id) === null);
+  if (trayDice.length === 0) { onDone?.(); return; }
+
+  function placeNext(remaining) {
+    if (remaining.length === 0) {
+      checkPhaseTransition();
+      checkStuck();
+      setTimeout(() => onDone?.(), spd(380));
+      return;
+    }
+    const dieId = remaining[0];
+    // Collect all non-forbidden empty slots across grid cards.
+    const valid = [];
+    for (const cardId of state.grid) {
+      if (cardId === null) continue;
+      const card = state.cards[cardId];
+      if (!card) continue;
+      for (let si = 0; si < card.slots.length; si++) {
+        if (card.slots[si] !== null) continue;
+        if (!isSlotForbidden(cardId, si, dieId)) valid.push({ cardId, si });
+      }
+    }
+
+    if (valid.length > 0) {
+      const { cardId, si } = valid[Math.floor(Math.random() * valid.length)];
+      const dieEl    = document.querySelector(`.die-wrapper[data-die-id="${dieId}"]`);
+      const holderEl = document.querySelector(`.holder-dice[data-slot="${cardId}-${si}"]`);
+
+      const doPlaceDie = () => {
+        state.cards[cardId].slots[si] = dieId;
+        updateScorePreview(cardId);
+        render();
+        setTimeout(() => placeNext(remaining.slice(1)), spd(60));
+      };
+
+      if (dieEl && holderEl) flyAutoplay(dieEl, holderEl, 'die', doPlaceDie);
+      else doPlaceDie();
+    } else {
+      // No valid slot for this die — skip it.
+      setTimeout(() => placeNext(remaining.slice(1)), spd(60));
+    }
+  }
+
+  placeNext(trayDice);
+}
+
+/** Single entry point — dispatches to card or dice autoplay based on current phase. */
+function autoplayStep(onDone) {
+  if (state.phase === 'place-card') autoplayCardStep(onDone);
+  else if (state.phase === 'place-dice') autoplayDiceStep(onDone);
+  else onDone?.();
+}
+
+/**
+ * Called after every card offer.
+ * When autoplayFirstTwo is on, auto-places the card if fewer than 2 cards have been placed.
+ */
+function maybeAutoplayFirstTwo() {
+  if (!settings.autoplayFirstTwo) return;
+  if (state.cardsPlaced >= 2) return;
+  if (state.phase !== 'place-card') return;
+  // Small delay so the card slide-in animation has started before it disappears.
+  setTimeout(() => autoplayCardStep(), spd(480));
 }
 
 /* ── Rendering ── */
@@ -1565,6 +1713,7 @@ function resetGame() {
   state.selectedCardId = c0;
   state.selectedDieId  = null;
   render();
+  maybeAutoplayFirstTwo();
 }
 
 /* ── Game over ── */
@@ -2175,6 +2324,44 @@ document.addEventListener('pointercancel', () => {
   document.querySelectorAll('.grid-slot').forEach(s => s.classList.remove('drag-over'));
 });
 
+/* ── Long-press autoplay on action bar ── */
+let _lpTimer          = null;   // initial hold timer
+let _longPressActive  = false;  // true while press is held and loop is running
+
+function _stopLongPress() {
+  _longPressActive = false;
+  if (_lpTimer !== null) { clearTimeout(_lpTimer); _lpTimer = null; }
+}
+
+function _autoplayLoop() {
+  if (!_longPressActive) return;
+  if (state.phase === 'replay') { _stopLongPress(); return; }
+  autoplayStep(() => {
+    // onDone: if still held, run the next step after a tiny inter-step gap.
+    if (_longPressActive) setTimeout(_autoplayLoop, spd(120));
+  });
+}
+
+const _actionBar = document.getElementById('action-bar');
+
+_actionBar.addEventListener('pointerdown', () => {
+  if (!settings.autoplayLongPress) return;
+  if (state.phase === 'replay') return;
+  // Start the loop after the initial hold delay.
+  _lpTimer = setTimeout(() => {
+    _lpTimer = null;
+    _longPressActive = true;
+    _autoplayLoop();
+  }, 600);
+});
+
+_actionBar.addEventListener('pointerup',     _stopLongPress);
+_actionBar.addEventListener('pointercancel', _stopLongPress);
+_actionBar.addEventListener('pointermove', e => {
+  // Cancel if pointer drifts more than 8 px before the hold fires.
+  if (_lpTimer !== null && (Math.abs(e.movementX) + Math.abs(e.movementY)) > 8) _stopLongPress();
+});
+
 /* ── Init ── */
 initDiscards();
 renderHUD();
@@ -2182,3 +2369,4 @@ const _c0 = spawnCard();
 state.actionBarCards = [_c0];
 state.selectedCardId = _c0;
 render();
+maybeAutoplayFirstTwo();

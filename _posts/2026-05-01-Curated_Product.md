@@ -42,7 +42,7 @@ After that I start research and ideation looking at:
 * best practices on Mobbin and in-house competitor analysis
 * AI suggestions i.e. Stitch
 * the User Journey and relevant Personas
-* data from in-House User Reasearch & Behavioural Science
+* data from in-House User Research & Behavioural Science
 
 > ##### Example: Treatment Plan Best Practice Analysis
 > *For the purposes of a partnership as well as a grant we were required to track user adherence to medication. In order to do that we first had to lay a framework for users to add and track their medication and medical appointments in-app. This was prioritised as it was also an often requested feature from our users. We started our research by analysing best practices in competitive apps*
@@ -206,7 +206,7 @@ The implementation of the design system had a significant impact on efficiency, 
 <br>
 
 
-## Implementing New Processess
+## Implementing New Processes
 
 Beside the various design projects I led, there were a few projects out of the scope of Design that I championed in order to achieve company goals and/or to improve internal processes. 
 
