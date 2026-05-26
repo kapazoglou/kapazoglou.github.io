@@ -1,0 +1,18 @@
+{% comment %} Category chip buttons for client-side masonry filter on index (fixed order). {% endcomment %}
+{% capture _home_filter_order %}Product Design,Research,Patient Communication,Medical Illustration,Data Viz,Iterative Design,Print Design,Illustration,Photography,Animation,Storytelling{% endcapture %}
+{% assign home_filter_names = _home_filter_order | split: "," %}
+<div class="btn-toolbar home-masonry-filter-toolbar" role="toolbar" aria-label="Filter projects by category">
+  <button type="button" class="btn btn-sm btn-outline-dark category-tag home-masonry-filter-btn home-masonry-filter-all active" data-category-slug="" aria-pressed="true">All</button>
+  {% assign categories_list = site.categories %}
+  {% for name_raw in home_filter_names %}
+    {% assign name_trim = name_raw | strip %}
+    {% for category in categories_list %}
+      {% if category[0] == name_trim %}
+        {% assign _filter_slug = category[0] | slugify %}
+        <button type="button" class="btn btn-sm btn-outline-dark category-tag home-masonry-filter-btn" data-category-slug="{{ _filter_slug }}" aria-pressed="false">{{ category[0] }}</button>
+        {% break %}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+  {% assign categories_list = nil %}
+</div>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>金色の死活</title>
+    <meta name='author' content= 'Mano Kapazoglou'>
+    <meta name='description' content='an svg parser to display tsumego in style'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    
+    <script src='../d3/d3-grid.js'></script>
+    <script src='sgf2go.js'></script>
+    <style type='text/css'>
+        body {
+            text-align: center;
+            background-color: wheat;
+            font-family: 'Lucida Console';
+            font-size: 12px;
+            color: goldenrod;
+        }
+        #main{
+            text-align: left;
+        }
+        span { 
+            color: darkslategray;
+            transition: 0.3s;
+        }
+        .sub{
+            color: goldenrod;
+            font-size: 10px;
+        }
+        text:hover {
+            fill: ivory;
+        }
+        a {
+            cursor:pointer;
+            text-decoration: none;
+            font-size: 12px;
+            text-align: right;
+            color: goldenrod;
+            transition: 0.3s;
+        }
+        a:hover, a:active, a:focus{
+            color: ivory;
+        }
+        svg {
+            overflow: visible;
+            font-size: 10px;
+            font-family: 'Lucida Console';
+            cursor:pointer;
+            fill: goldenrod;
+        }
+        circle{
+            stroke: darkslategray;
+            stroke-width: 0px;
+        }
+        line {
+            stroke: goldenrod;
+            stroke-width: 1px;
+        }
+        .hoshi {
+            fill: goldenrod;
+            stroke: goldenrod;
+            stroke-width: 1px;
+        }
+        svg .kuro {
+            fill: darkslategray;
+        }
+        svg .shiro {
+            fill: ghostwhite;
+        }
+        .cursor {
+            fill: goldenrod;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div id='main'>
+    <link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+    <a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: goldenrod; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a>&nbsp;/    
+    <span>life&nbsp;and&nbsp;death&nbsp;in&nbsp;gold</span>&nbsp;/ 
+    <a href='https://en.wikipedia.org/wiki/Rules_of_Go'>rules</a>&nbsp;/
+    <a class='load-btn' id='cho-1'>beginner</a>&nbsp;/
+    <a class='load-btn' id='cho-2'>intermediate</a>&nbsp;/
+    <a class='load-btn' id='cho-3'>advanced</a>&nbsp;/
+    <span class='sub'>tsumego&nbsp;by&nbsp;Cho&nbsp;Chikun</span>
+    <!--<a class='load-btn' id='gokyo-shumyo'>gokyo-shumyo</a>&nbsp;/
+    <a class='load-btn' id='igo-hatsuyo-ron'>igo-hatsuyo-ron</a>&nbsp;/-->
+
+</div><br>
+<div id="loader">loading...</div>
+<script>
+//DECLARE
+var r = 15
+var n = 10
+
+d3.selectAll('.load-btn')
+    .on('click', function (e) {
+        d3.selectAll('svg').remove();
+        draw('sgf/'+ d3.select(this).attr('id') + '.sgf');
+});
+
+d3.queue(3)
+    .defer(d3.text, 'sgf/cho-1.sgf')
+    .defer(d3.text, 'sgf/cho-2.sgf')
+    .defer(d3.text, 'sgf/cho-3.sgf')
+    //.defer(d3.text, 'sgf/gokyo-shumyo.sgf')
+    //.defer(d3.text, 'sgf/igo-hatsuyo-ron.sgf')
+
+    .awaitAll( sgf => draw(sgf) )
+
+draw("sgf/cho-1.sgf")
+
+function draw(filename) { d3.text(filename).get( sgf => {
+d3.select('#loader').style('visibility','hidden');
+
+var json = sgf2json(sgf)
+
+//DATA JOIN    
+var goban = d3.select('body').selectAll('body')
+    .data(chunk(json[0].slice(1),4)).enter()
+    .append('svg')
+    .attr('class', 'goban')
+    .attr('id', (d,i) => i)
+    .attr('width', r*n*2 )
+    .attr('height', (r*n*2)-3.5 )
+    //height,width maximum for each tsume
+
+//SHADOW
+var defs = d3.selectAll('svg')
+    .append('defs')
+    .append('filter')
+    .attr('id','shade')
+    .append('feDropShadow')
+    .attr('dx', r/6 )
+    .attr('dy', r/6)
+    .attr('stdDeviation', 0)
+    .attr('flood-opacity', 1)
+    .attr('flood-color', 'goldenrod')
+
+//ROBAN aaall this needs to go completely under the stones
+for (var i = 0; i <= 3; i++){
+var roban = goban
+    .append('g')
+    .attr('class', 'roban')
+    .attr('transform','translate('+r*n+','+r*n+') rotate('+270*(i%4+2)+')')
+}
+ 
+for (var i =1; i <= n; i++){
+    goban.selectAll('.roban')
+        .append('line')
+        .attr('x1', r)
+        .attr('y1', r*i)
+        .attr('x2', r*(n+.5))
+        .attr('y2', r*i)
+    
+    goban.selectAll('.roban')
+        .append('line')
+        .attr('x1', r*i)
+        .attr('y1', r)
+        .attr('x2', r*i)
+        .attr('y2', r*(n+.5))
+}
+
+var hoshi = [[4,4],[4,10],[10,4],[10,10]]
+for (var i = 0; i < hoshi.length; i++){
+goban.selectAll('.roban')
+    .append('circle')
+    .attr('class','hoshi')
+    .attr('cx', r*hoshi[i][0])
+    .attr('cy', r*hoshi[i][1])
+    .attr('r', 2)
+}
+
+/*CURSOR
+var cursor = svg.append('circle')
+    .attr('class', 'cursor')
+    .attr('r', r/2)
+    .attr('transform', 'translate(-100,-100)')
+*/
+
+//TSUMEGO
+goban.selectAll('.goban')
+    .data( (d,i) => d ).enter()
+    .append('g')
+    .attr('class', (d,i) => 'tsume')
+    .attr('id', (d,i) =>  i)
+    .attr('transform', (d,i) => 'translate('+r*n+','+r*n+') rotate('+270*(i%4+2)+')');// '+r*n+' '+r*n+')');
+
+var tsume = goban.selectAll('.tsume')
+
+//LABEL
+tsume.append('text')
+    .text( (d,i) => d[0].find(o => o.key === 'C').value )
+    .attr('text-anchor','middle')
+    .attr('transform', (d,i) => (i==0)? ('translate('+r*2.8+','+3+') rotate('+180+')'): ('translate('+r*2.8+','+r/2+') rotate(0)'))
+
+    //.on('click', this.solver.stones.remove() )
+
+//STONES
+var ishi = tsume
+    .append('g')
+    .attr('class', 'ishi')
+    .style('filter','url(#shade)')
+
+
+var shiro = ishi.selectAll('.shiro')
+    .data( (d,i) => d[0].find(o => o.key === 'AW').value )
+    .enter()
+    .append('circle')
+    .attr('class', 'shiro')
+    .attr('r', r/2)
+    .attr('cx', (d,i) => (d.charCodeAt(1)-96) * r + 1.5*Math.random())
+    .attr('cy', (d,i) => (d.charCodeAt(0)-96) * r  + 1.5*Math.random())
+    
+var kuro = ishi.selectAll('.kuro')
+    .data( (d,i) => d[0].find(o => o.key === 'AB').value )
+    .enter()
+    .append('circle')
+    .attr('class', 'kuro')
+    .attr('r',  r/2)
+    .attr('cx', (d,i) => (d.charCodeAt(1)-96) * r  + 1.5*Math.random())
+    .attr('cy', (d,i) => (d.charCodeAt(0)-96) * r  + 1.5*Math.random()) 
+})
+        d3.select('#loader').style('visibility','visible');
+
+}
+
+//FUNCTIONS
+function chunk(arr, n) {
+    return arr.slice(0,(arr.length+n-1)/n|0).map( (c,i) => arr.slice(n*i,n*i+n));
+}
+
+/*function mousemove() {
+  cursor.attr('transform', 'translate(' + round(Math.max(r, Math.min(Math.round(r*2*n*window.innerWidth/(r*(n+1))) - r,d3.mouse(this)[0])), r) +','+ round(Math.max(r, Math.min(svgh - r,d3.mouse(this)[1])), r) + ')');
+}
+function round(p, n) {
+  return p % n < n / 2 ? p - (p % n) : p + n - (p % n);
+}*/
+
+</script>
+</body>
+</html>

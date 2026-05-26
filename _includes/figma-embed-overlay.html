@@ -1,0 +1,50 @@
+{% comment %}
+  Required: embed_url
+  Optional: preview_src — poster image site path (per-embed samples live under assets/images/figma-previews/; swap the file or override preview_src)
+  Optional: label — sets the button/dialog aria-label; each embed also has an author comment listing the preview filename + this label text
+  Optional: variant on-dark — framing tuned for dark panels
+  Optional: cta_line1, cta_line2 — badge lines on the poster (default Figma / File)
+  Optional: hide_figma_logo — set true for non-Figma embeds (uses interactive-embed-placeholder.png when preview_src omitted)
+  Optional: zoom_hint — override zoom hint banner in full-screen overlay (default: on only for embed.figma.com when not interactive)
+  Optional: preview_width, preview_height — <img> dimensions (default 800 × 450)
+  Optional: iframe_scale — full-screen iframe CSS scale (e.g. 0.8 or 80% for “80% zoom”)
+{% endcomment %}
+{% assign _feu = include.embed_url %}
+{% assign _zoom_hint = false %}
+{% unless include.hide_figma_logo %}
+  {% assign _feu_l = _feu | append: '' | downcase %}
+  {% if _feu_l contains 'embed.figma.com' %}
+    {% assign _zoom_hint = true %}
+  {% endif %}
+{% endunless %}
+{% if include.preview_src %}
+  {% assign _fep = include.preview_src %}
+{% elsif include.hide_figma_logo %}
+  {% assign _fep = '/assets/images/interactive-embed-placeholder.png' %}
+{% else %}
+  {% assign _fep = '/assets/images/figma-embed-placeholder.png' %}
+{% endif %}
+{% if include.hide_figma_logo %}
+  {% assign _fel = include.label | default: 'Open interactive demo' %}
+{% else %}
+  {% assign _fel = include.label | default: 'Open embedded Figma prototype' %}
+{% endif %}
+{% assign _cta1 = include.cta_line1 | default: 'Figma' %}
+{% assign _cta2 = include.cta_line2 | default: 'File' %}
+{% assign _pw = include.preview_width | default: '800' %}
+{% assign _ph = include.preview_height | default: '450' %}
+{% assign _ifs = '' %}
+{% if include.iframe_scale != nil %}
+  {% assign _ifs = include.iframe_scale | append: '' | strip %}
+{% endif %}
+<div class="figma-embed-block{% if include.variant == 'on-dark' %} figma-embed-block--on-dark{% endif %}{% if include.hide_figma_logo %} figma-embed-block--interactive{% endif %}">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open data-figma-embed-url="{{ _feu | escape }}"{% if _zoom_hint %} data-figma-zoom-hint="true"{% else %} data-figma-zoom-hint="false"{% endif %}{% if _ifs != '' %} data-figma-iframe-scale="{{ _ifs | escape }}"{% endif %} aria-haspopup="dialog" aria-label="{{ _fel | escape }}">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="{{ _fep | relative_url }}" alt="" loading="lazy" width="{{ _pw }}" height="{{ _ph }}" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">{{ _cta1 }}</span><span class="figma-embed-block__cta-label-line">{{ _cta2 }}</span></span>
+        {% unless include.hide_figma_logo %}<img class="figma-embed-block__cta-logo" src="{{ '/assets/images/figma-logo.png' | relative_url }}" alt="" width="18" height="27" decoding="async" />{% endunless %}
+      </span>
+    </span>
+  </button>
+</div>

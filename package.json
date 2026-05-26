@@ -1,0 +1,13 @@
+{
+  "name": "kapazoglou-github-io",
+  "version": "1.0.0",
+  "description": "Personal portfolio site",
+  "scripts": {
+    "start": "bundle exec jekyll serve --livereload",
+    "build": "bundle exec jekyll build",
+    "serve": "bundle exec jekyll serve",
+    "dev": "bundle exec jekyll serve --livereload",
+    "clean": "bundle exec jekyll clean"
+  },
+  "devDependencies": {}
+}

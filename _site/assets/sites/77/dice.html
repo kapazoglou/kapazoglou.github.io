@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<head>
+	<title>Hazard Tarot : Dice Cards</title>
+	<meta name='author' content= 'Mano Kapazoglou'>
+	<meta name='description' content='A tarot deck from three dice'>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src='https://d3js.org/d3.v5.min.js'></script>
+	<style type="text/css">
+		@import url('https://fonts.googleapis.com/css?family=Vampiro+One|M+PLUS+Rounded+1c:800');
+
+		html, body {
+			margin: 0;
+			padding: 0; 
+			overflow: visible;
+			background-color: white ;
+			  overflow-x: scroll;
+		}
+
+		svg {
+			touch-action: none;
+		}
+
+		text {
+			font-family: 'M PLUS Rounded 1c', monospace;
+			text-align: center;
+			letter-spacing: -1.5px;
+		}
+
+		rect, .suits, circle, .domino{
+			fill: white;
+		}
+
+		.domino{
+			fill: #fafafa;
+		}
+
+		.back {
+			fill: none;
+			stroke: black;
+			stroke-width: 0.5px;
+		}
+
+		.dice {
+			stroke-width: 1.4px;
+			stroke: #333333;
+			fill: white;
+		}
+
+		.border {
+			stroke-width: 10px;
+			stroke: none;
+			fill: none;
+		}
+
+		circle, text, .S0 .suits, #T515 .suits, #T262 .suits, #T116 .suits, #T166 .suits, #T010 .suits, #T060 .suits {
+			fill: #333333;
+		}
+
+		.f1 .dice{
+			stroke: none
+		}
+
+		.D33 .indices, .D42 .indices, .D51 .indices,
+		.D54 .indices, .D63 .indices{
+			 text-decoration: underline;
+		}
+
+/*
+		.S0 .f1, .D00 .f0, .D00 .f2{
+			visibility: hidden;
+		}
+*/
+
+
+
+	</style>
+</head>
+<body>
+	<div id='main'></div>
+	</div>
+	<script>
+	// create an array of 7 objects representing 6 sides of a cubic die plus a special symbol standing for 0 or 7
+	const arr = Array.from(Array(7).keys());
+
+	// generate 7 multichoose 3 excluding triplets i.e. equivalent to 6 multichoose 3 U 6 multichoose 2
+	const gen = multi(arr,3);
+
+	// select one number out of each group of three to signify the suit in a way that populates 4 suits plus honours in the most economic way — i.e. largely disregarding 1 and 6 as possible suits — move the suit to the centre of the the three values defining a core versus a flank — sort first by flank and then core
+	const nums = gen.map( d => center( d, cenSel(d) ) )
+				.filter( d => [...new Set(d)].length != 1 )
+				.sort( (a,b) => (a[0]+a[2]) - (b[0]+b[2]) )
+				.sort( (a,b) => a[1]-b[1] )
+
+	// add a blank value
+	nums.unshift([0,0,0])
+
+	const k = 1;
+
+	// ratios derived from hexagonal geometry so that the dots fit a 7x9 tile in a pleasing way
+	const scale = 7.07777777777777777;
+	const ratios = {
+		x: scale * .75,
+		y: scale * .75,
+		r: scale * Math.sqrt(7)/4,
+		
+		// central scaling
+		xC: scale * 3+Math.sqrt(3),
+		yC: scale * 2.5*Math.sqrt(3),
+
+		// size of the tile
+		wRect: scale * 10,
+		hRect: scale * 10*9/7, //SKAT(59x91)
+	
+		wSVG: window.innerWidth,
+		hSVG: window.innerHeight
+	}
+
+	// object storing the generated combinations as an index together with an equivalence relation index, lattice points for design and x,y coordinates for each tile
+	const pts = nums.map( d => ({
+			id: d.join(''),
+			tally: 0,
+			lattice: d.map( d => coordinates(d) ),
+			points: proportions( d.map( d =>  coordinates(d) ) ),
+			equivalence: partitions(d[0], d[2], d[1]).join(''),
+			x0: ratios.wSVG * 15/100 + Math.random() * ( ratios.wSVG * 70/100 ),
+			y0: ratios.hSVG * 15/100 + Math.random() * ( ratios.hSVG * 70/100 ),
+
+			x: d[0] + d[2] == 0 ?  ( ratios.wRect*1 + scale ) * 13 :
+				d[0] + d[2] == 7 && d[0] == 1 ? 
+				( ratios.wRect*1 + scale ) * 1 : 
+				( ratios.wRect*1 + scale ) * ( d[0] + d[2] ),
+
+			y: d[1] == 0 && d[0] == 0 ? ( scale*1.12*13 ) * 8 :
+				d[0] && d[1]%5 == 1 && d[0] - d[2] == 0 ? 
+				( scale*1.12*13 ) * ( d[1] %3.5 ) * 2 :
+				d[1] === 0 ? d[0] == 1 && d[2] == 6 ? ( scale*1.12*13 ) * 8 :
+				( scale*1.12*13 ) * ( 7 + Math.abs( d[2] - d[0] ) ) : 
+				( scale*1.12*13 ) * ( 7 - d[1] )
+	}) );
+
+
+	var colors = ['#ffdf61','#ffdf61','#9cdbde','#ffbf85','#c3de66','#e0c3f7','#ffdf61']
+
+
+	// initialize svg with group 'box' inside
+	const svg = d3.select('#main')
+		.append('svg')
+		.attr('width', '100%')
+		.attr('height', '4000')
+		.append('g')
+		.attr('id', 'box')
+		.attr('transform', 'translate(' + -scale*1.5 + ',' + scale*1.5 + ')')
+		//.style('filter','url(#shade)');
+
+	// enter the object  
+	const node = svg.selectAll('.tile')
+		.data( pts, d  => d.p );
+
+	// make a group for each node
+	const tile = node.enter()
+		.append('g')
+		.attr('class','tile')
+		.attr('id', d  => 'T'+d.id)
+		.attr('transform', d => 'translate('+ d.x +','+ d.y +')')
+
+	// make a group to hold a rect for each node
+	tile.append('g')
+		.attr('class', d  => 'spinner S'+d.id[1]+' D'+d.id[2]+d.id[0])
+		.attr('mask', d  => 'url(#mask'+d.id+')')
+
+	// insert a rect in that group
+	svg.selectAll('.spinner').append('rect') // (6.5x9.7) 6mm border
+		.attr('width', ratios.wRect*0.918367 )
+		.attr('height', ratios.wRect*1.37048)
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + -ratios.wRect*1.37048/2 + ')')
+
+	svg.selectAll('.spinner').append('rect') // (6.5x9.7) 6mm border
+		.attr('class', 'domino')
+		.attr('width',  ratios.wRect*0.918367 )
+		.attr('height', ratios.wRect*1.37048)
+		.attr('transform', 'translate(' + - ratios.wRect*0.918367/2 + ',' + -ratios.wRect*1.37048/2 + ')')	
+
+	svg.selectAll('.spinner').append('rect') // (6.5x9.7) 6mm border
+		.attr('class', 'suit')
+		.attr('width',  ratios.wRect*0.918367  )
+		.attr('height', 48 )
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + -48/2 + ')')
+		.style('fill', d => d.id==262 ? colors[2] : d.id==515 ? colors[5] : colors[d.id[1]])
+
+	svg.selectAll('.S0.spinner')
+		.append('rect')
+		.attr('class', 'suit')
+		.attr('width',  ratios.wRect*0.918367  )
+		.attr('height', 9.6 )
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + -9.6*1.5 + ')')
+		.style('fill', colors[4])
+	svg.selectAll('.S0.spinner')
+		.append('rect')
+		.attr('class', 'suit')
+		.attr('width',  ratios.wRect*0.918367  )
+		.attr('height', 9.6 )
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + 9.6*0.5 + ')')
+		.style('fill', colors[3])
+	svg.selectAll('.S0.spinner')
+		.append('rect')
+		.attr('class', 'suit')
+		.attr('width',  ratios.wRect*0.918367  )
+		.attr('height', 9.6 )
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + -9.6*2.5 + ')')
+		.style('fill', colors[2])
+	svg.selectAll('.S0.spinner')
+		.append('rect')
+		.attr('class', 'suit')
+		.attr('width',  ratios.wRect*0.918367  )
+		.attr('height', 9.6 )
+		.attr('transform', 'translate(' + -ratios.wRect*0.918367/2 + ',' + 9.6*1.5 + ')')
+		.style('fill', colors[5])
+
+
+	svg.selectAll('.spinner')
+		.append('rect')
+		.attr('class', 'border')
+		.attr('width', ratios.hRect*0.64835164835) // SKAT 59x91
+		.attr('height', ratios.hRect)
+		.attr('rx', ratios.r*0.8333333 )
+		.attr('ry', ratios.r*0.8333333 )
+		.attr('transform', 'translate(' + -ratios.hRect*0.64835164835/2 + ',' + -ratios.hRect/2 + ')')
+
+	svg.selectAll('.spinner')
+		.append('rect')
+		.attr('class', 'back')
+		.attr('width', ratios.hRect*0.64835164835) // SKAT 59x91
+		.attr('height', ratios.hRect)
+		.attr('rx', ratios.r*0.8333333 )
+		.attr('ry', ratios.r*0.8333333 )
+		.attr('transform', 'translate(' + -ratios.hRect*0.64835164835/2 + ',' + -ratios.hRect/2 + ')')
+
+	// insert groups to hold pips by face
+	svg.selectAll('.spinner').selectAll('.face')
+		.data( d => d.points ).enter()
+		.append('g')
+		.attr('class',  (d,i) => 'face f' + i +' num'+ d.length)
+		.append('rect')
+		.attr('class', 'dice')
+		.attr('width', 22) // SKAT 59x91
+		.attr('height', 22)
+		.attr('rx', ratios.r*0.5 )
+		.attr('ry', ratios.r*0.5 )
+		.attr('transform', (d,i) => 'translate(' + 0 + ',' + -11 + ') translate(' + -11 + ',' + (1-i)*(ratios.yC) + ')')
+
+	// insert pips
+	svg.selectAll('.spinner').selectAll('.face').selectAll('.pip')
+		.data(d => d).enter()
+		.append('circle')
+		.attr('class', 'pip')
+		.attr('cx', d => d[0] )
+		.attr('cy', d => d[1] )
+		.attr('r', ratios.r*0.4 );
+
+	svg.selectAll('.spinner')
+		.append('text')
+		.attr('class','suits')
+		.text( d => 
+					d.id == 515 ? String.fromCharCode( 10101+5 ) : 
+					d.id == 262 ? String.fromCharCode( 10101+2 ) :
+					d.id[1] == 0 ? '🟊' : // trumps
+					d.id[1] == 6 || d.id[1] == 1 ? String.fromCharCode( 11044 ) : //'🟊' :
+					String.fromCharCode( 10101 + parseInt(d.id[1]) )
+					) // blank
+		.attr("text-anchor","middle")
+		.style("font-size", ratios.r * 2.2 )	
+		.attr('transform','translate(' + -20 + ',' + 3.6 + ') rotate(0)' )
+		.clone(true).attr('transform','rotate(180) translate(' + -20 + ',' + 3.6 + ') rotate(0)' )
+//		.clone(true).attr('transform','translate(' + 19 + ',' + -12 + ') rotate(0)' ).clone(true).attr('transform','rotate(180) translate(' + 19 + ',' + -12 + ') rotate(0)' )
+
+	svg.selectAll('.spinner')
+		.append('text')
+		.attr('class','stars')
+		.text( d => 
+					d.id[1] == 0 ? '🟊' : // trumps
+					null)
+		.attr("text-anchor","middle")
+		.style("font-size", ratios.r * 4 )	
+		.attr('transform','translate(' + 0 + ',' + 7 + ') rotate(0)' )
+
+	svg.selectAll('.spinner')
+		.append('text')
+		.attr('class','stars')
+		.text( d => 
+					d.id[0] == 0 ? '🟊' : // trumps
+					null)
+		.attr("text-anchor","middle")
+		.style("font-size", ratios.r * 4 )	
+		.attr('transform','translate(' + 0 + ',' + -23 + ') rotate(0)' )
+		.clone(true).attr('transform','translate(' + 0 + ',' + 36 + ') rotate(0)' )
+
+	svg.selectAll('.spinner')
+		.append('text')
+		.attr('class','indices')
+		.text( d => d.id[0] == 1 && d.id[2] == 6 ? 'R': //String.fromCharCode(9415) :
+					d.id[0] != 0 ? 
+					parseInt(d.id[0])+parseInt(d.id[2]) ://String.fromCharCode( 9311 + parseInt(d.id[0])+parseInt(d.id[2]) ): // pips
+					'A' ) // blank
+		.attr("text-anchor","middle")
+		.style("font-size", ratios.r * 2 )	
+		.attr('transform','translate(' + -20 + ',' + -ratios.yC*.95 + ') rotate(0)' )
+		.clone(true).attr('transform','rotate(180) translate(' + -20 + ',' + -ratios.yC*.95 + ') rotate(0)' )
+		.clone(true).attr('transform','translate(' + 20 + ',' + -ratios.yC*.95 + ') rotate(0)' ).clone(true).attr('transform','rotate(180) translate(' + 20 + ',' + -ratios.yC*.95 + ') rotate(0)' )
+
+
+
+	// scale the abstract lattice points according to the ratios
+	function proportions(e){
+		return e.map( (d,i) => i % 2 == 0 ?
+			// flank scaling
+			i == 0 ?
+				
+			// move up
+			d.length == 7 ?	
+			d.map( d => d[1] == 0 ?
+			[ d[0]*ratios.x*2, d[1]*ratios.y 
+			+ ratios.yC ] :
+			[ d[0]*ratios.x, d[1]*ratios.y 
+			+ ratios.yC ] ) :
+			d.map( d =>
+			[ d[0]*ratios.x, d[1]*ratios.y 
+			+ ratios.yC ] ) :
+					
+			// move down
+			d.length == 7 ?	
+			d.map( d => d[1] == 0 ?
+			[ d[0]*ratios.x*2, d[1]*ratios.y 
+			- ratios.yC ] :
+			[ d[0]*ratios.x, d[1]*ratios.y 
+			- ratios.yC ] ) :
+			d.map( d =>
+			[ d[0]*ratios.x, d[1]*ratios.y 
+			- ratios.yC ] ) :
+					
+			// check if core is 0/7
+			d.length == 7 ?
+			d.map( d => d[1] == 0?
+			[ d[0]*2*ratios.x, d[1]*ratios.y ]:
+			[ d[0]*ratios.x, d[1]*ratios.y ] ) :
+					
+			// core scaling
+ 
+			d.map( d =>	
+			[ d[0]*ratios.x, d[1]*ratios.y ]) )
+	}
+
+	// generate an abstract lattice for the dots
+	function coordinates(e){
+		var a =[]
+		if ( e != 7 ){ // control whether 0 is rendered as 7
+			 if ( e > 1 ){ a.push( [-1,1], [1,-1] ); } // 0,3,4,5,6 
+			 if ( e > 3 ){ a.push( [-1,-1], [1,1] ); } // 0,4,5,6 & core 2 / 3
+		if ( e == 6 ){ a.push( [-1,0], [1,0] ); } // 0,2,6
+		if ( e % 2 == 1 ){ a.push( [0,0] ); } // 0,1,3,5
+		} return a 
+	}
+
+		// exclude from rotation i.e. select middle value as suit
+	function check(e){
+		// has 0 
+		if(  e.includes(0) ){ return true; } else
+		// has 43 or 61
+		if(  e.includes(4) && e.includes(3) ){ return true; } else
+		if(  e.includes(6) && e.includes(1) ){ return true; } else
+		// has 55 and even or 22 and odd
+		if( double(e) == 5 && e.filter( d => d != 5)%2 == 0 ){ return true; } else
+		if( double(e) == 2 && e.filter( d => d != 2)%2 == 1 ){ return true; } else
+		// has 44 or 33 and 6 or 1 
+		if( double(e) == 4 && e.filter( d => d != 4)%5 == 1 ){ return true; } else
+		if( double(e) == 3 && e.filter( d => d != 3)%5 == 1 ){ return true; } else
+		//236 or 145
+		if( e.includes(2) && e.includes(3) && e.includes(6) ){ return true; } else
+		if( e.includes(1) && e.includes(4) && e.includes(5) ){ return true; } else
+		{ return false; }
+	}
+
+	// select lowest or highest value as suit
+	function cenSel(e){
+		if( check(e) === false ){
+			// for singles
+			if( isNaN( double(e) ) ) { 
+			// sum is smaller than 10; right
+			if( e.reduce( (a,b) => a+b ) > 10 ) { return 0; }
+			// sum is larger than 10; left 
+			else { return 2; }
+			// for doubles
+			}else{
+			// doubled number is larger; right
+			if ( double(e) > e.filter(d => d != double(e)) ){ return 0; }
+			// doubled number is smaller; left
+			else { return 2; }
+			}
+		// double zeroes
+		}else if( double(e) == 0 ){ return 2; }
+		// single zero
+			else if( e.includes(0) ){ return 0; }
+			else { return 1 } 
+	}
+	
+	// generate multicombinations
+	function multi(a, l) {
+		if (l === void 0) l = a.length;
+			var d = Array(l),
+				c = [];
+			(function f(p, s) {
+				if (p === l) {
+				c.push(d.slice());
+				return;
+				}
+			for (var i = s; i < a.length; i++) {
+			d[p] = a[i];
+			f(p + 1, i);
+			}
+		})(0, 0); 
+		return c;
+	}
+
+	// check for duplicate values
+	function double(e){
+		var uniq = e.map((e) => { return { count: 1, e: e };})
+					.reduce((a, b) => { a[b.e] = (a[b.e] || 0) + b.count; 
+					return a;}, {})
+		return parseInt( Object.keys(uniq).filter((a) => uniq[a] > 1 ) )
+	}
+	
+	// choose a the suit value
+	function center(a, p){
+		var c
+		p == 1 ? c = a.splice(1,1)[0] :
+		p == 0 ? c = a.shift() : c = a.pop()
+		return [a[0], c, a[1]]
+	}
+	
+	// generate an equivalence class index
+	function partitions(a,b,c){
+		var n = 7
+		var abc = [a,b,c]
+		var max = abc.sort().pop()
+		var min = abc.sort().shift()
+		var med = abc[0]
+		
+		if (max == n){
+			if (med == n){
+			if (min == 0){
+				return [2, 2, n]
+			}else{
+			return [n, n, n+1]
+			}
+			}else{
+			return [n, num, n + Math.cos(med - min + Math.PI/n)]
+			}
+		}else{
+		return [med - min, max - med, n-1 + min - max]//.sort( (a,b) => a-b )
+		}
+	}
+	
+	</script>
+</body>

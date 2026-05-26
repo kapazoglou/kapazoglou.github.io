@@ -2,25 +2,26 @@
 title:  "Archaeological Publication Design"
 metadate: "hide"
 categories: [ Print Design, Data Viz, Illustration ]
-image: "https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/kinfauns.jpg"
+image: "/assets/images/item/kinfauns.jpg"
 
 ---
+> Designed print publications for Headland Archaeology: laying out complex field data maps and finds reports for academic audiences.
 
-![maps1](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx1.png)
-![maps2](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx2.png)
-![maps3](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/cwfx3.png)
+![maps1](/assets/images/item/cwfx1.png)
+![maps2](/assets/images/item/cwfx2.png)
+![maps3](/assets/images/item/cwfx3.png)
 
 As an illustrator for Headland Archaeology Ltd, I played a key role in translating complex archaeological findings into engaging visual narratives or accurate reports. My work focused on creating detailed maps based on surveys and thematic illustrations that helped bring excavation discoveries to life for both academic audiences and the general public.
 
 <br>
 
-![cover](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/awnr.png)
+![cover](/assets/images/item/awnr.png)
 
 I had the opportunity to illustrate Highway Through History, an archaeological monograph by Headland Archaeology Ltd, which presents discoveries spanning 15,000 years of land use and settlement in northeast Scotland. The book brings to life key findings from excavations along the Aberdeen Western Peripheral Route (AWPR), including prehistoric roundhouses, Roman bread ovens, and burial sites.
 
 <br>
 
-![popup](https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/popup_test.jpg)
+![popup](/assets/images/item/popup_test.jpg)
 
 I created a detailed pop-up model of an old church in Kinfauns, commissioned by Tayside Landscape, to visually celebrate the region’s architectural heritage. This project combined historical accuracy with interactive design, offering an engaging way for people to explore the structure and significance of this site.
 

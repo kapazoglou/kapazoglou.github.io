@@ -1,48 +1,50 @@
 ---
 layout: default
 ---
-<section class="pb-5 pt-1">    
-    <div class="container">
+<section class="post-layout mt-5">    
+    <div class="container-fluid">
     	<div class="row justify-content-center">
-    		<div class="col-md-8">
-
-                <div class="text-center">
-                <div class="btn-group">
-                  {% if page.next.url %}
-                    <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.next.url}}"><i class="fa fa-angle-left"></i></a>
-                  {% endif %}
-                    <a class="btn btn-outline-light" href="https://kapazoglou.github.io"><i class="fa fa-th-large"></i>  All Projects </a>
-                  {% if page.previous.url %}
-                    <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.previous.url}}"><i class="fa fa-angle-right"></i></a>
-                  {% endif %}
-                </div>
-                </div>
-
-                <br>
-                
-    			<article class="card bg-dark">
-                    
-                 {% if page.image %} 
-                    <!--<span class="pinme">
-                        <a data-pin-do="buttonPin" data-pin-tall="true" href="https://www.pinterest.com/pin/create/button/?url={{site.url}}{{site.baseurl}}{{page.url}}&media={{site.url}}{{site.baseurl}}/{{page.image}}&description={{ page.title }}- {{ page.content | strip_html | truncatewords:25 }}"></a>
-                    </span>-->
-                    <img class="card-img-top mb-2" src="{% if page.image contains "://" %}{{ page.image }}{% else %}{{ page.image | absolute_url }}{% endif %}" alt="{{ page.title }}"> 
-                {% endif %}
-                    
-    			<div class="card-body bg-dark">
-                    
-    				<h1 class="display-4">
-    				    {{page.title}} 
-                    </h1>                    
-                     
-                    <small class="text-muted d-block mb-3">
-                        {% unless page.metadate == "hide" %} 
-                            {{ page.date | date: '%B %d, %Y' }} 
+    		<div class="col-12 post-page-column">
+                <div class="post-page-heading-band">
+                  <div class="post-page-heading-band__dock">
+                  <div class="post-page-heading-band__dock-inner">
+                  <nav class="post-page-heading-band__rail post-page-heading-band__rail--left post-page-heading-band__rail--pinned" aria-label="All projects and previous project">
+                      {% if page.next.url %}
+                      <a class="btn btn-outline-dark" href="{{ page.next.url | relative_url }}" aria-label="Previous project"><span class="post-nav-btn-fg"><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>
+                      {% endif %}
+                      {% include nav-all-projects-dropdown.html current_path=page.url %}
+                  </nav>
+                  <nav class="post-page-heading-band__rail post-page-heading-band__rail--right post-page-heading-band__rail--pinned" aria-label="Next project">
+                      {% if page.previous.url %}
+                      <a class="btn btn-outline-dark" href="{{ page.previous.url | relative_url }}" aria-label="Next project"><span class="post-nav-btn-fg"><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>
+                      {% endif %}
+                  </nav>
+                  </div>
+                  </div>
+                  <header class="post-page-heading">
+    				<h1>{{ page.title }}</h1>
+                    {% if page.metadate != "hide" or page.author %}
+                    <small>
+                        {% unless page.metadate == "hide" %}
+                            {{ page.date | date: '%B %d, %Y' }}
                         {% endunless %}
                         {% if page.author %}
-                            , by {{page.author | capitalize}} 
+                            {% unless page.metadate == "hide" %}, {% endunless %}by {{ page.author | capitalize }}
                         {% endif %}
-                    </small>                    
+                    </small>
+                    {% endif %}
+                  </header>
+                </div>
+
+                {% if page.image %}
+                <div class="post-page-hero-wrap">
+                    <img class="img-fluid post-page-hero-img" src="{% if page.image contains "://" %}{{ page.image }}{% else %}{{ page.image | relative_url }}{% endif %}" alt="{{ page.title }}">
+                </div>
+                {% endif %}
+
+    			<article class="card bg-white border-0 post-page-article">
+                    
+    			<div class="card-body bg-white">
                     
     				{{ content }}
                     
@@ -53,7 +55,7 @@ layout: default
                     {% endif %}
                     
                     {% for category in page.categories %}
-                      <a class="btn btn-sm btn-outline-light mt-2" href="{{site.baseurl}}/categories.html#{{ category | downcase }}">
+                      <a class="btn btn-sm btn-outline-dark category-tag mt-2" href="{{ '/categories.html' | relative_url }}#{{ category | slugify }}">
                         {{ category }}
                       </a>
                     {% endfor %}
@@ -61,19 +63,6 @@ layout: default
     			</div>  
                     
     			</article>
-                <br>
-                <br>
-                <div class="text-center">
-                <div class="btn-group">
-                  {% if page.next.url %}
-                    <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.next.url}}"><i class="fa fa-angle-left"></i></a>
-                  {% endif %}
-                    <a class="btn btn-outline-light" href="https://kapazoglou.github.io"><i class="fa fa-th-large"></i>  All Projects </a>
-                  {% if page.previous.url %}
-                    <a class="btn btn-outline-light" href="{{site.baseurl}}{{page.previous.url}}"><i class="fa fa-angle-right"></i></a>
-                  {% endif %}
-                </div>
-                </div>
 
     		</div>
     	</div>

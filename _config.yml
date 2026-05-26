@@ -2,11 +2,17 @@
 name: 'Mano Kapazoglou'
 description: 'Samples of my work'
 logo: 'assets/images/logo.png'
-baseurl: '/'
+# Empty for a root site (username.github.io). Using "/" breaks URLs like
+# {{ site.baseurl }}/assets/... into "//assets/..." (wrong host in browsers).
+baseurl: ""
 url: 'https://kapazoglou.github.io'
 favicon: 'assets/images/logo.png'
 avatar: 'assets/images/avatar.jpg'
 email: 'kapazoglu@gmail.com'
+# Navbar “Get CV” — Google Drive direct export (same file id as /file/d/…/view).
+cv_download_url: "https://drive.google.com/uc?export=download&id=1KrxvrZcpQpJZK_Pzcci9i8VXI1nod987"
+cv_download_filename: "Mano-Kapazoglou-CV.pdf"
+linkedin_url: "https://www.linkedin.com/in/kapazoglou/"
 
 include: ["_pages"]
 permalink: /:title/
@@ -41,6 +47,10 @@ highlighter: rouge
 # Pagination
 paginate: 100
 
+# Homepage featured cards (first page only): flip layout without editing markup/CSS elsewhere.
+# Default: row_3 — hero + one row of three cards; masonry below uses posts from index 5 onward (4 columns).
+# - quad_2x2 — hero + up to four cards in a 2×2 grid; masonry below uses posts from index 6 onward (3 columns).
+featured_recent_layout: row_3
 
 # Exclude metadata and development time dependencies (like Grunt plugins)
-exclude: [README.markdown, package.json, grunt.js, Gruntfile.js, Gruntfile.coffee, node_modules]
+exclude: [README.markdown, package.json, grunt.js, Gruntfile.js, Gruntfile.coffee, node_modules, _archive]

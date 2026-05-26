@@ -4,52 +4,58 @@ layout: default
 permalink: "/categories.html"
 ---
 
-<section class="mt-4 mb-5">
-
-    
-    <div class="container mb-1" href="top">
-        <h3 class="font-weight-bold title">Jump to projects with </h3>    
-        <div class="row">
-        {% include menu-categories.html %}
+<section class="post-layout mt-5 categories-page">
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-12 post-page-column">
+        <div class="post-page-heading-band">
+          <div class="post-page-heading-band__dock">
+            <div class="post-page-heading-band__dock-inner">
+            <nav class="post-page-heading-band__rail post-page-heading-band__rail--left post-page-heading-band__rail--pinned" aria-label="All projects">
+              {% include nav-all-projects-dropdown.html current_path=page.url %}
+            </nav>
+            <nav class="post-page-heading-band__rail post-page-heading-band__rail--right post-page-heading-band__rail--pinned" aria-label="Page">
+              <a class="btn btn-outline-dark categories-back-top-btn" href="#top" aria-label="Back to top"><span class="post-nav-btn-fg"><i class="fa fa-arrow-up" aria-hidden="true"></i></span></a>
+            </nav>
+            </div>
+          </div>
+          <header class="post-page-heading">
+            <h1>Projects by skill</h1>
+          </header>
         </div>
-    </div>
 
-                <div class="text-center">
-                <br><br>
-                <a class="btn btn-outline-light" href="https://kapazoglou.github.io"><i class="fa fa-th-large"></i> Back to Gallery </a>
+        <div class="accordion categories-page-accordion mb-5" id="categoriesAccordion">
+          {% assign sorted_categories = site.categories | sort %}
+          {% for category in sorted_categories %}
+            {% assign cat_slug = category[0] | slugify | default: forloop.index %}
+            <div class="card categories-page-accordion__item mb-3" id="{{ cat_slug }}">
+              <div class="card-header categories-page-accordion__head border-0 p-0" id="heading-{{ cat_slug }}">
+                <h2 class="mb-0 h5">
+                  <button class="btn btn-link btn-block text-left categories-page-accordion__btn text-dark font-weight-bold py-3 px-3 collapsed" type="button" data-toggle="collapse" data-target="#collapse-{{ cat_slug }}" aria-expanded="false" aria-controls="collapse-{{ cat_slug }}">
+                    {{ category[0] }}
+                  </button>
+                </h2>
+              </div>
+              <div id="collapse-{{ cat_slug }}" class="collapse" aria-labelledby="heading-{{ cat_slug }}" data-parent="#categoriesAccordion">
+                <div class="card-body pt-0 px-3 pb-3">
+                  <div class="card-columns">
+                    {% assign pages_list = category[1] %}
+                    {% for post in pages_list %}
+                      {% if post.title != null %}
+                        {% if group == null or group == post.group %}
+                          {% include card-post.html %}
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                    {% assign pages_list = nil %}
+                    {% assign group = nil %}
+                  </div>
                 </div>
-
-<div class="container-fluid">
-
-    <div class="card-columns">
-    {% for category in site.categories %}
-    </div> 
-    
-    <div id="{{ category[0] | downcase }}">
-        <br><br><br>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-
-    <h3 class="mt-4 display-4"><small class="text-muted"></small> {{ category[0] }} 
-    <a class="btn btn-sm btn-outline-light" href="#top"><i class="fa fa-arrow-up"></i> More Tags </a>
-    </h3>
-    <hr>
-    
-    <div class="card-columns">
-
-        {% assign pages_list = category[1] %}
-        {% for post in pages_list %}
-          {% if post.title != null %}
-              {% if group == null or group == post.group %}
-                {% include card-post.html %}
-              {% endif %}
-          {% endif %}
-        {% endfor %}
-        {% assign pages_list = nil %}
-        {% assign group = nil %}
-    {% endfor %}
-
-    </div>
-
-</div>
-    
+  </div>
 </section>

@@ -1,0 +1,6 @@
+﻿Beside the various design projects I led, there were a few projects out of the scope of Design that I championed in order to achieve company goals and/or to improve internal processes. 
+
+One of the biggest ones was the Design System mentioned above which is a central artifact of UX/UI.
+In addition, collaborating with the in house User Researcher we had began the developement and refinement of **Personas** and the **User Journey**. Moreover, in order to have a clear overview of the app structure, I took it upon myself to create an **App Map** listing all the screens included in Mika Health in a way that could help us maintain the overview of our development. It became an indispensible tool for the PMs and was of value to other departments as well.
+
+Another big undertaking was championing the localisation effort before the app was released in the UK and the US. Prior to that, all text strings were hard-coded in the app and had no keys. In collaboration with the devs, we created keys that I maintained on Phrase while they painstakingly went through all the text strings in the app and connected them to the keys. Then, I trained our external translators to use Phrase and managed the project until its completion. This enabled us to release the App in the UK and the US in a timely manner.

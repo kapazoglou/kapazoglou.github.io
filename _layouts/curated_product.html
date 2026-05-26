@@ -1,0 +1,66 @@
+---
+layout: default
+---
+<section class="post-layout mt-5">    
+    <div class="container-fluid">
+    	<div class="row justify-content-center">
+    		<div class="col-12 post-page-column">
+                <div class="post-page-heading-band">
+                  <div class="post-page-heading-band__dock">
+                  <div class="post-page-heading-band__dock-inner">
+                  <nav class="post-page-heading-band__rail post-page-heading-band__rail--left post-page-heading-band__rail--pinned" aria-label="All projects and previous project">
+                      {% if page.next.url %}
+                      <a class="btn btn-outline-dark" href="{{ page.next.url | relative_url }}" aria-label="Previous project"><span class="post-nav-btn-fg"><i class="fa fa-angle-left" aria-hidden="true"></i></span></a>
+                      {% endif %}
+                      {% include nav-all-projects-dropdown.html current_path=page.url %}
+                  </nav>
+                  <nav class="post-page-heading-band__rail post-page-heading-band__rail--right post-page-heading-band__rail--pinned" aria-label="Next project">
+                      {% if page.previous.url %}
+                      <a class="btn btn-outline-dark" href="{{ page.previous.url | relative_url }}" aria-label="Next project"><span class="post-nav-btn-fg"><i class="fa fa-angle-right" aria-hidden="true"></i></span></a>
+                      {% endif %}
+                  </nav>
+                  </div>
+                  </div>
+                  <header class="post-page-heading">
+    				<h1>{{ page.title }}</h1>
+                    {% if page.metadate != "hide" or page.author %}
+                    <small>
+                        {% unless page.metadate == "hide" %}
+                            {{ page.date | date: '%B %d, %Y' }}
+                        {% endunless %}
+                        {% if page.author %}
+                            {% unless page.metadate == "hide" %}, {% endunless %}by {{ page.author | capitalize }}
+                        {% endif %}
+                    </small>
+                    {% endif %}
+                  </header>
+                </div>
+
+                {% if page.image %}
+                <div class="post-page-hero-wrap">
+                    <img class="img-fluid post-page-hero-img" src="{% if page.image contains "://" %}{{ page.image }}{% else %}{{ page.image | relative_url }}{% endif %}" alt="{{ page.title }}">
+                </div>
+                {% endif %}
+
+    			<article class="card bg-white border-0 post-page-article">
+    			<div class="card-body bg-white">
+    				{{ content }}
+                    {% if page.visit %}
+                    <p><a target="_blank" href="{{page.visit}}" class="btn btn-gray d-block font-weight-bold">
+                        Visit <i class="fas fa-external-link-alt"></i></a>
+                    </p>
+                    {% endif %}
+                    {% for category in page.categories %}
+                      <a class="btn btn-sm btn-outline-dark category-tag mt-2" href="{{ '/categories.html' | relative_url }}#{{ category | slugify }}">
+                        {{ category }}
+                      </a>
+                    {% endfor %}
+    			</div>
+    			</article>
+
+                {% include curated-product-accordions.html %}
+
+    		</div>
+    	</div>
+    </div>
+</section>

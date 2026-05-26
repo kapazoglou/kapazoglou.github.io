@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Number Spill</title>
+    <meta name='author' content= 'Mano Kapazoglou'>
+    <meta name='description' content='integers and their divisors laid out'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src='https://d3js.org/d3.v4.min.js'></script>
+    <script src='decimal.js'></script>
+
+<style>
+    body {
+    	overflow: hidden;
+        text-align: center;
+        background-color: white;
+        font-family: 'Lucida Console';
+        font-size: 12px;
+        color: indigo;
+    }
+
+    #main{
+        text-align: left;
+    }
+
+    span { 
+        color: indigo;
+        transition: 0.3s;
+    }
+
+    a {
+        cursor:pointer;
+        text-decoration: none;
+        font-size: 12px;
+        text-align: right;
+        color: indigo;
+        transition: 0.3s;
+    }
+    a:hover, a:active, a:focus{
+        color: lavender;
+    }
+
+    input{
+        font-family: 'Lucida Console';
+        font-size: 9px;   
+        top: -2px
+    }
+
+    #cont{
+    	position: relative;
+    	cursor: none;
+    }
+
+    .psifis {
+      box-sizing: border-box;
+      background: white;
+      border: .5px solid white;
+      position: absolute;
+      width: 8px;
+      height: 8px;
+    }
+    
+    .psifis .text {
+      visibility: hidden;
+      overflow-wrap: break-word;
+      width: 60px;
+      font-size: 11px;
+      background-color: black;
+      color: lavender;
+      text-align: center;
+      border-radius: 5px;
+      padding: 5px 5px;
+      position: absolute;
+      z-index: 1;
+      top: 128%;
+      left: 0%;
+      margin-left: -32px;
+    }
+    
+    .psifis .text::after {
+      content: "";
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent black transparent;
+    }
+
+    .psifis:hover .text {
+        visibility: visible;
+    }
+</style>
+<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+<body>
+<div id='main'>
+    <link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+    <a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: indigo; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a>&nbsp;/    
+    <span onclick="reset()">integers&nbsp;and&nbsp;their&nbsp;divisors</span>&nbsp;/ 
+    <a onclick="d3.selectAll('.psifis.white').style('visibility','hidden')">zero&nbsp;remainder</a>&nbsp;/
+    <a onclick="  d3.selectAll('.psifis.white').style('visibility','visible')">sin(&pi;&#8239;<sup>x</sup>&frasl;<sub>y</sub>)</a>&nbsp;/
+    <nobr>x:<input id="inputX" type="number" value="0" onchange="moveto()">
+    y:<input id="inputY" type="number" value="0" onchange="moveto()"></nobr>
+</div>
+<br>
+<div id='cont'></div>
+<script>
+
+var prec = 8
+
+var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+
+var color = d3.scaleSequential().domain([-1,1]).interpolator(d3.interpolateRainbow);
+
+var gridSize = 7;
+
+var a = 1-Math.round(x/(2*gridSize));
+var b = 2-Math.round(y/(2*gridSize));
+
+reset()
+window.addEventListener("resize", draw);
+
+function draw(){
+d3.selectAll('.psifis').remove()
+
+var x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+
+var width = gridSize*Decimal(x/gridSize).toDP(0);
+var height = gridSize*Decimal(y/gridSize).toDP(0);
+var dimensions = [width-gridSize*3,height-gridSize*6];
+
+d3.select('body').selectAll('#cont')
+  .selectAll('div')
+    .data(makeData)
+    .enter()
+      .append('div')
+      .attr('class', function(d) {  if( (Decimal.abs(d.column+a)%Decimal.abs(d.row+b) ) == 0){ return 'psifis indigo' }else{ return 'psifis white' } })
+      .style('background-color', function(d) {  if( isNaN(enumerate(d.row,d.column)) ){return 'gainsboro'}else if( Decimal.abs(d.column+a)%Decimal.abs(d.row+b) == 0){ return 'indigo' }else{ return color( 1 - enumerate(d.row,d.column)); } })
+
+      .style('left', function(d) { return d.column * gridSize + 'px'; })
+      .style('top', function(d) { return d.row * gridSize + 'px'; })
+
+      .append('div')
+      .attr('class','text')
+      .text( function(d) { return d3.format(",d")(Decimal.abs(d.column+a))+'\u2009/\u2009'+d3.format(",d")(Decimal.abs(d.row+b))+'\u2009:\u2009'+d3.format(",d")( Decimal.abs(d.column+a)%Decimal.abs(d.row+b)) } )
+      .on("click", dragged)
+
+function enumerate(x,y){
+  Decimal.set({ precision: prec})
+  return Decimal(Decimal.sin( Decimal.acos(-1)*(a+y)/(b+x))).toDP(prec)
+}
+
+function makeData(){
+  return d3.range((dimensions[0]/gridSize)*(dimensions[1]/gridSize)).map(function(d) {
+    return {
+      row: Math.floor(d / (dimensions[0]/gridSize)),
+      column: d % (dimensions[0]/gridSize)
+    }
+  });
+}
+
+function dragged(){
+  a = Math.round((d3.event.x-x/2)/(2*gridSize))*2+a;
+  b = b+Math.round((d3.event.y-y/2)/(2*gridSize))*2;
+  draw()
+  console.log(a+" "+b)
+}
+
+}
+
+function reset() {
+  x = w.innerWidth || e.clientWidth || g.clientWidth
+  y = w.innerHeight|| e.clientHeight|| g.clientHeight
+  prec = 8
+  a = 1-Math.round(x/(2*gridSize));
+  b = 2-Math.round(y/(2*gridSize));
+  draw();
+  d3.selectAll('.psifis.white').style('visibility','visible')
+}
+
+function moveto() {
+  x = w.innerWidth || e.clientWidth || g.clientWidth
+  y = w.innerHeight|| e.clientHeight|| g.clientHeight
+  a = parseInt(document.getElementById("inputX").value)+1-Math.round(x/(2*gridSize));
+  b = parseInt(document.getElementById("inputY").value)+2-Math.round(y/(2*gridSize));
+  prec = 4*Math.round((Math.log( Math.max(a,b) ) * Math.LOG10E + 1| 2)/2); 
+  console.log(prec)
+  draw();
+  d3.selectAll('.psifis.white').style('visibility','visible')
+}
+
+</script>
+
+</body>
+</html>

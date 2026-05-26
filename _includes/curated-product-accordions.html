@@ -1,0 +1,67 @@
+<div class="accordion curated-product-accordion curated-product-accordion--standalone mb-4 mt-4" id="curatedProductAccordion">
+
+<div class="card curated-product-accordion__item mb-3" id="reducing-friction-in-user-acquisition">
+<div class="card-header curated-product-accordion__head border-0 p-0" id="heading-curated-rf">
+<h2 class="mb-0 h5">
+<button class="btn btn-link btn-block text-left curated-product-accordion__btn text-dark font-weight-bold py-3 px-3 collapsed" type="button" data-toggle="collapse" data-target="#collapse-curated-rf" aria-expanded="false" aria-controls="collapse-curated-rf">
+Reducing Friction in User Acquisition
+</button>
+</h2>
+</div>
+<div id="collapse-curated-rf" class="collapse" aria-labelledby="heading-curated-rf" data-parent="#curatedProductAccordion">
+<div class="card-body pt-0 px-3 pb-3">
+{% capture curated_panel_rf %}{% include curated-product/panel-friction.md %}{% endcapture %}
+{{ curated_panel_rf | markdownify }}
+</div>
+</div>
+</div>
+
+<div class="card curated-product-accordion__item mb-3" id="design-process-with-examples">
+<div class="card-header curated-product-accordion__head border-0 p-0" id="heading-curated-dpe">
+<h2 class="mb-0 h5">
+<button class="btn btn-link btn-block text-left curated-product-accordion__btn text-dark font-weight-bold py-3 px-3 collapsed" type="button" data-toggle="collapse" data-target="#collapse-curated-dpe" aria-expanded="false" aria-controls="collapse-curated-dpe">
+Design Process with Examples
+</button>
+</h2>
+</div>
+<div id="collapse-curated-dpe" class="collapse" aria-labelledby="heading-curated-dpe" data-parent="#curatedProductAccordion">
+<div class="card-body pt-0 px-3 pb-3">
+{% capture curated_panel_dpe %}{% include curated-product/panel-design-process.md %}{% endcapture %}
+{{ curated_panel_dpe | markdownify }}
+</div>
+</div>
+</div>
+
+<div class="card curated-product-accordion__item mb-3" id="better-content-delivery-for-measurable-outcomes">
+<div class="card-header curated-product-accordion__head border-0 p-0" id="heading-curated-bc">
+<h2 class="mb-0 h5">
+<button class="btn btn-link btn-block text-left curated-product-accordion__btn text-dark font-weight-bold py-3 px-3 collapsed" type="button" data-toggle="collapse" data-target="#collapse-curated-bc" aria-expanded="false" aria-controls="collapse-curated-bc">
+Better Content Delivery for Measurable Outcomes
+</button>
+</h2>
+</div>
+<div id="collapse-curated-bc" class="collapse" aria-labelledby="heading-curated-bc" data-parent="#curatedProductAccordion">
+<div class="card-body pt-0 px-3 pb-3">
+{% capture curated_panel_bc %}{% include curated-product/panel-content-delivery.md %}{% endcapture %}
+{{ curated_panel_bc | markdownify }}
+</div>
+</div>
+</div>
+
+<div class="card curated-product-accordion__item mb-3" id="implementing-new-processes">
+<div class="card-header curated-product-accordion__head border-0 p-0" id="heading-curated-ip">
+<h2 class="mb-0 h5">
+<button class="btn btn-link btn-block text-left curated-product-accordion__btn text-dark font-weight-bold py-3 px-3 collapsed" type="button" data-toggle="collapse" data-target="#collapse-curated-ip" aria-expanded="false" aria-controls="collapse-curated-ip">
+Implementing New Processes
+</button>
+</h2>
+</div>
+<div id="collapse-curated-ip" class="collapse" aria-labelledby="heading-curated-ip" data-parent="#curatedProductAccordion">
+<div class="card-body pt-0 px-3 pb-3">
+{% capture curated_panel_ip %}{% include curated-product/panel-processes.md %}{% endcapture %}
+{{ curated_panel_ip | markdownify }}
+</div>
+</div>
+</div>
+
+</div>

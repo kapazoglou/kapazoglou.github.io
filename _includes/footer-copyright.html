@@ -3,37 +3,15 @@
   https://www.wowthemes.net/freebies-license/
 -->
 
-                <br>
-                
-                <div class="text-center">
-                    <a class="btn btn-sm btn-outline-light" href="#top"><i class="fa fa-arrow-up"></i> Back to Top </a>
-                </div>
+{% unless page.path == 'index.html' %}
+<nav class="footer-category-nav" aria-label="Browse by category">
+{% include menu-categories.html %}
+</nav>
+{% endunless %}
 
-                <br>
-
-<p>
-    <a class="text-secondary" href="{{site.url}}{{site.baseurl}}/">
-        &copy;  {{site.name}}. 
-    </a>
-    
-    <a class="text-secondary" href="{{site.url}}{{site.baseurl}}/privacy-policy.html">
-        Privacy Policy.
-    </a>
-    
-    <a class="text-secondary" target="_blank" href="https://www.wowthemes.net/freebies-license/">
-        License.
-    </a>
-    
+<p class="footer-copyright-line mb-0">
+    <a href="{{ '/' | absolute_url }}"> Designed by {{ site.name }}&copy;; developed with Claude.</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.magnific.com/author/redgreystock"> Spray elements designed by @redgreystock on Magnific.</a>
 </p>
 
-<p>
-    
-<span class="credits"> 
-    
-	<a target="_blank" class="text-secondary" href="https://www.wowthemes.net/pintereso-free-bootstrap-jekyll-theme/">
-		Made with <i class="fa fa-heart"></i> <u>Pintereso Jekyll Theme</u>.
-	</a>
-    
-</span>
-    
-</p>
+<a class="btn btn-outline-dark footer-back-top-btn" href="#top" aria-label="Back to top" aria-hidden="true" tabindex="-1"><span class="post-nav-btn-fg"><i class="fa fa-arrow-up" aria-hidden="true"></i></span></a>

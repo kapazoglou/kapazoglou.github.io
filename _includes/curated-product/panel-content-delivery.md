@@ -1,0 +1,6 @@
+Mika Health was partnered was conducting a study into Behavioural Change Techniques (BCTs) where it was required to be able to perform AB tests between different techniques for different patients in a way that created measurable outcomes. This project was also addressing several user wishes for closer personalisation to their needs.
+
+{% comment %} Replace preview PNG: curated-content-distress-management.svg · label→ Open Figma: distress management {% endcomment %}
+{% include figma-embed-overlay.html embed_url="https://embed.figma.com/design/1SwD7u5Mi3GX01KsSlSvRF/%F0%9F%94%97-Distress-Management?node-id=1-17403&embed-host=share" preview_src="/assets/images/figma-previews/curated-content-distress-management.png" label="Open Figma: distress management" variant="on-dark" %}
+
+In collaboration with the in-house Behavioural Scientist I translated the BCTs into modular flows that could be turned on and off in order to enable a variety of AB testing. Furthermore, the project began adressing pre-existing issues with content delivery and was seeking to increase retention by ensuring patients received the content they needed at the time they needed it in. The MVP was released as a Distress Management feature which improved retention and met our partnership responsibilities.

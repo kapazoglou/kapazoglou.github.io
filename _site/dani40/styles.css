@@ -1,0 +1,1334 @@
+/* Pixel 8–friendly: ~412 CSS px wide, large touch targets, safe areas */
+
+:root {
+  color-scheme: dark;
+  --bg: #0f1419;
+  --surface: #1a2332;
+  --text: #f4f6fb;
+  --muted: #9aa7bd;
+  --accent: #b3d334;
+  --accent-dim: #8ead28;
+  --border: rgba(255, 255, 255, 0.08);
+  --focus: #b3d334;
+  --danger: #ff7b72;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --tap-min: 48px;
+  --font: system-ui, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  /* Dial + age ±: one shared height (rows × row height). At least 3 letters visible. */
+  --dial-item-h: 42px;
+  --dial-rows: 3;
+  --dial-viewport-h: calc(var(--dial-item-h) * var(--dial-rows));
+  /* Vertical rhythm: same space between text ↔ input ↔ nav; progress ↔ emoji */
+  --screen-stack-gap: clamp(16px, 3.2dvh, 26px);
+  --app-padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  --interaction-target-size: var(--dial-viewport-h);
+  /* Fallback when container query units are unavailable (see .emoji-stack) */
+  --emoji-display-size-fallback: clamp(2.5rem, min(18vw, 20dvh), 5rem);
+  /* Visual size of emoji / kitchen vs available stage (0.7 = 70%) */
+  --emoji-area-scale: 0.7;
+  /* Fixed mashup box — same on every step (progress → emoji gap is .app gap only) */
+  --emoji-slot-cap: min(72vw, 240px, var(--controls-input-max-w));
+  --emoji-slot-size: calc(
+    var(--emoji-area-scale) * min(var(--emoji-display-size-fallback), var(--emoji-slot-cap))
+  );
+  /* Letter wheels + age stepper: identical outer box */
+  --controls-input-max-w: min(100%, 22rem);
+  /* Inputs only: dial + age stepper (box-shadow ring, no layout shift) */
+  --ui-panel-ring: 0 0 0 1px var(--border), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  height: 100%;
+  background-color: var(--bg);
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  font-family: var(--font);
+  background: radial-gradient(120% 80% at 50% -20%, #1f2d44 0%, var(--bg) 55%);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  height: 100%;
+  min-height: 0;
+  max-height: 100dvh;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top, 0px))
+    calc(20px + env(safe-area-inset-right, 0px))
+    var(--app-padding-bottom)
+    calc(20px + env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--screen-stack-gap);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.top {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.eyebrow {
+  margin: 0 0 clamp(6px, 1.5dvh, 10px);
+  font-size: 0.8125rem;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.progress-bar {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 320ms ease;
+}
+
+.top.is-step-mystery .progress {
+  animation: progressTremble 0.14s ease-in-out infinite;
+}
+
+@keyframes progressTremble {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-0.8px, 0.25px, 0);
+  }
+  50% {
+    transform: translate3d(0.8px, -0.25px, 0);
+  }
+  75% {
+    transform: translate3d(-0.5px, -0.15px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top.is-step-mystery .progress {
+    animation: none;
+  }
+}
+
+.screen {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--screen-stack-gap);
+}
+
+.screen.is-hidden {
+  display: none;
+}
+
+.emoji-stage {
+  flex: 0 0 auto;
+  width: calc(var(--emoji-area-scale) * 100%);
+  max-width: calc(var(--emoji-area-scale) * var(--controls-input-max-w));
+  margin-inline: auto;
+  aspect-ratio: 1;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: visible;
+}
+
+.emoji-stage--half {
+  width: calc(var(--emoji-area-scale) * 0.5 * 100%);
+  max-width: calc(var(--emoji-area-scale) * 0.5 * var(--controls-input-max-w));
+}
+
+.emoji-stage--half .emoji-gift-solo {
+  font-size: clamp(1.25rem, min(9vw, 10dvh), 2.5rem);
+}
+
+.emoji-stage--hieroglyph {
+  width: calc(var(--emoji-area-scale) * 0.9 * 100%);
+  max-width: calc(var(--emoji-area-scale) * 0.9 * var(--controls-input-max-w));
+  overflow: visible;
+}
+
+.emoji-stage--hieroglyph .emoji-stack {
+  overflow: visible;
+}
+
+.emoji-stage--hieroglyph .emoji-hieroglyph-solo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  display: block;
+  width: max-content;
+  max-width: min(100vw, 24rem);
+  text-align: center;
+  font-size: 128px;
+  line-height: 1.1;
+  font-family: "Noto Sans Egyptian Hieroglyphs", "Segoe UI Historic", serif;
+  font-weight: 400;
+}
+
+.emoji-stage.transition-out {
+  animation: emojiOut 220ms ease forwards;
+}
+
+.emoji-stage.transition-in {
+  animation: emojiIn 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes emojiOut {
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(6px);
+  }
+}
+
+@keyframes emojiIn {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.emoji-stack {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.emoji-kitchen {
+  position: relative;
+  z-index: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.4));
+}
+
+.emoji-solo,
+.emoji-fallback {
+  font-family: "Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", emoji,
+    sans-serif;
+  line-height: 1;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.4));
+}
+
+.emoji-gift-solo {
+  display: none;
+  font-size: clamp(2.5rem, min(18vw, 20dvh), 5rem);
+}
+
+.emoji-stage.is-gift-solo .emoji-kitchen {
+  display: none;
+}
+
+.emoji-stage.is-gift-solo .emoji-gift-solo {
+  display: block;
+  margin-inline: auto;
+  transform-origin: center center;
+  animation: giftSoloShake 2.5s ease-in-out infinite;
+}
+
+@keyframes giftSoloShake {
+  0%,
+  72%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  74% {
+    transform: rotate(-10deg) scale(1.04);
+  }
+  76% {
+    transform: rotate(9deg) scale(1.04);
+  }
+  78% {
+    transform: rotate(-7deg) scale(1.02);
+  }
+  80% {
+    transform: rotate(7deg) scale(1.02);
+  }
+  82% {
+    transform: rotate(-4deg) scale(1);
+  }
+  84% {
+    transform: rotate(4deg);
+  }
+  86% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emoji-stage.is-gift-solo .emoji-gift-solo {
+    animation: none;
+  }
+}
+
+/* Question copy: line up with inputs; pin copy + input + actions to bottom */
+.screen > .copy {
+  flex-shrink: 0;
+  margin: 0;
+  margin-top: auto;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  margin-inline: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.question {
+  margin: 0;
+  font-size: clamp(1.35rem, 5vw, 1.6rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+#voyageVerb {
+  display: inline-block;
+  min-width: 8.5ch;
+}
+
+body.is-help-page {
+  background: #fff;
+}
+
+body.is-help-page .app,
+body.is-help-page .voyage-rejection-flash,
+body.is-help-page .confetti-canvas {
+  display: none !important;
+}
+
+.help-page {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(14px, 3.5dvh, 24px);
+  margin: 0;
+  padding: calc(16px + env(safe-area-inset-top, 0px)) 20px
+    calc(16px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  background: #fff;
+  color: #111;
+  text-align: center;
+}
+
+.help-page:not(.is-hidden) {
+  display: flex;
+}
+
+.help-page__emoji {
+  width: min(72vw, 240px);
+  max-width: none;
+  margin-inline: auto;
+}
+
+.help-404 {
+  margin: 0;
+  font-size: clamp(4.5rem, 22vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #111;
+}
+
+.help-zalgo {
+  margin: 0;
+  max-width: min(100%, 22rem);
+  font-size: clamp(0.95rem, 4.2vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: #444;
+  word-break: break-word;
+}
+
+.hint {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.name-entry {
+  flex-shrink: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Letter preview above wheels hidden; screen readers use nameLive + wheels */
+.dial-readout {
+  display: none;
+}
+
+.dial-readout-char {
+  min-width: 1ch;
+  text-align: center;
+}
+
+.dial-board {
+  position: relative;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  margin-inline: auto;
+  height: var(--dial-viewport-h);
+  border-radius: var(--radius-lg);
+  border: none;
+  background: var(--surface);
+  overflow: hidden;
+  /* Outer ring without changing box size */
+  box-shadow: var(--ui-panel-ring);
+  display: flex;
+  flex-direction: column;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.dial-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+  height: calc(var(--dial-item-h) * 2);
+}
+
+.dial-fade--top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--surface) 30%, transparent);
+}
+
+.dial-fade--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--surface) 30%, transparent);
+}
+
+.dial-columns {
+  display: flex;
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.dial-column {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.dial-column:last-child {
+  border-right: none;
+}
+
+.dial-viewport {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.dial-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.dial-viewport:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.dial-list {
+  padding-top: calc((var(--dial-viewport-h) - var(--dial-item-h)) / 2);
+  padding-bottom: calc((var(--dial-viewport-h) - var(--dial-item-h)) / 2);
+}
+
+.dial-item {
+  height: var(--dial-item-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-size: 1.35rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  opacity: 0.35;
+  user-select: none;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.dial-item.is-selected {
+  opacity: 1;
+  font-weight: 750;
+}
+
+.name-entry.is-correct .dial-item.is-selected {
+  background: var(--accent);
+  color: #0a1210;
+  opacity: 1;
+}
+
+.name-entry.is-correct .dial-item:not(.is-selected) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.name-entry.is-correct .dial-viewport {
+  scroll-snap-type: none;
+}
+
+.dial-item:focus {
+  outline: none;
+}
+
+/* Highlight row in the optical center (between fades) */
+.dial-board::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--dial-item-h);
+  margin-top: calc(var(--dial-item-h) / -2);
+  z-index: 2;
+  pointer-events: none;
+  border-top: 1px solid rgba(179, 211, 52, 0.4);
+  border-bottom: 1px solid rgba(179, 211, 52, 0.4);
+  background: rgba(179, 211, 52, 0.08);
+  border-radius: 2px;
+}
+
+/* Slot guide — hide once letters are correct (gradients stay) */
+.name-entry.is-correct .dial-board::after {
+  display: none;
+}
+
+/* Stronger clear band toward center: inner half of each fade is fully transparent */
+.name-entry.is-correct .dial-fade--top {
+  background: linear-gradient(
+    to bottom,
+    var(--surface) 0%,
+    transparent 50%,
+    transparent 100%
+  );
+}
+
+.name-entry.is-correct .dial-fade--bottom {
+  background: linear-gradient(
+    to top,
+    var(--surface) 0%,
+    transparent 50%,
+    transparent 100%
+  );
+}
+
+.copy .hint strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.age-block,
+.birthday-slide-block,
+.voyage-choice-block,
+.embark-choice-block {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  margin-inline: auto;
+}
+
+.embark-action-area {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  min-height: var(--dial-viewport-h);
+  height: auto;
+  margin: 0;
+  margin-inline: auto;
+  padding: 6px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--ui-panel-ring);
+  overflow: hidden;
+}
+
+/* Voyage YES / NO — same frame as age stepper */
+.voyage-choice {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: var(--dial-viewport-h);
+  box-sizing: border-box;
+  border-radius: var(--radius-lg);
+  border: none;
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: var(--ui-panel-ring);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.voyage-choice > .voyage-seg {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.voyage-choice > .voyage-seg + .voyage-seg {
+  border-left: 1px solid var(--border);
+}
+
+.voyage-choice-btn.voyage-seg {
+  align-self: stretch;
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  box-sizing: border-box;
+  background: var(--surface);
+  color: var(--text);
+  font-size: clamp(1.2rem, 5.5vw, 1.75rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.voyage-choice-btn.voyage-seg[aria-pressed="true"] {
+  background: var(--accent);
+  color: #0a1210;
+  font-weight: 750;
+}
+
+.voyage-choice-btn.voyage-seg:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.voyage-choice-btn.voyage-seg[aria-pressed="true"]:active:not(:disabled) {
+  background: var(--accent-dim);
+}
+
+.voyage-choice-btn.voyage-seg:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+  position: relative;
+  z-index: 1;
+}
+
+.embark-choice-btn {
+  font-family: "Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", emoji,
+    sans-serif;
+  font-size: clamp(1.75rem, 9vw, 2.75rem);
+  line-height: 1;
+}
+
+.embark-choice-emojis {
+  display: inline-block;
+  letter-spacing: 0.06em;
+}
+
+.embark-date-input-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+}
+
+.embark-dates-list {
+  --embark-chip-gap: 6px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: var(--embark-chip-gap);
+  align-content: flex-start;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 0;
+  max-height: min(42dvh, 220px);
+  padding: 0 40px 40px 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+.embark-dates-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.embark-dates-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.embark-dates-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.embark-dates-add {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #0a1210;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  line-height: 0;
+}
+
+.embark-dates-add-icon {
+  display: block;
+  font-family: "Noto Color Emoji", "Segoe UI Emoji", "Apple Color Emoji", emoji, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1;
+  transform: translateY(0.02em);
+}
+
+.embark-dates-add:focus-visible {
+  outline: none;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 2px var(--bg),
+    0 0 0 4px var(--accent);
+}
+
+.embark-dates-add:active {
+  background: var(--accent-dim);
+}
+
+.embark-date-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  flex: 0 1 calc((100% - var(--embark-chip-gap) * 2) / 3);
+  max-width: calc((100% - var(--embark-chip-gap) * 2) / 3);
+  min-width: 0;
+  margin: 0;
+  padding: 5px 6px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  box-shadow: var(--ui-panel-ring);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.embark-date-chip-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.embark-date-chip[aria-pressed="true"],
+.embark-date-chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.embark-date-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--ui-panel-ring), 0 0 0 2px var(--accent);
+}
+
+.embark-date-chip-remove {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--muted);
+}
+
+.embark-date-chip:active .embark-date-chip-remove {
+  color: var(--text);
+}
+
+/* Slide-to-celebrate (birthday step) */
+.slide-unlock {
+  position: relative;
+  height: var(--dial-viewport-h);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--ui-panel-ring);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.slide-unlock-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.slide-unlock-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(179, 211, 52, 0.22);
+  pointer-events: none;
+  transition: width 0.08s linear;
+}
+
+.slide-unlock.is-complete .slide-unlock-fill {
+  width: 100% !important;
+  transition: width 0.25s ease;
+}
+
+.slide-unlock-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--dial-viewport-h);
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--radius-lg) - 3px);
+  background: var(--accent);
+  color: #0a1210;
+  font-size: clamp(1.2rem, 5.5vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  z-index: 2;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.slide-unlock-thumb:active {
+  cursor: grabbing;
+}
+
+.slide-unlock-thumb:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(179, 211, 52, 0.45), 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+
+.slide-unlock.is-complete .slide-unlock-thumb {
+  cursor: default;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-unlock.is-complete .slide-unlock-thumb::after {
+  content: "🎉";
+  font-size: clamp(1.35rem, 6vw, 2rem);
+  line-height: 1;
+}
+
+/* Gift step: thumb starts right; slide left to stop celebration */
+.slide-unlock--from-right.is-complete .slide-unlock-fill {
+  width: var(--dial-viewport-h) !important;
+}
+
+.slide-unlock--from-right.is-complete .slide-unlock-thumb {
+  width: var(--dial-viewport-h);
+  font-size: clamp(1.2rem, 5.5vw, 1.75rem);
+}
+
+.slide-unlock--from-right.is-complete .slide-unlock-thumb::after {
+  content: none;
+}
+
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10000;
+}
+
+.voyage-rejection-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(24px + env(safe-area-inset-top)) 24px
+    calc(24px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background: var(--accent);
+  color: #0a1210;
+  font-size: clamp(1.35rem, 6.5vw, 2rem);
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.voyage-rejection-flash.is-active {
+  visibility: visible;
+  animation: voyageRejectionFlash 900ms ease-out forwards;
+}
+
+@keyframes voyageRejectionFlash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voyage-rejection-flash.is-active {
+    animation: voyageRejectionFlashReduced 700ms ease-out forwards;
+  }
+
+  @keyframes voyageRejectionFlashReduced {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    20%,
+    60% {
+      opacity: 1;
+    }
+  }
+}
+
+/* One continuous frame: − | value | + */
+/* Same outer height as letter wheels (see --dial-viewport-h) */
+.age-stepper {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  margin-inline: auto;
+  height: var(--dial-viewport-h);
+  box-sizing: border-box;
+  border-radius: var(--radius-lg);
+  border: none;
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: var(--ui-panel-ring);
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.age-stepper > .age-seg {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.age-stepper > .age-seg + .age-seg {
+  border-left: 1px solid var(--border);
+}
+
+.age-stepper .age-step.age-seg {
+  align-self: stretch;
+  min-height: 0;
+  height: auto;
+  box-sizing: border-box;
+  padding: 0;
+  background: var(--surface);
+  color: var(--text);
+  font-size: clamp(1.2rem, 5.5vw, 1.75rem);
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.age-stepper .age-value.age-seg {
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(1.65rem, 8.25vw, 2.5rem);
+  line-height: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: rgba(0, 0, 0, 0.14);
+  color: var(--text);
+  transition: color 0.15s ease, background 0.15s ease;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.age-block.is-correct .age-stepper .age-value.age-seg {
+  background: var(--accent);
+  color: #0a1210;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  opacity: 1;
+}
+
+.age-stepper .age-step.age-seg:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.age-stepper .age-step.age-seg:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+  position: relative;
+  z-index: 1;
+}
+
+.age-stepper .age-step.age-seg:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.age-steps-hint {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.age-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 2dvh, 12px);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.choice {
+  min-height: clamp(44px, 11dvh, 52px);
+  padding: clamp(12px, 2.8dvh, 16px) 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.choice:active {
+  transform: scale(0.99);
+}
+
+.choice:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(179, 211, 52, 0.28);
+}
+
+.choice[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: rgba(179, 211, 52, 0.14);
+}
+
+.choice-label {
+  pointer-events: none;
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  max-width: var(--controls-input-max-w);
+  margin-inline: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.actions .btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.actions .btn:only-of-type {
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+
+.btn {
+  min-height: clamp(44px, 11dvh, 52px);
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: 1rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: var(--accent);
+  color: #0a1210;
+}
+
+.btn.primary:not(:disabled):active {
+  background: var(--accent-dim);
+}
+
+.btn.ghost {
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+  background: transparent;
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.btn.ghost:not(:disabled):active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(179, 211, 52, 0.38);
+}
+
+.btn-with-timer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-with-timer__ring {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.btn-with-timer__ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.btn-with-timer__track {
+  fill: none;
+  stroke: rgba(10, 18, 16, 0.22);
+  stroke-width: 3;
+}
+
+.btn-with-timer__progress {
+  fill: none;
+  stroke: #0a1210;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 81.68;
+  stroke-dashoffset: 81.68;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.btn-with-timer__secs {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #0a1210;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 480px) {
+  .app {
+    padding-top: calc(20px + env(safe-area-inset-top));
+  }
+}
+
+/* Short phones: keep one screen in view without scroll */
+@media (max-height: 700px) {
+  .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .question {
+    font-size: clamp(1.15rem, 4.5vw, 1.5rem);
+  }
+
+  .hint {
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+
+  :root {
+    --screen-stack-gap: clamp(12px, 2.5dvh, 20px);
+    /* Keep 3 visible letters; shrink row height only on short viewports */
+    --dial-item-h: 36px;
+  }
+}

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Matrix Transpose</title>
+    <script src="http://d3js.org/d3.v4.js"></script>
+    <style>
+      .button {
+        fill: steelBlue;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+
+      var data = chunk( Object.values(fomb(6)), 6)
+      
+      var margin = {top: 20, right: 20, bottom: 30, left: 50},
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      function transpose(){
+        data = d3.transpose(data);
+        update_data();
+      }
+
+      var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      
+      svg.append('g')
+          .attr('transform','translate(120,0)')
+        .append('text')
+          .attr('class','button')
+          .on('click',transpose)
+          .text('Transpose');
+
+      var matrix = svg.append('g').attr('class','matrix');
+      
+      update_data();
+      
+      function update_data(){
+        var matrix_data = [];
+
+        data.forEach(function(d){
+          d.forEach(function(i){
+            matrix_data.push(i);
+          })
+        });
+        
+        var groups = matrix.selectAll('g').data(matrix_data,function(d,i){return d});
+
+        groups.enter()
+          .append('g')
+          .append('text')
+          .attr('text-anchor','middle')
+          .text(String);
+
+        groups.transition(1000).delay(function(d,i){return i*25}).attr('transform',function(d){
+          var i = matrix_data.indexOf(d);
+          var tens = Math.floor(parseInt(i.toString(5),10)/10);
+          var ones = parseInt(i.toString(5),10) - (tens * 10);
+          return "translate("+(ones*20)+","+(tens*20)+")";
+        });
+      }
+
+  function chunk(arr, n){ arr.slice(0,(arr.length+n-1)/n|0).map( (c,i) => arr.slice(n*i,n*i+n) ) }
+
+function fomb(n,k){
+
+const N = Array.from(Array(n+k-1).keys());
+const m = 7;//+(n%6);
+
+function k_combinations(set, k){                                            
+  if (k > set.length || k <= 0) {                                               
+    return []                                                                   
+  }                                                                             
+  if (k === set.length) {                                                       
+    return [set]                                                    
+  }                                                                             
+  const combs = []                                                              
+  if (k === 1) {                                                                
+    for (let i = 0; i < set.length; i++) {                                      
+      combs.push([set[i]])                                                      
+    }                                                                           
+    return combs                                                                
+  }                                                                             
+  for (let i = 0; i < set.length - k + 1; i++) {                                
+    const head = set.slice(i, i + 1)                                            
+    const tailcombs = k_combinations(set.slice(i + 1), k - 1)              
+    for (let j = 0; j < tailcombs.length; j++) {                                
+      combs.push(head.concat(tailcombs[j]))                                     
+    }                                                                           
+  }                                                                             
+  return combs                                                                  
+}                                                                               
+                                                                                
+function combinations(set){                                                 
+  const combs = [];                                                             
+  for (let k = 1; k <= set.length; k++) {                                       
+    const k_combs = k_combinations(set, k)                                      
+    for (let i = 0; i < k_combs.length; i++) {                                  
+      combs.push(k_combs[i])                                                    
+    }                                                                           
+  }                                                                             
+  return combs                                                                  
+}
+
+let arr = k_combinations( N , k ).map( d => ({
+  
+       c: d.sort( (a,b) => b-a ) ,
+  
+       p: [ ( (n+k-1)-d[0]+d[2])%(n+k-1), d[0]-d[1], d[1]-d[2]].sort( (a,b) => b-a ) ,
+  
+       m: d.map( d => d % m ).sort( (a,b) => b-a )  ,
+         
+       s: ( d.filter( d => d >= m ).length % k == 0 )? 
+                 ( null ) : ( 
+              
+                 ( d.filter( d => d >= m ).length == 1 )? 
+                 ( d.filter( d => d >= m )) : ( d.filter( d => d < m ))  
+              
+               )[0]
+  
+    }))
+
+let obj = arr.reduce((i, o) => ({ ...i, [o.m.reverse() +'  '+ o.p +'  ['+ o.c+'] ']: o.m }), {})
+
+return obj
+}
+
+    </script>
+  </body>
+</html>

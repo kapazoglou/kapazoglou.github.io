@@ -1,0 +1,74 @@
+{% comment %}
+  Replaces former "home" chip: hamburger opens full project list grouped like the homepage intros.
+  Param: current_path (optional; pass page.url so the active row can highlight)
+{% endcomment %}
+{% assign _cur = include.current_path | default: '' %}
+{% assign sorted_posts = site.posts | sort: 'date' | reverse %}
+<div class="dropdown post-nav-projects-dropdown">
+  <button id="postNavProjectsToggle" type="button" class="btn btn-outline-dark dropdown-toggle post-nav-projects-dropdown__btn"
+    data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false" aria-controls="postNavProjectsMenu"
+    aria-label="Browse all projects">
+    <span class="post-nav-btn-fg"><i class="fa fa-bars post-nav-projects-toggle-icon post-nav-projects-toggle-icon--bars" aria-hidden="true"></i><i class="fa fa-times post-nav-projects-toggle-icon post-nav-projects-toggle-icon--times" aria-hidden="true"></i></span>
+  </button>
+  <div class="post-nav-projects-sheet-cluster">
+    <div class="post-nav-projects-menu__close-wrap">
+      <button type="button" class="post-nav-projects-menu__close d-inline-flex align-items-center justify-content-center border-0 bg-transparent" data-post-nav-projects-close aria-label="Close project list">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <nav class="dropdown-menu post-nav-projects-menu pb-2" aria-labelledby="postNavProjectsToggle" id="postNavProjectsMenu">
+    <div class="post-nav-projects-menu__top-row">
+      {% assign idx_home_active = '' %}
+      {% if _cur == '/' or _cur == '/index.html' %}{% assign idx_home_active = ' active' %}{% endif %}
+      <a class="dropdown-item post-nav-projects-menu__home px-3 py-2 font-weight-bold small flex-grow-1 border-0{{ idx_home_active }}" href="{{ '/' | relative_url }}" {% if idx_home_active != '' %}aria-current="page"{% endif %}>HOME</a>
+    </div>
+    <div class="dropdown-divider post-nav-projects-menu__divider-after-home" role="separator"></div>
+    <h6 class="dropdown-header post-nav-projects-menu__heading px-3 mb-0">Product Design</h6>
+    {% assign pd_written = false %}
+    {% for post in sorted_posts %}
+      {% assign in_pd = false %}
+      {% if post.layout == 'curated_product' %}
+        {% assign in_pd = true %}
+      {% endif %}
+      {% for c in post.categories %}
+        {% if c == 'Product Design' %}
+          {% assign in_pd = true %}
+        {% endif %}
+      {% endfor %}
+      {% if in_pd %}
+        {% assign pd_written = true %}
+        {% assign _active = '' %}
+        {% assign _href = post.url %}
+        {% if _href == _cur %}{% assign _active = ' active' %}{% endif %}
+        <a class="dropdown-item post-nav-projects-menu__item{{ _active }}" href="{{ _href | relative_url }}" {% if _href == _cur %}aria-current="page"{% endif %}>{{ post.title | escape }}</a>
+      {% endif %}
+    {% endfor %}
+    {% unless pd_written %}
+      <span class="dropdown-item-text text-muted small px-3 pb-2">No projects in this bucket yet.</span>
+    {% endunless %}
+    <h6 class="dropdown-header post-nav-projects-menu__heading px-3 mb-0 mt-3 border-top pt-3">Other Work</h6>
+    {% assign ow_written = false %}
+    {% for post in sorted_posts %}
+      {% assign in_pd = false %}
+      {% if post.layout == 'curated_product' %}
+        {% assign in_pd = true %}
+      {% endif %}
+      {% for c in post.categories %}
+        {% if c == 'Product Design' %}
+          {% assign in_pd = true %}
+        {% endif %}
+      {% endfor %}
+      {% unless in_pd %}
+        {% assign ow_written = true %}
+        {% assign _active = '' %}
+        {% assign _href = post.url %}
+        {% if _href == _cur %}{% assign _active = ' active' %}{% endif %}
+        <a class="dropdown-item post-nav-projects-menu__item{{ _active }}" href="{{ _href | relative_url }}" {% if _href == _cur %}aria-current="page"{% endif %}>{{ post.title | escape }}</a>
+      {% endunless %}
+    {% endfor %}
+    {% unless ow_written %}
+      <span class="dropdown-item-text text-muted small px-3 pb-2">No projects in this bucket yet.</span>
+    {% endunless %}
+  </nav>
+  </div>
+</div>

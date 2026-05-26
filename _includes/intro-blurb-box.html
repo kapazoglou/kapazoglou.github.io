@@ -1,0 +1,16 @@
+{% assign blurb = include.variant | default: 'top' %}
+{% if blurb == 'mid' %}
+<div class="home-hero-intro home-hero-intro--mid">
+  <h2 class="home-hero-intro__title">Other works</h2>
+  <span>Most product designers haven't also drawn a surgical procedure, photographed a skull, animated with sand, or made boardgames. While product design is where I focus, my broader background shapes how I approach every problem: with curiosity, craft, and a genuine interest in what humans are actually going through, especially at their most vulnerable.</span>
+</div>
+{% else %}
+<div class="home-hero-intro-shell">
+  <div class="home-hero-intro">
+    <h2 class="home-hero-intro__title">Product Design</h2>
+   <span>Hi, I'm Mano, a Product Designer specialising in Healthcare. The last several years I've been designing digital experiences for cancer patients, fitness users, and healthcare provider contexts, navigating the messy overlap between clinical compliance and human-centred design. My work focuses on behavioural science and cognitive inclusivity: 
+   I design best for people where clarity genuinely matters.</span>
+  </div>
+  <img class="home-hero-intro__avatar" src="{{ site.avatar | prepend: '/' | relative_url }}" alt="{{ site.name | escape }}">
+</div>
+{% endif %}

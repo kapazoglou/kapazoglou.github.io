@@ -1,0 +1,2 @@
+{% assign _preview_src = post.excerpt | default: post.content | strip_html | strip %}
+<p class="card-preview">{{ _preview_src | truncatewords: 48, "" }}</p>

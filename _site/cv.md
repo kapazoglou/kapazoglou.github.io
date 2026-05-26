@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" id="top">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:image" content="http://localhost:4000/assets/images/item/pht_4.png">
+    <title>Resume | Portfolio </title>
+    
+    <!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>Resume | Mano Kapazoglou</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Resume" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Samples of my work" />
+<meta name="twitter:description" property="og:description" content="Samples of my work" />
+<link rel="canonical" href="http://localhost:4000/cv.md" />
+<meta property="og:url" content="http://localhost:4000/cv.md" />
+<meta property="og:site_name" content="Mano Kapazoglou" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Resume" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"Samples of my work","headline":"Resume","publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"http://localhost:4000/assets/images/logo.png"}},"url":"http://localhost:4000/cv.md"}</script>
+<!-- End Jekyll SEO tag -->
+
+        
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/images/logo.png">
+    
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+  
+    <link rel="stylesheet" href="/assets/css/bootstrap.css">
+    
+    <link rel="stylesheet" href="/assets/css/theme.css">
+    
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    
+    <!-- This goes before </head> closing tag, Google Analytics can be placed here --> 
+    
+</head>
+    
+<body>
+    
+    <nav class="navbar navbar-dark fixed-top flex-nowrap justify-content-between align-items-center">
+    <a class="navbar-brand font-weight-bolder mr-3 mb-0" href="/index.html"><span id="logo">
+                    <svg width="21" height="21" viewBox='0 0 8 8'>
+                        <g>
+                            <polygon style="fill: #fff;" points="8,8 0,8 0,0   "/>
+                            <polygon style="fill: #000  ;" points="0,8 0,0 8,0   "/>
+                            <circle  style="fill: #fff;" cx="1" cy="2" r="2"/>
+                            <rect    style="fill: #fff;" width="1" height="4"/>
+                        </g>
+                    </svg>
+                </span>
+                <span class="logotype">Mano Kapazoglou</span>
+    </a>
+    	<ul class="navbar-nav flex-row align-items-center">
+    		<!--  Replace top menu links here -->
+
+<!--<li class="nav-item">
+    <a class="nav-link" href="/categories.html">Services</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/contact.html">Contact</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link active" href="/index.html">Portfolio</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="/web-concepts-library/">Post</a>
+</li>-->
+<li class="nav-item">
+    <a class="nav-link nav-link-cv-download" href="https://drive.google.com/uc?export=download&id=1KrxvrZcpQpJZK_Pzcci9i8VXI1nod987" download="Mano-Kapazoglou-CV.pdf" rel="noopener noreferrer" target="_blank" aria-label="Get CV as PDF"><span class="nav-link-cv-download__label" aria-hidden="true">get cv</span></a>
+</li>
+<li class="nav-item">
+    <a class="nav-link nav-link-linkedin" href="https://www.linkedin.com/in/kapazoglou/" rel="noopener noreferrer" target="_blank" aria-label="Mano Kapazoglou on LinkedIn"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+</li>
+<!--<li class="nav-item dropdown">
+	<a class="nav-link" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+	  <svg style="margin-top:10px; fill:#ffffff;" class="_3DJPT " version="1.1" viewbox="0 0 32 32" width="21" height="21" aria-hidden="false" data-reactid="71"><path d="M7 15.5c0 1.9-1.6 3.5-3.5 3.5s-3.5-1.6-3.5-3.5 1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5zm21.5-3.5c-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5-1.6-3.5-3.5-3.5zm-12.5 0c-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5-1.6-3.5-3.5-3.5z" data-reactid="22"></path></svg>
+	</a>
+	    <div class="dropdown-menu dropdown-menu-right shadow-lg" aria-labelledby="dropdown02">
+		<h4 class="dropdown-header display-4">Do you like what you see <br/> and would like to support me?</h4>
+		<div class="dropdown-divider">
+		</div>
+		<span class="dropdown-item">
+			<a target="_blank" class="btn btn-warning" href="https://www.buymeacoffee.com/kapazoglou"><i class="fa fa-coffee"></i> Buy me a coffee </a>
+		</span>
+	</div>
+</li>-->
+    	</ul>
+    </nav>
+    
+    <div class="page-canvas">
+    
+    <!--<div id="lunrsearchresults">
+        <ul class="mb-0"></ul>
+    </div>-->
+    
+    <main role="main">        
+        <section class="post-layout mt-5 pb-5">
+    
+    <div class="container-fluid">
+        
+    	<div class="row justify-content-center">
+            
+    		<div class="col-12 post-page-column">
+
+                <div class="post-page-heading-band">
+                  <div class="post-page-heading-band__dock">
+                    <div class="post-page-heading-band__dock-inner">
+                      <nav class="post-page-heading-band__rail post-page-heading-band__rail--left post-page-heading-band__rail--pinned" aria-label="All projects">
+                        
+
+
+<div class="dropdown post-nav-projects-dropdown">
+  <button id="postNavProjectsToggle" type="button" class="btn btn-outline-dark dropdown-toggle post-nav-projects-dropdown__btn"
+    data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false" aria-controls="postNavProjectsMenu"
+    aria-label="Browse all projects">
+    <span class="post-nav-btn-fg"><i class="fa fa-bars post-nav-projects-toggle-icon post-nav-projects-toggle-icon--bars" aria-hidden="true"></i><i class="fa fa-times post-nav-projects-toggle-icon post-nav-projects-toggle-icon--times" aria-hidden="true"></i></span>
+  </button>
+  <div class="post-nav-projects-sheet-cluster">
+    <div class="post-nav-projects-menu__close-wrap">
+      <button type="button" class="post-nav-projects-menu__close d-inline-flex align-items-center justify-content-center border-0 bg-transparent" data-post-nav-projects-close aria-label="Close project list">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <nav class="dropdown-menu post-nav-projects-menu pb-2" aria-labelledby="postNavProjectsToggle" id="postNavProjectsMenu">
+    <div class="post-nav-projects-menu__top-row">
+      
+      
+      <a class="dropdown-item post-nav-projects-menu__home px-3 py-2 font-weight-bold small flex-grow-1 border-0" href="/" >HOME</a>
+    </div>
+    <div class="dropdown-divider post-nav-projects-menu__divider-after-home" role="separator"></div>
+    <h6 class="dropdown-header post-nav-projects-menu__heading px-3 mb-0">Product Design</h6>
+    
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/curated_product.html" >Product Design in Practice</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Mika_Design_System/" >Design System Rollout &amp; Management</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Mika_Feature_Development/" >Patient Support Features</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Mika_App_Arch/" >App Architecture for Behavioural Change</a>
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/VHP_Support/" >Incubator Product Design Support</a>
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/8fit_User_Trust_Building/" >Fitness App User Trust Building</a>
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+    
+    <h6 class="dropdown-header post-nav-projects-menu__heading px-3 mb-0 mt-3 border-top pt-3">Other Work</h6>
+    
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/LLM_and_Generative/" >AI-Assisted &amp; Generative Design</a>
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Myths_Behind_Stars/" >Book Research &amp; Compilation</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/A-Bed-for-Three/" >Short Film Scriptwriting</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Game-Design/" >Board Game Development</a>
+      
+    
+      
+      
+      
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/8fit_Assets/" >Fitness App Illustrations</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Headland_Publications/" >Archaeological Publication Design</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Headland_Photography/" >Finds &amp; Remains Photography [CW: Skulls]</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Ninewells_Illustration/" >NHS Hospital Illustration [CW: Surgery]</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Ninewells_Patient_Experience/" >NHS Patient Experience</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/PLOS_Biology/" >PLOS Biology Article Illustration</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/CAHID_Art/" >CAHID Art [CW: Cadavers]</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/TheVillage_Film/" >&#39;The Village&#39; Stop-motion Film</a>
+      
+    
+      
+      
+      
+      
+        
+        
+        
+        
+        <a class="dropdown-item post-nav-projects-menu__item" href="/Por/" >Sand Animation</a>
+      
+    
+    
+  </nav>
+  </div>
+</div>
+
+                      </nav>
+                    </div>
+                  </div>
+                  <header class="post-page-heading">
+                    <h1>Resume</h1>
+                  </header>
+                </div>
+
+                
+                
+    			<article class="card bg-white border-0 post-page-article">
+
+                    <div class="card-body bg-white">
+
+                        <h1 id="resume">Resume</h1>
+
+<h3 id="education">Education</h3>
+
+<p>2014.08  <strong>MSc Medical Art (Distinction)</strong> <em>University of Dundee, UK</em></p>
+
+<p>2012.01  <strong>Diploma in Animation</strong> <em>VIA University College, Viborg DK</em></p>
+
+<p>2010.06  <strong>Certificate in Classical Drawing</strong> <em>VIA University College, Viborg, DK &amp; Magyar Képzőművészeti Egyetem, Budapest HU</em></p>
+
+<p>2009.08  <strong>BA (Hons) in Graphic Design</strong> <em>Technological Educational Institute of Athens, GR &amp; Moholy-Nagy Művészeti Egyetem, Budapest HU</em></p>
+
+<p><br /></p>
+
+<h3 id="experience">Experience</h3>
+
+<p>2020.01 – present  <strong>Freelancer</strong></p>
+
+<p>2018.06 – 2019.12  <strong>Design Lead</strong> <em>8fit, Berlin DE</em></p>
+
+<p>2015.08 – 2018.04  <strong>Graphics Supervisor</strong> <em>Headland Archaeology, Edinburgh UK</em></p>
+
+<p>2015.03 – 2015.08  <strong>Clinical Photographer</strong> <em>NHS Tayside, Dundee UK</em></p>
+
+<p>2014.09 – 2014.12  <strong>Intern</strong> <em>Centre for Anatomy and Human Identification, Dundee UK</em></p>
+
+<p>2007.07 – 2013.11  <strong>Production Assistant</strong> <em>Kalamata International Dance Festival, GR / Viborg Animation Festival, DK</em></p>
+
+<p>2008.09 – 2009.09  <strong>Animation Assistant</strong> <em>‘The Village’ SP Film Productions, Athens GR</em></p>
+
+<p>2004.01 – 2009.05  <strong>Art Teacher</strong> <em>Bleu Telia Art and Communication Workshop, Athens GR</em></p>
+
+
+                    </div>  
+                    
+    			</article>
+                
+    		</div>
+            
+    	</div>
+        
+    </div>
+    
+</section>
+        
+    </main>
+    
+    <footer class="footer">
+    <div class="container-fluid">
+
+          <!--
+  If you want to remove credits, please, donate:
+  https://www.wowthemes.net/freebies-license/
+-->
+
+
+<nav class="footer-category-nav" aria-label="Browse by category">
+<!-- Don't edit anything here, categories are dynamically generated -->
+
+<!--<nav>
+    <button class="navbar-light navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExplore" aria-controls="navbarsDefault" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+    </button>-->
+    <div class="btn-toolbar" id="navbarsExplore">
+    
+      
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#animation">Animation</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#storytelling">Storytelling</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#illustration">Illustration</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#medical-illustration">Medical Illustration</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#research">Research</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#patient-communication">Patient Communication</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#photography">Photography</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#print-design">Print Design</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#data-viz">Data Viz</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#product-design">Product Design</a>
+        
+          <a class="btn btn-sm btn-outline-dark category-tag" href="/categories.html#iterative-design">Iterative Design</a>
+        
+      
+    
+    </div>
+<!--</nav>-->
+</nav>
+
+
+<p class="footer-copyright-line mb-0">
+    <a href="http://localhost:4000/"> Designed by Mano Kapazoglou&copy;; developed with Claude.</a>
+    <a target="_blank" rel="noopener noreferrer" href="https://www.magnific.com/author/redgreystock"> Spray elements designed by @redgreystock on Magnific.</a>
+</p>
+
+<a class="btn btn-outline-dark footer-back-top-btn" href="#top" aria-label="Back to top" aria-hidden="true" tabindex="-1"><span class="post-nav-btn-fg"><i class="fa fa-arrow-up" aria-hidden="true"></i></span></a>
+
+        </div>
+    </footer>
+    
+    </div>
+
+    <div id="figma-embed-shell" class="figma-embed-shell" hidden role="dialog" aria-modal="true" aria-label="Figma prototype" tabindex="-1">
+      <div class="figma-embed-shell__backdrop" data-figma-embed-close tabindex="-1" aria-hidden="true"></div>
+      <div class="figma-embed-shell__panel">
+        <div class="figma-embed-shell__frame">
+          <iframe class="figma-embed-shell__iframe" title="Figma embed" allowfullscreen></iframe>
+          <div class="figma-embed-shell__zoom-hint">(⌘/Ctrl+Scroll to zoom)</div>
+        </div>
+        <button type="button" class="figma-embed-shell__close" data-figma-embed-close aria-label="Close full screen"><span class="figma-embed-shell__close-label" aria-hidden="true">&times;</span></button>
+      </div>
+    </div>
+
+    <div id="embed-external-link-dialog" class="embed-external-link-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="embed-external-link-dialog-title" tabindex="-1">
+      <div class="embed-external-link-dialog__backdrop" data-embed-external-link-dismiss tabindex="-1" aria-hidden="true"></div>
+      <div class="embed-external-link-dialog__panel">
+        <h2 id="embed-external-link-dialog-title" class="embed-external-link-dialog__title">External link</h2>
+        <p class="embed-external-link-dialog__body">Links such as <strong>kpzl</strong> or other addresses outside this site won’t open inside the demo overlay. You can continue in a new tab, or stay here.</p>
+        <p class="embed-external-link-dialog__url-line"><a id="embed-external-link-dialog-url" class="embed-external-link-dialog__url" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+        <div class="embed-external-link-dialog__actions">
+          <button type="button" class="btn btn-dark btn-sm embed-external-link-dialog__btn-primary" id="embed-external-link-dialog-open">Open in new tab</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-embed-external-link-dismiss>Stay in demo</button>
+        </div>
+      </div>
+    </div>
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    
+    <script src="/assets/js/theme.js"></script>
+    
+    <!--<script src="/assets/js/lunr.js"></script>-->
+        
+</body>
+    
+</html>

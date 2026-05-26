@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="top">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta property="og:image" content="https://raw.githubusercontent.com/kapazoglou/portfolio/master/assets/images/item/pht_4.png">    
+    <meta property="og:image" content="{{ '/assets/images/item/pht_4.png' | absolute_url }}">
     <title>{{page.title}} | Portfolio </title>
     
     {% seo %}
         
-    <link rel="shortcut icon" type="image/x-icon" href="{{site.baseurl}}/{{site.favicon}}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ site.favicon | prepend: '/' | relative_url }}">
     
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
   
-    <link rel="stylesheet" href="{{site.baseurl}}/assets/css/bootstrap.css">
+    <link rel="stylesheet" href="{{ '/assets/css/bootstrap.css' | relative_url }}">
     
-    <link rel="stylesheet" href="{{site.baseurl}}/assets/css/theme.css">
+    <link rel="stylesheet" href="{{ '/assets/css/theme.css' | relative_url }}">
     
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     
@@ -25,8 +25,8 @@
     
 <body>
     
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
-    <a class="navbar-brand font-weight-bolder mr-3" href="{{site.baseurl}}/index.html"><span id="logo">
+    <nav class="navbar navbar-dark fixed-top flex-nowrap justify-content-between align-items-center">
+    <a class="navbar-brand font-weight-bolder mr-3 mb-0" href="{{ '/index.html' | relative_url }}"><span id="logo">
                     <svg width="21" height="21" viewBox='0 0 8 8'>
                         <g>
                             <polygon style="fill: #fff;" points="8,8 0,8 0,0   "/>
@@ -38,18 +38,12 @@
                 </span>
                 <span class="logotype">Mano Kapazoglou</span>
     </a>
-    <button class="navbar-light navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsDefault" aria-controls="navbarsDefault" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarsDefault">        
-    	<!--<ul class="navbar-nav mr-auto align-items-center">            
-            {% include search-lunr.html %}    		
-    	</ul>-->
-    	<ul class="navbar-nav ml-auto align-items-center">
+    	<ul class="navbar-nav flex-row align-items-center">
     		{% include menu-header.html %}
     	</ul>
-    </div>
     </nav>
+    
+    <div class="page-canvas">
     
     <!--<div id="lunrsearchresults">
         <ul class="mb-0"></ul>
@@ -59,21 +53,46 @@
         {{ content }}        
     </main>
     
-    <footer class="footer pt-5 pb-5 text-center">        
-    <div class="container">        
+    <footer class="footer">
+    <div class="container-fluid">
 
           {% include footer-copyright.html %}
         </div>
     </footer>
     
+    </div>
+
+    <div id="figma-embed-shell" class="figma-embed-shell" hidden role="dialog" aria-modal="true" aria-label="Figma prototype" tabindex="-1">
+      <div class="figma-embed-shell__backdrop" data-figma-embed-close tabindex="-1" aria-hidden="true"></div>
+      <div class="figma-embed-shell__panel">
+        <div class="figma-embed-shell__frame">
+          <iframe class="figma-embed-shell__iframe" title="Figma embed" allowfullscreen></iframe>
+          <div class="figma-embed-shell__zoom-hint">(⌘/Ctrl+Scroll to zoom)</div>
+        </div>
+        <button type="button" class="figma-embed-shell__close" data-figma-embed-close aria-label="Close full screen"><span class="figma-embed-shell__close-label" aria-hidden="true">&times;</span></button>
+      </div>
+    </div>
+
+    <div id="embed-external-link-dialog" class="embed-external-link-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="embed-external-link-dialog-title" tabindex="-1">
+      <div class="embed-external-link-dialog__backdrop" data-embed-external-link-dismiss tabindex="-1" aria-hidden="true"></div>
+      <div class="embed-external-link-dialog__panel">
+        <h2 id="embed-external-link-dialog-title" class="embed-external-link-dialog__title">External link</h2>
+        <p class="embed-external-link-dialog__body">Links such as <strong>kpzl</strong> or other addresses outside this site won’t open inside the demo overlay. You can continue in a new tab, or stay here.</p>
+        <p class="embed-external-link-dialog__url-line"><a id="embed-external-link-dialog-url" class="embed-external-link-dialog__url" href="#" target="_blank" rel="noopener noreferrer"></a></p>
+        <div class="embed-external-link-dialog__actions">
+          <button type="button" class="btn btn-dark btn-sm embed-external-link-dialog__btn-primary" id="embed-external-link-dialog-open">Open in new tab</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-embed-external-link-dismiss>Stay in demo</button>
+        </div>
+      </div>
+    </div>
    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
     
-    <script src="{{site.baseurl}}/assets/js/theme.js"></script>
+    <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
     
-    <!--<script src="{{site.baseurl}}/assets/js/lunr.js"></script>-->
+    <!--<script src="{{ '/assets/js/lunr.js' | relative_url }}"></script>-->
         
 </body>
     

@@ -3,29 +3,75 @@ title: "Mano Kapazoglou"
 layout: default
 description: "Healthcare Product Designer & more"
 ---
+{% assign featured_layout = site.featured_recent_layout | default: 'row_3' %}
+{% if featured_layout == 'row_3' %}
+  {% assign featured_secondary_limit = 3 %}
+  {% assign masonry_offset = 4 %}
+  {% assign masonry_min_posts = 5 %}
+  {% assign masonry_col_count = 4 %}
+{% else %}
+  {% assign featured_secondary_limit = 4 %}
+  {% assign masonry_offset = 5 %}
+  {% assign masonry_min_posts = 6 %}
+  {% assign masonry_col_count = 3 %}
+{% endif %}
 
-<section class="mt-4 mb-5">
+<section class="mt-5 {% if paginator.page != 1 %}mb-5{% endif %}{% if paginator.page == 1 %} {% if featured_layout == 'row_3' %}home-layout--row-3{% else %}home-layout--quad-2x2{% endif %}{% endif %}">
 
-<div class="container mb-4">
-    <div class="row">
-    {% include menu-categories.html %}
-    </div>
-</div>
-   
 <div class="container-fluid">
-    
-    <div class="card-columns">
-        {% for post in paginator.posts <!--reversed--> %}
-              {% include card-post.html %}
-        {% endfor %}            
+
+    {% if paginator.page == 1 and paginator.posts.size > 0 %}
+    {% include intro-blurb-box.html variant="top" %}
+    <div class="featured-recent-grid">
+        {% for post in paginator.posts limit:1 %}
+        <div class="featured-recent-grid__hero-spray">
+            <div class="featured-recent-grid__hero">
+                  {% include card-post.html %}
+            </div>
+        </div>
+        {% endfor %}
+        {% if paginator.posts.size > 1 %}
+        <div class="featured-recent-grid__quad">
+            {% for post in paginator.posts limit:featured_secondary_limit offset:1 %}
+            <div class="featured-recent-grid__cell">
+                  {% include card-post.html %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
+    {% endif %}
+    
+    {% if paginator.page == 1 and paginator.posts.size >= masonry_min_posts %}
+    {% assign masonry_posts = paginator.posts | slice: masonry_offset, 500 %}
+    {% include intro-blurb-box.html variant="mid" %}
+    {% include home-category-nav.html %}
+    <div id="home-masonry" class="home-masonry-wrap">
+    <p class="home-masonry-empty text-center text-muted py-4 mb-0" hidden role="status">No projects match this category on this page.</p>
+    <div class="card-columns">
+        {% include card-columns-row-major.html posts=masonry_posts col_count=masonry_col_count %}
+    </div>
+    </div>
+    <div class="page-bg-fade-start" aria-hidden="true"></div>
+    {% elsif paginator.page != 1 %}
+    {% assign masonry_posts = paginator.posts | slice: 0, 500 %}
+    {% include intro-blurb-box.html variant="mid" %}
+    {% include home-category-nav.html %}
+    <div id="home-masonry" class="home-masonry-wrap">
+    <p class="home-masonry-empty text-center text-muted py-4 mb-0" hidden role="status">No projects match this category on this page.</p>
+    <div class="card-columns">
+        {% include card-columns-row-major.html posts=masonry_posts col_count=3 %}
+    </div>
+    </div>
+    <div class="page-bg-fade-start" aria-hidden="true"></div>
+    {% endif %}
 
     <div class="row justify-content-center mt-5">
      <!-- Pagination links -->
         {% if paginator.total_pages > 1 %}
         <div class="pagination"> 
           {% if paginator.previous_page %}
-            <a href="{{ paginator.previous_page_path | prepend: site.baseurl | replace: '//', '/' }}">&laquo; Prev</a>
+            <a href="{{ paginator.previous_page_path | relative_url }}">&laquo; Prev</a>
           {% else %}
             <span class="prev">&laquo; Prev</span>
           {% endif %}
@@ -34,20 +80,21 @@ description: "Healthcare Product Designer & more"
             {% if page == paginator.page %}
               <span class="webjeda">{{ page }}</span>
             {% elsif page == 1 %}
-              <a href="{{site.baseurl}}/">{{ page }}</a>
+              <a href="{{ '/' | relative_url }}">{{ page }}</a>
             {% else %}
-              <a href="{{ site.paginate_path | prepend: site.baseurl | replace: '//', '/' | replace: ':num', page }}">{{ page }}</a>
+              <a href="{{ site.paginate_path | replace: ':num', page | relative_url }}">{{ page }}</a>
             {% endif %}
           {% endfor %}
 
           {% if paginator.next_page %}
-            <a href="{{ paginator.next_page_path | prepend: site.baseurl | replace: '//', '/' }}">Next &raquo;</a>
+            <a href="{{ paginator.next_page_path | relative_url }}">Next &raquo;</a>
           {% else %}
             <span class="next">Next &raquo;</span>
           {% endif %}
         </div>
         {% endif %}      
     </div>
+
 </div>    
 
 </section>

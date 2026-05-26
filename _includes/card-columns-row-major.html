@@ -1,0 +1,22 @@
+{% comment %}
+  Renders posts in DOM order such that CSS multi-column layout reads row-by-row
+  (left→right, top row first). Pass card_order for mobile flex sort (recency index).
+  Params: posts (array), col_count (integer)
+{% endcomment %}
+{% assign _posts = include.posts %}
+{% assign _cols = include.col_count | default: 3 %}
+{% assign m_total = _posts.size %}
+{% if m_total > 0 %}
+{% assign m_rows = m_total | plus: _cols | minus: 1 | divided_by: _cols %}
+{% for col_i in (1.._cols) %}
+  {% assign c = forloop.index0 %}
+  {% for row_i in (1..m_rows) %}
+    {% assign r = forloop.index0 %}
+    {% assign idx = r | times: _cols | plus: c %}
+    {% if idx < m_total %}
+      {% assign post = _posts[idx] %}
+      {% include card-post.html card_order=idx %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
+{% endif %}

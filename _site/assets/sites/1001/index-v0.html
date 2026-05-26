@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<head>
+    <title>hazard tarot</title>
+    <meta name='author' content= 'Mano Kapazoglou'>
+    <meta name='description' content='An arrangement 1001 points on 84 tiles '>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src='https://d3js.org/d3.v5.min.js'></script>
+    <script src='../d3/d3-force.js'></script>
+    <script src='../d3/d3-grid.js'></script>
+    <script src='../d3/d3-comparator.js'></script>
+    <script src='fleck.js'></script>
+    
+<style type="text/css">
+    /*WINDOW*/
+html, body {
+    font-family: 'Consolas', monospace;
+    font-size:12px; 
+    overflow: hidden;
+    background-color: whitesmoke ;
+    color: darkslategray;
+}
+
+span {
+    color: tomato; 
+    cursor:pointer;
+    transition: 0.3s;
+}
+
+a {
+    text-decoration: none;
+    color: darkslategray;
+    transition: 0.3s;
+}
+
+a:hover, a:active, a:focus{
+    color: tomato;
+}
+/**/
+#main {
+    transition: margin-left .5s;
+}
+
+.sidenav {
+    touch-action: pan-y;
+    text-align: center;
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: antiquewhite;
+    color: tomato;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: 0.5s;
+    padding-top: 10px;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 24px;
+    margin-left: 0px;
+}
+
+object {
+    padding-top: 1px;
+    height: 97.5%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+svg {
+    border: 0px solid white;
+    touch-action: none;
+}
+
+/*TILES*/
+.tile{
+    touch-action: none;
+}
+
+.spinner rect {
+    fill: white;
+    rx: 4px;
+    ry: 4px;
+}
+
+.back rect{
+    fill: floralwhite;
+}
+
+.back line{
+    fill: none;
+    stroke: tomato;
+    stroke-width: 1px;
+    stroke-linecap: round;
+}
+
+.active rect{
+    stroke: floralwhite;
+    stroke-width: 2px;
+}
+
+circle {
+    fill: darkslategray;
+    stroke: darkslategray;
+    stroke-width: 2px;
+}
+
+.face.face1 circle {
+    pointer-events: all;
+    fill: tomato;
+    stroke: tomato;
+    stroke-width: 2px;
+}
+
+.face.face1 line {
+    stroke: tomato;
+    stroke-width: 1px;
+    stroke-linecap: round;
+}
+
+#T777 .face.face1 circle{
+    fill: seashell;
+    stroke: seashell;
+    stroke-width: 3px;
+
+ }
+</style>
+</head>
+<body>
+
+<div id="sidenav" class="sidenav">
+<i>An arrangement of 1001 points on 84 tiles</i>
+<a href="#" class="closebtn" onclick="closeNav()">&times;</a><br>
+<object data="notes.html"> 
+    Your browser doesn’t support the object tag. 
+</object>
+
+</div>
+
+<div id='main'>
+    <link href="https://fonts.googleapis.com/css?family=Text+Me+One" rel="stylesheet">
+    <a href='https://kapazoloo.gitlab.io/' id='logo' style = 'color: darkslategray; font-family: "Text Me One";font-size: 14px;'>k&hairsp;&hairsp;p&hairsp;z&hairsp;&hairsp;l</a> /
+    <span onclick="d3.selectAll('.tile').select('.back').attr('visibility','hidden')">1001 dot tarot</span> /
+    <a href='#' class='sort-btn' data-sort='rank'>flank</a> /
+    <a href='#' class='sort-btn' data-sort='suit'>core</a> /
+    <a href='#' class='sort-btn' data-sort='part'>split</a> /
+    <a href='#' onclick=" (d3.selectAll('.tile').select('.deco').attr('visibility') == 'hidden') ? 
+                           d3.selectAll('.tile').select('.deco').attr('visibility','visible') : 
+                           d3.selectAll('.tile').select('.deco').attr('visibility','hidden')">gild</a> /
+    <a href='#' onclick=" (d3.selectAll('.tile').select('.back').attr('visibility') == 'hidden') ? 
+                           d3.selectAll('.tile').select('.back').attr('visibility','visible') : 
+                           d3.selectAll('.tile').select('.back').attr('visibility','hidden')">flip</a> /
+    <a href='#' onclick='openNav()'>notes</a><br>
+</div>
+
+<script>
+//WINDOW
+ svgw = window.innerWidth -18 //|| e.clientWidth || g.clientWidth,
+ svgh = window.innerHeight -36 //|| e.clientHeight|| g.clientHeight;
+
+//DIMENSIONS
+var num = 7;
+var len = 3;
+
+var xtr = 4;
+var rad = 3;
+var rat = Math.sqrt(3);
+
+//TRANSITIONS
+var dur = 84
+var _dur = dur
+var del = 0
+
+//DATA
+var dot = [];
+
+fleck(dot, num, len, rad, rat);
+
+dot[83][1]=[]
+//dot.push([[],[],[]])
+
+var data = dot.map( d => ({
+        p: d
+    ,
+        i: d[0].length+''+d[1].length+''+d[2].length
+    ,
+        s: partitions(d[0].length, d[len-1].length, d[Math.floor(len/2)].length).join('')
+    ,
+        x: Math.random() * (svgw - Math.pow(rad*rat, 2) * 2)
+    ,
+        y: Math.random() * (svgh - Math.pow(rad*rat, 2) * 2 *rat)
+
+    }) );
+
+console.log(data)
+
+//SORT
+var layout = {
+
+    rank: {  order: d3.comparator()        
+             .order(d3.descending, d => d.p[0].length + d.p[len-1].length )
+             .order(d3.descending, d => Math.max(d.p[0].length , d.p[len-1].length) )
+             .order(d3.descending, d => d.p[Math.floor(len/2)].length )
+             ,
+             clm: -12
+        },
+
+    suit: { order: d3.comparator()
+            .order(d3.descending, d => d.p[Math.floor(len/2)].length )
+            .order(d3.ascending, d => d.p[Math.floor(len/2)].length + d.p[0].length + d.p[len-1].length )
+            .order(d3.descending, d => Math.max(d.p[0].length , d.p[len-1].length) )
+            ,
+            clm: 13 //
+        },
+
+    part: { order: d3.comparator()
+            .order(d3.ascending, d => partitions(d.p[0].length, d.p[len-1].length, d.p[Math.floor(len/2)].length).sort( (a,b) => a-b ) )
+            .order(d3.ascending, d => parity(partitions(d.p[0].length, d.p[len-1].length, d.p[Math.floor(len/2)].length)) )
+            .order(d3.ascending, d => partitions(d.p[0].length, d.p[len-1].length, d.p[Math.floor(len/2)].length) )
+            .order(d3.ascending, d => Math.min(d.p[0].length, d.p[len-1].length, d.p[Math.floor(len/2)].length) )
+            ,
+            clm: -14
+        }
+};
+
+//WINDOW
+var drag = d3.drag()
+    .on('start', dragStarted)
+    .on('drag', dragged)
+    .on('end', dragEnded)
+
+var svg = d3.select('#main')
+    .append('svg')
+    .attr('width', '100%')
+    .attr('height', '4000')
+    .append('g')
+    .attr('id', 'box')
+    .attr('transform', 'translate(' + Math.pow(rad * rat, 2) * 2  / 2 + ',' + Math.pow(rad * rat, 2) * 2 * rat  / 2 + ')')
+    .style('filter','url(#shade)')
+
+var defs = d3.select('svg')
+    .append('defs')
+    .append('filter')
+    .attr('id','shade')
+    .append('feDropShadow')
+    .attr('dx', -7)
+    .attr('dy', 7)
+    .attr('stdDeviation', 0)
+    .attr('flood-opacity', 1)
+    .attr('flood-color','antiquewhite')
+
+window.onresize = updateWindow;
+
+d3.selectAll('.sort-btn')
+    .on('click', function(d) {
+        data.sort(layout[this.dataset.sort].order);
+
+        var grid = d3.grid()
+        .cols([Math.abs(layout[this.dataset.sort].clm)])
+        .size([(Math.abs(layout[this.dataset.sort].clm) - 1) * Math.pow(rad * rat, 2) * 2, (Math.ceil((data.length-xtr) / Math.abs(layout[this.dataset.sort].clm)) - 1) * Math.pow(rad * rat, 2) * 2 * rat])
+        
+        svg.selectAll('.tile').data(grid(flip(data, layout[this.dataset.sort].clm )), d  => d.p)
+            .transition().duration(dur).delay( (d,i) => del*i ).ease(d3.easeSin)
+            .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')' )
+    });
+
+//TILES
+var node = svg.selectAll('.tile')
+    .data( data, d  => d.p )
+
+var tile = node.enter()
+    .append('g')
+    .attr('class', 'tile')
+    .attr('id', d  => 'T'+[d.p[0].length, d.p[1].length, d.p[2].length].sort().join('') )
+    .attr('transform','translate(-100,-100)')
+    .call(drag)
+
+//DOTS
+tile.append('g')
+    .attr('class', 'spinner')
+    .attr('transform','rotate(0)')
+    .on('click', clicked)
+
+svg.selectAll('.spinner').append('rect')
+    .attr('width', Math.pow(rad * rat, 2) * 2)
+    .attr('height', Math.pow(rad * rat, 2) * 2 * rat)
+    .attr('transform', 'translate(' + -Math.pow(rad * rat, 2) * 2 / 2 + ',' + -Math.pow(rad * rat, 2) * 2 * rat / 2 + ')')
+
+svg.selectAll('.spinner').selectAll('.face')
+    .data( d => d.p ).enter()
+    .append('g')
+    .attr('class',  (d,i) => 'face face' + i)
+
+svg.selectAll('.spinner').selectAll('.face0')
+    .attr('transform', 'translate(0,' + - Math.pow(rat*rad, 2) + ')')
+
+svg.selectAll('.spinner').selectAll('.face2')
+    .attr('transform', 'translate(0,' + Math.pow(rat*rad, 2) + ')')
+
+svg.selectAll('.spinner').selectAll('.face').selectAll('.pip')
+    .data(d => d).enter()
+    .append('circle')
+    .attr('class', 'pip')
+    .attr('cx', d => d[0])
+    .attr('cy', d => d[1])
+    .attr('r', rad)
+
+svg.selectAll('.pip').transition()
+    .duration(630)
+    .delay( (d,i)  => i * 42)
+    .ease(d3.easeCubic)
+    .on("start", function repeat() {
+        d3.active(this)
+            .attr("r", rad*1.14)
+          .transition()
+            .attr("r", rad)
+          .transition()
+            .on("start", repeat);
+    });
+
+svg.selectAll('#T156, #T126, #T136, #T146, #T155, #T226, #T077').selectAll('.spinner').selectAll('.face1')
+    .append('line')
+    .attr('class', 'deco')
+    .attr('x1', -22)
+    .attr('x2', 22)
+    .attr('transform', 'rotate(45)')
+
+svg.selectAll('.spinner').selectAll('.face').append('text')
+    .text( d => d.i )
+
+svg.selectAll('.spinner').append('g')
+    .attr('class', 'back')
+    .attr('visibility','hidden')
+
+svg.selectAll('.back').append('rect')
+    .attr('width', Math.pow(rad * rat, 2) * 2)
+    .attr('height', Math.pow(rad * rat, 2) * 2 * rat)
+    .attr('transform', 'translate(' + -Math.pow(rad * rat, 2) * 2 / 2 + ',' + -Math.pow(rad * rat, 2) * 2 * rat / 2 + ')')
+
+svg.selectAll('.back').append('line')
+    .attr('class', '.deco')
+    .attr('x1', 22)
+    .attr('x2', -22)
+    .attr('transform','rotate(-45)')
+
+//FORCE
+var collisionForce = rectCollide()
+    .size( d => [Math.pow(rad * rat, 2) * 2 + 2, Math.pow(rad * rat, 2) * 2 * rat + 2] )
+
+var boxForce = boundedBox()
+    .bounds([
+        [1, 1],
+        [svgw, svgh]
+    ])
+    .size( d => [Math.pow(rad * rat, 2) * 2, Math.pow(rad * rat, 2) * 2 * rat] )
+
+d3.forceSimulation()
+    .alphaTarget(1)
+    .on('tick', d =>
+        svg.selectAll('.tile').transition().duration(_dur).delay( (d,i) => del*i ).ease(d3.easeSin) //TRANSITION HAPPENS HERE
+        .attr('transform', d => 'translate(' + d.x + ',' + d.y + ')' ))
+    .force('box', boxForce)
+    .force('collision', collisionForce)
+    .nodes(data)
+
+//DRAG
+var px, py, offsetX, offsetY
+
+function dragStarted(d) {
+    d3.select(this).raise().classed('active', true)
+    del = 0
+    _dur = 0
+    offsetX = (px = d3.event.x) - (d.fx = d.x)
+    offsetY = (py = d3.event.y) - (d.fy = d.y)
+}
+
+function dragged(d) {
+    d3.select(this).selectAll('.spinner')
+    .on("start", function repeat() {
+        d3.active(this)
+        .attr('transform','rotate(-10)')
+          .transition()
+        .attr('transform', 'rotate(10)')
+          .transition()
+            .on("start", repeat);
+    });
+    d.fx = Math.max(Math.min((px = d3.event.x) - offsetX, svgw - Math.pow(rad*rat,2) * 2), 0)
+    d.fy = Math.max(Math.min((py = d3.event.y) - offsetY, svgh - Math.pow(rad*rat,2) * 2*rat), 0)
+}
+
+function dragEnded(d) {
+    d3.select(this).classed('active', false)
+    del = 0
+    _dur = dur
+    d.fx = null
+    d.fy = null
+}
+
+//CLICK
+function clicked(d, i) {
+    (d3.select(this).select('.back').attr('visibility') == 'visible' ) ? 
+     d3.select(this).select('.back').attr('visibility','hidden') : 
+     d3.select(this).select('.back').attr('visibility','visible')
+     d3.select(this).select('.spinner').attr('transform','rotate(180)')
+}
+
+//
+
+flip = (a,b) => (Math.sign(b) > 0) ? ( a ) : ( [].concat.apply([], d3.transpose(chunk(a, a.length/Math.abs(b)))) )
+
+chunk = (arr, n) => arr.slice(0,(arr.length+n-1)/n|0).map( (c,i) => arr.slice(n*i,n*i+n) )
+
+function partitions(a,b,c){
+    var arr = [a,b,c]
+    var max = arr.sort().pop()
+    var min = arr.sort().shift()
+    var med = arr[0]
+    
+    if (max == num){
+      if (med == num){
+        if (min == 0){
+           return [2, 2, num]
+        }else{
+        return [num, num, num+1]
+        }
+      }else{
+        return [num, num, num + Math.cos(med - min + Math.PI/7)]
+      }
+    }else{
+    return [med - min, max - med, num-1 + min - max]
+    }
+}
+
+function parity(p){
+        var sgn = 1
+    for(var i=0; i<p.length; ++i) {
+      for(var j=0; j<i; ++j) {
+        if(p[i] < p[j]) {
+          sgn = -sgn
+        } else if(p[i] === p[j]) {
+          return 0
+        }
+      }
+    }
+    return sgn
+}
+
+function updateWindow() {
+    svgw =  window.innerWidth - 18 //|| e.clientWidth || g.clientWidth;
+    svgh = window.innerHeight - 36 //|| e.clientHeight|| g.clientHeight;
+    svg.attr('width', svgw).attr('height', svgh)
+    boxForce.bounds([
+            [1, 1],
+            [svgw, svgh]
+    ]);
+}
+
+function openNav() {
+    document.getElementById("sidenav").style.width = '500px';
+    document.getElementById("main").style.marginLeft = '500px';
+    //boxForce.bounds([ [1, 1] , [svgw - 500, svgh] ]);
+}
+
+function closeNav() {
+    document.getElementById("sidenav").style.width = "0";
+    document.getElementById("main").style.marginLeft= "0";
+    //boxForce.bounds([ [1, 1] , [svgw, svgh] ]);
+}
+
+</script>
+</body>

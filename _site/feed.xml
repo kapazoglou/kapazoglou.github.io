@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2026-05-26T11:12:35+02:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Mano Kapazoglou</title><subtitle>Samples of my work</subtitle><entry><title type="html">Product Design in Practice</title><link href="http://localhost:4000/curated_product.html" rel="alternate" type="text/html" title="Product Design in Practice" /><published>2026-05-01T00:00:00+02:00</published><updated>2026-05-01T00:00:00+02:00</updated><id>http://localhost:4000/Curated_Product</id><content type="html" xml:base="http://localhost:4000/curated_product.html"><![CDATA[<p>A curated selection of interconnected projects that showcase my design philosophy, methodology and its impact.</p>
+
+<blockquote>
+  <ul>
+    <li>Built the design process from scratch</li>
+    <li>Designed shipped and maintained a design system</li>
+    <li>Overhauled onboarding post-DiGA, improving conversion and reducing drop-offs</li>
+    <li>Designed cancer patient features in collaboration with behavioural scientists</li>
+    <li>Led the app architecture redesign</li>
+    <li>Championed the localisation effort across UK and US markets</li>
+  </ul>
+</blockquote>]]></content><author><name></name></author><summary type="html"><![CDATA[A curated selection of interconnected projects that showcase my design philosophy, methodology and its impact.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/hero.png" /><media:content medium="image" url="http://localhost:4000/assets/images/hero.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Design System Rollout &amp;amp; Management</title><link href="http://localhost:4000/Mika_Design_System/" rel="alternate" type="text/html" title="Design System Rollout &amp;amp; Management" /><published>2023-12-01T00:00:00+01:00</published><updated>2023-12-01T00:00:00+01:00</updated><id>http://localhost:4000/Mika_Design_System</id><content type="html" xml:base="http://localhost:4000/Mika_Design_System/"><![CDATA[<blockquote>
+  <p>Built a design system from scratch, unifying iOS &amp; Android, enabling localisation into UK and US markets, and giving developers a single source of truth for the first time.</p>
+</blockquote>
+
+<p>Before implementing the design system, the healthcare application faced several challenges. There was no centralized design system, leading to inconsistencies in user interface and experience. Developers lacked a single source of truth, which often resulted in discrepancies between design and implementation. Additionally, design elements were disconnected across different platforms, creating a fragmented experience. Documentation was incomplete, making it difficult to track various use cases, variants, and error states. As a result, technical debt increased, slowing down development. Moreover, there was no framework for scaling or localizing the product, which limited its growth potential.</p>
+
+<p><br /></p>
+<h5 id="design-audit">Design Audit</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/VBnScDLbMBmHqbmeKMJsXa/Design-System?node-id=2-54414&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: design system">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-ds-overview-2-54414.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>To address these issues, I was tasked with creating a branded look and feel that would bring consistency to the product. My first step was conducting a comprehensive audit of the UI elements currently in use, identifying redundancies and inconsistencies. I then introduced industry standards for native iOS and Android platforms, ensuring that the designs aligned with best practices and user expectations. Additionally, I led the effort to migrate text strings into a localization manager, enabling easy adaptation for different regions and languages.</p>
+
+<p><br /></p>
+<h5 id="new-system">New System</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/VBnScDLbMBmHqbmeKMJsXa/Design-System?node-id=2-14322&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: design system (components)">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-ds-components-2-14322.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>The implementation of the design system had a significant impact on efficiency, consistency, and scalability. By providing a shared source of truth, we streamlined collaboration between designers and developers, reducing errors and improving workflow. The new framework also made scalability and localization seamless, allowing for expansion into new markets. Most importantly, it improved accessibility and usability, enhancing the experience for both patients and healthcare professionals.</p>]]></content><author><name></name></author><category term="Product Design" /><summary type="html"><![CDATA[Built a design system from scratch, unifying iOS &amp; Android, enabling localisation into UK and US markets, and giving developers a single source of truth for the first time.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/NorthstarDS.png" /><media:content medium="image" url="http://localhost:4000/assets/images/item/NorthstarDS.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Patient Support Features</title><link href="http://localhost:4000/Mika_Feature_Development/" rel="alternate" type="text/html" title="Patient Support Features" /><published>2022-09-01T00:00:00+02:00</published><updated>2022-09-01T00:00:00+02:00</updated><id>http://localhost:4000/Mika_Feature_Development</id><content type="html" xml:base="http://localhost:4000/Mika_Feature_Development/"><![CDATA[<blockquote>
+  <p>Collaborated with a behavioural scientist to design modular distress management flows supporting BCT-based A/B testing, improving retention and fulfilling a key research partnership.</p>
+</blockquote>
+
+<p>This healthcare app was specifically designed to support cancer patients by addressing their unique challenges throughout treatment. My approach combined user needs, business strategy, and pharmaceutical partner considerations to create a holistic tool that enhances both emotional well-being and treatment adherence.</p>
+
+<p><br /></p>
+<h5 id="distress-tracking">Distress Tracking</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=56-17766&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: distress tracking">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-feature-distress-tracking.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>Recognizing the emotional toll of cancer treatment, I built a feature that allows patients to log and monitor their distress levels using established standards for patient reported outcomes. This data helps both patients and healthcare providers identify patterns and intervene when needed.</p>
+
+<p><br /></p>
+<h5 id="distress-management">Distress Management</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=56-18170&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: distress management">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-feature-distress-management.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>Beyond tracking, the app offers strategies and resources to help patients cope with their emotional and psychological challenges, including guided exercises, educational materials, and direct access to professional support.</p>
+
+<p><br /></p>
+<h5 id="treatment-management">Treatment Management</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=56-34324&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: treatment management">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-feature-treatment-management.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>To streamline care, I developed tools that help patients track medications, appointments, and treatment milestones. By integrating reminders and check-ins, I ensured that patients could stay on top of their treatment plans with ease.</p>
+
+<p><br /></p>
+<h5 id="treatment-support--adherence">Treatment Support &amp; Adherence</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=56-23601&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: treatment support and adherence">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-feature-treatment-adherence.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>Supporting medication adherence was a priority, so I implemented personalized reminders, progress tracking, and engagement features to help patients stick to their prescribed regimen. These enhancements contributed to better health outcomes and strengthened collaboration between patients and healthcare providers</p>
+
+<p><br /></p>
+
+<p>This work exemplifies the power of empathetic, patient-centered design in healthcare. By combining clinical considerations with user experience best practices, I created tools that not only meet regulatory and business requirements but also provide tangible support, reassurance, and guidance for patients navigating their treatment journey.</p>]]></content><author><name></name></author><category term="Product Design" /><category term="Patient Communication" /><summary type="html"><![CDATA[Collaborated with a behavioural scientist to design modular distress management flows supporting BCT-based A/B testing, improving retention and fulfilling a key research partnership.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/mika.png" /><media:content medium="image" url="http://localhost:4000/assets/images/item/mika.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">App Architecture for Behavioural Change</title><link href="http://localhost:4000/Mika_App_Arch/" rel="alternate" type="text/html" title="App Architecture for Behavioural Change" /><published>2022-01-01T00:00:00+01:00</published><updated>2022-01-01T00:00:00+01:00</updated><id>http://localhost:4000/Mika_App_Arch</id><content type="html" xml:base="http://localhost:4000/Mika_App_Arch/"><![CDATA[<blockquote>
+  <p>Redesigned Mika Health’s entire app flow from the ground up: removing dead ends; creating a purposeful retention loop; and introducing personalisation for cancer patients. Wireframes tested well; MVP commissioned.</p>
+</blockquote>
+
+<p>Stepping into a Lead position was a pivotal moment in my journey with this healthcare app. Having already spent a couple of years refining its user experience, I had an intimate understanding of its strengths and shortcomings. This leadership role provided me with the autonomy to tackle deeper structural issues, guiding a team toward meaningful improvements.</p>
+
+<p>My first priority was extensive user research which was conducted with the help of a user researcher. Engaging directly with patients allowed us to uncover deep insights into their habits, motivations, and frustrations. From there, with the help of a behavioural psychologist, I identified Behavioural Change Techniques that could support users in forming healthier routines.</p>
+
+<p>As I analyzed the app’s flow, I discovered duplicate entry points, dead ends, and misdirected user paths—pain points that were disrupting engagement. My solution was to redesign the experience into a cohesive loop, ensuring every interaction felt purposeful and beneficial. To maintain user motivation, I developed progression techniques that simultaneously increased personalization, making the app feel more tailored and rewarding over time.</p>
+
+<p><br /></p>
+<h5 id="improving-retention">Improving Retention</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=10-6593&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: project selection">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-app-arch-selection-10-6593.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>The project focus was designing a user-centered mobile app experience for managing mental health and therapy progress for cancer patients. My goal was to create an intuitive calendar-based system where users could easily track their daily recommendations, monitor therapy plans, and take actionable steps toward improvement.</p>
+
+<p>One of the core challenges was ensuring users engaged with daily content without feeling overwhelmed. I designed a system that offered gentle notifications, surfaced relevant recommendations, and allowed personalization so that users could tailor their experience to their specific needs.</p>
+
+<p>To reinforce motivation, I incorporated reward mechanisms—each completed action was visually represented as progress, helping users feel accomplished. Weekly insights were structured in a way that divided data meaningfully, ensuring users could recognize patterns and improvements over time.</p>
+
+<p><br /></p>
+<h5 id="improving-discovery">Improving Discovery</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=4-6589&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: project selection">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-mika-app-arch-selection-4-6589.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>Leveraging the platform’s expansive content library, I mapped out ways to enhance accessibility and pinpointed new opportunities for expansion. A user-centric approach guided my decision-making, prioritizing transparent and supportive design principles to avoid predatory flow structures.</p>
+
+<p>This project challenged me to blend UX research, behavioral design, information architecture, and ethical user flows into a seamless and impactful experience.</p>]]></content><author><name></name></author><category term="Product Design" /><category term="Patient Communication" /><summary type="html"><![CDATA[Redesigned Mika Health’s entire app flow from the ground up: removing dead ends; creating a purposeful retention loop; and introducing personalisation for cancer patients. Wireframes tested well; MVP commissioned.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/MK-101.png" /><media:content medium="image" url="http://localhost:4000/assets/images/item/MK-101.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">AI-Assisted &amp;amp; Generative Design</title><link href="http://localhost:4000/LLM_and_Generative/" rel="alternate" type="text/html" title="AI-Assisted &amp;amp; Generative Design" /><published>2021-12-02T00:00:00+01:00</published><updated>2021-12-02T00:00:00+01:00</updated><id>http://localhost:4000/LLM_and_Generative</id><content type="html" xml:base="http://localhost:4000/LLM_and_Generative/"><![CDATA[<blockquote>
+  <p>Experiments in AI assisted, algorithmic and generative design: turning data structures into visual forms.</p>
+</blockquote>
+
+<h3 id="ai-assisted">AI-Assisted</h3>
+
+<p>This website has been built as an experiment in agentic AI assisted design. I use Cursor, Figma Make and Claude Design to implement designs that I create in Figma in a workflow very similar to collaborating with a team of engineers. I find that prompt engineering for agents and handover readiness for engineers are very closely related and I have been generating results that are similarly close to the user stories/prompts I create.</p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="/romino" data-figma-zoom-hint="false" data-figma-iframe-scale="0.8" aria-haspopup="dialog" aria-label="Open interactive demo: romino">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/romino.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Interactive</span><span class="figma-embed-block__cta-label-line">demo</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>To further improve my skills, I am currently designing a WIP MVP of a game that has been on my mind for a very long time that combines the structures of playing cards and dice in unique new ways. Being able to rapidly prototype new ideas has made me a better game designer and has radically sped up my process.</p>
+
+<p><br /></p>
+
+<h3 id="generative">Generative</h3>
+
+<p>I’ve also explored data visualization with D3.js and generative design through various experiments and side projects, pushing the boundaries of digital interaction. With D3.js, I built interactive, scalable visualizations that simplify complex data, making information more accessible and actionable. My generative design projects use algorithms to create adaptive, evolving visual systems.</p>
+
+<p><br /></p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="/assets/sites/1001/index.html" data-figma-zoom-hint="false" aria-haspopup="dialog" aria-label="Open interactive demo: domino and card designs">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/post-dataviz-1001.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Interactive</span><span class="figma-embed-block__cta-label-line">Demo</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>I have toyed with generating the designs of my domino/card project.</p>
+
+<p><br /></p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="/assets/sites/77/sistra.html" data-figma-zoom-hint="false" aria-haspopup="dialog" aria-label="Open interactive demo: code-only geometry">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/post-dataviz-sistra.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Interactive</span><span class="figma-embed-block__cta-label-line">demo</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>And even managed to generate the designs without the use of a design program but just with pure code and geometry.</p>
+
+<p><br /></p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="/assets/sites/77/dice.html" data-figma-zoom-hint="false" aria-haspopup="dialog" aria-label="Open interactive demo: alternate dice visuals">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/post-dataviz-dice.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Generated</span><span class="figma-embed-block__cta-label-line">Graphic</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>And even tried to completely change the visuals of the same system</p>
+
+<p><br /></p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="/assets/sites/changes/zhouyi.html" data-figma-zoom-hint="false" aria-haspopup="dialog" aria-label="Open interactive demo: Book of Changes compass">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/post-dataviz-zhouyi.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Interactive</span><span class="figma-embed-block__cta-label-line">Demo</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>Here I have used data from the Chinese Book of Changes, a combinatorial oracular system. In this project the process runs constantly and the number of hits per response is aggregated to create a constant oracular compass.</p>
+
+<p><br /></p>
+
+<div class="figma-embed-block figma-embed-block--interactive">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://kapazoglou.gitlab.io/gold/index.html" data-figma-zoom-hint="false" aria-haspopup="dialog" aria-label="Open interactive demo: Tsumego on rotating Go boards">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/interactive-previews/post-dataviz-tsumego.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Generated</span><span class="figma-embed-block__cta-label-line">Graphic</span></span>
+        
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>In this project I took a library of Go problems (known as Tsumego) in the standard .sgf go game format and generated a visualisation of them on rotating Go boards. None of these are designed, they are coded instead.</p>]]></content><author><name></name></author><category term="Data Viz" /><category term="Iterative Design" /><summary type="html"><![CDATA[Experiments in AI assisted, algorithmic and generative design: turning data structures into visual forms.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/interactive-previews/index.png" /><media:content medium="image" url="http://localhost:4000/assets/images/interactive-previews/index.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Incubator Product Design Support</title><link href="http://localhost:4000/VHP_Support/" rel="alternate" type="text/html" title="Incubator Product Design Support" /><published>2021-09-01T00:00:00+02:00</published><updated>2021-09-01T00:00:00+02:00</updated><id>http://localhost:4000/VHP_Support</id><content type="html" xml:base="http://localhost:4000/VHP_Support/"><![CDATA[<blockquote>
+  <p>Provided hands-on design mentorship and delivery support to early-stage health startups inside an incubator environment.</p>
+</blockquote>
+
+<p>As part of the Virtual Health Pioneers incubator, I provided design leadership to a promising healthcare start-up, helping them shape their minimum viable product (MVP) into a scalable, user-friendly solution.</p>
+
+<p><br /></p>
+<h5 id="design-system">Design System</h5>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/VBnScDLbMBmHqbmeKMJsXa/Design-System?node-id=14-42700&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: incubator design system">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-vhp-incubator-design-system.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>
+
+<p>To ensure flexibility and consistency, I developed an atomic design system, creating reusable components and templates that streamlined the product’s evolution. This approach enabled the team to quickly iterate on new features while maintaining a cohesive visual language.</p>
+
+<p>Recognizing the need for efficiency in a fast-paced start-up environment, I introduced an iterative design-to-development process, fostering seamless collaboration between designers and engineers. This agile methodology allowed for rapid prototyping, testing, and refinement, ensuring that the product remained user-centered while meeting technical requirements.</p>
+
+<p><br /></p>
+<h5 id="unboxing-experience">Unboxing Experience</h5>
+
+<p><img src="/assets/images/item/unbox.png" alt="unbox" /></p>
+
+<p>Beyond design, I contributed to user research, helping the team gather critical feedback from early adopters. By translating user needs into actionable design improvements, I ensured that the product aligned with real-world healthcare workflows and enhanced patient engagement.</p>
+
+<p>Through these initiatives, the start-up gained a strong design foundation, allowing them to scale effectively while maintaining usability and consistency. The iterative process helped reduce development bottlenecks and ensured that user insights guided product evolution.</p>]]></content><author><name></name></author><category term="Product Design" /><category term="Patient Communication" /><summary type="html"><![CDATA[Provided hands-on design mentorship and delivery support to early-stage health startups inside an incubator environment.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/wavyvhp.jpeg" /><media:content medium="image" url="http://localhost:4000/assets/images/item/wavyvhp.jpeg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Book Research &amp;amp; Compilation</title><link href="http://localhost:4000/Myths_Behind_Stars/" rel="alternate" type="text/html" title="Book Research &amp;amp; Compilation" /><published>2021-01-06T00:00:00+01:00</published><updated>2021-01-06T00:00:00+01:00</updated><id>http://localhost:4000/Myths_Behind_Stars</id><content type="html" xml:base="http://localhost:4000/Myths_Behind_Stars/"><![CDATA[<blockquote>
+  <p>A self-authored book weaving data visualisation, research, and storytelling around astronomical mythology.</p>
+</blockquote>
+
+<p>I have written a book, currently pending publication, which is an astronomical anthology of Greek myths. Below you can see an excerpt from the Foreword along with the data visualisations I created to help me while researching the mythographic sources.
+<br /></p>
+
+<blockquote>
+  <h5 id="foreword">FOREWORD</h5>
+
+  <p><img src="/assets/images/item/azeqN_starchart_lines.png" alt="dots" /></p>
+
+  <p>This is a collection of stories from Greek mythology that have all something to do with constellations or other astronomical objects. They are presented in an order that may conjure up a sequential narrative rather than as an alphabetic compilation, but they may also be read out of order.</p>
+
+  <p><img src="/assets/images/item/azeqN_starchart_all.png" alt="annotations" /></p>
+
+  <p>Ancient peoples looked up at the starry sky and saw a myriad bright points. Between stars that appear relatively close to each other, early astronomers imagined lines and so figured out the constellations. Those lines united hundreds of celestial bodies into a couple dozen shapes that were easier to recognise and remember, especially when some story, preexisting or just invented, provided a mnemonic framework for the figures. Therefore not just stars but entire groups of stars were related to one another through the names attributed to the constellations, in the full breadth of relationships of the ancients’ lived reality, which they also projected onto their deities. Names of gods and monsters, heroes and villains and all kinds of creatures were shown caught in power struggles, in alliance or at odds with one another, being in love, and through love, though not always, sharing kinship—the ancient Greeks had indeed thought of generative union as one of the primordial forces under the name of primal Eros.</p>
+
+  <p><img src="/assets/images/item/azeqN_starchart_illus.png" alt="images" /></p>
+
+  <p>And so an alternative way to organise the constellations emerged, through the characters they stand for. By using names as starting points and drawing lines between them a genealogy was figured out. These lines united dozens of names into families, making them easier to recognise and remember, often providing further context to their stories and serving as pathways for an exploration of Greek myth. Additionally, this family tree engendered a sense of time, or at least timing, as some names had to precede others simply due to their blood relation. This meant there was a sequence that could be traced from the earliest creation myths down to some of the most well known heroic deeds.</p>
+</blockquote>
+
+<p><br /></p>
+
+<div class="figma-embed-block">
+  <button type="button" class="figma-embed-block__open" data-figma-embed-open="" data-figma-embed-url="https://embed.figma.com/design/1N5pVskSwQNYdU1aQlZN7y/Project-Selection?node-id=10-6592&amp;embed-host=share" data-figma-zoom-hint="true" aria-haspopup="dialog" aria-label="Open Figma: project selection">
+    <span class="figma-embed-block__preview">
+      <img class="figma-embed-block__img" src="/assets/images/figma-previews/post-myths-project-selection-10-6592.png" alt="" loading="lazy" width="800" height="450" />
+      <span class="figma-embed-block__cta" aria-hidden="true">
+        <span class="figma-embed-block__cta-label"><span class="figma-embed-block__cta-label-line">Figma</span><span class="figma-embed-block__cta-label-line">File</span></span>
+        <img class="figma-embed-block__cta-logo" src="/assets/images/figma-logo.png" alt="" width="18" height="27" decoding="async" />
+      </span>
+    </span>
+  </button>
+</div>]]></content><author><name></name></author><category term="Storytelling" /><category term="Data Viz" /><category term="Research" /><summary type="html"><![CDATA[A self-authored book weaving data visualisation, research, and storytelling around astronomical mythology.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/sympan.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/item/sympan.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Short Film Scriptwriting</title><link href="http://localhost:4000/A-Bed-for-Three/" rel="alternate" type="text/html" title="Short Film Scriptwriting" /><published>2021-01-02T00:00:00+01:00</published><updated>2021-01-02T00:00:00+01:00</updated><id>http://localhost:4000/A%20Bed%20for%20Three</id><content type="html" xml:base="http://localhost:4000/A-Bed-for-Three/"><![CDATA[<blockquote>
+  <p>Original short film script in collaboration with the director: narrative structure, character development, and scene direction from blank page to final draft.</p>
+</blockquote>
+
+<p>A Bed for Three or The Extraordinary and Surprising Complexity of Bedroom Furniture is a queer comedy short film I co-wrote, exploring the humorous challenges of sharing a bed in a throuple.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/bett.jpeg" alt="bed" /></p>
+
+<p>The story follows Fred, Timo, and Jona, whose search for the perfect sleeping arrangement turns into a relationship crisis—with a vaping fairy godmother unexpectedly stepping in to help.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/bettkauf.jpg" alt="shop" /></p>
+
+<p>The film was selected for festivals like BFI Flare: London LGBTQIA+ Film Festival 2024 and Cannes, bringing its playful take on relationships and space to audiences. Writing this project was an exciting and collaborative process, blending humor and heartfelt moments into a unique story.</p>
+
+<p><a href="https://vimeo.com/780827126">VIMEO</a> <a href="https://www.imdb.com/title/tt28539742/">IMDB</a> <a href="https://letterboxd.com/film/a-bed-for-three-or-the-extraordinary-and-surprising-complexity-of-bedroom-furniture/">REVIEWS</a></p>]]></content><author><name></name></author><category term="Storytelling" /><summary type="html"><![CDATA[Original short film script in collaboration with the director: narrative structure, character development, and scene direction from blank page to final draft.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/Bettina.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/item/Bettina.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Board Game Development</title><link href="http://localhost:4000/Game-Design/" rel="alternate" type="text/html" title="Board Game Development" /><published>2021-01-01T00:00:00+01:00</published><updated>2021-01-01T00:00:00+01:00</updated><id>http://localhost:4000/Game%20Design</id><content type="html" xml:base="http://localhost:4000/Game-Design/"><![CDATA[<blockquote>
+  <p>Designed, playtested, and iterated an original board game from concept to print-ready.</p>
+</blockquote>
+
+<p>I have always loved board games and I think they are the perfect design project that combines all the skills of a good designer.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/sistra.jpg" alt="sistra" /></p>
+
+<p>Combinatorial fascination and the thin line between cards and dominoes led me to build a game system which I then playtested and produced in a small run.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/legendary.png" alt="legendary" /></p>
+
+<p>I believe designing board games enhances UX skills by refining interaction design, user engagement, and strategic thinking. It teaches intuitive mechanics, immersive experiences, and balancing challenge with accessibility. Core principles like progress tracking, reward systems, and structured play improve usability in digital design. Continuous playtesting and iteration ensure seamless interactions. These insights make UX design more engaging, structured, and user-centered. I applied those principles during COVID-19 and produced a game designed I entered into a competition.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/zenobia.png" alt="zenobia" /></p>
+
+<p>The Zenobia Award is a prestigious competition that recognizes board games with historical themes, designed by individuals from underrepresented groups in the industry. Established in 2020, it aims to promote diversity in game design by providing mentorship and funding to finalists. One notable entry is Molly House, a game by Jo Kelly that explores the underground queer culture of early 18th-century London, where “molly houses” served as safe spaces for LGBTQ+ individuals.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/hameln.png" alt="brats" /></p>
+
+<p>The experience brought me full circle to a project I did many years before for my BA thesis.</p>]]></content><author><name></name></author><category term="Iterative Design" /><category term="Print Design" /><summary type="html"><![CDATA[Designed, playtested, and iterated an original board game from concept to print-ready.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/taromino.jpg" /><media:content medium="image" url="http://localhost:4000/assets/images/item/taromino.jpg" xmlns:media="http://search.yahoo.com/mrss/" /></entry><entry><title type="html">Fitness App User Trust Building</title><link href="http://localhost:4000/8fit_User_Trust_Building/" rel="alternate" type="text/html" title="Fitness App User Trust Building" /><published>2019-01-01T00:00:00+01:00</published><updated>2019-01-01T00:00:00+01:00</updated><id>http://localhost:4000/8fit_User_Trust_Building</id><content type="html" xml:base="http://localhost:4000/8fit_User_Trust_Building/"><![CDATA[<blockquote>
+  <p>Designed trust-building brand for 8fit, tackling user skepticism around personal health data to reduce churn at the moment of commitment.</p>
+</blockquote>
+
+<p>During internally turbulent times, 8fit was losing the trust of its prospective users which was only made worse with an unfortunate data breach</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/8fit_reviews.png" alt="reviews" /></p>
+
+<p>The challenge was to regain user trust, reduce negative reviews, improve company image as well as a soft pivot and rebrand. In collaboration with BI we revised our user personas and designed a brand that would resonate with them. This included an audit of the existing brand and the creation of guidelines. The new brand aligned with the revised value proposition from the OKRs and has managed to grow consistently across all of its applications. The new brand helped to stabilise the product.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/8fit_paywall.png" alt="paywall" /></p>
+
+<p>Following user feedback, we audited the paywall as well as it’s position in the site map, which at the time was only available to the user when they attempted to access the meal plan. We requested a review of the value proposition and the pricing structure to be included in the quarter’s OKRs. We then tested the current paywall with users to identify missing information.</p>
+
+<p><br /></p>
+
+<p><img src="/assets/images/item/8fit_cta.png" alt="paywall" /></p>
+
+<p>We designed a new and improved paywall addressing the friction points we identified in the user journey and the customer reviews. We added a clear comparison between the different subscriptions and as much information about plan pricing as we could, including an FAQ. After its release, the number of one-star reviews dropped significantly.</p>]]></content><author><name></name></author><category term="Product Design" /><summary type="html"><![CDATA[Designed trust-building brand for 8fit, tackling user skepticism around personal health data to reduce churn at the moment of commitment.]]></summary><media:thumbnail xmlns:media="http://search.yahoo.com/mrss/" url="http://localhost:4000/assets/images/item/8fit_trust.png" /><media:content medium="image" url="http://localhost:4000/assets/images/item/8fit_trust.png" xmlns:media="http://search.yahoo.com/mrss/" /></entry></feed>

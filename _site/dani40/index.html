@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1"
+    />
+    <meta name="theme-color" content="#0f1419" />
+    <title>Questionnaire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app" role="main">
+      <header class="top" id="appTop">
+        <p class="eyebrow" id="stepLabel">Step 1 of 4</p>
+        <div class="progress" aria-hidden="true">
+          <span class="progress-bar" id="progressBar"></span>
+        </div>
+      </header>
+
+      <section
+        class="screen"
+        id="screenName"
+        data-screen="name"
+        aria-labelledby="qName"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageName"
+          aria-hidden="true"
+          data-kitchen-left="🐢"
+          data-kitchen-right="🙈"
+          data-kitchen-alt="Turtle and see-no-evil monkey"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenName"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qName">What’s your name?</h1>
+          <p class="hint">
+            Each wheel has <strong>A–Z</strong>. Spin them to spell your name.
+          </p>
+        </div>
+
+        <div class="name-entry" id="nameEntry">
+          <div class="dial-readout" aria-hidden="true">
+            <span class="dial-readout-char" id="readout0">—</span>
+            <span class="dial-readout-char" id="readout1">—</span>
+            <span class="dial-readout-char" id="readout2">—</span>
+            <span class="dial-readout-char" id="readout3">—</span>
+          </div>
+
+          <div class="dial-board" role="group" aria-labelledby="qName">
+            <div class="dial-fade dial-fade--top" aria-hidden="true"></div>
+            <div class="dial-fade dial-fade--bottom" aria-hidden="true"></div>
+            <div class="dial-columns" id="dialColumns">
+              <div class="dial-column">
+                <span class="visually-hidden">First letter</span>
+                <div
+                  class="dial-viewport"
+                  data-dial-index="0"
+                  tabindex="0"
+                  role="listbox"
+                  aria-label="First letter of name"
+                >
+                  <div class="dial-list"></div>
+                </div>
+              </div>
+              <div class="dial-column">
+                <span class="visually-hidden">Second letter</span>
+                <div
+                  class="dial-viewport"
+                  data-dial-index="1"
+                  tabindex="0"
+                  role="listbox"
+                  aria-label="Second letter of name"
+                >
+                  <div class="dial-list"></div>
+                </div>
+              </div>
+              <div class="dial-column">
+                <span class="visually-hidden">Third letter</span>
+                <div
+                  class="dial-viewport"
+                  data-dial-index="2"
+                  tabindex="0"
+                  role="listbox"
+                  aria-label="Third letter of name"
+                >
+                  <div class="dial-list"></div>
+                </div>
+              </div>
+              <div class="dial-column">
+                <span class="visually-hidden">Fourth letter</span>
+                <div
+                  class="dial-viewport"
+                  data-dial-index="3"
+                  tabindex="0"
+                  role="listbox"
+                  aria-label="Fourth letter of name"
+                >
+                  <div class="dial-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="visually-hidden" id="nameLive" aria-live="polite"></p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn primary" id="btnNameNext" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenAge"
+        data-screen="age"
+        aria-labelledby="qAge"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageAge"
+          aria-hidden="true"
+          data-kitchen-left="🐢"
+          data-kitchen-right="🎈"
+          data-kitchen-alt="Turtle and balloon"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenAge"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qAge">What date is it today</h1>
+          <p class="hint">
+            Use <strong>−</strong> and <strong>+</strong>.
+          </p>
+        </div>
+
+        <div class="age-block" id="ageBlock">
+          <div class="age-stepper" role="group" aria-labelledby="qAge">
+            <button
+              type="button"
+              class="age-step age-seg"
+              id="btnAgeMinus"
+              aria-label="Subtract 0.5"
+            >
+              −
+            </button>
+            <output class="age-value age-seg" id="ageValue" aria-live="polite"
+              >0.0</output
+            >
+            <button
+              type="button"
+              class="age-step age-seg"
+              id="btnAgePlus"
+              aria-label="Add 0.5"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnBack">Back</button>
+          <button type="button" class="btn primary" id="btnAgeNext" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenBirthday"
+        data-screen="birthday"
+        aria-labelledby="qBirthday"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageBirthday"
+          aria-hidden="true"
+          data-kitchen-left="🐢"
+          data-kitchen-right="🎂"
+          data-kitchen-alt="Turtle and birthday cake"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenBirthday"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qBirthday">It's your birthday!</h1>
+          <p class="hint" id="slideUnlockHint">Slide to celebrate</p>
+        </div>
+
+        <div class="birthday-slide-block" id="birthdaySlideBlock">
+          <div class="slide-unlock" id="slideUnlock" role="group" aria-label="Slide to celebrate">
+            <div class="slide-unlock-track" id="slideUnlockTrack">
+              <div class="slide-unlock-fill" id="slideUnlockFill" aria-hidden="true"></div>
+              <button
+                type="button"
+                class="slide-unlock-thumb"
+                id="slideUnlockThumb"
+                aria-label="Slide to the right to celebrate"
+              >
+                →
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnBirthdayBack">Back</button>
+          <button
+            type="button"
+            class="btn primary btn-with-timer"
+            id="btnBirthdayDone"
+            disabled
+          >
+            <span class="btn-with-timer__label">Continue</span>
+            <span class="btn-with-timer__ring" id="birthdayContinueTimer" hidden>
+              <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+                <circle class="btn-with-timer__track" cx="16" cy="16" r="13" />
+                <circle
+                  class="btn-with-timer__progress"
+                  id="birthdayTimerProgress"
+                  cx="16"
+                  cy="16"
+                  r="13"
+                />
+              </svg>
+              <span class="btn-with-timer__secs" id="birthdayContinueSeconds">20</span>
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenGift"
+        data-screen="gift"
+        aria-labelledby="qGift"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageGift"
+          aria-hidden="true"
+          data-kitchen-left="🐢"
+          data-kitchen-right="🎁"
+          data-kitchen-alt="Turtle and gift"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenGift"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+            <span class="emoji-solo emoji-gift-solo" id="emojiGiftSolo" hidden aria-hidden="true"
+              >🎁</span
+            >
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qGift">You get a gift!</h1>
+          <p class="hint">But first you must stop the celebrations.</p>
+        </div>
+
+        <div class="birthday-slide-block" id="giftSlideBlock">
+          <div
+            class="slide-unlock slide-unlock--from-right"
+            id="giftSlideUnlock"
+            role="group"
+            aria-label="Slide left to stop the party"
+          >
+            <div class="slide-unlock-track" id="giftSlideTrack">
+              <div class="slide-unlock-fill" id="giftSlideFill" aria-hidden="true"></div>
+              <button
+                type="button"
+                class="slide-unlock-thumb"
+                id="giftSlideThumb"
+                aria-label="Slide to the left to stop the party"
+              >
+                ←
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnGiftBack">Back</button>
+          <button type="button" class="btn primary" id="btnGiftContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenVoyage"
+        data-screen="voyage"
+        aria-labelledby="qVoyage"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageVoyage"
+          aria-hidden="true"
+          data-kitchen-left="🎁"
+          data-kitchen-right="🏞️"
+          data-kitchen-alt="Gift and national park"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenVoyage"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qVoyage">
+            Will you <span id="voyageVerb">embarque</span> on a voyage to find it?
+          </h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="voyage-choice-block" id="voyageChoiceBlock">
+          <div class="voyage-choice" role="group" aria-labelledby="qVoyage">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnVoyageNo"
+              aria-pressed="false"
+            >
+              NO
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnVoyageYes"
+              aria-pressed="false"
+            >
+              YES
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnVoyageBack">Back</button>
+          <button type="button" class="btn primary" id="btnVoyageContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenAlone"
+        data-screen="alone"
+        aria-labelledby="qAlone"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageAlone"
+          aria-hidden="true"
+          aria-label="National park and people with bunny ears"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiAloneArt"
+              src="assets/alone.png"
+              alt="National park and people with bunny ears"
+              width="128"
+              height="128"
+              decoding="async"
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qAlone">Will you go alone?</h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="voyage-choice-block" id="aloneChoiceBlock">
+          <div class="voyage-choice" role="group" aria-labelledby="qAlone">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnAloneNo"
+              aria-pressed="false"
+            >
+              NO
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnAloneYes"
+              aria-pressed="false"
+            >
+              YES
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnAloneBack">Back</button>
+          <button type="button" class="btn primary" id="btnAloneContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenEmbark"
+        data-screen="embark"
+        aria-labelledby="qEmbark"
+      >
+        <div
+          class="emoji-stage emoji-stage--hieroglyph"
+          id="emojiStageEmbark"
+          aria-hidden="true"
+          aria-label="𓊞"
+        >
+          <div class="emoji-stack">
+            <span class="emoji-solo emoji-hieroglyph-solo">𓊞</span>
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qEmbark">How far will you go?</h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="embark-choice-block" id="embarkChoiceBlock">
+          <div class="voyage-choice embark-choice" role="group" aria-labelledby="qEmbark">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg embark-choice-btn"
+              id="btnEmbarkBike"
+              aria-pressed="false"
+              aria-label="Bicycle"
+            >
+            🚲🚂
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg embark-choice-btn"
+              id="btnEmbarkTrainBike"
+              aria-pressed="false"
+              aria-label="Train and bicycle"
+            >
+              <span class="embark-choice-emojis" aria-hidden="true">🚲</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnEmbarkBack">Back</button>
+          <button type="button" class="btn primary" id="btnEmbarkContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenGuide"
+        data-screen="guide"
+        aria-labelledby="qGuide"
+      >
+        <div
+          class="emoji-stage emoji-stage--hieroglyph"
+          id="emojiStageGuide"
+          aria-hidden="true"
+          aria-label="𓊞"
+        >
+          <div class="emoji-stack">
+            <span class="emoji-solo emoji-hieroglyph-solo">𓀟𓊞</span>
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qGuide">Will you need a guide?</h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="voyage-choice-block" id="guideChoiceBlock">
+          <div class="voyage-choice" role="group" aria-labelledby="qGuide">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnGuideNo"
+              aria-pressed="false"
+            >
+              NO
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnGuideYes"
+              aria-pressed="false"
+            >
+              YES
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnGuideBack">Back</button>
+          <button type="button" class="btn primary" id="btnGuideContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenNight"
+        data-screen="night"
+        aria-labelledby="qNight"
+      >
+        <div
+          class="emoji-stage emoji-stage--hieroglyph"
+          id="emojiStageNight"
+          aria-hidden="true"
+          aria-label="𓊞"
+        >
+          <div class="emoji-stack">
+            <span class="emoji-solo emoji-hieroglyph-solo">𓇼𓇼<br>𓊞</span>
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qNight">Will you stay* the night?</h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="voyage-choice-block" id="nightChoiceBlock">
+          <div class="voyage-choice" role="group" aria-labelledby="qNight">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnNightNo"
+              aria-pressed="false"
+            >
+              NO
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnNightYes"
+              aria-pressed="false"
+            >
+              YES
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnNightBack">Back</button>
+          <button type="button" class="btn primary" id="btnNightContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenConjoined"
+        data-screen="conjoined"
+        aria-labelledby="qConjoined"
+      >
+        <div
+          class="emoji-stage emoji-stage--hieroglyph"
+          id="emojiStageConjoined"
+          aria-hidden="true"
+          aria-label="𓊞"
+        >
+          <div class="emoji-stack">
+            <span class="emoji-solo emoji-hieroglyph-solo">𓊞<br>𓈝𓈝</span>
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qConjoined">Will you be conjoined?</h1>
+          <p class="hint">Your answers help us calibrate your experience.</p>
+        </div>
+
+        <div class="voyage-choice-block" id="conjoinedChoiceBlock">
+          <div class="voyage-choice" role="group" aria-labelledby="qConjoined">
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnConjoinedNo"
+              aria-pressed="false"
+            >
+              NO
+            </button>
+            <button
+              type="button"
+              class="voyage-choice-btn voyage-seg"
+              id="btnConjoinedYes"
+              aria-pressed="false"
+            >
+              YES
+            </button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnConjoinedBack">Back</button>
+          <button type="button" class="btn primary" id="btnConjoinedContinue" disabled>
+            Continue
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenEmbarkWhen"
+        data-screen="embark-when"
+        aria-labelledby="qEmbarkWhen"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageEmbarkWhen"
+          aria-hidden="true"
+          aria-label="Canoe under the stars"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiEmbarkWhenArt"
+              src="assets/embark-canoe.png"
+              alt="Canoe under the stars"
+              width="128"
+              height="128"
+              decoding="async"
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qEmbarkWhen">When will you embark?</h1>
+          <p class="hint">Tap + to add a date. Future dates only.</p>
+        </div>
+
+        <div class="embark-action-area" id="embarkActionArea">
+          <div
+            class="embark-dates-list"
+            id="embarkDatesList"
+            role="list"
+            aria-label="Selected embark dates"
+          ></div>
+          <input
+            type="date"
+            class="embark-date-input-native"
+            id="inputEmbarkWhen"
+            name="embarkWhen"
+            autocomplete="off"
+            tabindex="-1"
+          />
+          <label
+            for="inputEmbarkWhen"
+            class="embark-dates-add"
+            id="labelEmbarkWhenAdd"
+            tabindex="0"
+          >
+            <span class="visually-hidden">Add embark date</span>
+            <span class="embark-dates-add-icon" aria-hidden="true">➕</span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnEmbarkWhenBack">Back</button>
+          <button type="button" class="btn primary" id="btnEmbarkWhenContinue" disabled>
+            Submit
+          </button>
+        </div>
+      </section>
+
+      <section
+        class="screen is-hidden"
+        id="screenFinal"
+        data-screen="final"
+        aria-labelledby="qFinal"
+      >
+        <div
+          class="emoji-stage"
+          id="emojiStageFinal"
+          aria-hidden="true"
+          data-kitchen-left="🐢"
+          data-kitchen-right="🐢"
+          data-kitchen-alt="Turtle and turtle"
+        >
+          <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenFinal"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+          </div>
+        </div>
+
+        <div class="copy">
+          <h1 class="question" id="qFinal">You're all set</h1>
+          <p class="hint">
+            Thanks, <span id="finalNameEcho">friend</span>. We'll be in touch.<br> If you need help or have any questions, click the help button below.
+          </p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnFinalBack">Back</button>
+          <button type="button" class="btn primary" id="btnFinalHelp">Help</button>
+        </div>
+      </section>
+    </main>
+
+    <section
+      class="help-page is-hidden"
+      id="screenHelp"
+      data-screen="help"
+      aria-labelledby="help404"
+    >
+      <div
+        class="emoji-stage help-page__emoji"
+        id="emojiStageHelp"
+        aria-hidden="true"
+        data-kitchen-left="🐢"
+        data-kitchen-right="🫠"
+        data-kitchen-alt="Turtle and melting face"
+      >
+        <div class="emoji-stack">
+            <img
+              class="emoji-kitchen"
+              id="emojiKitchenHelp"
+              alt=""
+              width="128"
+              height="128"
+              decoding="async"
+              hidden
+            />
+        </div>
+      </div>
+
+      <p class="help-404" id="help404">404</p>
+      <p class="help-zalgo" aria-label="Who doesn't need help?">
+        Ẉ̵̀h̶̟͛͑ȏ̴̙͌ ̴̮͑̾̍d̵̬̮̞̄̐͌o̶̹̟̘͐e̵̞̙̅̈́͝s̶͍̖͊̾n̷͙͛'̷̫͈̪̈̈́͆ţ̷̮̣̉
+        ̵̣͐̚̕n̴̪̎ẻ̷̓̚ͅè̶̟͙͂̑d̸̞̞̪͋ ̶̦̪͙̏̓h̴̫̻̪̋̂e̴͕̬̭͗̍l̷̨̫͑͐ͅp̵̯̟̾͑?̴̰͋͋
+      </p>
+    </section>
+
+    <div
+      id="voyageRejectionFlash"
+      class="voyage-rejection-flash"
+      hidden
+      role="alert"
+      aria-live="assertive"
+    >
+      10 POINTS <br> DEDUCTED <br><br><br><br> brat
+    </div>
+
+    <audio
+      id="birthdayMusic"
+      src="assets/sok.mp3"
+      preload="auto"
+      loop
+      playsinline
+    ></audio>
+    <script src="google-form.config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
