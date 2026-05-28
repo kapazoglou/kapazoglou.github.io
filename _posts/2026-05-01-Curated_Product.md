@@ -8,6 +8,7 @@ image: "/assets/images/hero.png"
 
 A curated selection of interconnected projects that showcase my design philosophy, methodology and its impact.
 
+> A lot of this work happened while employed by Mika Health where I:
 > - Built the design process from scratch
 > - Designed shipped and maintained a design system
 > - Overhauled onboarding post-DiGA, improving conversion and reducing drop-offs
