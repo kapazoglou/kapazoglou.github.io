@@ -11,7 +11,6 @@ A curated selection of interconnected projects that showcase my design philosoph
 > A lot of this work happened while employed by Mika Health where I:
 > - Built the design process from scratch
 > - Designed shipped and maintained a design system
-> - Overhauled onboarding post-DiGA, improving conversion and reducing drop-offs
-> - Designed cancer patient features in collaboration with behavioural scientists
-> - Led the app architecture redesign
+> - Designed features to support cancer patients, in collaboration with behavioural scientists
+> - Led the app architecture redesign, improving conversion and retention
 > - Championed the localisation effort across UK and US markets
