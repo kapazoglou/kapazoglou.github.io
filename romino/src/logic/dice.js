@@ -133,6 +133,23 @@ export function drawFromCardDeck() {
   return state.cardDeck.pop();
 }
 
+/* ── Random dice (deckDice off) ──────────────────────────────────────── */
+
+function randomDieValue() {
+  const start = settings.blankDie ? 0 : 1;
+  return start + Math.floor(Math.random() * (7 - start));
+}
+
+function randomOneDieValue() {
+  const pool = [2, 3, 4, 5, Math.random() < 0.5 ? 1 : 6];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function randomDiceValues(count) {
+  if (count === 1) return [randomOneDieValue()];
+  return Array.from({ length: count }, () => randomDieValue());
+}
+
 /* ── Spawn dice ──────────────────────────────────────────────────────── */
 
 export function spawnDice(count) {
@@ -140,24 +157,19 @@ export function spawnDice(count) {
   const ids = [];
   const values = [];
 
-  if (count === 3) {
+  if (!settings.deckDice) {
+    values.push(...randomDiceValues(count));
+  } else if (count === 3) {
     values.push(...drawDiceCombination());
   } else if (count === 2) {
-    if (settings.diceDecks && settings.deckDice) {
+    if (settings.diceDecks) {
       values.push(...drawTwoDiceCombination());
-    } else if (settings.diceDecks) {
-      // random mode: two independent random dice (1–6, or 0 if blankDie)
-      const start = settings.blankDie ? 0 : 1;
-      for (let i = 0; i < 2; i++) values.push(start + Math.floor(Math.random() * (7 - start)));
     } else {
       values.push(...drawDiceCombination().slice(0, 2));
     }
   } else if (count === 1) {
-    if (settings.diceDecks && settings.deckDice) {
+    if (settings.diceDecks) {
       values.push(drawOneDie());
-    } else if (settings.diceDecks) {
-      const pool = [2, 3, 4, 5, Math.random() < 0.5 ? 1 : 6];
-      values.push(pool[Math.floor(Math.random() * pool.length)]);
     } else {
       values.push(drawDiceCombination()[0]);
     }
@@ -176,17 +188,14 @@ export function spawnDice(count) {
 
 /** Return the next preview combo of length n, in display order. */
 export function nextComboForSlotCount(n) {
-  if (!settings.diceDecks) {
-    // diceDecks OFF: always 3-die combo deck
-    const combo = peekNextDiceCombination();
-    return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
+  if (!settings.deckDice) {
+    const vals = randomDiceValues(n);
+    return n >= 2 && settings.sortDice ? sortDiceValuesForDisplay(vals) : vals;
   }
 
-  if (!settings.deckDice) {
-    // random mode: generate n random values
-    const start = settings.blankDie ? 0 : 1;
-    const vals = Array.from({ length: n }, () => start + Math.floor(Math.random() * (7 - start)));
-    return n === 3 && settings.sortDice ? sortDiceValuesForDisplay(vals) : vals;
+  if (!settings.diceDecks) {
+    const combo = peekNextDiceCombination();
+    return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
   }
 
   if (n === 1) {

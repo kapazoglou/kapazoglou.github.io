@@ -1,13 +1,13 @@
 ---
 module: dice
 layer: logic
-v: 1.1
-date: 2026-06-01
+v: 1.2
+date: 2026-06-12
 deps: [state, settings, cards]
 ---
 # Dice — User Story
 
-As a player, I need dice to be drawn from a shuffled deck of unique 3-die combinations so that I see variety without repeats until the deck runs out. The deck respects the `blankDie` and `filterExtremes` settings.
+As a player, I need dice drawn from a shuffled deck of unique combinations (or random when `deckDice` is off) so that I see variety without repeats until the deck runs out. Decks respect `blankDie` and `filterExtremes`; random mode uses independent rolls (1-die uses the same 2–5 + extreme pool as the 1-die deck).
 
 ## Exports
 - `spawnDice(count)` — draws `count/3` combinations, pushes dice to state, returns ids

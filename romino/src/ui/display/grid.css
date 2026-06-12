@@ -199,6 +199,7 @@
 }
 .die-wrapper:active       { cursor: grabbing; }
 .die-wrapper.is-dragging  { opacity: 0; pointer-events: none; }
+.die-wrapper.is-tray-return-preview { pointer-events: none; }
 .die-wrapper.is-locked    { cursor: default; opacity: 1; }
 .die-wrapper.tray-swap-target,
 .die-wrapper.is-selected  { outline: 4px solid var(--accent); }

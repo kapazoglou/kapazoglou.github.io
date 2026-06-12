@@ -60,7 +60,7 @@ export function renderSettingsPanel() {
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = false;
         }
-        if (['extendedGrid', 'emptyCards', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'square'].includes(item.key)) {
+        if (['extendedGrid', 'emptyCards', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square'].includes(item.key)) {
           document.getElementById('settings-panel').classList.remove('is-open');
           resetGame();
         } else {

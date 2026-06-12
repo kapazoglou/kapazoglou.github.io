@@ -4,6 +4,36 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Tray return hover preview — 2026-06-12
+- **drag-drop.js v1.5** — post-dice revert hover also shows card ghost and deselects hand card
+- **action-bar.js v1.4** — export `ghostCardHTML` for tray-return preview
+- **action-bar.css v1.4** — hide in-tray card during tray-return preview
+- **drag-drop.js v1.4.1** — fix duplicate tray preview dice when tray empty; only preview die selected on hover
+- **drag-drop.js v1.4** — hovering action bar during die drag shows die back in tray; drop returns and selects that die
+- **grid.css v2.0** — `.is-tray-return-preview` pointer-events none
+
+## Action-bar drop highlight — 2026-06-12
+- **action-bar.css v1.3** — remove accent border-top on tray drop target
+
+## Action-bar die return fix — 2026-06-12
+- **preview-anim.css** — ghost uses forward slide-in after revert (not reverse, which ended at opacity 0); dedicated `card-tray-slide-out` for card exit without bounce overshoot
+- **action-bar.js v1.2** — `ghostReverseIn` triggers normal ghost slide-in
+- **action-bar.css** — tray drop highlight uses `border-top` only
+
+## Action-bar die return — 2026-06-12
+- **drag-drop.js v1.3** — drop dragged dice on action bar to return to tray; revert post-dice card deal when tray was empty
+- **phase.js v1.7** — `revertPostDiceCardPhase()` undoes place-dice → place-card transition
+- **preview-anim.js v1.1** — `renderWithCardRevert()` slides in-tray card out before re-render
+- **preview-anim.css** — card revert + ghost reverse-in animations
+- **action-bar.js v1.1** — `ghostReverseIn` flag drives ghost reverse animation
+- **action-bar.css** — `.is-tray-drop-target` highlight during die drag
+- **state.js v1.5** — `ghostReverseIn` animation flag
+
+## deckDice random mode — 2026-06-12
+- **dice.js v1.2** — `deckDice` off selects dice randomly for all counts (classic 3-die mode included); shared `randomDiceValues` helper
+- **hud.js v1.2** — show ∞ when dice are random (no dice deck in use)
+- **settings-panel.js v1.3** — `deckDice` toggle restarts the game
+
 ## Scoring master toggle — 2026-06-12
 - **settings.js v2.0** — `scoring` toggle disables coin earn/spend and hides HUD coin
 - **hud.js v1.1** — hide `#score-display` when scoring off

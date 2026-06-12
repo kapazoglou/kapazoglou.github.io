@@ -151,6 +151,16 @@ export function checkStuck() {
   if (!hasLegalMove()) showReplay('no legal moves remaining');
 }
 
+/** Undo place-dice → place-card when the post-dice hand card is returned to ghost. */
+export function revertPostDiceCardPhase() {
+  state.actionBarCards = [];
+  state.selectedCardId = null;
+  state.awaitingPostDiceGridPlace = false;
+  state.phase = 'place-dice';
+  state.diceAccentActive = true;
+  selectLeftmostTrayDie();
+}
+
 /* ── Game over / replay ── */
 export function showReplay(reason = '') {
   state.phase = 'replay';
@@ -341,6 +351,7 @@ export function resetGame() {
   state.fullGridDiceRound = false;
   state.suppressPreviewDice = false;
   state.suppressGhostAnimation = false;
+  state.ghostReverseIn = false;
   state.diceDeck = [];
   state.diceDeck2 = [];
   state.diceDeck1 = [];

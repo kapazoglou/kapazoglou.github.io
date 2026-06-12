@@ -11,3 +11,18 @@ export function renderWithPreviewFade() {
     render();
   }
 }
+
+/** Slide the in-tray card out (reverse of deal-in) before applying state and re-rendering. */
+export function renderWithCardRevert(applyState) {
+  const cardEl = document.querySelector('.action-bar .converter-card.in-tray');
+  if (cardEl) {
+    cardEl.classList.add('is-reverting');
+    setTimeout(() => {
+      applyState();
+      render();
+    }, spd(320));
+  } else {
+    applyState();
+    render();
+  }
+}

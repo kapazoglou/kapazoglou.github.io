@@ -25,3 +25,13 @@
 .action-bar-card-ghost.is-new {
   animation: card-ghost-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
+
+/* ─── In-tray card revert (post-dice deal undone) ─── */
+@keyframes card-tray-slide-out {
+  from { transform: translateY(0) scale(1); opacity: 1; }
+  to   { transform: translateY(44px) scale(0.88); opacity: 0; }
+}
+
+.converter-card.in-tray.is-reverting {
+  animation: card-tray-slide-out calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
+}

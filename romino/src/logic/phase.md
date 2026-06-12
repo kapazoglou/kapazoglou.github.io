@@ -1,7 +1,7 @@
 ---
 module: phase
 layer: logic
-v: 1.6
+v: 1.7
 date: 2026-06-12
 deps: [state, settings, cards, dice, sweeps, scoring, sweep-anim, render, preview-anim, hud, card-anim, grid, handlers]
 ---
@@ -18,6 +18,7 @@ As a player, I need the game to automatically advance between phases (place-card
 - `isAllDicePlaced()` / `hasLegalMove()` / `checkStuck()` — round-end checks
 - `showReplay(reason)` — sets phase to `'replay'`, populates game-over overlay
 - `maybeAutoplayFirstTwo()` — auto-places first two cards when setting is on
+- `revertPostDiceCardPhase()` — undo place-dice → place-card when a die is returned to an empty tray
 - `resetGame()` — full state reset + re-render
 
 ## Related

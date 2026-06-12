@@ -44,6 +44,7 @@ export const state = {
   fullGridDiceRound:         false,
   suppressPreviewDice:       false,
   suppressGhostAnimation:    false,
+  ghostReverseIn:            false,
   // Sweep exit timers (stored on state to allow mutation from any module)
   scoreExitBeatTimer:        null,
   scoreExitDoneTimer:        null,

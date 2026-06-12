@@ -5,6 +5,7 @@
 <h2 id="exports">Exports</h2>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderActionBar()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#action-bar</code> innerHTML from state</li>
+  <li><code class="language-plaintext highlighter-rouge">ghostCardHTML(slotCount)</code> — skeleton card HTML for the action-bar ghost indicator</li>
 </ul>
 
 <h2 id="modes">Modes</h2>
@@ -20,6 +21,7 @@
   <li><code class="language-plaintext highlighter-rouge">state.newPreview</code> — boolean; triggers preview + ghost slide-in</li>
   <li><code class="language-plaintext highlighter-rouge">state.newCardAfterPreview</code> / <code class="language-plaintext highlighter-rouge">state.newPreviewInCard</code> — sequencing flags</li>
   <li><code class="language-plaintext highlighter-rouge">state.suppressGhostAnimation</code> — skips ghost re-animation in full-grid rounds</li>
+  <li><code class="language-plaintext highlighter-rouge">state.ghostReverseIn</code> — ghost card slide-in after post-dice revert</li>
 </ul>
 
 <h2 id="related">Related</h2>

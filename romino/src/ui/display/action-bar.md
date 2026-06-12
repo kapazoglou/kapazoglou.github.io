@@ -1,8 +1,8 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.1
-date: 2026-06-11
+v: 1.4
+date: 2026-06-12
 deps: [state, cards, dice, grid]
 ---
 # Action Bar — User Story
@@ -11,6 +11,7 @@ As a player, I need the action bar to show my hand cards during the place-card p
 
 ## Exports
 - `renderActionBar()` — rebuilds `#action-bar` innerHTML from state
+- `ghostCardHTML(slotCount)` — skeleton card HTML for the action-bar ghost indicator
 
 ## Modes
 - **place-card**: renders hand cards (`.in-tray`) with `is-new` slide-in if flagged
@@ -22,6 +23,7 @@ As a player, I need the action bar to show my hand cards during the place-card p
 - `state.newPreview` — boolean; triggers preview + ghost slide-in
 - `state.newCardAfterPreview` / `state.newPreviewInCard` — sequencing flags
 - `state.suppressGhostAnimation` — skips ghost re-animation in full-grid rounds
+- `state.ghostReverseIn` — ghost card slide-in after post-dice revert
 
 ## Related
 [[state]] · [[dice]] · [[grid]] · [[preview-anim]] · [[handlers]]

@@ -1,15 +1,209 @@
 import { state, forbiddenDieSlots } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout } from '../../logic/cards.js';
+import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCard } from '../../logic/cards.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 import { updateScorePreview } from '../../logic/scoring.js';
 import { selectLeftmostTrayDie } from '../../logic/dice.js';
-import { convertFilledCards, checkPhaseTransition, checkStuck } from '../../logic/phase.js';
+import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCardPhase } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
+import { renderWithCardRevert } from '../transitions/preview-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
 import { launchPip, launchPenaltyPip } from '../transitions/card-anim.js';
+import { ghostCardHTML } from './action-bar.js';
+
+function countTrayDice() {
+  return state.currentRoll.filter(id => dieInCard(id) === null).length;
+}
+
+function canReturnDieToTray(drag) {
+  if (drag.type !== 'die') return false;
+  if (state.phase === 'place-dice') return true;
+  if (state.phase === 'place-card' && state.awaitingPostDiceGridPlace
+      && drag.originSlot && countTrayDice() === 0) return true;
+  return false;
+}
+
+function isOverActionBar(clientX, clientY) {
+  const bar = document.getElementById('action-bar');
+  if (!bar) return false;
+  const r = bar.getBoundingClientRect();
+  return clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+}
+
+function shouldPreviewCardAsGhost() {
+  return state.phase === 'place-card'
+    && state.awaitingPostDiceGridPlace
+    && state.actionBarCards.length > 0;
+}
+
+function clearCardGhostPreview(bar, drag) {
+  if (!bar) return;
+  bar.querySelector('.action-bar-card-ghost.is-tray-return-preview')?.remove();
+  bar.querySelector('.converter-card.in-tray.is-tray-return-hidden')?.classList.remove('is-tray-return-hidden');
+  if (state.phase === 'place-card') bar.classList.remove('mode-dice');
+  if (drag?.cardGhostPreviewActive) {
+    state.selectedCardId = drag.savedSelectedCardId ?? null;
+    const cardId = state.selectedCardId;
+    if (cardId != null) {
+      bar.querySelector(`.converter-card.in-tray[data-card-id="${cardId}"]`)?.classList.add('is-selected');
+    }
+    drag.cardGhostPreviewActive = false;
+    drag.savedSelectedCardId = undefined;
+  }
+}
+
+function showCardGhostPreview(bar, drag) {
+  if (!shouldPreviewCardAsGhost()) return;
+
+  if (!drag.cardGhostPreviewActive) {
+    drag.savedSelectedCardId = state.selectedCardId;
+    state.selectedCardId = null;
+    drag.cardGhostPreviewActive = true;
+  }
+
+  const cardId = state.actionBarCards[0];
+  const inTray = bar.querySelector(`.converter-card.in-tray[data-card-id="${cardId}"]`)
+    ?? bar.querySelector('.converter-card.in-tray');
+  inTray?.classList.add('is-tray-return-hidden');
+  inTray?.classList.remove('is-selected');
+
+  const slotCount = state.cards[cardId]?.slotCount ?? 3;
+  let ghostWrap = bar.querySelector('.action-bar-card-ghost.is-tray-return-preview');
+  if (!ghostWrap) {
+    ghostWrap = document.createElement('div');
+    ghostWrap.className = 'action-bar-card-ghost is-tray-return-preview';
+    ghostWrap.innerHTML = ghostCardHTML(slotCount);
+    bar.appendChild(ghostWrap);
+  }
+
+  bar.classList.add('mode-dice');
+}
+
+function clearTrayReturnPreview(drag) {
+  const bar = document.getElementById('action-bar');
+  clearCardGhostPreview(bar, drag);
+  document.querySelectorAll('.die-wrapper.is-tray-return-preview').forEach(el => el.remove());
+  document.querySelectorAll('.dice-tray.tray-return-preview-host').forEach(el => el.remove());
+  if (drag?.originEl?.isConnected && !drag.originSlot && drag.trayPreviewActive) {
+    drag.originEl.classList.add('is-dragging');
+    drag.originEl.classList.remove('is-selected');
+  }
+  if (drag) drag.trayPreviewActive = false;
+}
+
+function getOrCreatePreviewTray(bar) {
+  return bar.querySelector('.dice-tray:not(.tray-return-preview-host)')
+    ?? bar.querySelector('.dice-tray.tray-return-preview-host')
+    ?? (() => {
+      const tray = document.createElement('div');
+      tray.className = 'dice-tray tray-return-preview-host';
+      bar.insertBefore(tray, bar.firstChild);
+      return tray;
+    })();
+}
+
+function applyTrayPreviewSelection(selectedEl) {
+  document.querySelectorAll('#action-bar .die-wrapper.is-selected').forEach(el => {
+    if (el !== selectedEl) el.classList.remove('is-selected');
+  });
+  selectedEl?.classList.add('is-selected');
+}
+
+function showTrayReturnPreview(drag) {
+  const bar = document.getElementById('action-bar');
+
+  if (!drag.originSlot) {
+    drag.originEl?.classList.remove('is-dragging');
+    applyTrayPreviewSelection(drag.originEl);
+    showCardGhostPreview(bar, drag);
+    drag.trayPreviewActive = true;
+    return;
+  }
+
+  if (!bar) return;
+
+  const tray = getOrCreatePreviewTray(bar);
+
+  bar.querySelectorAll('.dice-tray.tray-return-preview-host').forEach(host => {
+    if (host !== tray) host.remove();
+  });
+
+  let preview = bar.querySelector('.die-wrapper.is-tray-return-preview');
+  bar.querySelectorAll('.die-wrapper.is-tray-return-preview').forEach(el => {
+    if (el !== preview) el.remove();
+  });
+
+  if (!preview) {
+    const dieId = drag.dieId;
+    const value = state.dice[dieId].value;
+    preview = document.createElement('div');
+    preview.className = 'die-wrapper is-tray-return-preview is-selected';
+    preview.dataset.dieId = dieId;
+    preview.innerHTML = dieSVG(value, 40, diePipRotationDeg(null, value));
+  }
+
+  const order = state.trayOrder.filter(id => id === drag.dieId || dieInCard(id) === null);
+  const targetIdx = order.indexOf(drag.dieId);
+  const siblings = [...tray.querySelectorAll('.die-wrapper:not(.is-tray-return-preview)')];
+  tray.insertBefore(preview, siblings[targetIdx] ?? null);
+
+  applyTrayPreviewSelection(preview);
+  showCardGhostPreview(bar, drag);
+  drag.trayPreviewActive = true;
+}
+
+function clearDieFromOriginSlot(originSlot, dieId) {
+  const originCardId = parseInt(originSlot.split('-')[0], 10);
+  const si = parseInt(originSlot.split('-')[1], 10);
+
+  if (settings.refundOnMove && forbiddenDieSlots.has(dieId)) {
+    forbiddenDieSlots.delete(dieId);
+    const prevHolderEl = document.querySelector(`[data-slot="${originSlot}"]`);
+    const scoreEl      = document.getElementById('score-display');
+    if (state.grid.includes(originCardId) && prevHolderEl && scoreEl) {
+      launchPip(prevHolderEl.getBoundingClientRect(), scoreEl.getBoundingClientRect(),
+        () => { state.score++; renderHUD(); }, () => {});
+    } else {
+      state.score++;
+      renderHUD();
+    }
+  } else {
+    forbiddenDieSlots.delete(dieId);
+  }
+
+  state.cards[originCardId].slots[si] = null;
+  if (settings.square) updateSquareLayout(originCardId);
+  return originCardId;
+}
+
+function returnDieToTray(drag, shouldRevertPhase) {
+  if (drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
+
+  if (!drag.originSlot) {
+    state.selectedDieId = drag.dieId;
+    render();
+    return;
+  }
+
+  const originCardId = clearDieFromOriginSlot(drag.originSlot, drag.dieId);
+  updateScorePreview(originCardId);
+  state.selectedDieId = drag.dieId;
+
+  if (shouldRevertPhase) {
+    renderWithCardRevert(() => {
+      revertPostDiceCardPhase();
+      state.ghostReverseIn = true;
+      state.newDice = new Set([drag.dieId]);
+    });
+    return;
+  }
+
+  state.newDice = new Set([drag.dieId]);
+  render();
+  checkStuck();
+}
 
 function collectGridCoins() {
   if (!settings.square || !settings.scoring || !state.gridCoins.size) return;
@@ -173,6 +367,16 @@ export function initDragDrop() {
         trayDie.classList.add('tray-swap-target');
       }
     }
+
+    const overBar = isOverActionBar(e.clientX, e.clientY);
+    const trayPreview = overBar && canReturnDieToTray(drag);
+    if (trayPreview) {
+      showTrayReturnPreview(drag);
+      ghost.classList.remove('is-visible');
+      document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
+    } else {
+      clearTrayReturnPreview(drag);
+    }
   }, { passive: true });
 
   document.addEventListener('pointerup', e => {
@@ -230,6 +434,17 @@ export function initDragDrop() {
 
     document.querySelectorAll('.holder-dice').forEach(h => h.classList.remove('drag-over'));
     document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
+    clearTrayReturnPreview(drag);
+
+    const shouldRevertPhase = drag.originSlot && countTrayDice() === 0
+      && state.phase === 'place-card' && state.awaitingPostDiceGridPlace
+      && state.actionBarCards.length > 0;
+
+    if (isOverActionBar(e.clientX, e.clientY) && canReturnDieToTray(drag)) {
+      returnDieToTray(drag, shouldRevertPhase);
+      drag = null;
+      return;
+    }
 
     const holderEl   = under?.closest('.holder-dice');
     const trayDieEl  = !holderEl ? under?.closest('.die-wrapper') : null;
@@ -333,5 +548,6 @@ export function initDragDrop() {
     document.querySelectorAll('.holder-dice').forEach(h => h.classList.remove('drag-over'));
     document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
     document.querySelectorAll('.grid-slot').forEach(s => s.classList.remove('drag-over'));
+    clearTrayReturnPreview(drag);
   });
 }

@@ -7,7 +7,7 @@ import { renderCardHTML } from './grid.js';
 /** Build ghost card HTML for the upcoming-card indicator in the action bar.
  *  When diceDecks is ON: only the slot-count indicator squares are shown.
  *  When diceDecks is OFF: the classic 3-slot skeleton is shown. */
-function ghostCardHTML(slotCount) {
+export function ghostCardHTML(slotCount) {
   if (settings.square) {
     return `<div class="converter-card converter-card--square" style="color:#9A9FB6">
       <div class="square-wrapper">
@@ -130,10 +130,12 @@ export function renderActionBar() {
     }).join('');
     bar.appendChild(preview);
 
-    const animateGhost = isNewPreview && !state.suppressGhostAnimation;
+    const ghostReverse = !!state.ghostReverseIn;
+    state.ghostReverseIn = false;
+    const animateGhost = (isNewPreview && !state.suppressGhostAnimation) || ghostReverse;
     state.suppressGhostAnimation = false;
     const lastDieIdx = Math.max(combo.length - 1, 0);
-    const cardGhostDelay = animateGhost ? basePreviewDelay + lastDieIdx * 60 + 320 + 40 : 0;
+    const cardGhostDelay = animateGhost && isNewPreview ? basePreviewDelay + lastDieIdx * 60 + 320 + 40 : 0;
     const cardGhostEl = document.createElement('div');
     cardGhostEl.className = `action-bar-card-ghost${animateGhost ? ' is-new' : ''}`;
     if (animateGhost) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;

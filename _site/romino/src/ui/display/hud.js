@@ -7,8 +7,12 @@ export function renderHUD() {
   const countEl = document.getElementById('card-count');
   const scoreEl = document.getElementById('score-display');
   if (countEl) {
-    const total = settings.diceDecks ? getCardDeckSize() : getDeckSize();
-    countEl.textContent = Math.max(0, total - state.cardsPlaced);
+    if (!settings.diceDecks && !settings.deckDice) {
+      countEl.textContent = '∞';
+    } else {
+      const total = settings.diceDecks ? getCardDeckSize() : getDeckSize();
+      countEl.textContent = Math.max(0, total - state.cardsPlaced);
+    }
   }
   if (scoreEl) {
     scoreEl.hidden = !settings.scoring;

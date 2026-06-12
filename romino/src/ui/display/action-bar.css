@@ -59,6 +59,10 @@
   pointer-events: none;
 }
 
+.converter-card.in-tray.is-tray-return-hidden {
+  display: none;
+}
+
 
 /* ─── REPLAY BUTTON ─── */
 #replay-btn {
