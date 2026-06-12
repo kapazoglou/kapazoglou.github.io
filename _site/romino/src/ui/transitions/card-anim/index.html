@@ -1,0 +1,39 @@
+<h1 id="card-anim--user-story">Card Anim — User Story</h1>
+
+<p>As a player, I want to see a coin fly from a filled card’s score badge to the score counter, and then the card’s dice area collapse into its rank/suit identity with a smooth animation.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">launchPip(fromRect, toRect, onArrival, onDone)</code> — coin pop → travel → fade animation</li>
+  <li><code class="language-plaintext highlighter-rouge">launchPenaltyPip(toRect)</code> — reverse coin (score → forbidden slot, for paid-slot penalty)</li>
+  <li><code class="language-plaintext highlighter-rouge">firePipsSequential(fromRect, toRect, pts, idx, onAllDone)</code> — chain multiple coin launches</li>
+  <li><code class="language-plaintext highlighter-rouge">processCardFills(queue, index, onDone)</code> — sequentially animates each card in the fill queue</li>
+</ul>
+
+<h2 id="animation-sequence-per-card">Animation sequence (per card)</h2>
+<ol>
+  <li>If pts &gt; 0: <code class="language-plaintext highlighter-rouge">firePipsSequential</code> flies coins from score badge to HUD counter</li>
+  <li><code class="language-plaintext highlighter-rouge">.is-converting</code> class triggers CSS: dice area fades, card-index expands to centre</li>
+  <li><code class="language-plaintext highlighter-rouge">fillOneCard(cardId)</code> mutates state; <code class="language-plaintext highlighter-rouge">render()</code> re-renders the filled card</li>
+</ol>
+
+<h2 id="2-slot-conversion-variants">2-slot conversion variants</h2>
+<ul>
+  <li><strong>Domino fill</strong> (<code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> ON, default): <code class="language-plaintext highlighter-rouge">.converter-card--2slot.is-converting:not(.converter-card--2slot-compact-fill)</code> suppresses the dice fadeout so bottom dice remain through the animation</li>
+  <li><strong>Compact fill</strong> (<code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> OFF): no suppression; dice fade normally like a standard 3-slot card</li>
+</ul>
+
+<h2 id="1-slot-conversion-variants">1-slot conversion variants</h2>
+<ul>
+  <li><strong>Domino fill</strong> (<code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> ON, default): <code class="language-plaintext highlighter-rouge">.converter-card--1slot.is-converting:not(.converter-card--1slot-compact-fill)</code> suppresses the dice fadeout so the center die remains through the animation</li>
+  <li><strong>Compact fill</strong> (<code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> OFF): no suppression; center die fades normally</li>
+</ul>
+
+<h2 id="square-conversion-settingssquare">SQUARE conversion (settings.square)</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">square-index-expand</code> keyframe: bottom-left 36px → centred 54px</li>
+  <li><code class="language-plaintext highlighter-rouge">.square-dice</code> fades on convert; partial-converted stub suppresses fade</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[scoring]] · [[phase]] · [[hud]] · [[render]]</p>

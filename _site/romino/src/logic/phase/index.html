@@ -1,0 +1,19 @@
+<h1 id="phase--user-story">Phase — User Story</h1>
+
+<p>As a player, I need the game to automatically advance between phases (place-card → place-dice → place-card → …) after each action, handling all edge cases: full-grid rounds, post-sweep card offers, stuck detection, and game-over.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">checkPhaseTransition()</code> — evaluates state and advances the phase if criteria are met</li>
+  <li><code class="language-plaintext highlighter-rouge">spawnFullGridDiceRound()</code> — enters a dice-only round when grid is full</li>
+  <li><code class="language-plaintext highlighter-rouge">fillOneCard(cardId)</code> — marks filled; records discovery via <code class="language-plaintext highlighter-rouge">snapshotCardIdentity</code> + <code class="language-plaintext highlighter-rouge">discoveryKey</code></li>
+  <li><code class="language-plaintext highlighter-rouge">convertFilledCards(onDone, force)</code> — triggers fill animations for ready cards</li>
+  <li><code class="language-plaintext highlighter-rouge">convertAllGridCards(onDone)</code> — bulk-fill for endgame</li>
+  <li><code class="language-plaintext highlighter-rouge">isAllDicePlaced()</code> / <code class="language-plaintext highlighter-rouge">hasLegalMove()</code> / <code class="language-plaintext highlighter-rouge">checkStuck()</code> — round-end checks</li>
+  <li><code class="language-plaintext highlighter-rouge">showReplay(reason)</code> — sets phase to <code class="language-plaintext highlighter-rouge">'replay'</code>, populates game-over overlay</li>
+  <li><code class="language-plaintext highlighter-rouge">maybeAutoplayFirstTwo()</code> — auto-places first two cards when setting is on</li>
+  <li><code class="language-plaintext highlighter-rouge">resetGame()</code> — full state reset + re-render</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[dice]] · [[sweeps]] · [[sweep-anim]] · [[card-anim]] · [[handlers]] · [[EVENTS]]</p>

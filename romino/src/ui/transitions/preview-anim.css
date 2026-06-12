@@ -1,0 +1,27 @@
+/* ─── Upcoming preview exit ─── */
+@keyframes upcoming-preview-exit {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.9); }
+}
+
+.upcoming-preview.is-exiting .die-wrapper {
+  animation: upcoming-preview-exit calc(0.18s * var(--t)) ease-in forwards;
+}
+.upcoming-preview.is-exiting .die-wrapper:nth-child(2) { animation-delay: calc(40ms * var(--t)); }
+.upcoming-preview.is-exiting .die-wrapper:nth-child(3) { animation-delay: calc(80ms * var(--t)); }
+
+/* ─── Preview dice slide-in ─── */
+.upcoming-preview .die-wrapper.preview-is-new {
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+/* ─── Card ghost slide-in ─── */
+@keyframes card-ghost-slide-in {
+  0%   { transform: translateY(44px) scale(0.88); opacity: 0;   }
+  65%  { transform: translateY(-5px) scale(1.04); opacity: 0.4; }
+  100% { transform: translateY(0)    scale(1);    opacity: 0.4; }
+}
+
+.action-bar-card-ghost.is-new {
+  animation: card-ghost-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}

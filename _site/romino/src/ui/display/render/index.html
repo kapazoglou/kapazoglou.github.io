@@ -1,0 +1,17 @@
+<h1 id="render--user-story">Render — User Story</h1>
+
+<p>As the UI system, I need a single <code class="language-plaintext highlighter-rouge">render()</code> function that re-paints the entire game view from state, so that any module can trigger a full redraw with one call.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">render()</code> — calls <code class="language-plaintext highlighter-rouge">renderGrid()</code>, <code class="language-plaintext highlighter-rouge">renderActionBar()</code> (unless replay), <code class="language-plaintext highlighter-rouge">renderDiscards()</code>, <code class="language-plaintext highlighter-rouge">renderHUD()</code></li>
+</ul>
+
+<h2 id="notes">Notes</h2>
+<ul>
+  <li>During <code class="language-plaintext highlighter-rouge">state.phase === 'replay'</code> the action bar is frozen; only grid/hud/discards are refreshed.</li>
+  <li>All render functions are idempotent — calling <code class="language-plaintext highlighter-rouge">render()</code> twice produces the same DOM.</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[grid]] · [[action-bar]] · [[hud]] · [[state]] · [[phase]]</p>

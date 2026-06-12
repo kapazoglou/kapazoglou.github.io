@@ -1,0 +1,19 @@
+<h1 id="drag-drop--user-story">Drag-Drop — User Story</h1>
+
+<p>As a player, I want to drag dice from the tray into card slots and drag hand cards onto grid slots. While dragging a die, forbidden slots show a visual indicator. Dropping in a valid slot updates state and advances the game phase.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">initDragDrop()</code> — attaches <code class="language-plaintext highlighter-rouge">pointerdown / pointermove / pointerup / pointercancel</code> listeners</li>
+  <li><code class="language-plaintext highlighter-rouge">markForbiddenHolders(dieId)</code> — adds <code class="language-plaintext highlighter-rouge">.is-forbidden</code> / <code class="language-plaintext highlighter-rouge">.is-hard-forbidden</code> CSS classes to DOM slots</li>
+  <li><code class="language-plaintext highlighter-rouge">clearForbiddenHolders()</code> — removes all forbidden classes</li>
+</ul>
+
+<h2 id="drag-types">Drag types</h2>
+<ul>
+  <li><strong>card drag</strong> — from <code class="language-plaintext highlighter-rouge">.in-tray</code> or <code class="language-plaintext highlighter-rouge">.converter-card--grid-draggable</code>; drops onto empty <code class="language-plaintext highlighter-rouge">.grid-slot</code></li>
+  <li><strong>die drag</strong> — from <code class="language-plaintext highlighter-rouge">.die-wrapper</code>; drops onto <code class="language-plaintext highlighter-rouge">.holder-dice</code> slot or swaps tray order</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[cards]] · [[phase]] · [[handlers]] · [[render]]</p>

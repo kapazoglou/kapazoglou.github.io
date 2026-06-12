@@ -1,0 +1,17 @@
+<h1 id="preview-anim--user-story">Preview Anim — User Story</h1>
+
+<p>As a player, I want the upcoming-dice preview strip to slide upward and fade out smoothly when a new dice round begins, giving me a clear visual cue that the preview has refreshed.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">renderWithPreviewFade()</code> — adds <code class="language-plaintext highlighter-rouge">is-exiting</code> to the preview strip then calls <code class="language-plaintext highlighter-rouge">render()</code> after <code class="language-plaintext highlighter-rouge">PREVIEW_FADE_MS</code></li>
+</ul>
+
+<h2 id="css-classes">CSS classes</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.upcoming-preview.is-exiting .die-wrapper</code> — staggered translateY + opacity exit</li>
+  <li><code class="language-plaintext highlighter-rouge">.upcoming-preview .die-wrapper.preview-is-new</code> — slide-in animation for new preview dice</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[render]] · [[action-bar]] · [[phase]]</p>

@@ -1,0 +1,495 @@
+/* ─── GRID CONTAINER ─── */
+#grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 110px);
+  grid-template-rows: repeat(3, 167px);
+  gap: 3px;
+  padding: 14px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+#grid-container.grid-4x4 {
+  grid-template-columns: repeat(4, 110px);
+  grid-template-rows: repeat(4, 167px);
+}
+
+/* ─── GRID SLOT (empty placeholder) ─── */
+.grid-slot {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow calc(0.1s * var(--t)) ease;
+}
+
+.grid-slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  border-radius: 20px;
+}
+
+.grid-slot.is-filled::before { display: none; }
+
+.grid-slot.is-filled.grid-slot--score-pending::before,
+.grid-slot.is-filled.grid-slot--score-sweep::before {
+  display: block;
+}
+
+.grid-slot.drag-over,
+.grid-slot:has(.converter-card.is-selected) {
+  box-shadow: 0 0 0 4px var(--accent);
+}
+
+/* ─── CONVERTER CARD ─── */
+.converter-card {
+  width: 110px;
+  height: 167px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  border: none;
+  padding: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.converter-card.in-tray       { cursor: grab; }
+.converter-card.in-tray:active { cursor: grabbing; }
+.converter-card--grid-draggable        { cursor: grab; }
+.converter-card--grid-draggable:active { cursor: grabbing; }
+
+.converter-card.is-dragging {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.converter-card.in-tray.is-dragging {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.07);
+}
+.converter-card.in-tray.is-dragging > * { opacity: 0; }
+
+.grid-slot.is-filled:has(.converter-card.is-dragging)::before { display: block; }
+
+/* ─── CARD INDEX ─── */
+.card-index {
+  position: absolute;
+  left: 8px;
+  top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 4px;
+  border-radius: 4px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 48px;
+  font-weight: 400;
+  line-height: normal;
+  text-align: center;
+  pointer-events: none;
+}
+
+.card-rank, .card-suit {
+  display: block;
+  width: 40px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.card-rank { line-height: 1; min-height: 1em; }
+
+.card-index:not(.card-index--filled) > .card-suit { margin-top: -6px; }
+
+.card-index--filled {
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 86px;
+  font-size: 72px;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 0;
+  text-align: center;
+}
+
+.card-rank--filled { width: 86px; text-align: center; }
+.card-suit--filled { width: 86px; text-align: center; }
+
+.converter-card--filled { gap: 8px; cursor: default; }
+
+/* ─── CARD DICE AREA ─── */
+.card-dice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  justify-content: flex-end;
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* ─── DICE TILE ─── */
+.dice-tile {
+  border: 1px solid var(--tile-border);
+  border-radius: 13px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.dice-tile--top  { justify-content: center; }
+.dice-tile--bottom { width: fit-content; gap: 4px; justify-content: flex-start; }
+.dice-tile--v-suit { border-color: #CCB400; }
+.converter-card--v-suit .dice-tile--bottom { border-color: #CCB400; }
+
+/* ─── HOLDER DICE SLOT ─── */
+.holder-dice {
+  width: var(--die-size); height: var(--die-size);
+  min-width: var(--die-size); min-height: var(--die-size);
+  max-width: var(--die-size); max-height: var(--die-size);
+  border-radius: 8px;
+  background: var(--holder);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: box-shadow calc(0.18s * var(--t)) ease;
+}
+
+.holder-dice.drag-over   { box-shadow: 0 0 0 4px var(--accent); }
+.holder-dice.is-new      { box-shadow: 0 0 0 4px var(--new-border-color, var(--holder)); }
+.holder-dice.is-selected { box-shadow: 0 0 0 4px var(--accent); z-index: 100; }
+
+.holder-dice.is-forbidden {
+  opacity: 1;
+  transition: opacity calc(0.12s * var(--t)) ease;
+  cursor: pointer;
+}
+.holder-dice.is-forbidden::after          { content: '🪙'; font-size: 24px; line-height: 1; }
+.holder-dice.is-forbidden.is-hard-forbidden { cursor: not-allowed; }
+.holder-dice.is-forbidden.is-hard-forbidden::after { content: '✖️'; font-size: 20px; line-height: 1; }
+
+/* ─── DIE WRAPPER ─── */
+.die-wrapper {
+  width: var(--die-size); height: var(--die-size);
+  min-width: var(--die-size); min-height: var(--die-size);
+  max-width: var(--die-size); max-height: var(--die-size);
+  flex-basis: var(--die-size);
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+  position: relative;
+  border-radius: 9px;
+  display: block;
+  outline: 1px solid var(--card-bg);
+}
+.die-wrapper:active       { cursor: grabbing; }
+.die-wrapper.is-dragging  { opacity: 0; pointer-events: none; }
+.die-wrapper.is-locked    { cursor: default; opacity: 1; }
+.die-wrapper.tray-swap-target,
+.die-wrapper.is-selected  { outline: 4px solid var(--accent); }
+.die-wrapper.is-selected  { position: relative; z-index: 100; }
+
+svg[data-name="dice_master"] {
+  display: block;
+  width: var(--die-size); height: var(--die-size);
+  min-width: var(--die-size); min-height: var(--die-size);
+  max-width: var(--die-size); max-height: var(--die-size);
+}
+
+.converter-card.is-selected { outline: 4px solid var(--accent); }
+
+/* ─── DRAG GHOST ─── */
+#drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%) scale(1.05);
+  opacity: 0.92;
+  border-radius: 9px;
+  display: none;
+}
+#drag-ghost.die-drag  { transform: translate(-50%, -50%) scale(1.35); }
+#drag-ghost.is-visible { display: block; }
+
+/* ─── DISCARD ENTRY ─── */
+.discard-entry.is-dim { opacity: 0.1; }
+
+/* ─── EMPTY CARD BLOCKER ─── */
+.converter-card--empty {
+  background: var(--bg);
+  border-color: transparent;
+  box-sizing: border-box;
+  box-shadow: none;
+  pointer-events: none;
+  border: rgba(0, 0, 0, 0.22) 2px solid;
+}
+
+/* ─── 2-SLOT CARD ─── */
+.converter-card--2slot .card-dice {
+  justify-content: flex-end;
+}
+
+/* ─── 1-SLOT CARD ─── */
+.card-dice--center {
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+}
+
+.dice-tile--center {
+  justify-content: center;
+  align-self: center;
+}
+
+/* Ghost card that only shows slot-count indicator squares (diceDecks ON) */
+.converter-card--ghost-indicator {
+  color: #D3D6E5;
+}
+
+/* ─── SLOT COUNT INDICATOR ─── */
+.card-slot-indicator {
+  position: absolute;
+  top: 9px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  pointer-events: none;
+}
+
+.card-slot-indicator span {
+  display: block;
+  width: 16px;
+  height: 16px;
+  background: #D3D6E5;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ─── GAME-OVER DISCOVERED CARDS ─── */
+.go-card-wrap {
+  width: 60px; height: 92px;
+  position: relative; flex-shrink: 0; overflow: visible;
+}
+.go-card-wrap .converter-card {
+  transform: scale(0.545);
+  transform-origin: top left;
+  position: absolute; top: 0; left: 0;
+  pointer-events: none;
+}
+
+/* ─── SQUARE CARDS (settings.square) ─── */
+html.square-cards #grid-container {
+  grid-template-columns: repeat(3, 116px);
+  grid-template-rows: repeat(3, 116px);
+}
+
+html.square-cards #grid-container.grid-4x4 {
+  grid-template-columns: repeat(4, 116px);
+  grid-template-rows: repeat(4, 116px);
+}
+
+/* Outer card: transparent shell; wrapper provides the visual background */
+html.square-cards .converter-card--square {
+  width: 116px;
+  height: 116px;
+  padding: 0;
+  background: transparent;
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* Full-bleed wrapper — the visual card face with 8px padding */
+html.square-cards .square-wrapper {
+  position: relative;
+  width: 116px;
+  height: 116px;
+  padding: 8px;
+  border-radius: 20px;
+  background: #F6F7F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+html.square-cards .square-wrapper--converted {
+  background: #fff;
+}
+
+/* Tiles grid: flex-wrap fills top row (slots 0+1) then bottom-right (slot 2).
+   Tiles are 48×48 via explicit size so the 4px gap fits cleanly in 100px. */
+html.square-cards .square-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  width: 100px;
+  justify-content: flex-end;
+  align-content: flex-start;
+}
+
+html.square-cards .square-tile {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+/* box-shadow instead of border so 48×48 stays intact (border would add 2px) */
+html.square-cards .square-tile--bordered {
+  background: #fff;
+  box-shadow: inset 0 0 0 1px var(--tile-border);
+}
+
+/* Empty holders in square mode: Figma spec #DADCE7, 9px radius */
+html.square-cards .converter-card--square .holder-dice {
+  background: #DADCE7;
+  border: none;
+  border-radius: 9px;
+}
+
+/* Forbidden slots (forbiddenSlots): white holder, light tile border, no ✖ */
+html.square-cards .converter-card--square .holder-dice.is-hard-forbidden {
+  background: #DADCE7;
+  opacity: 0.5;
+}
+html.square-cards .holder-dice.is-hard-forbidden::after {
+  content: none;
+}
+html.square-cards .square-tile:has(.holder-dice.is-hard-forbidden) {
+  background:#F6F7F9;
+  box-shadow: inset 0 0 0 1px rgb(218, 220, 231);
+}
+
+/* Hor/ver bars: absolutely positioned decorative containers inside .square-wrapper.
+   pointer-events:none so taps fall through to the holder-dice beneath. */
+html.square-cards .square-bar {
+  position: absolute;
+  background: #fff;
+  border: 1px solid var(--tile-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+html.square-cards .square-bar--converted {
+  border-color: #CCB400;
+}
+
+/* Figma: hor bar at left:8 top:8 within wrapper (= content start), 100×48 */
+html.square-cards .square-bar--hor {
+  left: 8px;
+  top: 8px;
+  width: 100px;
+  height: 48px;
+}
+
+/* Figma: ver bar at left:60 top:8 within wrapper (= right of tile 0 + gap), 48×100 */
+html.square-cards .square-bar--ver {
+  left: 60px;
+  top: 8px;
+  width: 48px;
+  height: 100px;
+  flex-direction: column;
+}
+
+html.square-cards .square-bar__sep {
+  flex-shrink: 0;
+  background: var(--tile-border);
+}
+
+html.square-cards .square-bar--hor .square-bar__sep {
+  width: 1px;
+  height: 40px;
+}
+
+html.square-cards .square-bar--ver .square-bar__sep {
+  width: 40px;
+  height: 1px;
+}
+
+html.square-cards .square-bar--converted .square-bar__sep {
+  background: #CCB400;
+}
+
+/* Index: absolute on outer .converter-card--square, not inside the wrapper.
+   Figma node 5458:17434: left:34px, bottom:8px, 52×48px, 36px.
+   translateX(-50%) centres the element on x=34 (the "centre of 52px box" = 34-26=8px from edge). */
+html.square-cards .card-index--square {
+  position: absolute;
+  left: 32px;
+  bottom: 8px;
+  top: auto;
+  right: auto;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 48px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 36px;
+  text-align: center;
+  /* Reset portrait .card-index bleed */
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  pointer-events: none;
+}
+
+/* Converted center: 100×100 content area, index centred on card */
+html.square-cards .card-index--square-filled {
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  font-size: 54px;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Partial converted (stub): larger index at bottom-left */
+html.square-cards .card-index--square-partial {
+  font-size: 54px;
+  line-height: 46px;
+  align-items: flex-end;
+}
+
+html.square-cards .grid-coin {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 10;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}

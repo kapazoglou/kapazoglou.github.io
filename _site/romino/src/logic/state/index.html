@@ -1,0 +1,25 @@
+<h1 id="state--user-story">State — User Story</h1>
+
+<p>As the game engine, I need a single mutable object that holds the complete game snapshot at any moment, so that all modules can read and write it without passing data through function arguments.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">state</code> — main game snapshot object (grid, cards, dice, phase, scores, flags)</li>
+  <li><code class="language-plaintext highlighter-rouge">forbiddenDieSlots</code> — Set of die IDs currently occupying paid/forbidden slots</li>
+  <li><code class="language-plaintext highlighter-rouge">clearScoreExitTimers()</code> — cancels pending sweep-animation timers stored on state</li>
+</ul>
+
+<h2 id="key-fields">Key fields</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">state.grid</code> — array of cardIds (or null) for each grid slot</li>
+  <li><code class="language-plaintext highlighter-rouge">state.cards</code> — array of card objects <code class="language-plaintext highlighter-rouge">{ id, slots, filled, squareLayout?, … }</code></li>
+  <li><code class="language-plaintext highlighter-rouge">state.dice</code> — array of die objects <code class="language-plaintext highlighter-rouge">{ id, value }</code></li>
+  <li><code class="language-plaintext highlighter-rouge">state.phase</code> — current game phase: <code class="language-plaintext highlighter-rouge">'place-card' | 'place-dice' | 'replay'</code></li>
+  <li><code class="language-plaintext highlighter-rouge">state.score</code> — running coin total</li>
+  <li><code class="language-plaintext highlighter-rouge">state.scoringExit</code> — active sweep animation descriptor (null when idle)</li>
+  <li><code class="language-plaintext highlighter-rouge">state.discoveredCards</code> — unique filled card IDs in first-discovery order (game-over summary)</li>
+  <li><code class="language-plaintext highlighter-rouge">state.discoveredKeys</code> — Set of <code class="language-plaintext highlighter-rouge">cardIdentityKey</code> values, snapshotted at fill time</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[settings]] · [[phase]] · [[cards]] · [[dice]]</p>

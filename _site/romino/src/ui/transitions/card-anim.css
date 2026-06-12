@@ -1,0 +1,150 @@
+/* ─── Score preview badge ─── */
+@keyframes score-preview-pop {
+  0%   { transform: scale(0);    opacity: 0; }
+  65%  { transform: scale(1.33); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Square: coin centered — scale must be composed with translate or the center is lost */
+@keyframes square-score-preview-pop {
+  0%   { transform: translate(-50%, -50%) scale(0);    opacity: 0; }
+  65%  { transform: translate(-50%, -50%) scale(1.33); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1);    opacity: 1; }
+}
+
+.score-preview {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 36px;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 1;
+}
+
+.score-preview.is-new {
+  animation: score-preview-pop calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+/* Square-specific: coin centered on the card */
+html.square-cards .converter-card--square .score-preview {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  transform: translate(-50%, -50%);
+}
+
+html.square-cards .converter-card--square .score-preview.is-new {
+  animation: square-score-preview-pop calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+/* ─── Card conversion animation ─── */
+@keyframes card-dice-fadeout {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: scale(0.85); }
+}
+
+@keyframes card-index-expand {
+  from {
+    left: 8px; top: 12px; transform: none;
+    font-size: 48px; width: 40px; padding-bottom: 4px; justify-content: flex-end;
+  }
+  to {
+    left: 50%; top: 50%; transform: translate(-50%, -50%);
+    font-size: 72px; width: 86px; padding-bottom: 0; justify-content: center;
+  }
+}
+
+@keyframes card-span-expand {
+  from { width: 40px; }
+  to   { width: 86px; }
+}
+
+/* Square cards handle their own fade — guard portrait rules */
+.converter-card:not(.converter-card--square).is-converting .card-dice {
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
+}
+
+/* V-suit conversion (3-slot): keep the domino tile; only fade the suit tile. */
+.converter-card--v-suit:not(.converter-card--1slot).is-converting .card-dice {
+  animation: none;
+}
+.converter-card--v-suit.is-converting .dice-tile--top {
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
+}
+
+/* 2-slot domino fill: keep bottom dice visible; only index animates. */
+/* Compact fill (vSuitDominoFill OFF) uses the standard dice fadeout instead. */
+.converter-card--2slot.is-converting:not(.converter-card--2slot-compact-fill) .card-dice {
+  animation: none;
+}
+
+/* 1-slot domino fill: keep center die visible; only index animates. */
+/* Compact fill (vSuitDominoFill OFF) uses the standard dice fadeout instead. */
+.converter-card--1slot.is-converting:not(.converter-card--1slot-compact-fill) .card-dice {
+  animation: none;
+}
+
+.converter-card:not(.converter-card--square).is-converting .card-index {
+  animation: card-index-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
+}
+
+.converter-card:not(.converter-card--square).is-converting .card-index > .card-rank,
+.converter-card:not(.converter-card--square).is-converting .card-index > .card-suit {
+  animation: card-span-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
+  text-align: center;
+}
+
+.converter-card:not(.converter-card--square).is-converting .card-index > .card-suit {
+  margin-top: 0;
+  transition: margin-top calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1);
+}
+
+/* ─── Action-bar slide-in (dice and cards) ─── */
+@keyframes action-bar-slide-in {
+  0%   { transform: translateY(44px) scale(0.88); opacity: 0; }
+  65%  { transform: translateY(-5px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+.die-wrapper.is-new {
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+.converter-card.is-new {
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+/* ─── SQUARE card conversion ─── */
+/* Keyframe mirrors exactly the static positions:
+   from → .card-index--square (left:34 bottom:8 translateX(-50%) 52×48 36px)
+   to   → .card-index--square-filled (centred 100×100 54px) */
+@keyframes square-index-expand {
+  from {
+    left: 34px; bottom: 8px; top: auto; transform: translateX(-50%);
+    font-size: 36px; width: 52px; height: 48px;
+    align-items: flex-end; justify-content: center;
+  }
+  to {
+    left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -50%);
+    font-size: 54px; width: 100px; height: 100px;
+    align-items: center; justify-content: center;
+  }
+}
+
+/* Fade the dice tiles and decorative bars — NOT the wrapper itself.
+   The wrapper background transitions from grey→white separately so it's opaque throughout. */
+html.square-cards .converter-card--square.is-converting .square-tiles,
+html.square-cards .converter-card--square.is-converting .square-bar {
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
+}
+
+html.square-cards .converter-card--square.is-converting .square-wrapper {
+  transition: background calc(0.22s * var(--t)) ease;
+  background: #fff;
+}
+
+html.square-cards .converter-card--square.is-converting .card-index--square {
+  animation: square-index-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
+}

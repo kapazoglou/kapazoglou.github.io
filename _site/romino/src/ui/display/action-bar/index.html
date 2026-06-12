@@ -1,0 +1,26 @@
+<h1 id="action-bar--user-story">Action Bar — User Story</h1>
+
+<p>As a player, I need the action bar to show my hand cards during the place-card phase and my tray dice + upcoming preview during the place-dice phase, with smooth slide-in animations when new elements appear.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">renderActionBar()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#action-bar</code> innerHTML from state</li>
+</ul>
+
+<h2 id="modes">Modes</h2>
+<ul>
+  <li><strong>place-card</strong>: renders hand cards (<code class="language-plaintext highlighter-rouge">.in-tray</code>) with <code class="language-plaintext highlighter-rouge">is-new</code> slide-in if flagged</li>
+  <li><strong>place-dice</strong>: renders dice tray + upcoming preview strip + card ghost</li>
+</ul>
+
+<h2 id="animation-flags-consumed">Animation flags consumed</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">state.newCards</code> — set of card ids to animate in</li>
+  <li><code class="language-plaintext highlighter-rouge">state.newDice</code> — set of die ids to animate in</li>
+  <li><code class="language-plaintext highlighter-rouge">state.newPreview</code> — boolean; triggers preview + ghost slide-in</li>
+  <li><code class="language-plaintext highlighter-rouge">state.newCardAfterPreview</code> / <code class="language-plaintext highlighter-rouge">state.newPreviewInCard</code> — sequencing flags</li>
+  <li><code class="language-plaintext highlighter-rouge">state.suppressGhostAnimation</code> — skips ghost re-animation in full-grid rounds</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[dice]] · [[grid]] · [[preview-anim]] · [[handlers]]</p>

@@ -1,0 +1,14 @@
+<h1 id="scoring--user-story">Scoring — User Story</h1>
+
+<p>As a player, I want to earn coins when I complete a card whose dice satisfy bonus rules (suit matches a rank die; rank dice sum to 7). The coin badge appears on the card during dice placement and animates to the score counter when the card fills.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">evaluateCardScore(cardId)</code> — returns 1 if any scoring rule fires, else 0</li>
+  <li><code class="language-plaintext highlighter-rouge">updateScorePreview(cardId)</code> — shows/hides the 🪙 badge on an in-progress card</li>
+  <li><code class="language-plaintext highlighter-rouge">detectCombo(tiles)</code> — 2-tile combo label/stars (used for legacy ticker, data-only)</li>
+  <li><code class="language-plaintext highlighter-rouge">CARD_SCORE_RULES</code> — array of rule functions for easy extension</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[settings]] · [[cards]] · [[card-anim]] · [[hud]]</p>

@@ -1,0 +1,44 @@
+<h1 id="grid--user-story">Grid — User Story</h1>
+
+<p>As a player, I need to see my cards laid out on a 3×3 (or 4×4) grid with empty slots shown as darkened placeholders. During a sweep I need the exiting cards to visually pop and fly off the board.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">renderGrid()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#grid-container</code> innerHTML from state</li>
+  <li><code class="language-plaintext highlighter-rouge">renderCardHTML(cardId, inTray, gridDraggable, opts)</code> — <code class="language-plaintext highlighter-rouge">opts.gameOver</code> forces 2-slot domino dice on filled cards</li>
+  <li><code class="language-plaintext highlighter-rouge">renderHolderDice(cardId, si)</code> — returns HTML for a single die slot (empty or filled)</li>
+</ul>
+
+<h2 id="css-classes-managed">CSS classes managed</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">#grid-container.grid-4x4</code> — extended grid layout</li>
+  <li><code class="language-plaintext highlighter-rouge">#grid-container.is-scoring-sweep</code> — overflow visible during sweep</li>
+  <li><code class="language-plaintext highlighter-rouge">.grid-slot.is-filled</code> / <code class="language-plaintext highlighter-rouge">.grid-slot--score-pending</code> / <code class="language-plaintext highlighter-rouge">.grid-slot--score-sweep--*</code></li>
+  <li><code class="language-plaintext highlighter-rouge">--exit-order</code> CSS custom property on sweep slots for staggered animation</li>
+</ul>
+
+<h2 id="filled-2-slot-branches">Filled 2-slot branches</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> ON (default): domino layout — rank + <code class="language-plaintext highlighter-rouge">&amp;nbsp;</code>, dice tile stays; class <code class="language-plaintext highlighter-rouge">converter-card--domino</code></li>
+  <li><code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> OFF: compact fill — centered rank + literal <strong>V</strong>, gold, no dice; same structure as filled 3-slot non-V</li>
+  <li>Game-over summary (<code class="language-plaintext highlighter-rouge">opts.gameOver</code>): domino dice on 2-slot filled cards only; 3-slot shows rank + suit</li>
+</ul>
+
+<h2 id="filled-1-slot-v-branches">Filled 1-slot V branches</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> ON (default): domino layout — <code class="language-plaintext highlighter-rouge">*</code> rank + blank suit, center die stays; class <code class="language-plaintext highlighter-rouge">converter-card--domino</code></li>
+  <li><code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> OFF: compact fill — <code class="language-plaintext highlighter-rouge">*</code> rank + literal <strong>V</strong>, gold, no die; unfilled 1-slot V gains <code class="language-plaintext highlighter-rouge">converter-card--1slot-compact-fill</code> for conversion animation</li>
+  <li>Unfilled 1-slot V: top-left <code class="language-plaintext highlighter-rouge">*</code> + blank index (same pre-conversion pattern as 2-slot) so conversion animation can expand the index</li>
+  <li>Non-V 1-slot cards: compact <code class="language-plaintext highlighter-rouge">*</code> + suit letter regardless of setting</li>
+</ul>
+
+<h2 id="square-mode-settingssquare">SQUARE mode (settings.square)</h2>
+<ul>
+  <li>Early-return from <code class="language-plaintext highlighter-rouge">renderCardHTML</code> into square renderer</li>
+  <li>Layouts via <code class="language-plaintext highlighter-rouge">squareAlignment</code>: slots 0+1 → <code class="language-plaintext highlighter-rouge">.square-bar--hor</code> (Figma 5458:17774); slots 1+2 → <code class="language-plaintext highlighter-rouge">.square-bar--ver</code> (Figma 5458:17814); 3 dice / corners-only / 1 die → center</li>
+  <li>Index at bottom-left (36px unfilled, rank on 2 dice); centered 54px on full convert</li>
+  <li><code class="language-plaintext highlighter-rouge">html.square-cards</code> on root: grid rows 110px, card 110×110</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]]</p>

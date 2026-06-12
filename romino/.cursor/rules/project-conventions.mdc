@@ -1,0 +1,73 @@
+---
+description: 
+alwaysApply: true
+---
+
+# römino — Project Conventions
+
+## File Structure (fast lookup — read before searching)
+
+```
+romino/
+├── index.html          ← HTML shell (type="module", links base.css)
+├── base.css            ← CSS vars, font-face, html/body, #app, .template
+├── _index.md           ← Obsidian MOC — links every module
+├── CHANGELOG.md        ← central version history for all modules
+├── EVENTS.md           ← phase/transition event reference
+├── design-specs.md     ← visual design notes
+└── src/
+    ├── main.js         ← entry: wires all init calls, boots game
+    ├── logic/          ← Game Design / Logic (pure state, no DOM)
+    │   ├── state.js    — state object, forbiddenDieSlots, clearScoreExitTimers
+    │   ├── settings.js — SETTINGS_CONFIG, settings, spd()
+    │   ├── cards.js    — card constants, dieSVG, spawnCard, isSlotForbidden, helpers
+    │   ├── dice.js     — deck, shuffle, spawnDice, display sort
+    │   ├── scoring.js  — evaluateCardScore, updateScorePreview
+    │   ├── sweeps.js   — grid geometry, SCORING_RULES, peekAnyScoringMatch
+    │   └── phase.js    — checkPhaseTransition, resetGame, showReplay, convertFilledCards
+    └── ui/
+        ├── display/    ← UI / Display (DOM manipulation)
+        │   ├── render.js         — render() dispatcher
+        │   ├── grid.js           — renderGrid, renderCardHTML, renderHolderDice
+        │   ├── action-bar.js     — renderActionBar
+        │   ├── hud.js            — renderHUD, initDiscards
+        │   ├── game-over.js      — initGameOver (event listeners only)
+        │   ├── settings-panel.js — renderSettingsPanel, initSettingsPanel
+        │   ├── drag-drop.js      — initDragDrop, markForbiddenHolders
+        │   └── handlers.js       — initHandlers, initAutoplay, autoplayCardStep
+        └── transitions/ ← Transitions / Animations
+            ├── timing.js         — BEAT_MS, SWEEP_MS, PIP_GAP_MS, …
+            ├── sweep-anim.js     — startScoringExitAnimation, resolveAllScoringSets
+            ├── card-anim.js      — launchPip, processCardFills
+            └── preview-anim.js  — renderWithPreviewFade
+```
+
+## Layer Rules
+
+| Layer | Owns | Must NOT |
+|----|---|----|
+| `logic/` | State mutations, game rules, pure calculations | Touch the DOM |
+| `ui/display/` | DOM reads/writes, event listeners | Encode game rules |
+| `ui/transitions/` | CSS class toggling, timed animations | Mutate game state (except animation flags) |
+
+## Hard Rules
+
+1. **Vanilla only** — No frameworks, libraries, or build-time transforms beyond Vite. Only vanilla HTML, CSS, and JS. No TypeScript, no JSX, no CSS preprocessors.
+
+2. **Ask before assuming** — When intent, scope, affected files, or edge-case behaviour is ambiguous, ask the user before making changes. A short question prevents wasted work.
+
+3. **Plan mode for multi-module changes** — Any change that touches more than one module must be discussed and planned before implementation. Switch to Plan mode in Cursor.
+
+4. **ES modules only** — Use `import`/`export`. No `require()` or global script tags for new code.
+
+5. **Circular imports are allowed** between `phase.js` ↔ `sweep-anim.js` and `phase.js` ↔ `handlers.js`. They resolve correctly because all cross-module calls happen inside function bodies, not at module evaluation time.
+
+6. **State is the single source of truth** — Never duplicate state in the DOM. Read from `state`, write to `state`, call `render()`.
+
+7. **`spd(ms)`** — Always wrap animation milliseconds with `spd(ms)` from `settings.js` to respect the `fastAnimations` toggle.
+
+## Version History
+
+- Add an entry to `CHANGELOG.md` (not the module `.md` file) when a module is modified.
+- Update `v:` and `date:` in the module's `.md` YAML frontmatter to the new version.
+- Format: `version | date | summary` per line, newest first.
