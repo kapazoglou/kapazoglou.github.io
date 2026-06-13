@@ -4,6 +4,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Mobile viewport — 2026-06-14
+- **base.css** — `.template` uses `100svh` (with `100vh` fallback) and `padding-bottom: env(safe-area-inset-bottom)` so the action bar clears mobile browser chrome and the home indicator
+
 ## Die drag haptics — 2026-06-13
 - **haptics.js v1.1** — `vibrateSlotHover` also used for empty grid cells during card drag
 - **drag-drop.js v2.1** — edge-triggered haptic buzz when card drag enters empty grid slot
