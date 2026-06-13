@@ -17,6 +17,7 @@ export const SETTINGS_CONFIG = [
     label: 'Grid',
     items: [
       { key: 'extendedGrid',      label: 'Extended grid (4 × 4)',                       default: false },
+      { key: 'extraStartCards',   label: 'Extra start cards — +1 in 3×3, +2 in 4×4',   default: false },
       { key: 'square',            label: 'SQUARE — square card layout',                   default: true },
       { key: 'uniqueIndex',      label: 'Unique index — block duplicate dice on grid',              default: true  },
       { key: 'colorRestriction', label: 'Color restriction — treat 1 and 6 as equivalent (SQUARE)', default: false },
@@ -79,4 +80,9 @@ export const settings = Object.fromEntries(
 /** Return ms scaled by the current animation-speed setting (0.5× when fast). */
 export function spd(ms) {
   return settings && settings.fastAnimations ? ms * 0.5 : ms;
+}
+
+/** Cards dealt into the action bar at reset (1, or 2/3 with extraStartCards). */
+export function getInitialStartCardCount() {
+  return 1 + (settings.extraStartCards ? (settings.extendedGrid ? 2 : 1) : 0);
 }

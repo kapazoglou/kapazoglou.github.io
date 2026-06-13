@@ -4,6 +4,15 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Extra start cards — 2026-06-14
+- **action-bar.js v1.7** — hide upcoming preview until first preview-dice animation (`newCardAfterPreview`)
+- **action-bar.js v1.6** — hide upcoming preview until all extra start cards are placed
+- **settings.js v2.2** — export `getInitialStartCardCount()`
+- **phase.js v1.9** — post-opening transition uses `getInitialStartCardCount()` so behaviour matches toggle-off after all extras placed
+- **settings.js v2.1** — `extraStartCards` toggle (+1 in 3×3, +2 in 4×4)
+- **phase.js v1.8** — `resetGame()` deals bonus opening cards before dice load
+- **settings-panel.js v1.4** — `extraStartCards` toggle restarts the game
+
 ## Die drag haptics — 2026-06-13
 - **haptics.js v1.1** — `vibrateSlotHover` also used for empty grid cells during card drag
 - **drag-drop.js v2.1** — edge-triggered haptic buzz when card drag enters empty grid slot

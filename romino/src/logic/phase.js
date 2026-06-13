@@ -1,5 +1,5 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
-import { settings, spd } from './settings.js';
+import { settings, spd, getInitialStartCardCount } from './settings.js';
 import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard } from './cards.js';
 import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
 import { getGridTotal, peekAnyScoringMatch } from './sweeps.js';
@@ -248,7 +248,7 @@ export function checkPhaseTransition() {
       return;
     }
 
-    if (state.currentRoll.length === 0 && state.cardsPlaced === 1) {
+    if (state.currentRoll.length === 0 && state.cardsPlaced === getInitialStartCardCount()) {
       if (settings.diceDecks) {
         state.pendingCardSlotCount = drawFromCardDeck();
       }
@@ -320,7 +320,7 @@ export function checkPhaseTransition() {
 /* ── Autoplay first-two helper ── */
 export function maybeAutoplayFirstTwo() {
   if (!settings.autoplayFirstTwo) return;
-  if (state.cardsPlaced >= 2) return;
+  if (state.cardsPlaced >= getInitialStartCardCount() + 1) return;
   if (state.phase !== 'place-card') return;
   setTimeout(() => autoplayCardStep(), spd(480));
 }
@@ -378,14 +378,20 @@ export function resetGame() {
       state.grid[pos] = id;
     }
   }
-  // When diceDecks is on, draw initial slot count before spawning first card
-  if (settings.diceDecks) {
-    state.pendingCardSlotCount = drawFromCardDeck();
-  }
   initDiscards();
-  const c0 = spawnCard(settings.diceDecks ? state.pendingCardSlotCount : 3);
-  state.actionBarCards = [c0];
-  state.selectedCardId = c0;
+  const extraStartCount = getInitialStartCardCount() - 1;
+  const initialCards = [];
+  for (let i = 0; i <= extraStartCount; i++) {
+    if (settings.diceDecks) {
+      state.pendingCardSlotCount = drawFromCardDeck();
+    }
+    initialCards.push(spawnCard(settings.diceDecks ? state.pendingCardSlotCount : 3));
+  }
+  state.actionBarCards = initialCards;
+  if (extraStartCount > 0) {
+    state.newCards = new Set(initialCards.slice(1));
+  }
+  state.selectedCardId = initialCards[0];
   state.selectedDieId  = null;
   // diceDecks ON: preview starts empty; first card placement fills it (no dice round).
   // diceDecks OFF: pre-populate with a 3-die combo as before.

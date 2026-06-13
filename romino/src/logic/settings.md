@@ -1,8 +1,8 @@
 ---
 module: settings
 layer: logic
-v: 2.0
-date: 2026-06-12
+v: 2.2
+date: 2026-06-14
 deps: []
 ---
 # Settings — User Story
@@ -13,6 +13,7 @@ As a player, I want to toggle game rules on/off (grid size, sweep types, forbidd
 - `SETTINGS_CONFIG` — grouped config array; source of truth for labels, keys, defaults
 - `settings` — live flat object `{ extendedGrid, fastAnimations, … }` initialised from defaults
 - `spd(ms)` — scales a millisecond value by 0.5 when `fastAnimations` is on
+- `getInitialStartCardCount()` — opening deal size (1, or 2/3 with `extraStartCards`)
 
 ## Groups
 - **Card Deck** — diceDecks, extendedCardDeck, deckDice, vSuitDominoFill, tricolor

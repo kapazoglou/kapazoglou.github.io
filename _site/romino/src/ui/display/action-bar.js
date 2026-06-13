@@ -1,5 +1,5 @@
 import { state } from '../../logic/state.js';
-import { settings } from '../../logic/settings.js';
+import { settings, getInitialStartCardCount } from '../../logic/settings.js';
 import { dieSVG, diePipRotationDeg, isDieSelectable } from '../../logic/cards.js';
 import { nextComboForDisplay } from '../../logic/dice.js';
 import { renderCardHTML } from './grid.js';
@@ -149,8 +149,16 @@ export function renderActionBar() {
   }
 
   // Upcoming dice preview — place-card phase.
+  const hideOpeningPreview = settings.extraStartCards && (
+    state.cardsPlaced < getInitialStartCardCount()
+    || (state.cardsPlaced === getInitialStartCardCount()
+        && state.actionBarCards.length === 0
+        && !cardAfterPreview
+        && !previewAfterCard)
+  );
   if (state.phase !== 'replay' &&
       !state.suppressPreviewDice &&
+      !hideOpeningPreview &&
       (state.actionBarCards.length > 0 && state.cardsPlaced > 0 ||
        state.currentRoll.length > 0 ||
        state.cardsPlaced > 1)) {
