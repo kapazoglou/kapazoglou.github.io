@@ -1,16 +1,16 @@
 import { state, forbiddenDieSlots } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCard } from '../../logic/cards.js';
+import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCard, isDieSelectable } from '../../logic/cards.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 import { updateScorePreview } from '../../logic/scoring.js';
-import { selectLeftmostTrayDie } from '../../logic/dice.js';
+import { selectLeftmostTrayDie, prependReturnedDieToTrayOrder } from '../../logic/dice.js';
 import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCardPhase } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
-import { renderWithCardRevert } from '../transitions/preview-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
 import { launchPip, launchPenaltyPip } from '../transitions/card-anim.js';
+import { vibrateSlotHover, vibrateActionBarHover } from '../transitions/haptics.js';
 import { ghostCardHTML } from './action-bar.js';
 
 function countTrayDice() {
@@ -144,10 +144,8 @@ function showTrayReturnPreview(drag) {
     preview.innerHTML = dieSVG(value, 40, diePipRotationDeg(null, value));
   }
 
-  const order = state.trayOrder.filter(id => id === drag.dieId || dieInCard(id) === null);
-  const targetIdx = order.indexOf(drag.dieId);
   const siblings = [...tray.querySelectorAll('.die-wrapper:not(.is-tray-return-preview)')];
-  tray.insertBefore(preview, siblings[targetIdx] ?? null);
+  tray.insertBefore(preview, siblings[0] ?? null);
 
   applyTrayPreviewSelection(preview);
   showCardGhostPreview(bar, drag);
@@ -188,19 +186,14 @@ function returnDieToTray(drag, shouldRevertPhase) {
   }
 
   const originCardId = clearDieFromOriginSlot(drag.originSlot, drag.dieId);
+  prependReturnedDieToTrayOrder(drag.dieId);
   updateScorePreview(originCardId);
   state.selectedDieId = drag.dieId;
 
   if (shouldRevertPhase) {
-    renderWithCardRevert(() => {
-      revertPostDiceCardPhase();
-      state.ghostReverseIn = true;
-      state.newDice = new Set([drag.dieId]);
-    });
-    return;
+    revertPostDiceCardPhase();
   }
 
-  state.newDice = new Set([drag.dieId]);
   render();
   checkStuck();
 }
@@ -287,8 +280,10 @@ export function initDragDrop() {
 
     const wrapper = e.target.closest('.die-wrapper');
     if (!wrapper || wrapper.dataset.locked) return;
+    const dieId = parseInt(wrapper.dataset.dieId, 10);
+    if (isNaN(dieId) || !isDieSelectable(dieId)) return;
+    if (isNaN(dieId) || !isDieSelectable(dieId)) return;
     e.preventDefault();
-    const dieId      = parseInt(wrapper.dataset.dieId, 10);
     const originSlot = wrapper.dataset.slot || null;
     drag = { type: 'die', dieId, originSlot, originEl: wrapper };
     dragStartX = e.clientX; dragStartY = e.clientY; dragCommitted = false;
@@ -308,6 +303,7 @@ export function initDragDrop() {
         ghost.classList.remove('die-drag');
         ghost.innerHTML = renderCardHTML(drag.cardId);
         drag.originEl.classList.add('is-dragging');
+        drag.hoverTarget = null;
       } else {
         ghost.classList.add('die-drag');
         const value = state.dice[drag.dieId].value;
@@ -320,6 +316,7 @@ export function initDragDrop() {
         }
         ghost.innerHTML = dieSVG(value, 40, diePipRotationDeg(slotIdx, value, cardId));
         drag.originEl.classList.add('is-dragging');
+        drag.hoverTarget = null;
         markForbiddenHolders(drag.dieId);
       }
       ghost.style.left = e.clientX + 'px';
@@ -338,12 +335,19 @@ export function initDragDrop() {
 
     if (drag.type === 'card') {
       document.querySelectorAll('.grid-slot').forEach(s => s.classList.remove('drag-over'));
+      let validGridIndex = null;
       const slot = under?.closest('.grid-slot');
       if (slot) {
         const gi = parseInt(slot.dataset.gridSlot, 10);
         const empty  = state.grid[gi] === null;
         const origin = drag.fromGrid && drag.fromGridIndex === gi;
         if (empty || origin) slot.classList.add('drag-over');
+        if (empty) validGridIndex = gi;
+      }
+      const hoverTarget = validGridIndex !== null ? `grid:${validGridIndex}` : null;
+      if (hoverTarget !== drag.hoverTarget) {
+        drag.hoverTarget = hoverTarget;
+        if (hoverTarget) vibrateSlotHover();
       }
       return;
     }
@@ -351,6 +355,7 @@ export function initDragDrop() {
     document.querySelectorAll('.holder-dice').forEach(h => h.classList.remove('drag-over'));
     document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
 
+    let validSlotKey = null;
     const holderEl = under?.closest('.holder-dice');
     if (holderEl) {
       const slotKey = holderEl.dataset.slot;
@@ -360,7 +365,11 @@ export function initDragDrop() {
       const isLocked   = card && card.slots[si] !== null && !state.currentRoll.includes(card.slots[si]);
       const isForbidden = holderEl.classList.contains('is-forbidden');
       const hardBlock   = isForbidden && (!settings.paidSlots || !settings.scoring);
-      if (!isLocked && (!isForbidden || (!hardBlock && settings.scoring && state.score > 0))) holderEl.classList.add('drag-over');
+      const isValidDrop = !isLocked && (!isForbidden || (!hardBlock && settings.scoring && state.score > 0));
+      if (isValidDrop) {
+        holderEl.classList.add('drag-over');
+        validSlotKey = slotKey;
+      }
     } else {
       const trayDie = under?.closest('.die-wrapper');
       if (trayDie && !trayDie.dataset.slot && parseInt(trayDie.dataset.dieId, 10) !== drag.dieId) {
@@ -376,6 +385,13 @@ export function initDragDrop() {
       document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
     } else {
       clearTrayReturnPreview(drag);
+    }
+
+    const hoverTarget = trayPreview ? 'actionBar' : validSlotKey;
+    if (hoverTarget !== drag.hoverTarget) {
+      drag.hoverTarget = hoverTarget;
+      if (hoverTarget === 'actionBar') vibrateActionBarHover();
+      else if (hoverTarget) vibrateSlotHover();
     }
   }, { passive: true });
 

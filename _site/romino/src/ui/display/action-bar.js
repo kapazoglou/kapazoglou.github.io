@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { dieSVG, diePipRotationDeg } from '../../logic/cards.js';
+import { dieSVG, diePipRotationDeg, isDieSelectable } from '../../logic/cards.js';
 import { nextComboForDisplay } from '../../logic/dice.js';
 import { renderCardHTML } from './grid.js';
 
@@ -100,6 +100,10 @@ export function renderActionBar() {
         }
         w.dataset.name  = 'dice_filled_pips';
         w.dataset.dieId = dieId;
+        if (state.phase === 'place-dice' && !isDieSelectable(dieId)) {
+          w.classList.add('is-locked');
+          w.dataset.locked = 'true';
+        }
         if (state.selectedDieId === dieId) w.classList.add('is-selected');
         w.innerHTML = dieSVG(state.dice[dieId].value, 40, diePipRotationDeg(null, state.dice[dieId].value));
         tray.appendChild(w);

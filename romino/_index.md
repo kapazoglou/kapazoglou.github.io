@@ -14,7 +14,7 @@ This is the Obsidian Map of Content. Every module in the project is linked here.
 [[render]] · [[grid]] · [[action-bar]] · [[hud]] · [[game-over]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
 
 ## UI / Transitions
-[[timing]] · [[sweep-anim]] · [[card-anim]] · [[preview-anim]]
+[[timing]] · [[sweep-anim]] · [[card-anim]] · [[preview-anim]] · [[haptics]]
 
 ## Reference
 [[EVENTS]] · [[design-specs]] · [[CHANGELOG]]

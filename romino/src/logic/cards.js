@@ -735,6 +735,66 @@ function withSimulatedSlots(cardId, slots, fn) {
   }
 }
 
+/** Slot snapshots for a move: clears source (if any) and places dieId at toCardId-toSi. */
+function buildSimulatedSlotsForMove(dieId, toCardId, toSi) {
+  const slotMap = {};
+  const prevSlot = dieInCard(dieId);
+  if (prevSlot) {
+    const [pc, ps] = prevSlot.split('-').map(Number);
+    const srcSim = [...state.cards[pc].slots];
+    srcSim[ps] = null;
+    slotMap[pc] = srcSim;
+  }
+  const base = slotMap[toCardId] ?? [...state.cards[toCardId].slots];
+  const destSim = [...base];
+  if (prevSlot) {
+    const [pc, ps] = prevSlot.split('-').map(Number);
+    if (pc === toCardId) destSim[ps] = null;
+  }
+  destSim[toSi] = dieId;
+  slotMap[toCardId] = destSim;
+  return slotMap;
+}
+
+/** Slot snapshot for removing dieId from its current card (tray return). */
+function buildSimulatedSlotsForRemove(dieId) {
+  const prevSlot = dieInCard(dieId);
+  if (!prevSlot) return {};
+  const [pc, ps] = prevSlot.split('-').map(Number);
+  const srcSim = [...state.cards[pc].slots];
+  srcSim[ps] = null;
+  return { [pc]: srcSim };
+}
+
+function withSimulatedGridSlots(slotMap, fn) {
+  const saved = new Map();
+  for (const [cidStr, slots] of Object.entries(slotMap)) {
+    const cardId = Number(cidStr);
+    saved.set(cardId, state.cards[cardId].slots);
+    state.cards[cardId].slots = slots;
+  }
+  try {
+    return fn();
+  } finally {
+    for (const [cardId, slots] of saved) {
+      state.cards[cardId].slots = slots;
+    }
+  }
+}
+
+/** True when two grid cards share the same placed-dice multiset (uniqueIndex rule). */
+function gridHasDuplicateDiceKeys() {
+  const seen = new Set();
+  for (const gid of state.grid) {
+    if (gid === null) continue;
+    const k = cardDiceValuesKey(gid);
+    if (!k) continue;
+    if (seen.has(k)) return true;
+    seen.add(k);
+  }
+  return false;
+}
+
 
 /** Normalise a die value for duplicate comparison.
  *  When colorRestriction + square are both ON, 1 and 6 share the same V-suit colour,
@@ -757,13 +817,7 @@ function cardDiceValuesKey(cardId) {
 
 /** Unique-index rule: no two grid cards may hold the same multiset of placed dice. */
 function wouldViolateUniqueIndex(cardId, si, dieId) {
-  const card = state.cards[cardId];
-  if (!card) return false;
-
-  const sim = [...card.slots];
-  sim[si] = dieId;
-
-  return withSimulatedSlots(cardId, sim, () => {
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
     const myDice = cardDiceValuesKey(cardId);
     if (!myDice) return false;
 
@@ -785,16 +839,16 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
   // No duplicate enforcement for reduced-slot cards
   if ((card.slotCount ?? 3) < 3) return false;
 
-  const sim = [...card.slots];
-  sim[si] = dieId;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    const sim = state.cards[cardId].slots;
 
-  if (sim.some(s => s === null)) return false;
+    if (sim.some(s => s === null)) return false;
 
-  const v0 = state.dice[sim[0]].value;
-  const v1 = state.dice[sim[1]].value;
-  const v2 = state.dice[sim[2]].value;
+    const v0 = state.dice[sim[0]].value;
+    const v1 = state.dice[sim[1]].value;
+    const v2 = state.dice[sim[2]].value;
 
-  if (settings.square) {
+    if (settings.square) {
     const suitSlot = squareSuitSlotFromValues(v0, v1, v2);
     const suit = SUIT_LETTER[[v0, v1, v2][suitSlot]];
     let rankSum;
@@ -870,6 +924,33 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
       if (cardRank(gid) === rank) return true;
     }
   }
+  return false;
+  });
+}
+
+/** True when dieId can be selected: at least one legal move (incl. tray return) avoids duplicates. */
+export function isDieSelectable(dieId) {
+  if (!state.currentRoll.includes(dieId)) return false;
+
+  const prevSlot = dieInCard(dieId);
+
+  if (prevSlot) {
+    const removeMap = buildSimulatedSlotsForRemove(dieId);
+    const removeOk = !withSimulatedGridSlots(removeMap, () =>
+      settings.uniqueIndex ? gridHasDuplicateDiceKeys() : false);
+    if (removeOk) return true;
+  }
+
+  for (const cardId of state.grid) {
+    if (cardId === null) continue;
+    const card = state.cards[cardId];
+    if (!card || card.filled || card.empty) continue;
+    for (let si = 0; si < card.slots.length; si++) {
+      if (card.slots[si] !== null || card.slots[si] === undefined) continue;
+      if (!isSlotForbidden(cardId, si, dieId)) return true;
+    }
+  }
+
   return false;
 }
 

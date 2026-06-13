@@ -1,13 +1,13 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 1.5
-date: 2026-06-12
-deps: [state, settings, cards, sweeps, scoring, dice, phase, sweep-anim, render, hud, card-anim, preview-anim]
+v: 2.1
+date: 2026-06-13
+deps: [state, settings, cards, sweeps, scoring, dice, phase, sweep-anim, render, hud, card-anim, preview-anim, haptics]
 ---
 # Drag-Drop — User Story
 
-As a player, I want to drag dice from the tray into card slots and drag hand cards onto grid slots. While dragging a die, forbidden slots show a visual indicator. Dropping in a valid slot updates state and advances the game phase. I can drop a die back onto the action bar to return it to the tray.
+As a player, I want to drag dice from the tray into card slots and drag hand cards onto grid slots. While dragging a die, forbidden slots show a visual indicator. Dropping in a valid slot updates state and advances the game phase. I can drop a die back onto the action bar to return it to the tray. Entering a valid drop target (die slot, empty grid cell, or action-bar return zone) triggers device haptics once per target.
 
 ## Exports
 - `initDragDrop()` — attaches `pointerdown / pointermove / pointerup / pointercancel` listeners

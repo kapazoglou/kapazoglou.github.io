@@ -1,6 +1,6 @@
 import { state, forbiddenDieSlots } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { isSlotForbidden, dieInCard, updateSquareLayout } from '../../logic/cards.js';
+import { isSlotForbidden, dieInCard, updateSquareLayout, isDieSelectable } from '../../logic/cards.js';
 import { updateScorePreview } from '../../logic/scoring.js';
 import { selectLeftmostTrayDie } from '../../logic/dice.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
@@ -224,10 +224,10 @@ export function initHandlers() {
             state.selectedDieId = null;
             updateScorePreview(ac);
             if (bc !== ac) updateScorePreview(bc);
-          } else {
+          } else if (isDieSelectable(dieId)) {
             state.selectedDieId = dieId;
           }
-        } else {
+        } else if (isDieSelectable(dieId)) {
           state.selectedDieId = dieId;
         }
         render();

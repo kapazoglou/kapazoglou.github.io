@@ -1,7 +1,8 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { PIP_COLOR, SUIT_COLOR, cardRank, cardSuit, cardColor, dieSVG, diePipRotationDeg, isSlotForbidden,
-  squareAlignment, squareDisplayIndex, squareIndexColor, squarePartialConverted, squareDieLocked, refreshGridCoins } from '../../logic/cards.js';
+  squareAlignment, squareDisplayIndex, squareIndexColor, squarePartialConverted, squareDieLocked, refreshGridCoins,
+  isDieSelectable } from '../../logic/cards.js';
 import { getGridTotal, cardIsGridRepositionable } from '../../logic/sweeps.js';
 
 /** Render the small slot-count indicator squares (top-right corner).
@@ -42,7 +43,8 @@ export function renderHolderDice(cardId, si) {
 
   const dv               = state.dice[dieId].value;
   const interactionLocked = squareDieLocked(cardId, si);
-  const locked            = !state.currentRoll.includes(dieId) || interactionLocked;
+  const duplicateLocked   = state.phase === 'place-dice' && !isDieSelectable(dieId);
+  const locked            = !state.currentRoll.includes(dieId) || interactionLocked || duplicateLocked;
   const isNew             = state.currentRoll.includes(dieId) && state.diceAccentActive && !interactionLocked;
   const isSelected  = state.selectedDieId === dieId;
   const newBorderHex = (dv === 1 || dv === 6) ? '#5c5e66' : (PIP_COLOR[dv] ?? '#5c5e66');

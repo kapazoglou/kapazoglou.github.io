@@ -4,6 +4,27 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Die drag haptics — 2026-06-13
+- **haptics.js v1.1** — `vibrateSlotHover` also used for empty grid cells during card drag
+- **drag-drop.js v2.1** — edge-triggered haptic buzz when card drag enters empty grid slot
+- **haptics.js v1.0** — Vibration API helpers for slot and action-bar hover
+- **drag-drop.js v2.0** — edge-triggered haptic buzz on valid slot / action-bar return hover during die drag
+
+## Tray return order — 2026-06-13
+- **drag-drop.js v1.9** — no slide-in or card-revert animation on action-bar die return
+- **dice.js v1.5** — returned dice prepend to front of visible tray (most recently returned leftmost)
+- **dice.js v1.4** — `appendReturnedDieToTrayOrder` appends returned dice after dice already in the tray
+- **drag-drop.js v1.7** — action-bar return uses return-order placement; hover preview shows die at tray end
+
+## Duplicate die selection guard — 2026-06-13
+- **cards.js v1.36** — `isDieSelectable`; move simulation in `wouldCreateDuplicate` clears source slot; dice blocked when every move (incl. tray return) would duplicate
+- **handlers.js** — tap-to-select skips unselectable dice
+- **grid.js** — duplicate-locked dice use `data-locked` during place-dice
+- **action-bar.js v1.5** — tray dice locked when not selectable
+- **drag-drop.js v1.6** — drag blocked for unselectable dice
+- **dice.js v1.3** — `selectLeftmostTrayDie` skips unselectable dice
+- **render.js v1.1** — clears stale die selection when no longer selectable
+
 ## Tray return hover preview — 2026-06-12
 - **drag-drop.js v1.5** — post-dice revert hover also shows card ghost and deselects hand card
 - **action-bar.js v1.4** — export `ghostCardHTML` for tray-return preview

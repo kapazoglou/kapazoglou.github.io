@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { dieInCard } from './cards.js';
+import { dieInCard, isDieSelectable } from './cards.js';
 
 /* ── 3-die combination deck ────────────────────────────────────────────
  * filterExtremes OFF + blankDie OFF : 56 combos (values 1–6, all kept)
@@ -286,7 +286,22 @@ export function orderDiceIdsByValues(ids, valueOrder) {
   });
 }
 
+/** Move a die to the front of the visible tray (before dice already in the tray). */
+export function prependReturnedDieToTrayOrder(dieId) {
+  const idx = state.trayOrder.indexOf(dieId);
+  if (idx === -1) return;
+  state.trayOrder.splice(idx, 1);
+  let insertAt = 0;
+  for (let i = 0; i < state.trayOrder.length; i++) {
+    if (dieInCard(state.trayOrder[i]) === null) {
+      insertAt = i;
+      break;
+    }
+  }
+  state.trayOrder.splice(insertAt, 0, dieId);
+}
+
 export function selectLeftmostTrayDie() {
-  const first = state.trayOrder.find(id => dieInCard(id) === null);
+  const first = state.trayOrder.find(id => dieInCard(id) === null && isDieSelectable(id));
   state.selectedDieId = first ?? null;
 }

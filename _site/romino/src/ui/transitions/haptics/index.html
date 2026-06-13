@@ -1,0 +1,16 @@
+<h1 id="haptics--user-story">Haptics — User Story</h1>
+
+<p>As a player on a phone, I want a subtle device buzz when my dragged die or card enters a valid drop target so placement feels tactile without repeating while I hold still.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">isHapticsSupported()</code> — true when <code class="language-plaintext highlighter-rouge">navigator.vibrate</code> is available</li>
+  <li><code class="language-plaintext highlighter-rouge">vibrateSlotHover()</code> — single short pulse for valid die slots and empty grid cells</li>
+  <li><code class="language-plaintext highlighter-rouge">vibrateActionBarHover()</code> — double pulse for action-bar return-to-tray hover</li>
+</ul>
+
+<h2 id="notes">Notes</h2>
+<p>Uses the Vibration API (Android Chrome). iOS Safari does not expose <code class="language-plaintext highlighter-rouge">navigator.vibrate</code>; calls are no-ops there.</p>
+
+<h2 id="related">Related</h2>
+<p>[[drag-drop]] · [[timing]]</p>

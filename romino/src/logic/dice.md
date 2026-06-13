@@ -1,8 +1,8 @@
 ---
 module: dice
 layer: logic
-v: 1.2
-date: 2026-06-12
+v: 1.5
+date: 2026-06-13
 deps: [state, settings, cards]
 ---
 # Dice — User Story
@@ -20,6 +20,7 @@ As a player, I need dice drawn from a shuffled deck of unique combinations (or r
 - `sortDiceValuesForDisplay(values)` — display-order sort (blanks left, 1s/6s right)
 - `sortDiceIdsForDisplay(ids)` — same but for die ID arrays
 - `orderDiceIdsByValues(ids, valueOrder)` — align tray order to a saved preview sequence
+- `prependReturnedDieToTrayOrder(dieId)` — prepends a returned die before dice already in the tray
 - `selectLeftmostTrayDie()` — sets `state.selectedDieId` to the first unplaced tray die
 
 ## Related
