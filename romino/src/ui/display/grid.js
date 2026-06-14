@@ -63,11 +63,13 @@ function formatSquareIndex(text) {
   return text === ' ' ? '&nbsp;' : text;
 }
 
-function peekUnconvertedLayout(cardId, card) {
+function peekUnconvertedLayout(cardId, card, gameOver = false) {
+  if (gameOver) return false;
   return card.filled && settings.peekUnconvertedLayout && state.peekUnconvertedCards.has(cardId);
 }
 
-function peekableCls(card, inTray) {
+function peekableCls(card, inTray, gameOver = false) {
+  if (gameOver) return '';
   return settings.peekUnconvertedLayout && !inTray && card.filled ? ' converter-card--peekable' : '';
 }
 
@@ -104,7 +106,8 @@ function renderSquareWrapperContent(cardId, alignment, converted = false) {
   </div>`;
 }
 
-function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false) {
+function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false, opts = {}) {
+  const gameOver = opts.gameOver === true;
   const card = state.cards[cardId];
   const gridDragCls  = gridDraggable ? ' converter-card--grid-draggable' : '';
   const selectedCls  = state.selectedCardId === cardId ? ' is-selected' : '';
@@ -115,9 +118,9 @@ function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false) {
   const indexText = formatSquareIndex(squareDisplayIndex(cardId));
   const indexColor = squareIndexColor(cardId);
 
-  const peekCls = peekableCls(card, inTray);
+  const peekCls = peekableCls(card, inTray, gameOver);
 
-  if (card.filled && !peekUnconvertedLayout(cardId, card)) {
+  if (card.filled && !peekUnconvertedLayout(cardId, card, gameOver)) {
     if (squarePartialConverted(cardId)) {
       const align = squareAlignment(cardId);
       return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
@@ -160,9 +163,9 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
   const color     = cardColor(cardId);
   const textColor = suit ? SUIT_COLOR[suit] : (color && color.toUpperCase() !== '#FFFFFF' ? color : '#D3D6E5');
 
-  const peekCls = peekableCls(card, inTray);
+  const peekCls = peekableCls(card, inTray, gameOver);
 
-  if (card.filled && !peekUnconvertedLayout(cardId, card)) {
+  if (card.filled && !peekUnconvertedLayout(cardId, card, gameOver)) {
     const slotCountFilled = card.slotCount ?? 3;
     if (slotCountFilled === 1 && !settings.vSuitDominoFill && suit === 'V') {
       return `<div class="converter-card converter-card--filled${peekCls}" data-card-id="${cardId}" style="color:#CCB400">

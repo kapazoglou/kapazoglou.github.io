@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ## Peek unconverted layout — 2026-06-14
+- **grid.js v2.3** — game-over summary (`opts.gameOver`) always renders converted layout, ignoring peek state
 - **settings.js v2.3** — `peekUnconvertedLayout` toggle (Grid group, default off)
 - **state.js v1.6** — `peekUnconvertedCards` Set tracks per-card layout peek
 - **phase.js v1.10** — `resetGame()` clears peek set
