@@ -1,7 +1,7 @@
 ---
 module: settings
 layer: logic
-v: 2.3
+v: 2.4
 date: 2026-06-14
 deps: []
 ---
@@ -20,8 +20,10 @@ As a player, I want to toggle game rules on/off (grid size, sweep types, forbidd
 - **Grid** — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo, peekUnconvertedLayout
 - **Dice Deck** — blankDie, blanksInRank, filterExtremes, sortDice
 - **Constraints** — forbiddenSlots, paidSlots, refundOnMove, swapDice
-- **Scoring** — scoreSuitRepeat, scoreSuitExtreme, scoreRankSum7
+- **Scoring** — scoring, gridCoinsExcludeConverted, scoreSuitRepeat, scoreSuitExtreme, scoreRankSum7
 - **Sweeps** — set, runFlush, runDiff, runAny, wildTarok, flush, tarokFlush, domino
+
+- `gridCoinsExcludeConverted` (default `true`) — when ON with SQUARE + Scoring, filled (converted) cards do not participate in grid coin matches.
 
 ## Notes
 - `vSuitDominoFill` (default `true`) — when `true`, converted 2-slot V cards show the domino layout (rank + blank, bottom dice visible); when `false`, they show a compact filled index (centered rank + literal **V**, gold color, no dice) matching the converted 3-slot non-V style. Same toggle applies to 1-slot V cards: domino (`*` + blank, center die visible) when on; compact (`*` + **V**, no die) when off.

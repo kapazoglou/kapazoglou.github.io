@@ -1,8 +1,8 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.1
-date: 2026-06-13
+v: 2.2
+date: 2026-06-14
 deps: [state, settings, cards, sweeps, scoring, dice, phase, sweep-anim, render, hud, card-anim, preview-anim, haptics]
 ---
 # Drag-Drop — User Story

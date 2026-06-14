@@ -1,0 +1,14 @@
+<h1 id="grid-coins--user-story">Grid Coins — User Story</h1>
+
+<p>When SQUARE and Scoring are both on, coins appear between directly opposite matching dice on adjacent cards (horizontal: slot 1↔0; vertical: slot 2↔1 — no diagonal pairs). Placing a card from the tray collects all visible coins at once.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">gridCoinEdgeSlots(key)</code> — parse <code class="language-plaintext highlighter-rouge">"gridA:gridB:slotA:slotB"</code></li>
+  <li><code class="language-plaintext highlighter-rouge">gridCoinCenterPx(key)</code> — fallback local centre for coin key <code class="language-plaintext highlighter-rouge">"gridA:gridB"</code></li>
+  <li><code class="language-plaintext highlighter-rouge">syncGridCoinPositions()</code> — after render, centre coins on actual dice midpoints (all rows/columns)</li>
+  <li><code class="language-plaintext highlighter-rouge">collectGridCoins()</code> — parallel fly-to-score on tray → grid placement; marks edges collected</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[cards]] · [[grid]] · [[handlers]] · [[drag-drop]] · [[card-anim]]</p>

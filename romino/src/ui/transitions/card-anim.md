@@ -1,8 +1,8 @@
 ---
 module: card-anim
 layer: ui/transitions
-v: 1.3
-date: 2026-06-11
+v: 1.4
+date: 2026-06-14
 deps: [state, settings, phase, render, hud]
 ---
 # Card Anim — User Story

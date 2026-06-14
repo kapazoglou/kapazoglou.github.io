@@ -954,34 +954,55 @@ export function isDieSelectable(dieId) {
   return false;
 }
 
-/** SQUARE mode: rebuild gridCoins from adjacent matching dice pairs. */
+/** SQUARE: only directly opposite slot pairs may spawn grid coins (no diagonals). */
+const GRID_COIN_H_SLOTS = [1, 0]; // left slot 1 ↔ right slot 0
+const GRID_COIN_V_SLOTS = [2, 1]; // top slot 2 ↔ bottom slot 1
+
+function gridCoinKey(gridA, gridB, slotA, slotB) {
+  return `${gridA}:${gridB}:${slotA}:${slotB}`;
+}
+
+function tryAddAlignedGridCoin(matches, gridA, gridB, slotA, slotB) {
+  const idA = state.grid[gridA];
+  const idB = state.grid[gridB];
+  if (idA == null || idB == null) return;
+  const cardA = state.cards[idA];
+  const cardB = state.cards[idB];
+  if (!cardA || !cardB) return;
+  if (settings.gridCoinsExcludeConverted && (cardA.filled || cardB.filled)) return;
+  if (!slotHasDie(cardA, slotA) || !slotHasDie(cardB, slotB)) return;
+  const dA = cardA.slots[slotA];
+  const dB = cardB.slots[slotB];
+  if (normaliseDieValue(state.dice[dA]?.value) === normaliseDieValue(state.dice[dB]?.value))
+    matches.add(gridCoinKey(gridA, gridB, slotA, slotB));
+}
+
+/** SQUARE mode: rebuild active gridCoins from adjacent matching dice pairs. */
 export function refreshGridCoins() {
-  const coins = new Set();
-  if (!settings.square || !settings.scoring) { state.gridCoins = coins; return; }
+  const matches = new Set();
+  if (!settings.square || !settings.scoring) {
+    state.gridCoins = matches;
+    return;
+  }
   const size = settings.extendedGrid ? 4 : 3;
-  // Horizontal: left card slots[1] ↔ right card slots[0]
+  const [hA, hB] = GRID_COIN_H_SLOTS;
+  const [vA, vB] = GRID_COIN_V_SLOTS;
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size - 1; c++) {
-      const a = r * size + c, b = a + 1;
-      const idA = state.grid[a], idB = state.grid[b];
-      if (!idA || !idB) continue;
-      const dA = state.cards[idA]?.slots[1];
-      const dB = state.cards[idB]?.slots[0];
-      if (dA != null && dB != null && dA !== undefined && dB !== undefined
-          && state.dice[dA]?.value === state.dice[dB]?.value) coins.add(`${a}:${b}`);
+      const a = r * size + c;
+      const b = a + 1;
+      tryAddAlignedGridCoin(matches, a, b, hA, hB);
     }
   }
-  // Vertical: top card slots[2] ↔ bottom card slots[1]
   for (let r = 0; r < size - 1; r++) {
     for (let c = 0; c < size; c++) {
-      const a = r * size + c, b = a + size;
-      const idA = state.grid[a], idB = state.grid[b];
-      if (!idA || !idB) continue;
-      const dA = state.cards[idA]?.slots[2];
-      const dB = state.cards[idB]?.slots[1];
-      if (dA != null && dB != null && dA !== undefined && dB !== undefined
-          && state.dice[dA]?.value === state.dice[dB]?.value) coins.add(`${a}:${b}`);
+      const a = r * size + c;
+      const b = a + size;
+      tryAddAlignedGridCoin(matches, a, b, vA, vB);
     }
   }
-  state.gridCoins = coins;
+  for (const key of state.collectedGridCoins) {
+    if (!matches.has(key)) state.collectedGridCoins.delete(key);
+  }
+  state.gridCoins = new Set([...matches].filter(k => !state.collectedGridCoins.has(k)));
 }

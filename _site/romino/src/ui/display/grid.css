@@ -485,10 +485,9 @@ html.square-cards .card-index--square-partial {
 
 html.square-cards .grid-coin {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  font-size: 18px;
-  line-height: 24px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 28px;
+  line-height: 1;
   text-align: center;
   transform: translate(-50%, -50%);
   pointer-events: none;

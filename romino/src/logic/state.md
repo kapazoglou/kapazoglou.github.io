@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 1.6
+v: 1.7
 date: 2026-06-14
 deps: []
 ---

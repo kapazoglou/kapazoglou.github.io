@@ -1,8 +1,8 @@
 ---
 module: cards
 layer: logic
-v: 1.36
-date: 2026-06-13
+v: 1.40
+date: 2026-06-14
 deps: [state, settings]
 ---
 # Cards — User Story

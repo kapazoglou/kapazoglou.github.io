@@ -1,7 +1,7 @@
 ---
 module: handlers
 layer: ui/display
-v: 1.4
+v: 1.5
 date: 2026-06-14
 deps: [state, settings, cards, scoring, dice, sweeps, phase, sweep-anim, render, hud, card-anim, drag-drop]
 ---

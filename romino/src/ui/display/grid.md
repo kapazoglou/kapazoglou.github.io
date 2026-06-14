@@ -1,9 +1,9 @@
 ---
 module: grid
 layer: ui/display
-v: 2.3
+v: 2.5
 date: 2026-06-14
-deps: [state, settings, cards, sweeps]
+deps: [state, settings, cards, sweeps, grid-coins]
 ---
 # Grid — User Story
 
@@ -36,6 +36,7 @@ As a player, I need to see my cards laid out on a 3×3 (or 4×4) grid with empty
 - Layouts via `squareAlignment`: slots 0+1 → `.square-bar--hor` (Figma 5458:17774); slots 1+2 → `.square-bar--ver` (Figma 5458:17814); 3 dice / corners-only / 1 die → center
 - Index at bottom-left (36px unfilled, rank on 2 dice); centered 54px on full convert
 - `html.square-cards` on root: grid rows 110px, card 110×110
+- When scoring is also on: `.grid-coin` between directly opposite matching dice only (1↔0 horiz, 2↔1 vert; see [[grid-coins]])
 
 ## Related
-[[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]]
+[[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]] · [[grid-coins]]

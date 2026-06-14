@@ -4,6 +4,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Grid coin alignment + converted toggle — 2026-06-14
+- **settings.js v2.4** — `gridCoinsExcludeConverted` toggle (Scoring group, default on)
+- **cards.js v1.40** — coins only on directly opposite slots (1↔0 horizontal, 2↔1 vertical); skip filled cards when toggle on
+
+## SQUARE grid match coins — 2026-06-14
+- **cards.js v1.39** — spawn on any matching edge-facing dice pair (1/2/3-slot, partial fills); keys `gridA:gridB:slotA:slotB`
+- **grid-coins.js v1.2** — parse slot-specific keys; midpoint fallback from slot centres
+
 ## Peek unconverted layout — 2026-06-14
 - **grid.js v2.3** — game-over summary (`opts.gameOver`) always renders converted layout, ignoring peek state
 - **settings.js v2.3** — `peekUnconvertedLayout` toggle (Grid group, default off)

@@ -52,7 +52,8 @@ export const SETTINGS_CONFIG = [
     group: 'scoring',
     label: 'Scoring',
     items: [
-      { key: 'scoring',          label: 'Scoring — earn and spend coins',               default: false  },
+      { key: 'scoring',          label: 'Scoring — earn and spend coins',               default: true  },
+      { key: 'gridCoinsExcludeConverted', label: 'Grid coins — exclude converted cards', default: true  },
       { key: 'scoreSuitRepeat',  label: 'Suit die scores when it matches an outer die',  default: true  },
       { key: 'scoreSuitExtreme', label: 'Suit die scores when extreme and card has 1 or 6', default: true },
       { key: 'scoreRankSum7',    label: 'Score when the two rank dice sum to 7',          default: true  },

@@ -5,7 +5,7 @@ import { render } from '../display/render.js';
 import { renderHUD } from '../display/hud.js';
 
 /** Launch one score pip from fromRect toward toRect. */
-export function launchPip(fromRect, toRect, onArrival, onDone) {
+export function launchPip(fromRect, toRect, onArrival, onDone, fontSizePx = 56) {
   const POP_UP_MS    = spd(110);
   const POP_DOWN_MS  = spd(130);
   const POP_TOTAL_MS = POP_UP_MS + POP_DOWN_MS;
@@ -19,7 +19,7 @@ export function launchPip(fromRect, toRect, onArrival, onDone) {
     left:          `${fromRect.left + fromRect.width  / 2}px`,
     top:           `${fromRect.top  + fromRect.height / 2}px`,
     transform:     'translate(-50%, -50%) scale(1)',
-    fontSize:      '56px',
+    fontSize:      `${fontSizePx}px`,
     lineHeight:    '1',
     pointerEvents: 'none',
     zIndex:        '9998',

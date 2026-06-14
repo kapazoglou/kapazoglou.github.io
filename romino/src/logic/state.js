@@ -19,7 +19,8 @@ export const state = {
   scoringExit:               null,
   pendingLineSweeps:         [],
   sweepOverlay:              {},
-  gridCoins:                 new Set(), // SQUARE: coin keys "a:b" for matching adjacent dice pairs
+  gridCoins:                 new Set(), // SQUARE: active coins — keys "gridA:gridB:slotA:slotB"
+  collectedGridCoins:        new Set(), // SQUARE: collected pairs — no respawn until match breaks
   pendingPostSweepCards:     0,
   pendingSecondNewCard:      null,
   diceDeck:                  [],

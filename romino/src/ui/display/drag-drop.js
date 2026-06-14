@@ -9,6 +9,7 @@ import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCar
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
+import { collectGridCoins } from './grid-coins.js';
 import { launchPip, launchPenaltyPip } from '../transitions/card-anim.js';
 import { vibrateSlotHover, vibrateActionBarHover } from '../transitions/haptics.js';
 import { ghostCardHTML } from './action-bar.js';
@@ -196,31 +197,6 @@ function returnDieToTray(drag, shouldRevertPhase) {
 
   render();
   checkStuck();
-}
-
-function collectGridCoins() {
-  if (!settings.square || !settings.scoring || !state.gridCoins.size) return;
-  const gridEl  = document.getElementById('grid-container');
-  const scoreEl = document.getElementById('score-display');
-  if (!gridEl || !scoreEl) return;
-  const gridRect = gridEl.getBoundingClientRect();
-  const toRect   = scoreEl.getBoundingClientRect();
-  const CELL = 119, PAD = 14;
-  const size = settings.extendedGrid ? 4 : 3;
-  for (const key of state.gridCoins) {
-    const [aStr, bStr] = key.split(':');
-    const a = parseInt(aStr, 10), b = parseInt(bStr, 10);
-    const ra = Math.floor(a / size), ca = a % size;
-    const cx = b === a + 1
-      ? gridRect.left + PAD + ca * CELL + 117.5
-      : gridRect.left + PAD + ca * CELL + 84;
-    const cy = b === a + 1
-      ? gridRect.top  + PAD + ra * CELL + 32
-      : gridRect.top  + PAD + ra * CELL + 117.5;
-    launchPip({ left: cx - 12, top: cy - 12, width: 24, height: 24 },
-      toRect, () => { state.score++; renderHUD(); }, () => {});
-  }
-  state.gridCoins = new Set();
 }
 
 export function markForbiddenHolders(dieId) {

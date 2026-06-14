@@ -11,7 +11,7 @@ This is the Obsidian Map of Content. Every module in the project is linked here.
 [[state]] · [[settings]] · [[cards]] · [[dice]] · [[scoring]] · [[sweeps]] · [[phase]]
 
 ## UI / Display
-[[render]] · [[grid]] · [[action-bar]] · [[hud]] · [[game-over]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
+[[render]] · [[grid]] · [[grid-coins]] · [[action-bar]] · [[hud]] · [[game-over]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
 
 ## UI / Transitions
 [[timing]] · [[sweep-anim]] · [[card-anim]] · [[preview-anim]] · [[haptics]]

@@ -1,3 +1,4 @@
+import { gridCoinCenterPx, syncGridCoinPositions } from './grid-coins.js';
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { PIP_COLOR, SUIT_COLOR, cardRank, cardSuit, cardColor, dieSVG, diePipRotationDeg, isSlotForbidden,
@@ -308,23 +309,14 @@ export function renderGrid() {
     </div>`;
   }).join('');
 
-  const CELL = 119, PAD = 14;
-  const size = settings.extendedGrid ? 4 : 3;
   let coinHTML = '';
-  if (settings.square) {
+  if (settings.square && settings.scoring) {
     for (const key of state.gridCoins) {
-      const [aStr, bStr] = key.split(':');
-      const a = parseInt(aStr, 10), b = parseInt(bStr, 10);
-      const ra = Math.floor(a / size), ca = a % size;
-      const cx = b === a + 1
-        ? PAD + ca * CELL + 117.5
-        : PAD + ca * CELL + 84;
-      const cy = b === a + 1
-        ? PAD + ra * CELL + 32
-        : PAD + ra * CELL + 117.5;
+      const { cx, cy } = gridCoinCenterPx(key);
       coinHTML += `<div class="grid-coin" data-coin-key="${key}" style="left:${cx}px;top:${cy}px">🪙</div>`;
     }
   }
 
   el.innerHTML = gridHTML + coinHTML;
+  requestAnimationFrame(() => syncGridCoinPositions());
 }

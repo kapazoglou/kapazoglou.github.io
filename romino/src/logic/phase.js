@@ -371,6 +371,7 @@ export function resetGame() {
   state.selectedCardId = null;
   state.peekUnconvertedCards = new Set();
   state.gridCoins = new Set();
+  state.collectedGridCoins = new Set();
   forbiddenDieSlots.clear();
   clearScoreExitTimers();
   if (settings.extendedGrid && settings.emptyCards) {
