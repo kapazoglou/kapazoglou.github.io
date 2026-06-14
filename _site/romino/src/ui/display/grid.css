@@ -125,6 +125,7 @@
 .card-suit--filled { width: 86px; text-align: center; }
 
 .converter-card--filled { gap: 8px; cursor: default; }
+.converter-card--peekable { cursor: pointer; }
 
 /* ─── CARD DICE AREA ─── */
 .card-dice {

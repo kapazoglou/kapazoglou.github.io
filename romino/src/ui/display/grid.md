@@ -1,8 +1,8 @@
 ---
 module: grid
 layer: ui/display
-v: 2.1
-date: 2026-06-13
+v: 2.2
+date: 2026-06-14
 deps: [state, settings, cards, sweeps]
 ---
 # Grid — User Story
@@ -11,7 +11,7 @@ As a player, I need to see my cards laid out on a 3×3 (or 4×4) grid with empty
 
 ## Exports
 - `renderGrid()` — rebuilds `#grid-container` innerHTML from state
-- `renderCardHTML(cardId, inTray, gridDraggable, opts)` — `opts.gameOver` forces 2-slot domino dice on filled cards
+- `renderCardHTML(cardId, inTray, gridDraggable, opts)` — `opts.gameOver` forces 2-slot domino dice on filled cards; `peekUnconvertedLayout` + `state.peekUnconvertedCards` render pre-conversion layout for filled grid cards
 - `renderHolderDice(cardId, si)` — returns HTML for a single die slot (empty or filled)
 
 ## CSS classes managed

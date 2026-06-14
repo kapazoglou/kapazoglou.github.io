@@ -1,3 +1,4 @@
+import { state } from '../../logic/state.js';
 import { settings, SETTINGS_CONFIG } from '../../logic/settings.js';
 import { resetGame } from '../../logic/phase.js';
 import { render } from './render.js';
@@ -45,6 +46,9 @@ export function renderSettingsPanel() {
         }
         if (item.key === 'fastAnimations') {
           document.documentElement.classList.toggle('fast-anims', input.checked);
+        }
+        if (item.key === 'peekUnconvertedLayout' && !input.checked) {
+          state.peekUnconvertedCards.clear();
         }
         if (item.key === 'square') {
           document.documentElement.classList.toggle('square-cards', input.checked);

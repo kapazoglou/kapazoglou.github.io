@@ -25,6 +25,7 @@ export const SETTINGS_CONFIG = [
       { key: 'fastAnimations',    label: 'Fast animations (2×)',                         default: true  },
       { key: 'autoplayLongPress', label: 'Autoplay on long press',                       default: true  },
       { key: 'autoplayFirstTwo',  label: 'Autoplay first two cards',                     default: false  },
+      { key: 'peekUnconvertedLayout', label: 'Peek unconverted — tap converted cards to toggle layout', default: true },
     ],
   },
   {

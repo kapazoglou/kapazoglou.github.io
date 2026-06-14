@@ -40,6 +40,7 @@ export const state = {
   newCardAfterPreview:       null,
   selectedDieId:             null,
   selectedCardId:            null,
+  peekUnconvertedCards:      new Set(), // filled grid card ids showing pre-conversion layout
   // Phase/round flags
   fullGridDiceRound:         false,
   suppressPreviewDice:       false,

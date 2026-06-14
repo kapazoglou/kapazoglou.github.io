@@ -5,7 +5,7 @@
 <h2 id="exports">Exports</h2>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderGrid()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#grid-container</code> innerHTML from state</li>
-  <li><code class="language-plaintext highlighter-rouge">renderCardHTML(cardId, inTray, gridDraggable, opts)</code> — <code class="language-plaintext highlighter-rouge">opts.gameOver</code> forces 2-slot domino dice on filled cards</li>
+  <li><code class="language-plaintext highlighter-rouge">renderCardHTML(cardId, inTray, gridDraggable, opts)</code> — <code class="language-plaintext highlighter-rouge">opts.gameOver</code> forces 2-slot domino dice on filled cards; <code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> + <code class="language-plaintext highlighter-rouge">state.peekUnconvertedCards</code> render pre-conversion layout for filled grid cards</li>
   <li><code class="language-plaintext highlighter-rouge">renderHolderDice(cardId, si)</code> — returns HTML for a single die slot (empty or filled)</li>
 </ul>
 

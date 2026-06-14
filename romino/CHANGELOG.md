@@ -4,6 +4,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Peek unconverted layout — 2026-06-14
+- **settings.js v2.3** — `peekUnconvertedLayout` toggle (Grid group, default off)
+- **state.js v1.6** — `peekUnconvertedCards` Set tracks per-card layout peek
+- **phase.js v1.10** — `resetGame()` clears peek set
+- **grid.js v2.2** — filled cards in peek set render pre-conversion layout instantly; `converter-card--peekable` cursor on grid
+- **handlers.js v1.4** — tap filled grid card toggles peek when setting on
+- **settings-panel.js v1.5** — clears peek set when toggle turned off
+
 ## Extra start cards — 2026-06-14
 - **action-bar.js v1.7** — hide upcoming preview until first preview-dice animation (`newCardAfterPreview`)
 - **action-bar.js v1.6** — hide upcoming preview until all extra start cards are placed

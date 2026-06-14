@@ -1,7 +1,7 @@
 ---
 module: settings
 layer: logic
-v: 2.2
+v: 2.3
 date: 2026-06-14
 deps: []
 ---
@@ -17,9 +17,8 @@ As a player, I want to toggle game rules on/off (grid size, sweep types, forbidd
 
 ## Groups
 - **Card Deck** — diceDecks, extendedCardDeck, deckDice, vSuitDominoFill, tricolor
-- **Grid** — extendedGrid, square, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo
+- **Grid** — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo, peekUnconvertedLayout
 - **Dice Deck** — blankDie, blanksInRank, filterExtremes, sortDice
-- **Grid** — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo
 - **Constraints** — forbiddenSlots, paidSlots, refundOnMove, swapDice
 - **Scoring** — scoreSuitRepeat, scoreSuitExtreme, scoreRankSum7
 - **Sweeps** — set, runFlush, runDiff, runAny, wildTarok, flush, tarokFlush, domino
@@ -30,4 +29,5 @@ As a player, I want to toggle game rules on/off (grid size, sweep types, forbidd
 - `square` (default `false`) — square 110×110 card layout with progressive rank/suit display; mutually exclusive with `diceDecks`; toggling resets the game.
 - `uniqueIndex` (default `true`) — when ON, forbids any placement whose resulting placed-dice multiset (sorted values of all active slots so far) matches another grid card; rank and index are irrelevant; works even when `forbiddenSlots` is off.
 - `colorRestriction` (default `false`) — when ON together with `square`, treats die values 1 and 6 as equivalent in the unique-index dice comparison (both mapped to 1), so `[1,3]` and `[6,3]` are considered the same multiset.
+- `peekUnconvertedLayout` (default `false`) — when ON, tapping a converted card on the grid instantly toggles between converted and pre-conversion layout (no animation).
 [[state]] · [[settings-panel]] · [[sweeps]] · [[scoring]]

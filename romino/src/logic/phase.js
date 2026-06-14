@@ -369,6 +369,7 @@ export function resetGame() {
   state.newCardAfterPreview = null;
   state.selectedDieId = null;
   state.selectedCardId = null;
+  state.peekUnconvertedCards = new Set();
   state.gridCoins = new Set();
   forbiddenDieSlots.clear();
   clearScoreExitTimers();

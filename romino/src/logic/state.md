@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 1.5
-date: 2026-06-12
+v: 1.6
+date: 2026-06-14
 deps: []
 ---
 # State — User Story
@@ -22,7 +22,8 @@ As the game engine, I need a single mutable object that holds the complete game 
 - `state.score` — running coin total
 - `state.scoringExit` — active sweep animation descriptor (null when idle)
 - `state.discoveredCards` — unique filled card IDs in first-discovery order (game-over summary)
-- `state.discoveredKeys` — Set of `cardIdentityKey` values, snapshotted at fill time
+- `state.selectedCardId` — card selected for placement/reposition
+- `state.peekUnconvertedCards` — Set of filled grid card ids currently showing pre-conversion layout (`peekUnconvertedLayout`)
 
 ## Related
 [[settings]] · [[phase]] · [[cards]] · [[dice]]

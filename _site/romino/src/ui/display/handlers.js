@@ -283,6 +283,20 @@ export function initHandlers() {
       }
     }
 
+    if (settings.peekUnconvertedLayout) {
+      const peekEl = e.target.closest('.grid-slot.is-filled .converter-card');
+      if (peekEl && !e.target.closest('.die-wrapper')) {
+        const cardId = parseInt(peekEl.dataset.cardId, 10);
+        const card = state.cards[cardId];
+        if (!isNaN(cardId) && card?.filled && state.grid.includes(cardId)) {
+          if (state.peekUnconvertedCards.has(cardId)) state.peekUnconvertedCards.delete(cardId);
+          else state.peekUnconvertedCards.add(cardId);
+          render();
+          return;
+        }
+      }
+    }
+
     const cardEl = e.target.closest('.converter-card.in-tray');
     if (cardEl) {
       const cardId = parseInt(cardEl.dataset.cardId, 10);

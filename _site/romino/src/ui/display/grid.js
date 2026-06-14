@@ -63,6 +63,14 @@ function formatSquareIndex(text) {
   return text === ' ' ? '&nbsp;' : text;
 }
 
+function peekUnconvertedLayout(cardId, card) {
+  return card.filled && settings.peekUnconvertedLayout && state.peekUnconvertedCards.has(cardId);
+}
+
+function peekableCls(card, inTray) {
+  return settings.peekUnconvertedLayout && !inTray && card.filled ? ' converter-card--peekable' : '';
+}
+
 function renderSquareTile(cardId, si, bordered = true) {
   const tileCls = bordered ? ' square-tile--bordered' : '';
   return `<div class="square-tile${tileCls}">${renderHolderDice(cardId, si)}</div>`;
@@ -107,17 +115,19 @@ function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false) {
   const indexText = formatSquareIndex(squareDisplayIndex(cardId));
   const indexColor = squareIndexColor(cardId);
 
-  if (card.filled) {
+  const peekCls = peekableCls(card, inTray);
+
+  if (card.filled && !peekUnconvertedLayout(cardId, card)) {
     if (squarePartialConverted(cardId)) {
       const align = squareAlignment(cardId);
-      return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}" data-card-id="${cardId}" style="color:${indexColor}">
+      return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
         <div class="square-wrapper square-wrapper--converted">${renderSquareWrapperContent(cardId, align, true)}</div>
         <div class="card-index card-index--square card-index--square-partial">${indexText}</div>
         ${scorePreviewHTML}
       </div>`;
     }
     // Full convert: white wrapper, no dice, large centered index
-    return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}" data-card-id="${cardId}" style="color:${indexColor}">
+    return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
       <div class="square-wrapper square-wrapper--converted"></div>
       <div class="card-index card-index--square card-index--square-filled">${indexText}</div>
       ${scorePreviewHTML}
@@ -125,7 +135,7 @@ function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false) {
   }
 
   const alignment = squareAlignment(cardId);
-  return `<div class="converter-card converter-card--square${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}" data-card-id="${cardId}" style="color:${indexColor}">
+  return `<div class="converter-card converter-card--square${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
     <div class="square-wrapper">${renderSquareWrapperContent(cardId, alignment)}</div>
     <div class="card-index card-index--square">${indexText}</div>
     ${scorePreviewHTML}
@@ -150,17 +160,19 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
   const color     = cardColor(cardId);
   const textColor = suit ? SUIT_COLOR[suit] : (color && color.toUpperCase() !== '#FFFFFF' ? color : '#D3D6E5');
 
-  if (card.filled) {
+  const peekCls = peekableCls(card, inTray);
+
+  if (card.filled && !peekUnconvertedLayout(cardId, card)) {
     const slotCountFilled = card.slotCount ?? 3;
     if (slotCountFilled === 1 && !settings.vSuitDominoFill && suit === 'V') {
-      return `<div class="converter-card converter-card--filled" data-card-id="${cardId}" style="color:#CCB400">
+      return `<div class="converter-card converter-card--filled${peekCls}" data-card-id="${cardId}" style="color:#CCB400">
         <div class="card-index card-index--filled">
           <span class="card-rank card-rank--filled">*</span><span class="card-suit card-suit--filled">V</span>
         </div>
       </div>`;
     }
     if (slotCountFilled === 1 && settings.vSuitDominoFill && suit === 'V') {
-      return `<div class="converter-card converter-card--filled converter-card--domino" data-card-id="${cardId}" style="color:#CCB400">
+      return `<div class="converter-card converter-card--filled converter-card--domino${peekCls}" data-card-id="${cardId}" style="color:#CCB400">
         <div class="card-index card-index--filled">
           <span class="card-rank card-rank--filled">*</span><span class="card-suit card-suit--filled">&nbsp;</span>
         </div>
@@ -170,14 +182,14 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
       </div>`;
     }
     if (slotCountFilled === 1) {
-      return `<div class="converter-card converter-card--filled" data-card-id="${cardId}" style="color:${textColor}">
+      return `<div class="converter-card converter-card--filled${peekCls}" data-card-id="${cardId}" style="color:${textColor}">
         <div class="card-index card-index--filled">
           <span class="card-rank card-rank--filled">*</span>${suit ? `<span class="card-suit card-suit--filled">${suit}</span>` : ''}
         </div>
       </div>`;
     }
     if (slotCountFilled === 2 && !settings.vSuitDominoFill && !gameOver) {
-      return `<div class="converter-card converter-card--filled" data-card-id="${cardId}" style="color:#CCB400">
+      return `<div class="converter-card converter-card--filled${peekCls}" data-card-id="${cardId}" style="color:#CCB400">
         <div class="card-index card-index--filled">
           <span class="card-rank card-rank--filled">${rankHTML}</span><span class="card-suit card-suit--filled">V</span>
         </div>
@@ -185,7 +197,7 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
     }
     if ((slotCountFilled === 2 && (gameOver || settings.vSuitDominoFill))
         || (slotCountFilled === 3 && suit === 'V' && !gameOver)) {
-      return `<div class="converter-card converter-card--filled converter-card--domino" data-card-id="${cardId}" style="color:#CCB400">
+      return `<div class="converter-card converter-card--filled converter-card--domino${peekCls}" data-card-id="${cardId}" style="color:#CCB400">
         <div class="card-index card-index--filled">
           <span class="card-rank card-rank--filled">${rankHTML}</span><span class="card-suit card-suit--filled">&nbsp;</span>
         </div>
@@ -196,7 +208,7 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
         </div>
       </div>`;
     }
-    return `<div class="converter-card converter-card--filled" data-card-id="${cardId}" style="color:${textColor}">
+    return `<div class="converter-card converter-card--filled${peekCls}" data-card-id="${cardId}" style="color:${textColor}">
       <div class="card-index card-index--filled">
         <span class="card-rank card-rank--filled">${rankHTML}</span>${suit ? `<span class="card-suit card-suit--filled">${suit}</span>` : ''}
       </div>
@@ -212,7 +224,7 @@ export function renderCardHTML(cardId, inTray = false, gridDraggable = false, op
   const scorePreviewHTML = card.showScorePreview ? `<div class="score-preview${previewIsNew ? ' is-new' : ''}">🪙</div>` : '';
   const slotIndicatorHTML = renderSlotIndicator(slotCount, inTray);
 
-  const baseClass = `converter-card${inTray ? ' in-tray' : ''}${gridDragCls}${vSuitCls}${selectedCls}`;
+  const baseClass = `converter-card${inTray ? ' in-tray' : ''}${gridDragCls}${vSuitCls}${selectedCls}${peekCls}`;
 
   if (slotCount === 2) {
     // Rank-only card: index + two holders at the bottom, no suit slot at the top

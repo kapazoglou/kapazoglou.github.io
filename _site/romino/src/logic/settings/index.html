@@ -13,9 +13,8 @@
 <h2 id="groups">Groups</h2>
 <ul>
   <li><strong>Card Deck</strong> — diceDecks, extendedCardDeck, deckDice, vSuitDominoFill, tricolor</li>
-  <li><strong>Grid</strong> — extendedGrid, square, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo</li>
+  <li><strong>Grid</strong> — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo, peekUnconvertedLayout</li>
   <li><strong>Dice Deck</strong> — blankDie, blanksInRank, filterExtremes, sortDice</li>
-  <li><strong>Grid</strong> — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo</li>
   <li><strong>Constraints</strong> — forbiddenSlots, paidSlots, refundOnMove, swapDice</li>
   <li><strong>Scoring</strong> — scoreSuitRepeat, scoreSuitExtreme, scoreRankSum7</li>
   <li><strong>Sweeps</strong> — set, runFlush, runDiff, runAny, wildTarok, flush, tarokFlush, domino</li>
@@ -27,6 +26,7 @@
   <li><code class="language-plaintext highlighter-rouge">tricolor</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when <code class="language-plaintext highlighter-rouge">true</code>, a filled 3-slot card whose dice match one of four 3-color combos (2-3-4, 2-3-5, 2-4-5, 3-4-5) <strong>and whose rank dice sum to 7</strong> converts with a blank rank and only sweeps as Set or Flush.</li>
   <li><code class="language-plaintext highlighter-rouge">square</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — square 110×110 card layout with progressive rank/suit display; mutually exclusive with <code class="language-plaintext highlighter-rouge">diceDecks</code>; toggling resets the game.</li>
   <li><code class="language-plaintext highlighter-rouge">uniqueIndex</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when ON, forbids any placement whose resulting placed-dice multiset (sorted values of all active slots so far) matches another grid card; rank and index are irrelevant; works even when <code class="language-plaintext highlighter-rouge">forbiddenSlots</code> is off.</li>
-  <li><code class="language-plaintext highlighter-rouge">colorRestriction</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON together with <code class="language-plaintext highlighter-rouge">square</code>, treats die values 1 and 6 as equivalent in the unique-index dice comparison (both mapped to 1), so <code class="language-plaintext highlighter-rouge">[1,3]</code> and <code class="language-plaintext highlighter-rouge">[6,3]</code> are considered the same multiset.
+  <li><code class="language-plaintext highlighter-rouge">colorRestriction</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON together with <code class="language-plaintext highlighter-rouge">square</code>, treats die values 1 and 6 as equivalent in the unique-index dice comparison (both mapped to 1), so <code class="language-plaintext highlighter-rouge">[1,3]</code> and <code class="language-plaintext highlighter-rouge">[6,3]</code> are considered the same multiset.</li>
+  <li><code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON, tapping a converted card on the grid instantly toggles between converted and pre-conversion layout (no animation).
 [[state]] · [[settings-panel]] · [[sweeps]] · [[scoring]]</li>
 </ul>
