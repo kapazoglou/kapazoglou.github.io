@@ -2,6 +2,29 @@
 // Each group has a label and an items array; each item needs key, label, default.
 export const SETTINGS_CONFIG = [
   {
+    group: 'square',
+    label: 'Square v1',
+    items: [
+      { key: 'extendedGrid',      label: 'Extended grid (4 × 4)',                       default: false },
+      { key: 'extraStartCards',   label: 'Extra start cards — +1 in 3×3, +2 in 4×4',   default: false },
+      { key: 'square',            label: 'SQUARE — square card layout',                   default: true },
+      { key: 'fourSquare',        label: '4-square — 4 slot grid, fill any 3',            default: true },
+      { key: 'uniqueIndex',      label: 'Unique index — block duplicate dice on grid',              default: true  },
+      { key: 'partialUniqueIndex', label: 'Partial unique index — uniqueness + suit tile on 1–2 dice', default: false },
+      { key: 'peekUnconvertedLayout', label: 'Peek unconverted — tap converted cards to toggle layout', default: true },
+      { key: 'forbiddenSlots', label: 'Forbidden slots — completely block placement',     default: true  },
+      { key: 'scoring',          label: 'Scoring — earn and spend coins',               default: true  },
+      { key: 'gridCoinsExcludeConverted', label: 'Grid coins — exclude converted cards', default: true  },
+      { key: 'gridCoinsSum7',           label: 'Grid coins diff number — off = equal; no 1/6',   default: true },
+      { key: 'set',        label: 'Set — same number',                                    default: true  },
+      { key: 'runFlush',   label: 'Run flush — consecutive numbers, same suit',           default: true  },
+      { key: 'runDiff',    label: 'Run diff — consecutive numbers, all diff suits',       default: true  },
+      { key: 'runAny',     label: 'Run any — consecutive numbers, any suits',             default: true },
+      { key: 'flush',      label: 'Flush — same suit',                                    default: true },
+      { key: 'peekUnconvertedLayout', label: 'Peek unconverted — tap converted cards to toggle layout', default: true }
+    ],
+  },
+  {
     group: 'card-deck',
     label: 'Card Deck',
     items: [
@@ -16,16 +39,11 @@ export const SETTINGS_CONFIG = [
     group: 'grid',
     label: 'Grid',
     items: [
-      { key: 'extendedGrid',      label: 'Extended grid (4 × 4)',                       default: false },
-      { key: 'extraStartCards',   label: 'Extra start cards — +1 in 3×3, +2 in 4×4',   default: false },
-      { key: 'square',            label: 'SQUARE — square card layout',                   default: true },
-      { key: 'uniqueIndex',      label: 'Unique index — block duplicate dice on grid',              default: true  },
       { key: 'colorRestriction', label: 'Color restriction — treat 1 and 6 as equivalent (SQUARE)', default: false },
       { key: 'emptyCards',        label: 'Empty cards (diagonal blockers)',               default: false },
       { key: 'fastAnimations',    label: 'Fast animations (2×)',                         default: true  },
       { key: 'autoplayLongPress', label: 'Autoplay on long press',                       default: true  },
       { key: 'autoplayFirstTwo',  label: 'Autoplay first two cards',                     default: false  },
-      { key: 'peekUnconvertedLayout', label: 'Peek unconverted — tap converted cards to toggle layout', default: true },
     ],
   },
   {
@@ -42,7 +60,6 @@ export const SETTINGS_CONFIG = [
     group: 'constraints',
     label: 'Constraints',
     items: [
-      { key: 'forbiddenSlots', label: 'Forbidden slots — completely block placement',     default: true  },
       { key: 'paidSlots',      label: 'Paid slots — forbidden costs a coin',             default: false },
       { key: 'refundOnMove',   label: 'Refund coin when moving from paid slot',           default: false },
       { key: 'swapDice',       label: 'Swap placed dice by tapping one then the other',  default: false },
@@ -52,8 +69,6 @@ export const SETTINGS_CONFIG = [
     group: 'scoring',
     label: 'Scoring',
     items: [
-      { key: 'scoring',          label: 'Scoring — earn and spend coins',               default: true  },
-      { key: 'gridCoinsExcludeConverted', label: 'Grid coins — exclude converted cards', default: true  },
       { key: 'scoreSuitRepeat',  label: 'Suit die scores when it matches an outer die',  default: true  },
       { key: 'scoreSuitExtreme', label: 'Suit die scores when extreme and card has 1 or 6', default: true },
       { key: 'scoreRankSum7',    label: 'Score when the two rank dice sum to 7',          default: true  },
@@ -63,12 +78,7 @@ export const SETTINGS_CONFIG = [
     group: 'sweeps',
     label: 'Sweeps',
     items: [
-      { key: 'set',        label: 'Set — same number',                                    default: true  },
-      { key: 'runFlush',   label: 'Run flush — consecutive numbers, same suit',           default: true  },
-      { key: 'runDiff',    label: 'Run diff — consecutive numbers, all diff suits',       default: true  },
-      { key: 'runAny',     label: 'Run any — consecutive numbers, any suits',             default: false },
       { key: 'wildTarok',  label: 'Wild tarok — V counts as any suit in runs',            default: true  },
-      { key: 'flush',      label: 'Flush — same suit',                                    default: false },
       { key: 'tarokFlush', label: 'Tarok flush — V suit sweep',                           default: false },
       { key: 'domino',     label: 'Domino — V suit horizontal chain (outer dice match)',  default: false  },
     ],

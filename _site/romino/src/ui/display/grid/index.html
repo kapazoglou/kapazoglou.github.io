@@ -41,5 +41,13 @@
   <li>When scoring is also on: <code class="language-plaintext highlighter-rouge">.grid-coin</code> between directly opposite matching dice only (1↔0 horiz, 2↔1 vert; see [[grid-coins]])</li>
 </ul>
 
+<h2 id="4-square-settingsfoursquare">4-square (settings.fourSquare)</h2>
+<ul>
+  <li>2×2 tile grid in DOM order 0, 1, 3, 2 (slot 3 = bottom-left, diagonal from slot 1)</li>
+  <li>Index lives <strong>in-grid</strong> as <code class="language-plaintext highlighter-rouge">.square-tile--index</code> in the empty slot that cannot receive the next die (or the sole empty slot at 3 dice); no index tile at 0 dice</li>
+  <li>Full convert: wrapper background = suit colour, centred 54px white <code class="language-plaintext highlighter-rouge">.card-index--square-filled</code></li>
+  <li><code class="language-plaintext highlighter-rouge">converter-card--four-square</code> + <code class="language-plaintext highlighter-rouge">data-index-slot</code> scopes CSS and convert animation</li>
+</ul>
+
 <h2 id="related">Related</h2>
 <p>[[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]] · [[grid-coins]]</p>

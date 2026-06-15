@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 1.7
-date: 2026-06-14
+v: 1.8
+date: 2026-06-15
 deps: []
 ---
 # State — User Story

@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings, spd } from './settings.js';
-import { cardSlotValue, cardRank, cardSuit, DISCARD_RANKS, squareSuitSlot } from './cards.js';
+import { cardSlotValue, cardRank, cardSuit, DISCARD_RANKS, squareSuitSlot, squareRankSlots, isCardPlayableFull } from './cards.js';
 
 /* ── Combo detection (2 tiles) ── */
 export function detectCombo(tiles) {
@@ -26,7 +26,8 @@ export const CARD_SCORE_RULES = [
       const suitSlot = squareSuitSlot(cardId);
       if (suitSlot === null) return 0;
       const vSuit = cardSlotValue(cardId, suitSlot);
-      const rankSlots = suitSlot === 0 ? [1, 2] : suitSlot === 2 ? [0, 1] : [0, 2];
+      const rankSlots = squareRankSlots(cardId);
+      if (!rankSlots) return 0;
       const vA = cardSlotValue(cardId, rankSlots[0]);
       const vB = cardSlotValue(cardId, rankSlots[1]);
       if (!vA || !vB) return 0;
@@ -54,7 +55,8 @@ export const CARD_SCORE_RULES = [
     if (settings.square) {
       const suitSlot = squareSuitSlot(cardId);
       if (suitSlot === null) return 0;
-      const rankSlots = suitSlot === 0 ? [1, 2] : suitSlot === 2 ? [0, 1] : [0, 2];
+      const rankSlots = squareRankSlots(cardId);
+      if (!rankSlots) return 0;
       const vA = cardSlotValue(cardId, rankSlots[0]);
       const vB = cardSlotValue(cardId, rankSlots[1]);
       if (!vA || !vB) return 0;
@@ -81,7 +83,7 @@ export function updateScorePreview(cardId) {
     card.scorePreviewNew  = false;
     return;
   }
-  const qualifies = card.slots.every(s => s !== null) && evaluateCardScore(cardId) > 0;
+  const qualifies = isCardPlayableFull(cardId) && evaluateCardScore(cardId) > 0;
   if (qualifies && !card.showScorePreview) {
     card.showScorePreview = true;
     card.scorePreviewNew  = true;

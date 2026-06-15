@@ -56,7 +56,15 @@ function tricolorSuitFromCombo(comboKey) {
 /** Combo key when all three dice match a Tricolor multiset; null otherwise. */
 export function tricolorComboKey(cardId) {
   const card = state.cards[cardId];
-  if (!card || (card.slotCount ?? 3) !== 3) return null;
+  if (!card) return null;
+  if (isFourSquareCard(card)) {
+    if (squareFilledCount(cardId) !== 3) return null;
+    const vals = squareActiveSlotIndices(card)
+      .filter(si => slotHasDie(card, si))
+      .map(si => state.dice[card.slots[si]].value);
+    return vals.length === 3 ? sortedComboKey(vals) : null;
+  }
+  if ((card.slotCount ?? 3) !== 3) return null;
   if (!card.slots.every(s => s != null && s !== undefined)) return null;
   return sortedComboKey(card.slots.map(id => state.dice[id].value));
 }
@@ -134,6 +142,40 @@ export function compareDiscoveredCards(aId, bId) {
   return discoverySortPair(aId).localeCompare(discoverySortPair(bId));
 }
 
+/** 4-square game-over grid: rows Z→X→Y→W, cols suit-only→2–12→A. */
+export const GAME_OVER_FOUR_SQUARE_SUITS = ['Z', 'X', 'Y', 'W'];
+const GAME_OVER_FOUR_SQUARE_RANK_COLS = ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'aj', 'aa', 'ab'];
+
+export function gameOverFourSquareColumn(rank) {
+  if (rank === '' || rank === 'gg') return 0;
+  if (rank === 'A') return 12;
+  const i = GAME_OVER_FOUR_SQUARE_RANK_COLS.indexOf(rank);
+  return i >= 0 ? i + 1 : -1;
+}
+
+export function gameOverFourSquareRow(suit) {
+  const i = GAME_OVER_FOUR_SQUARE_SUITS.indexOf(suit);
+  return i >= 0 ? i : -1;
+}
+
+export function gameOverFourSquareCell(cardId) {
+  const row = gameOverFourSquareRow(cardSuit(cardId));
+  const col = gameOverFourSquareColumn(cardRank(cardId));
+  if (row < 0 || col < 0) return null;
+  return { row, col };
+}
+
+/** 4×13 grid of card IDs (null = undiscovered cell). Later discoveries overwrite same cell. */
+export function buildGameOverFourSquareGrid(cardIds) {
+  const grid = Array.from({ length: 4 }, () => Array(13).fill(null));
+  for (const id of cardIds) {
+    const cell = gameOverFourSquareCell(id);
+    if (!cell) continue;
+    grid[cell.row][cell.col] = id;
+  }
+  return grid;
+}
+
 export function ndTranscribe(str) {
   return String(str).replace(/[0-9]/g, d => 'jabcdefghi'[+d]);
 }
@@ -181,7 +223,10 @@ export function dieSVG(value, size = 40, pipRotationDeg = 90) {
 export function spawnCard(slotCount = 3) {
   const id = state.cards.length;
   let slots;
-  if (slotCount === 2) {
+  if (settings.fourSquare && settings.square) {
+    slots = [null, null, null, null];
+    slotCount = 4;
+  } else if (slotCount === 2) {
     // rank-only card: slots[1] (suit) is inactive
     slots = [null, undefined, null];
   } else if (slotCount === 1) {
@@ -202,6 +247,30 @@ export function spawnEmptyCard() {
 
 /* ── SQUARE card helpers (settings.square) ── */
 
+const SQUARE_CW  = { 0: 1, 1: 2, 2: 3, 3: 0 };
+const SQUARE_CCW = { 0: 3, 3: 2, 2: 1, 1: 0 };
+const SQUARE_NEIGHBORS = { 0: [1, 3], 1: [0, 2], 2: [1, 3], 3: [0, 2] };
+const SQUARE_CORNER_SLOTS = [0, 2, 3];
+
+/** True when si shares an edge with a filled slot (vacatedSi treated as empty). */
+function squareFourSquareHasEdgeNeighborFilled(card, si, vacatedSi = null) {
+  for (const nj of SQUARE_NEIGHBORS[si]) {
+    if (nj === vacatedSi) continue;
+    if (slotHasDie(card, nj)) return true;
+  }
+  return false;
+}
+
+/** True when card uses the 4-slot 2×2 grid (settings.fourSquare). */
+function isFourSquareCard(card) {
+  return settings.fourSquare && settings.square && (card?.slotCount ?? 3) === 4;
+}
+
+/** Slot indices active on a square card (3 L-slots or 4 full grid). */
+function squareActiveSlotIndices(card) {
+  return isFourSquareCard(card) ? [0, 1, 2, 3] : [0, 1, 2];
+}
+
 /** Active slot holds a die (inactive slots are `undefined`, empty are `null`). */
 function slotHasDie(card, si) {
   const s = card.slots[si];
@@ -212,11 +281,171 @@ function slotHasDie(card, si) {
 export function squareFilledCount(cardId) {
   const card = state.cards[cardId];
   if (!card) return 0;
-  return [0, 1, 2].filter(si => slotHasDie(card, si)).length;
+  return squareActiveSlotIndices(card).filter(si => slotHasDie(card, si)).length;
+}
+
+/** True when all playable dice slots on a card are filled (3 of 4 for fourSquare). */
+export function isCardPlayableFull(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return false;
+  if (isFourSquareCard(card)) return squareFilledCount(cardId) === 3;
+  return card.slots.every(s => s != null && s !== undefined);
+}
+
+function squareSlotValueMap(cardId) {
+  const card = state.cards[cardId];
+  const m = {};
+  if (!card) return m;
+  for (const si of squareActiveSlotIndices(card)) {
+    if (slotHasDie(card, si)) m[si] = cardSlotValue(cardId, si);
+  }
+  return m;
+}
+
+function squareRankSlotsForSuit(suitSlot) {
+  if (suitSlot === 0 || suitSlot === 3) return [1, 2];
+  if (suitSlot === 2) return [0, 1];
+  return [0, 2]; // suit at slot 1
+}
+
+/** All pip values on filled slots (order follows slot index). */
+function squareFilledValues(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return [];
+  return squareActiveSlotIndices(card)
+    .filter(si => slotHasDie(card, si))
+    .map(si => cardSlotValue(cardId, si));
 }
 
 /**
- * Determine suit slot index (0, 1, or 2) from three die values.
+ * Suit pip value from a multiset (any slot count).
+ * Priority: duplicate (not 1/6) → has 6 alone → lowest valid;
+ *           has 1 alone → highest valid; neither → highest valid;
+ *           both 1 and 6 with 3 distinct → middle; else 0.
+ */
+function squareSuitValueFromValues(vals) {
+  if (!vals.length) return 0;
+  if (vals.length === 1) return vals[0];
+
+  const counts = {};
+  for (const v of vals) counts[v] = (counts[v] || 0) + 1;
+  const dupVal = vals.find(v => counts[v] > 1 && v !== 1 && v !== 6);
+  if (dupVal !== undefined) return dupVal;
+
+  const has6 = vals.includes(6);
+  const has1 = vals.includes(1);
+  const valid = vals.filter(v => v !== 1 && v !== 6);
+
+  if (has6 && !has1 && valid.length > 0) return Math.min(...valid);
+  if (has1 && !has6 && valid.length > 0) return Math.max(...valid);
+  if (!has1 && !has6 && valid.length > 0) return Math.max(...valid);
+
+  if (has1 && has6 && vals.length === 3 && new Set(vals).size === 3) {
+    const mid = vals.find(v => v !== 1 && v !== 6);
+    if (mid !== undefined) return mid;
+  }
+
+  return 0;
+}
+
+/** 4-square: slot holding the suit die; null unless 3 dice. Tie: lowest slot index. */
+function squareFourSquareSuitSlot(cardId) {
+  const card = state.cards[cardId];
+  const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+  if (filled.length !== 3) return null;
+  const suitVal = squareSuitValueFromValues(filled.map(si => cardSlotValue(cardId, si)));
+  if (!suitVal) return null;
+  return filled.find(si => cardSlotValue(cardId, si) === suitVal) ?? null;
+}
+
+/** Rank slot pair for scoring/rank sum; null when unavailable. */
+export function squareRankSlots(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return null;
+  if (isFourSquareCard(card)) {
+    const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+    if (filled.length !== 3) return null;
+    const suitSlot = squareFourSquareSuitSlot(cardId);
+    if (suitSlot === null) return null;
+    return filled.filter(si => si !== suitSlot);
+  }
+  const suitSlot = squareSuitSlot(cardId);
+  if (suitSlot === null) return null;
+  return squareRankSlotsForSuit(suitSlot);
+}
+
+/**
+ * Determine suit slot from up to four slot-indexed values (sparse map).
+ * Corners 0, 2, 3 share preference tier; slot 1 is the edge/middle slot.
+ */
+function squareSuitSlotFromSlotMap(m) {
+  const vals = SQUARE_CORNER_SLOTS.concat([1])
+    .filter(si => m[si] !== undefined)
+    .map(si => m[si]);
+
+  const counts = {};
+  for (const v of vals) counts[v] = (counts[v] || 0) + 1;
+  const dupVal = vals.find(v => counts[v] > 1 && v !== 1 && v !== 6);
+  if (dupVal !== undefined) {
+    for (const si of SQUARE_CORNER_SLOTS) {
+      if (m[si] === dupVal) return si;
+    }
+    return 1;
+  }
+
+  const has6 = vals.includes(6);
+  const has1 = vals.includes(1);
+
+  if (has6 && !has1) {
+    const valid = vals.filter(v => v !== 1 && v !== 6);
+    if (valid.length > 0) {
+      const sv = Math.min(...valid);
+      for (const si of SQUARE_CORNER_SLOTS) {
+        if (m[si] === sv) return si;
+      }
+      return 1;
+    }
+  }
+
+  if (has1 && !has6) {
+    const valid = vals.filter(v => v !== 1 && v !== 6);
+    if (valid.length > 0) {
+      const sv = Math.max(...valid);
+      for (const si of SQUARE_CORNER_SLOTS) {
+        if (m[si] === sv) return si;
+      }
+      return 1;
+    }
+  }
+
+  if (!has1 && !has6) {
+    const valid = vals.filter(v => v !== 1 && v !== 6);
+    if (valid.length > 0) {
+      const sv = Math.max(...valid);
+      for (const si of SQUARE_CORNER_SLOTS) {
+        if (m[si] === sv) return si;
+      }
+      return 1;
+    }
+  }
+
+  if (has1 && has6) {
+    const distinct = new Set(vals).size === 3;
+    const mid = vals.find(v => v !== 1 && v !== 6);
+    if (distinct && mid !== undefined) {
+      for (const si of SQUARE_CORNER_SLOTS) {
+        if (m[si] === mid) return si;
+      }
+      return 1;
+    }
+    return 1;
+  }
+
+  return 0;
+}
+
+/**
+ * Determine suit slot index (0, 1, or 2) from three die values at slots 0–2.
  * Priority: (1) duplicate value (not 1/6) → corner 0 preferred over 2;
  *           (2) has 6 (no 1) → suit = lowest ≠ 1,6;
  *           (3) has 1 (no 6) → suit = highest ≠ 1,6;
@@ -226,87 +455,73 @@ export function squareFilledCount(cardId) {
  * Suit can land in slot 1 whenever the chosen value lives there.
  */
 function squareSuitSlotFromValues(v0, v1, v2) {
-  const vals = [v0, v1, v2];
-
-  // 1. Duplicate (not 1/6) wins; prefer corner slot 0, then 2
-  const counts = {};
-  for (const v of vals) counts[v] = (counts[v] || 0) + 1;
-  const dupVal = vals.find(v => counts[v] > 1 && v !== 1 && v !== 6);
-  if (dupVal !== undefined) {
-    if (v0 === dupVal) return 0;
-    if (v2 === dupVal) return 2;
-    return 1;
-  }
-
-  const has6 = vals.includes(6);
-  const has1 = vals.includes(1);
-
-  // 2. Has 6 (no 1): suit = lowest ≠ 1,6
-  if (has6 && !has1) {
-    const valid = vals.filter(v => v !== 1 && v !== 6);
-    if (valid.length > 0) {
-      const sv = Math.min(...valid);
-      if (v0 === sv) return 0;
-      if (v2 === sv) return 2;
-      return 1;
-    }
-  }
-
-  // 3. Has 1 (no 6): suit = highest ≠ 1,6
-  if (has1 && !has6) {
-    const valid = vals.filter(v => v !== 1 && v !== 6);
-    if (valid.length > 0) {
-      const sv = Math.max(...valid);
-      if (v0 === sv) return 0;
-      if (v2 === sv) return 2;
-      return 1;
-    }
-  }
-
-  // 4. No extremes: highest valid, else lowest valid
-  if (!has1 && !has6) {
-    const valid = vals.filter(v => v !== 1 && v !== 6);
-    if (valid.length > 0) {
-      const sv = Math.max(...valid);
-      if (v0 === sv) return 0;
-      if (v2 === sv) return 2;
-      return 1;
-    }
-  }
-
-  // 5. Both 1 and 6 present: three distinct → suit is the lone non-extreme value
-  if (has1 && has6) {
-    const distinct = new Set(vals).size === 3;
-    const mid = vals.find(v => v !== 1 && v !== 6);
-    if (distinct && mid !== undefined) {
-      if (v0 === mid) return 0;
-      if (v2 === mid) return 2;
-      return 1;
-    }
-    return 1; // middle fallback when 1 and 6 repeat
-  }
-
-  // 6. Final fallback
-  return 0;
+  return squareSuitSlotFromSlotMap({ 0: v0, 1: v1, 2: v2 });
 }
 
-/** Suit slot index (0, 1, or 2) when three dice are placed; null otherwise. */
+/** Suit slot index when three dice are placed; null otherwise. */
 export function squareSuitSlot(cardId) {
   if (squareFilledCount(cardId) !== 3) return null;
+  const card = state.cards[cardId];
+  if (isFourSquareCard(card)) return squareFourSquareSuitSlot(cardId);
   const v0 = cardSlotValue(cardId, 0);
   const v1 = cardSlotValue(cardId, 1);
   const v2 = cardSlotValue(cardId, 2);
   return squareSuitSlotFromValues(v0, v1, v2);
 }
 
+function squareThirdSlotsFromPair(a, b) {
+  const thirds = [];
+  if (SQUARE_CW[a] === b) thirds.push(SQUARE_CW[b]);
+  if (SQUARE_CCW[a] === b) thirds.push(SQUARE_CCW[b]);
+  if (SQUARE_CW[b] === a) thirds.push(SQUARE_CW[a]);
+  if (SQUARE_CCW[b] === a) thirds.push(SQUARE_CCW[a]);
+  return thirds;
+}
+
+/** 4-square: any slot first; further dice edge-adjacent only (no diagonals); third via CW/CCW. */
+function squareSlotAllowedFourSquare(cardId, si, dieId = null) {
+  const card = state.cards[cardId];
+  if (!card || card.slots[si] === undefined) return false;
+  if (slotHasDie(card, si)) return false;
+
+  let vacatedSi = null;
+  if (dieId != null) {
+    const prevSlot = dieInCard(dieId);
+    if (prevSlot) {
+      const [pc, fs] = prevSlot.split('-').map(Number);
+      if (pc === cardId) vacatedSi = fs;
+    }
+  }
+
+  const filledSlots = squareActiveSlotIndices(card).filter(s =>
+    slotHasDie(card, s) && s !== vacatedSi
+  );
+
+  if (filledSlots.length === 0) return true;
+  if (filledSlots.length >= 3) return false;
+
+  if (!squareFourSquareHasEdgeNeighborFilled(card, si, vacatedSi)) return false;
+
+  const isRearrangeToEmpty = vacatedSi != null && squareFilledCount(cardId) === 3;
+  if (filledSlots.length === 1 || isRearrangeToEmpty) return true;
+
+  const thirds = new Set();
+  for (const [a, b] of [[filledSlots[0], filledSlots[1]], [filledSlots[1], filledSlots[0]]]) {
+    for (const t of squareThirdSlotsFromPair(a, b)) thirds.add(t);
+  }
+  return thirds.has(si);
+}
+
 /**
  * Returns true when slot si is the correct next slot to fill on a square card.
  * Enforces CW (0→1→2) / CCW (2→1→0) fill order; slot 1 is never first.
  */
-function squareSlotAllowed(cardId, si) {
+function squareSlotAllowed(cardId, si, dieId = null) {
   const card = state.cards[cardId];
   if (!card || card.slots[si] === undefined) return false;
   if (slotHasDie(card, si)) return false;
+
+  if (isFourSquareCard(card)) return squareSlotAllowedFourSquare(cardId, si, dieId);
 
   const slotCount = card.slotCount ?? 3;
   if (slotCount === 2) {
@@ -346,13 +561,46 @@ function squareSlotAllowed(cardId, si) {
 export function squareDieLocked(cardId, si) {
   if (!settings.square) return false;
   const card = state.cards[cardId];
-  if (!card || (card.slotCount ?? 3) !== 3) return false;
+  if (!card) return false;
+
+  if (isFourSquareCard(card)) {
+    if (squareFilledCount(cardId) !== 3) return false;
+    const suitSlot = squareSuitSlot(cardId);
+    return si === suitSlot;
+  }
+
+  if ((card.slotCount ?? 3) !== 3) return false;
   const s0 = slotHasDie(card, 0);
   const s1 = slotHasDie(card, 1);
   const s2 = slotHasDie(card, 2);
   if (s0 && s1 && s2) return si === 1;
   if (s1 && s0 !== s2) return si === 0 || si === 2;
   return false;
+}
+
+
+/** Valid 3-step fill orders for a fourSquare card after simulating a full placement. */
+function squareFillOrdersFourSquare(sim, activeIndices) {
+  const filled = activeIndices.filter(si => sim[si] != null);
+  if (filled.length !== 3) return [];
+  const orders = [];
+  const seen = new Set();
+  for (const start of filled) {
+    for (const nextFn of [SQUARE_CW, SQUARE_CCW]) {
+      const order = [start];
+      let cur = start;
+      for (let i = 0; i < 2; i++) {
+        cur = nextFn[cur];
+        if (!filled.includes(cur)) { order.length = 0; break; }
+        order.push(cur);
+      }
+      if (order.length === 3) {
+        const sig = order.join(',');
+        if (!seen.has(sig)) { seen.add(sig); orders.push(order); }
+      }
+    }
+  }
+  return orders;
 }
 
 /** Returns the slot-index orders that are still valid for the given slot occupancy. */
@@ -398,7 +646,24 @@ function squareIsMonotonic(vals) {
  */
 function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
   const card = state.cards[cardId];
-  if (!card || (card.slotCount ?? 3) !== 3) return true;
+  if (!card) return true;
+  if (isFourSquareCard(card)) {
+    if (squareFilledCount(cardId) < 2) return true;
+    const sim = [...card.slots];
+    const prevSlot = dieInCard(dieId);
+    if (prevSlot) {
+      const [pc, ps] = prevSlot.split('-').map(Number);
+      if (pc === cardId) sim[ps] = null;
+    }
+    sim[si] = dieId;
+    const filled = squareActiveSlotIndices(card).filter(s => sim[s] != null);
+    if (filled.length !== 3) return true;
+    const valAt = (slot) => state.dice[sim[slot]]?.value;
+    const orders = squareFillOrdersFourSquare(sim, squareActiveSlotIndices(card));
+    return orders.some(order => squareIsMonotonic(order.map(valAt)));
+  }
+
+  if ((card.slotCount ?? 3) !== 3) return true;
   if (squareFilledCount(cardId) < 2) return true; // only check the 3rd placement
 
   const sim = [...card.slots];
@@ -428,6 +693,8 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
 export function squareAlignment(cardId) {
   const card = state.cards[cardId];
   if (!card) return 'center';
+  if (isFourSquareCard(card)) return 'center';
+
   const s0 = slotHasDie(card, 0);
   const s1 = slotHasDie(card, 1);
   const s2 = slotHasDie(card, 2);
@@ -451,6 +718,10 @@ export function squareAlignment(cardId) {
 export function updateSquareLayout(cardId) {
   const card = state.cards[cardId];
   if (!card) return;
+  if (isFourSquareCard(card)) {
+    card.squareLayout = 'center';
+    return;
+  }
   const s0 = slotHasDie(card, 0);
   const s1 = slotHasDie(card, 1);
   const s2 = slotHasDie(card, 2);
@@ -488,6 +759,7 @@ export function squareDisplayIndex(cardId) {
   const suit = cardSuit(cardId);
   if (rank === 'gg') {
     if (suit === 'V') return 'V';
+    if (isFourSquareCard(state.cards[cardId])) return suit || '*';
     return suit ? `*${suit}` : '*';
   }
   return `${rank}${suit}`;
@@ -503,10 +775,32 @@ export function squareIndexColor(cardId) {
   return '#9A9FB6';
 }
 
+/** 4-square: grid slot that shows the index tile (0–3), or null when empty card. */
+export function squareIndexSlot(cardId) {
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return null;
+  const filled = squareFilledCount(cardId);
+  if (filled === 0) return null;
+  if (!settings.partialUniqueIndex && filled === 1) return null;
+  const empty = [0, 1, 2, 3].filter(si => !slotHasDie(card, si));
+  if (empty.length === 1) return empty[0];
+  return empty.find(si => !squareSlotAllowedFourSquare(cardId, si)) ?? null;
+}
+
+/** 4-square index tile colours (Figma 5496:8876). */
+export function squareIndexTileColor(cardId) {
+  const count = squareFilledCount(cardId);
+  const grey = '#9A9FB6';
+  if (count === 2) return { bg: grey, border: null };
+  const suit = cardSuit(cardId);
+  const bg = suit ? SUIT_COLOR[suit] : grey;
+  const border = count === 3 && suit ? bg : null;
+  return { bg, border };
+}
+
 function squareRankPipPair(cardId) {
-  const suitSlot = squareSuitSlot(cardId);
-  if (suitSlot === null) return null;
-  const rankSlots = suitSlot === 0 ? [1, 2] : suitSlot === 2 ? [0, 1] : [0, 2];
+  const rankSlots = squareRankSlots(cardId);
+  if (!rankSlots || rankSlots.length !== 2) return null;
   const idA = state.cards[cardId]?.slots[rankSlots[0]];
   const idB = state.cards[cardId]?.slots[rankSlots[1]];
   if (idA == null || idB == null) return null;
@@ -515,33 +809,44 @@ function squareRankPipPair(cardId) {
 
 function squareCardRank(cardId) {
   if (isTricolorCard(cardId)) return 'gg';
+  const card = state.cards[cardId];
   const count = squareFilledCount(cardId);
   if (count === 0) return ' ';
   if (count === 1) return '';
   if (count === 2) {
-    const filledSlots = [0, 1, 2].filter(si => slotHasDie(state.cards[cardId], si));
+    const indices = squareActiveSlotIndices(card);
+    const filledSlots = indices.filter(si => slotHasDie(card, si));
     const va = cardSlotValue(cardId, filledSlots[0]);
     const vb = cardSlotValue(cardId, filledSlots[1]);
-    const adjacentRank =
-      (filledSlots[0] === 0 && filledSlots[1] === 1) ||
+    if (isFourSquareCard(card)) {
+      if ((va === 1 && vb === 6) || (va === 6 && vb === 1)) return 'A';
+      return ndTranscribe(va + vb);
+    }
+    const adjacentRank = (filledSlots[0] === 0 && filledSlots[1] === 1) ||
       (filledSlots[0] === 1 && filledSlots[1] === 2);
     if (adjacentRank && ((va === 1 && vb === 6) || (va === 6 && vb === 1))) return 'A';
     return ndTranscribe(va + vb);
   }
   if (isJokerCard(cardId)) return 'A';
-  const suitSlot = squareSuitSlot(cardId);
-  let sum;
-  if (suitSlot === 0)      sum = cardSlotValue(cardId, 1) + cardSlotValue(cardId, 2);
-  else if (suitSlot === 2) sum = cardSlotValue(cardId, 0) + cardSlotValue(cardId, 1);
-  else                     sum = cardSlotValue(cardId, 0) + cardSlotValue(cardId, 2); // suit at slot 1
+  const rankSlots = squareRankSlots(cardId);
+  if (!rankSlots) return ' ';
+  const sum = cardSlotValue(cardId, rankSlots[0]) + cardSlotValue(cardId, rankSlots[1]);
   return ndTranscribe(sum);
 }
 
 function squareCardSuit(cardId) {
+  const card = state.cards[cardId];
   const count = squareFilledCount(cardId);
-  if (count === 0 || count === 2) return '';
+  if (count === 0) return '';
+  if (isFourSquareCard(card)) {
+    if (isTricolorCard(cardId)) return tricolorSuitFromCombo(tricolorComboKey(cardId));
+    const suitVal = squareSuitValueFromValues(squareFilledValues(cardId));
+    return suitVal ? SUIT_LETTER[suitVal] : '';
+  }
+  if (count === 2) return '';
   if (count === 1) {
-    const si = [0, 1, 2].find(i => slotHasDie(state.cards[cardId], i));
+    const indices = squareActiveSlotIndices(card);
+    const si = indices.find(i => slotHasDie(card, i));
     return SUIT_LETTER[cardSlotValue(cardId, si)];
   }
   if (isTricolorCard(cardId)) return tricolorSuitFromCombo(tricolorComboKey(cardId));
@@ -560,7 +865,7 @@ function squareCardColor(cardId) {
 /* ── Card helpers ── */
 export function dieInCard(dieId) {
   for (const card of state.cards) {
-    for (let si = 0; si < 3; si++) {
+    for (let si = 0; si < card.slots.length; si++) {
       if (card.slots[si] === dieId) return `${card.id}-${si}`;
     }
   }
@@ -577,8 +882,8 @@ export function isJokerCard(cardId) {
   if (!c) return false;
   if (settings.square) {
     if (squareFilledCount(cardId) !== 3) return false;
-    const suitSlot = squareSuitSlot(cardId);
-    const rankSlots = suitSlot === 0 ? [1, 2] : suitSlot === 2 ? [0, 1] : [0, 2];
+    const rankSlots = squareRankSlots(cardId);
+    if (!rankSlots) return false;
     const vA = cardSlotValue(cardId, rankSlots[0]);
     const vB = cardSlotValue(cardId, rankSlots[1]);
     return (vA === 1 && vB === 6) || (vA === 6 && vB === 1);
@@ -668,13 +973,39 @@ export function cardIdentityKey(cardId) {
 
 /* ── Slot constraints ── */
 
+/** True when every placed die on active slots is 1 and/or 6. */
+function cardAllPlacedValuesAreExtremes(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return false;
+  const vals = [];
+  for (let i = 0; i < card.slots.length; i++) {
+    if (slotHasDie(card, i)) vals.push(state.dice[card.slots[i]].value);
+  }
+  return vals.length > 0 && vals.every(v => v === 1 || v === 6);
+}
+
+/** True when placing dieId would complete the card with only 1s and/or 6s (111, 116, 661, 666, …). */
+function wouldCompleteAllExtremes(cardId, si, dieId) {
+  const card = state.cards[cardId];
+  if ((card?.slotCount ?? 3) === 1) return false;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    if (!isCardPlayableFull(cardId)) return false;
+    return cardAllPlacedValuesAreExtremes(cardId);
+  });
+}
+
 /** Returns true when placing dieId in slot si of cardId is forbidden by game rules. */
 export function isSlotForbidden(cardId, si, dieId) {
   const card = state.cards[cardId];
   // Inactive (undefined) slots are always forbidden
   if (card?.slots[si] === undefined) return true;
 
-  if (settings.square && (card.slotCount ?? 3) === 3) {
+  if (wouldCompleteAllExtremes(cardId, si, dieId)) return true;
+
+  if (settings.square && isFourSquareCard(card)) {
+    if (!squareSlotAllowed(cardId, si, dieId)) return true;
+    if (!squareValuesMonotonicAfterPlace(cardId, si, dieId)) return true;
+  } else if (settings.square && (card.slotCount ?? 3) === 3) {
     const prevSlot = dieInCard(dieId);
     const isSameCardCornerMove = prevSlot && (() => {
       const [pc, fromSi] = prevSlot.split('-').map(Number);
@@ -787,6 +1118,7 @@ function gridHasDuplicateDiceKeys() {
   const seen = new Set();
   for (const gid of state.grid) {
     if (gid === null) continue;
+    if (!settings.partialUniqueIndex && cardPlacedDiceCount(gid) <= 2) continue;
     const k = cardDiceValuesKey(gid);
     if (!k) continue;
     if (seen.has(k)) return true;
@@ -803,12 +1135,24 @@ function normaliseDieValue(v) {
   return settings.colorRestriction && settings.square && v === 6 ? 1 : v;
 }
 
+/** Count of dice currently placed on a card (square fill count or active slots). */
+function cardPlacedDiceCount(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return 0;
+  if (settings.square) return squareFilledCount(cardId);
+  let n = 0;
+  for (let si = 0; si < card.slots.length; si++) {
+    if (slotHasDie(card, si)) n++;
+  }
+  return n;
+}
+
 /** Sorted multiset of normalised placed die values on active slots; null when empty. */
 function cardDiceValuesKey(cardId) {
   const card = state.cards[cardId];
   if (!card) return null;
   const vals = [];
-  for (let si = 0; si < 3; si++) {
+  for (let si = 0; si < card.slots.length; si++) {
     if (!slotHasDie(card, si)) continue;
     vals.push(normaliseDieValue(state.dice[card.slots[si]].value));
   }
@@ -821,8 +1165,12 @@ function wouldViolateUniqueIndex(cardId, si, dieId) {
     const myDice = cardDiceValuesKey(cardId);
     if (!myDice) return false;
 
+    const myCount = cardPlacedDiceCount(cardId);
+    if (!settings.partialUniqueIndex && myCount <= 2) return false;
+
     for (const gid of state.grid) {
       if (gid === null || gid === cardId) continue;
+      if (!settings.partialUniqueIndex && cardPlacedDiceCount(gid) <= 2) continue;
       const theirDice = cardDiceValuesKey(gid);
       if (theirDice && theirDice === myDice) return true;
     }
@@ -841,6 +1189,48 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
 
   return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
     const sim = state.cards[cardId].slots;
+
+    if (isFourSquareCard(card)) {
+      if (squareFilledCount(cardId) !== 3) return false;
+      const m = squareSlotValueMap(cardId);
+      const suitSlot = squareFourSquareSuitSlot(cardId);
+      const rankSlots = squareRankSlots(cardId);
+      if (suitSlot === null || !rankSlots) return false;
+      const suit = SUIT_LETTER[m[suitSlot]];
+      const va = m[rankSlots[0]];
+      const vb = m[rankSlots[1]];
+      const rankSum = va + vb;
+      const tricolorKey = settings.tricolor ? sortedComboKey(Object.values(m)) : null;
+      if (tricolorKey) {
+        const triSuit = tricolorSuitFromCombo(tricolorKey);
+        for (const gid of state.grid) {
+          if (gid === null || gid === cardId) continue;
+          const gc = state.cards[gid];
+          if (!gc) continue;
+          if (!gc.filled && !isCardPlayableFull(gid)) continue;
+          if (cardSuit(gid) !== triSuit) continue;
+          if (tricolorSevenKey(gid) === tricolorKey) return true;
+        }
+        return false;
+      }
+      const isJoker = rankSum === 7 && ((va === 1 && vb === 6) || (va === 6 && vb === 1));
+      const rank = isJoker ? 'A' : ndTranscribe(rankSum);
+      const rankPair = [va, vb].sort((a, b) => a - b).join(',');
+      for (const gid of state.grid) {
+        if (gid === null || gid === cardId) continue;
+        const gc = state.cards[gid];
+        if (!gc) continue;
+        if (!gc.filled && !isCardPlayableFull(gid)) continue;
+        if (cardSuit(gid) !== suit) continue;
+        if (suit === 'V') {
+          const theirPair = squareRankPipPair(gid) ?? strictRankPipPair(gid);
+          if (theirPair === rankPair) return true;
+        } else if (cardRank(gid) === rank) {
+          return true;
+        }
+      }
+      return false;
+    }
 
     if (sim.some(s => s === null)) return false;
 
@@ -868,7 +1258,7 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
       }
       return false;
     }
-    const rankSlots = suitSlot === 0 ? [1, 2] : suitSlot === 2 ? [0, 1] : [0, 2];
+    const rankSlots = squareRankSlotsForSuit(suitSlot);
     const [va, vb] = rankSlots.map(i => [v0, v1, v2][i]);
     const isJoker = rankSum === 7 && ((va === 1 && vb === 6) || (va === 6 && vb === 1));
     const rank = isJoker ? 'A' : ndTranscribe(rankSum);
@@ -954,9 +1344,18 @@ export function isDieSelectable(dieId) {
   return false;
 }
 
-/** SQUARE: only directly opposite slot pairs may spawn grid coins (no diagonals). */
-const GRID_COIN_H_SLOTS = [1, 0]; // left slot 1 ↔ right slot 0
-const GRID_COIN_V_SLOTS = [2, 1]; // top slot 2 ↔ bottom slot 1
+/** SQUARE: directly opposite slot pairs that may spawn grid coins (no diagonals). */
+const GRID_COIN_H_CLASSIC = [[1, 0]]; // left TR ↔ right TL
+const GRID_COIN_V_CLASSIC = [[2, 1]]; // top BR ↔ bottom TR
+const GRID_COIN_H_FOUR    = [[1, 0], [2, 3]]; // top row + bottom row
+const GRID_COIN_V_FOUR    = [[2, 1], [3, 0]]; // right column + left column
+
+function gridCoinEdgePairs() {
+  if (settings.fourSquare && settings.square) {
+    return { horizontal: GRID_COIN_H_FOUR, vertical: GRID_COIN_V_FOUR };
+  }
+  return { horizontal: GRID_COIN_H_CLASSIC, vertical: GRID_COIN_V_CLASSIC };
+}
 
 function gridCoinKey(gridA, gridB, slotA, slotB) {
   return `${gridA}:${gridB}:${slotA}:${slotB}`;
@@ -973,8 +1372,11 @@ function tryAddAlignedGridCoin(matches, gridA, gridB, slotA, slotB) {
   if (!slotHasDie(cardA, slotA) || !slotHasDie(cardB, slotB)) return;
   const dA = cardA.slots[slotA];
   const dB = cardB.slots[slotB];
-  if (normaliseDieValue(state.dice[dA]?.value) === normaliseDieValue(state.dice[dB]?.value))
-    matches.add(gridCoinKey(gridA, gridB, slotA, slotB));
+  const vA = normaliseDieValue(state.dice[dA]?.value);
+  const vB = normaliseDieValue(state.dice[dB]?.value);
+  const extreme = vA === 1 || vA === 6 || vB === 1 || vB === 6;
+  const qualifies = !extreme && (settings.gridCoinsSum7 ? vA !== vB : vA === vB);
+  if (qualifies) matches.add(gridCoinKey(gridA, gridB, slotA, slotB));
 }
 
 /** SQUARE mode: rebuild active gridCoins from adjacent matching dice pairs. */
@@ -985,20 +1387,23 @@ export function refreshGridCoins() {
     return;
   }
   const size = settings.extendedGrid ? 4 : 3;
-  const [hA, hB] = GRID_COIN_H_SLOTS;
-  const [vA, vB] = GRID_COIN_V_SLOTS;
+  const { horizontal, vertical } = gridCoinEdgePairs();
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size - 1; c++) {
       const a = r * size + c;
       const b = a + 1;
-      tryAddAlignedGridCoin(matches, a, b, hA, hB);
+      for (const [slotA, slotB] of horizontal) {
+        tryAddAlignedGridCoin(matches, a, b, slotA, slotB);
+      }
     }
   }
   for (let r = 0; r < size - 1; r++) {
     for (let c = 0; c < size; c++) {
       const a = r * size + c;
       const b = a + size;
-      tryAddAlignedGridCoin(matches, a, b, vA, vB);
+      for (const [slotA, slotB] of vertical) {
+        tryAddAlignedGridCoin(matches, a, b, slotA, slotB);
+      }
     }
   }
   for (const key of state.collectedGridCoins) {

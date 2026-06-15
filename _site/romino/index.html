@@ -16,8 +16,11 @@
       <div class="discard-stacks" id="discard-stacks"></div>
     </div>
 
-    <!-- Overlay region: tint strip + HUD (card countdown left, score right) -->
+    <!-- Overlay region: tint strip + discovery grid + HUD -->
     <div class="grid-overlay">
+      <div id="discovery-grid-wrap" class="discovery-grid-wrap" hidden>
+        <div id="discovery-grid" class="go-cards-grid go-cards-grid--four-square" aria-hidden="true"></div>
+      </div>
       <div id="hud">
         <span id="card-count">52</span>
         <span id="score-display">0🪙</span>

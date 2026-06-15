@@ -9,6 +9,18 @@ import { renderCardHTML } from './grid.js';
  *  When diceDecks is OFF: the classic 3-slot skeleton is shown. */
 export function ghostCardHTML(slotCount) {
   if (settings.square) {
+    if (settings.fourSquare) {
+      return `<div class="converter-card converter-card--square converter-card--four-square" style="color:#9A9FB6">
+        <div class="square-wrapper">
+          <div class="square-tiles square-tiles--four">
+            <div class="square-tile square-tile--bordered"><div class="holder-dice"></div></div>
+            <div class="square-tile square-tile--bordered"><div class="holder-dice"></div></div>
+            <div class="square-tile square-tile--bordered"><div class="holder-dice"></div></div>
+            <div class="square-tile square-tile--bordered"><div class="holder-dice"></div></div>
+          </div>
+        </div>
+      </div>`;
+    }
     return `<div class="converter-card converter-card--square" style="color:#9A9FB6">
       <div class="square-wrapper">
         <div class="square-tiles">
@@ -85,7 +97,7 @@ export function renderActionBar() {
       // Only render dice that are still in the tray (not in a card slot)
       let inCard = false;
       for (const card of state.cards) {
-        for (let si = 0; si < 3; si++) {
+        for (let si = 0; si < card.slots.length; si++) {
           if (card.slots[si] === dieId) { inCard = true; break; }
         }
         if (inCard) break;
@@ -116,7 +128,7 @@ export function renderActionBar() {
     state.newPreview = false;
     const playableCount = state.trayOrder.filter(id => {
       for (const card of state.cards) {
-        for (let si = 0; si < 3; si++) {
+        for (let si = 0; si < card.slots.length; si++) {
           if (card.slots[si] === id) return false;
         }
       }

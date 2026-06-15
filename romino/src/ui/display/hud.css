@@ -27,6 +27,25 @@
 }
 
 /* ─── HUD (card countdown left, score right) ─── */
+.discovery-grid-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 6px 8px 2px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.discovery-grid-wrap[hidden] {
+  display: none;
+}
+
+#discovery-grid.go-cards-grid--four-square {
+  margin-inline: 0;
+}
+
 #hud {
   width: 100%;
   height: 44px;

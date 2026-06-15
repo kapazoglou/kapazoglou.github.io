@@ -13,7 +13,7 @@
 <h2 id="groups">Groups</h2>
 <ul>
   <li><strong>Card Deck</strong> — diceDecks, extendedCardDeck, deckDice, vSuitDominoFill, tricolor</li>
-  <li><strong>Grid</strong> — extendedGrid, square, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo, peekUnconvertedLayout</li>
+  <li><strong>Grid</strong> — extendedGrid, square, fourSquare, uniqueIndex, colorRestriction, emptyCards, fastAnimations, autoplayLongPress, autoplayFirstTwo, peekUnconvertedLayout</li>
   <li><strong>Dice Deck</strong> — blankDie, blanksInRank, filterExtremes, sortDice</li>
   <li><strong>Constraints</strong> — forbiddenSlots, paidSlots, refundOnMove, swapDice</li>
   <li><strong>Scoring</strong> — scoring, gridCoinsExcludeConverted, scoreSuitRepeat, scoreSuitExtreme, scoreRankSum7</li>
@@ -21,6 +21,7 @@
     <p><strong>Sweeps</strong> — set, runFlush, runDiff, runAny, wildTarok, flush, tarokFlush, domino</p>
   </li>
   <li><code class="language-plaintext highlighter-rouge">gridCoinsExcludeConverted</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when ON with SQUARE + Scoring, filled (converted) cards do not participate in grid coin matches.</li>
+  <li><code class="language-plaintext highlighter-rouge">gridCoinsSum7</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON with SQUARE + Scoring, grid coins spawn when adjacent opposite dice differ; when OFF, dice must match (equal number). Pairs involving 1 or 6 never qualify.</li>
 </ul>
 
 <h2 id="notes">Notes</h2>
@@ -28,7 +29,9 @@
   <li><code class="language-plaintext highlighter-rouge">vSuitDominoFill</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when <code class="language-plaintext highlighter-rouge">true</code>, converted 2-slot V cards show the domino layout (rank + blank, bottom dice visible); when <code class="language-plaintext highlighter-rouge">false</code>, they show a compact filled index (centered rank + literal <strong>V</strong>, gold color, no dice) matching the converted 3-slot non-V style. Same toggle applies to 1-slot V cards: domino (<code class="language-plaintext highlighter-rouge">*</code> + blank, center die visible) when on; compact (<code class="language-plaintext highlighter-rouge">*</code> + <strong>V</strong>, no die) when off.</li>
   <li><code class="language-plaintext highlighter-rouge">tricolor</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when <code class="language-plaintext highlighter-rouge">true</code>, a filled 3-slot card whose dice match one of four 3-color combos (2-3-4, 2-3-5, 2-4-5, 3-4-5) <strong>and whose rank dice sum to 7</strong> converts with a blank rank and only sweeps as Set or Flush.</li>
   <li><code class="language-plaintext highlighter-rouge">square</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — square 110×110 card layout with progressive rank/suit display; mutually exclusive with <code class="language-plaintext highlighter-rouge">diceDecks</code>; toggling resets the game.</li>
+  <li><code class="language-plaintext highlighter-rouge">fourSquare</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — requires <code class="language-plaintext highlighter-rouge">square</code>; cards spawn with 4 slots in a 2×2 grid (slot 3 = bottom-left); only 3 dice may be placed (any-start CW/CCW); converts like standard 3-dice square cards.</li>
   <li><code class="language-plaintext highlighter-rouge">uniqueIndex</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when ON, forbids any placement whose resulting placed-dice multiset (sorted values of all active slots so far) matches another grid card; rank and index are irrelevant; works even when <code class="language-plaintext highlighter-rouge">forbiddenSlots</code> is off.</li>
+  <li><code class="language-plaintext highlighter-rouge">partialUniqueIndex</code> (default <code class="language-plaintext highlighter-rouge">true</code>) — when ON with <code class="language-plaintext highlighter-rouge">uniqueIndex</code>, applies the duplicate-dice rule to cards with 1 or 2 dice placed; in 4-square, shows the suit index tile on the forbidden slot when only 1 die is placed. When OFF, 1–2 dice cards may share dice multisets with other grid cards, and 4-square 1-die cards show a hard-forbidden slot instead of the suit index tile.</li>
   <li><code class="language-plaintext highlighter-rouge">colorRestriction</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON together with <code class="language-plaintext highlighter-rouge">square</code>, treats die values 1 and 6 as equivalent in the unique-index dice comparison (both mapped to 1), so <code class="language-plaintext highlighter-rouge">[1,3]</code> and <code class="language-plaintext highlighter-rouge">[6,3]</code> are considered the same multiset.</li>
   <li><code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> (default <code class="language-plaintext highlighter-rouge">false</code>) — when ON, tapping a converted card on the grid instantly toggles between converted and pre-conversion layout (no animation).
 [[state]] · [[settings-panel]] · [[sweeps]] · [[scoring]]</li>

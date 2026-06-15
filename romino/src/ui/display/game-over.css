@@ -84,6 +84,21 @@
 
 .go-cards-grid { display: flex; flex-wrap: wrap; gap: 6px; }
 
+.go-cards-grid--four-square {
+  display: grid;
+  grid-template-columns: repeat(13, 32px);
+  grid-template-rows: repeat(4, 32px);
+  gap: 2px;
+  margin-inline: auto;
+}
+
+html.square-cards .go-cards-grid--four-square .go-card-wrap--empty {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
 html.square-cards .go-card-wrap {
   width: 60px;
   height: 60px;
@@ -91,6 +106,15 @@ html.square-cards .go-card-wrap {
 
 html.square-cards .go-card-wrap .converter-card--square {
   transform: scale(0.517);
+}
+
+html.square-cards .go-card-wrap:has(.converter-card--four-square) {
+  width: 32px;
+  height: 32px;
+}
+
+html.square-cards .go-card-wrap .converter-card--four-square {
+  transform: scale(calc(32 / 116));
 }
 
 .go-card-wrap .converter-card--domino .holder-dice {

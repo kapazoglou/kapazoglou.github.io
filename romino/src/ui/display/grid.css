@@ -483,6 +483,40 @@ html.square-cards .card-index--square-partial {
   align-items: flex-end;
 }
 
+/* 4-square: in-grid index tile (Figma 5496:8876) */
+html.square-cards .square-tile--index {
+  padding: 4px;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+
+html.square-cards .square-index-text {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 22px;
+  color: #fff;
+  pointer-events: none;
+}
+
+html.square-cards .converter-card--four-square .square-tiles--four {
+  justify-content: space-between;
+  align-content: space-between;
+}
+
+html.square-cards .converter-card--four-square.converter-card--filled .square-tile:not(.square-tile--index) {
+  visibility: hidden;
+}
+
+html.square-cards .converter-card--four-square.converter-card--filled .square-tile--index {
+  visibility: hidden;
+}
+
 html.square-cards .grid-coin {
   position: absolute;
   font-family: 'Numbers Deuce', 'Averia Libre', serif;

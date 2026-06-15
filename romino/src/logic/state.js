@@ -1,6 +1,6 @@
-// Each card: { id, slotCount: 1|2|3, slots: [dieId|null, dieId|null, dieId|null] }
+// Each card: { id, slotCount: 1|2|3|4, slots: [dieId|null, ...] }
 // Portrait: slots[0]=outer-left rank, slots[1]=middle suit, slots[2]=outer-right rank
-// Square:    slots[0]=top-left, slots[1]=top-right/upper-vertical, slots[2]=bottom-right/lower-vertical
+// Square:    slots[0]=top-left, slots[1]=top-right, slots[2]=bottom-right, slots[3]=bottom-left (fourSquare)
 export const state = {
   grid:                      Array(9).fill(null), // grid[i] = cardId | null
   cards:                     [],

@@ -1,8 +1,8 @@
 ---
 module: grid
 layer: ui/display
-v: 2.5
-date: 2026-06-14
+v: 2.7
+date: 2026-06-15
 deps: [state, settings, cards, sweeps, grid-coins]
 ---
 # Grid — User Story
@@ -37,6 +37,12 @@ As a player, I need to see my cards laid out on a 3×3 (or 4×4) grid with empty
 - Index at bottom-left (36px unfilled, rank on 2 dice); centered 54px on full convert
 - `html.square-cards` on root: grid rows 110px, card 110×110
 - When scoring is also on: `.grid-coin` between directly opposite matching dice only (1↔0 horiz, 2↔1 vert; see [[grid-coins]])
+
+## 4-square (settings.fourSquare)
+- 2×2 tile grid in DOM order 0, 1, 3, 2 (slot 3 = bottom-left, diagonal from slot 1)
+- Index lives **in-grid** as `.square-tile--index` in the empty slot that cannot receive the next die (or the sole empty slot at 3 dice); no index tile at 0 dice
+- Full convert: wrapper background = suit colour, centred 54px white `.card-index--square-filled`
+- `converter-card--four-square` + `data-index-slot` scopes CSS and convert animation
 
 ## Related
 [[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]] · [[grid-coins]]

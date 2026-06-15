@@ -1,8 +1,8 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.1
-date: 2026-06-11
+v: 1.2
+date: 2026-06-15
 deps: [state, settings, cards, sweeps, timing, phase, render]
 ---
 # Sweep Anim — User Story
@@ -18,7 +18,7 @@ As a player, I want filled cards that form a scoring line to visually pop and th
 ## Animation sequence
 1. **Beat phase** (`BEAT_MS`): cards pop to 108% scale
 2. **Run phase** (`SWEEP_MS`): cards translate along sweep axis and fade out
-3. `commitScoringExit()` clears slots, fires next queued sweep (cross-line), or calls `checkPhaseTransition()`
+3. `commitScoringExit()` clears slots, fires next queued sweep (cross-line), calls `maybeOfferFourSquarePostSweepCard()` when done, then offers post-sweep cards or `checkPhaseTransition()`
 
 ## CSS classes
 - `grid-slot--score-pending` → beat scale animation

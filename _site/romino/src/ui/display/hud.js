@@ -1,7 +1,39 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
-import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe } from '../../logic/cards.js';
+import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe, buildGameOverFourSquareGrid } from '../../logic/cards.js';
+import { renderCardHTML } from './grid.js';
+
+let discoveryGridCount = -1;
+
+export function discoveryGridHTML() {
+  const grid = buildGameOverFourSquareGrid(state.discoveredCards);
+  return grid.flatMap(row => row.map(id =>
+    id != null
+      ? `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
+      : '<div class="go-card-wrap go-card-wrap--empty"></div>'
+  )).join('');
+}
+
+export function renderDiscoveryGrid() {
+  const wrap = document.getElementById('discovery-grid-wrap');
+  const el = document.getElementById('discovery-grid');
+  if (!wrap || !el) return;
+
+  const show = settings.fourSquare && settings.square && state.phase !== 'replay';
+  wrap.hidden = !show;
+  if (!show) {
+    el.innerHTML = '';
+    discoveryGridCount = -1;
+    return;
+  }
+
+  const count = state.discoveredCards.length;
+  if (count === discoveryGridCount) return;
+  discoveryGridCount = count;
+
+  el.innerHTML = discoveryGridHTML();
+}
 
 export function renderHUD() {
   const countEl = document.getElementById('card-count');

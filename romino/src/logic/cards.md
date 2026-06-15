@@ -1,8 +1,8 @@
 ---
 module: cards
 layer: logic
-v: 1.40
-date: 2026-06-14
+v: 1.52
+date: 2026-06-15
 deps: [state, settings]
 ---
 # Cards — User Story
@@ -16,10 +16,13 @@ As a player, I need cards to be spawned with empty die slots and to display thei
 - `cardIdentityKey(id)` — reads `card.discoveryKey` snapshot when set
 - `snapshotCardIdentity(id)` — identity at fill time; 2-slot/V/3-slot domino: `prefix:suit:pipPair`
 - `compareDiscoveredCards(aId, bId)` — sort comparator for game-over grid (rank 2→12, A, *; suit Z→X→Y→W→V→2-slot; pip pair tie-break)
+- `buildGameOverFourSquareGrid(cardIds)` — 4×13 grid (rows Z/X/Y/W, cols suit-only/2–12/A) for `fourSquare` game-over layout
 - `dieInCard(dieId)` — returns `"cardId-slotIdx"` if die is placed in any card
-- `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); in SQUARE mode, slot 1 and corners 0/2 cannot swap within the same card; corner 0↔2 moves bypass fill-order slot rules
-- `squareFilledCount` / `squareSuitSlot` / `squareAlignment` / `squareDisplayIndex` / `squareIndexColor` / `updateSquareLayout` / `squarePartialConverted` / `squareDieLocked` — SQUARE mode helpers (settings.square); `squareSuitSlot` returns 0, 1, or 2 (suit may land in middle slot); tricolor cards use center layout; single die index is plain suit; tricolor index is `V` or `*` + suit (Z/X/Y/W); `squareAlignment` / `updateSquareLayout`: slots 0+1 → `horizontal`, slots 1+2 → `vertical`, 3 dice from suit slot, else `center`; `squareDieLocked` blocks slot-1 selection when all three dice are filled; blocks corner selection when slot 1 and exactly one corner are filled
-- `wouldCreateDuplicate(cardId, si, dieId)` — detects grid rank/suit conflicts; when `settings.uniqueIndex` ON, forbids any placement whose placed-dice multiset matches another grid card (any slot count, partial or complete)
+- `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); blocks completing a card whose dice are only 1s and/or 6s (111, 116, 661, 666, …; 1-slot suit cards exempt); classic 3-slot SQUARE: slot 1↔corner swaps forbidden, corner 0↔2 bypasses fill order; fourSquare: edge-adjacent only (no diagonal placement, incl. internal moves), third die via CW/CCW
+- `isCardPlayableFull(cardId)` — true when all active slots hold dice (3 of 4 for `fourSquare`, else every slot)
+- `squareFilledCount` / `squareSuitSlot` / `squareRankSlots` / … — SQUARE mode helpers; `fourSquare`: all slots 0–3 symmetric (edge adjacency only, CW/CCW third slot, value-based suit/rank, no L-shape slot-1 rules)
+- `wouldCreateDuplicate(cardId, si, dieId)` — detects grid rank/suit conflicts; when `settings.uniqueIndex` ON, forbids any placement whose placed-dice multiset matches another grid card; skipped for 1–2 dice cards when `partialUniqueIndex` is off
+- `squareIndexSlot(cardId)` — 4-square index tile slot; returns null at 1 die when `partialUniqueIndex` is off
 - `isDieSelectable(dieId)` — false when no legal move (placement or tray return) avoids a duplicate; move simulation clears the die's source slot
 - `diePipRotationDeg(slotIdx, value, cardId)` — clockwise pip rotation: 90° everywhere; 180° for value 6 in slot 0; slot 1 + value 6 → 180° when slot 0 filled, or when corners 0+2 filled only if slot 1 forms rank with slot 0 (square suit@2)
 - `dieSVG(value, size, pipRotationDeg)` — returns SVG string for a single die face (pips rotated, face upright)

@@ -1,10 +1,12 @@
 <h1 id="hud--user-story">HUD — User Story</h1>
 
-<p>As a player, I need to see my remaining deck size (card countdown) on the left and my current coin score on the right, updated after every game action.</p>
+<p>As a player, I need to see my remaining deck size (card countdown) on the left and my current coin score on the right, updated after every game action. In 4-square mode, a live 4×13 discovery grid sits above the HUD and fills in as cards convert.</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderHUD()</code> — updates <code class="language-plaintext highlighter-rouge">#card-count</code> (deck remaining, or ∞ when random dice) and <code class="language-plaintext highlighter-rouge">#score-display</code> (coins)</li>
+  <li><code class="language-plaintext highlighter-rouge">renderDiscoveryGrid()</code> — updates <code class="language-plaintext highlighter-rouge">#discovery-grid</code> (4×13 suit/rank grid when <code class="language-plaintext highlighter-rouge">fourSquare</code> ON)</li>
+  <li><code class="language-plaintext highlighter-rouge">discoveryGridHTML()</code> — shared markup for live + game-over 4-square grids</li>
   <li><code class="language-plaintext highlighter-rouge">renderDiscards()</code> — updates the hidden discard-stacks DOM (data for potential future UI)</li>
   <li><code class="language-plaintext highlighter-rouge">initDiscards()</code> — builds discard label row and calls <code class="language-plaintext highlighter-rouge">renderDiscards()</code></li>
 </ul>

@@ -2,7 +2,8 @@ import { gridCoinCenterPx, syncGridCoinPositions } from './grid-coins.js';
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { PIP_COLOR, SUIT_COLOR, cardRank, cardSuit, cardColor, dieSVG, diePipRotationDeg, isSlotForbidden,
-  squareAlignment, squareDisplayIndex, squareIndexColor, squarePartialConverted, squareDieLocked, refreshGridCoins,
+  squareAlignment, squareDisplayIndex, squareIndexColor, squareIndexSlot, squareIndexTileColor,
+  squarePartialConverted, squareDieLocked, refreshGridCoins,
   isDieSelectable } from '../../logic/cards.js';
 import { getGridTotal, cardIsGridRepositionable } from '../../logic/sweeps.js';
 
@@ -79,10 +80,36 @@ function renderSquareTile(cardId, si, bordered = true) {
   return `<div class="square-tile${tileCls}">${renderHolderDice(cardId, si)}</div>`;
 }
 
+function renderFourSquareIndexTile(cardId) {
+  const text = formatSquareIndex(squareDisplayIndex(cardId));
+  const { bg, border } = squareIndexTileColor(cardId);
+  const borderStyle = border ? ` border:2px solid ${border};` : '';
+  return `<div class="square-tile square-tile--index" style="background:${bg};${borderStyle}">
+    <div class="square-index-text">${text}</div>
+  </div>`;
+}
+
+function renderFourSquareCell(cardId, si, bordered = true) {
+  if (squareIndexSlot(cardId) === si) {
+    return renderFourSquareIndexTile(cardId);
+  }
+  return renderSquareTile(cardId, si, bordered);
+}
+
+function renderFourSquareTiles(cardId, bordered = true) {
+  const cell = (si) => renderFourSquareCell(cardId, si, bordered);
+  return `<div class="square-tiles square-tiles--four">
+    ${cell(0)}${cell(1)}${cell(3)}${cell(2)}
+  </div>`;
+}
+
 /** Figma cornverter structure: absolute bar + unified flex-wrap tile grid.
  *  Tiles 0,1 sit in the top row; tile 2 wraps to bottom-right.
  *  The hor/ver bars are purely decorative and use pointer-events:none. */
 function renderSquareWrapperContent(cardId, alignment, converted = false) {
+  if (settings.fourSquare) {
+    return renderFourSquareTiles(cardId, !converted);
+  }
   const barCls = converted ? ' square-bar--converted' : '';
   if (alignment === 'horizontal') {
     return `<div class="square-bar square-bar--hor${barCls}"><div class="square-bar__sep"></div></div>
@@ -118,15 +145,25 @@ function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false, opt
     : '';
   const indexText = formatSquareIndex(squareDisplayIndex(cardId));
   const indexColor = squareIndexColor(cardId);
-
+  const fourSquare = settings.fourSquare;
+  const fourSquareCls = fourSquare ? ' converter-card--four-square' : '';
   const peekCls = peekableCls(card, inTray, gameOver);
+  const indexSlot = fourSquare ? squareIndexSlot(cardId) : null;
+  const indexSlotAttr = indexSlot !== null ? ` data-index-slot="${indexSlot}"` : '';
 
   if (card.filled && !peekUnconvertedLayout(cardId, card, gameOver)) {
     if (squarePartialConverted(cardId)) {
       const align = squareAlignment(cardId);
-      return `<div class="converter-card converter-card--square converter-card--filled${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
+      return `<div class="converter-card converter-card--square converter-card--filled${fourSquareCls}${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
         <div class="square-wrapper square-wrapper--converted">${renderSquareWrapperContent(cardId, align, true)}</div>
         <div class="card-index card-index--square card-index--square-partial">${indexText}</div>
+        ${scorePreviewHTML}
+      </div>`;
+    }
+    if (fourSquare) {
+      return `<div class="converter-card converter-card--square converter-card--filled${fourSquareCls}${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:#fff">
+        <div class="square-wrapper square-wrapper--converted" style="background:${indexColor}"></div>
+        <div class="card-index card-index--square card-index--square-filled">${indexText}</div>
         ${scorePreviewHTML}
       </div>`;
     }
@@ -139,6 +176,12 @@ function renderSquareCardHTML(cardId, inTray = false, gridDraggable = false, opt
   }
 
   const alignment = squareAlignment(cardId);
+  if (fourSquare) {
+    return `<div class="converter-card converter-card--square${fourSquareCls}${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}"${indexSlotAttr} style="color:${indexColor}">
+      <div class="square-wrapper">${renderSquareWrapperContent(cardId, alignment)}</div>
+      ${scorePreviewHTML}
+    </div>`;
+  }
   return `<div class="converter-card converter-card--square${inTray ? ' in-tray' : ''}${gridDragCls}${selectedCls}${peekCls}" data-card-id="${cardId}" style="color:${indexColor}">
     <div class="square-wrapper">${renderSquareWrapperContent(cardId, alignment)}</div>
     <div class="card-index card-index--square">${indexText}</div>

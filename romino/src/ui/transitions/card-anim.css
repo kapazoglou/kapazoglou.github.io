@@ -135,16 +135,78 @@ html.square-cards .converter-card--square .score-preview.is-new {
 
 /* Fade the dice tiles and decorative bars — NOT the wrapper itself.
    The wrapper background transitions from grey→white separately so it's opaque throughout. */
-html.square-cards .converter-card--square.is-converting .square-tiles,
+html.square-cards .converter-card--square:not(.converter-card--four-square).is-converting .square-tiles,
 html.square-cards .converter-card--square.is-converting .square-bar {
   animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
 }
 
-html.square-cards .converter-card--square.is-converting .square-wrapper {
+html.square-cards .converter-card--square:not(.converter-card--four-square).is-converting .square-wrapper {
   transition: background calc(0.22s * var(--t)) ease;
   background: #fff;
 }
 
-html.square-cards .converter-card--square.is-converting .card-index--square {
+html.square-cards .converter-card--square:not(.converter-card--four-square).is-converting .card-index--square {
   animation: square-index-expand calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) forwards;
+}
+
+/* ─── 4-square conversion: index tile expands from its grid slot ─── */
+@keyframes four-square-index-expand-0 {
+  from { left: 0; top: 0; width: 48px; height: 48px; font-size: 24px; border-radius: 12px; transform: none; }
+  to { left: 50%; top: 50%; width: 100px; height: 100px; font-size: 54px; border-radius: 20px; transform: translate(-50%, -50%); }
+}
+@keyframes four-square-index-expand-1 {
+  from { left: 52px; top: 0; width: 48px; height: 48px; font-size: 24px; border-radius: 12px; transform: none; }
+  to { left: 50%; top: 50%; width: 100px; height: 100px; font-size: 54px; border-radius: 20px; transform: translate(-50%, -50%); }
+}
+@keyframes four-square-index-expand-2 {
+  from { left: 52px; top: 52px; width: 48px; height: 48px; font-size: 24px; border-radius: 12px; transform: none; }
+  to { left: 50%; top: 50%; width: 100px; height: 100px; font-size: 54px; border-radius: 20px; transform: translate(-50%, -50%); }
+}
+@keyframes four-square-index-expand-3 {
+  from { left: 0; top: 52px; width: 48px; height: 48px; font-size: 24px; border-radius: 12px; transform: none; }
+  to { left: 50%; top: 50%; width: 100px; height: 100px; font-size: 54px; border-radius: 20px; transform: translate(-50%, -50%); }
+}
+
+html.square-cards .converter-card--four-square.is-converting .square-tile:not(.square-tile--index) {
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
+}
+
+html.square-cards .converter-card--four-square.is-converting .square-tiles {
+  position: relative;
+}
+
+html.square-cards .converter-card--four-square.is-converting .square-wrapper {
+  transition: background calc(0.22s * var(--t)) ease;
+  background: currentColor;
+}
+
+html.square-cards .converter-card--four-square.is-converting .square-tile--index {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: none !important;
+  animation-duration: calc(0.22s * var(--t));
+  animation-timing-function: cubic-bezier(0.2, 0, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+
+html.square-cards .converter-card--four-square.is-converting .square-tile--index .square-index-text {
+  width: 100%;
+  height: 100%;
+  font-size: inherit;
+  line-height: 1;
+}
+
+html.square-cards .converter-card--four-square[data-index-slot="0"].is-converting .square-tile--index {
+  animation-name: four-square-index-expand-0;
+}
+html.square-cards .converter-card--four-square[data-index-slot="1"].is-converting .square-tile--index {
+  animation-name: four-square-index-expand-1;
+}
+html.square-cards .converter-card--four-square[data-index-slot="2"].is-converting .square-tile--index {
+  animation-name: four-square-index-expand-2;
+}
+html.square-cards .converter-card--four-square[data-index-slot="3"].is-converting .square-tile--index {
+  animation-name: four-square-index-expand-3;
 }

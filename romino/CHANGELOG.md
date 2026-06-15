@@ -4,6 +4,90 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## 4-square discovery grid empty slots — 2026-06-15
+- **hud.css v1.4** — live discovery grid empty cells match action-bar strip (remove white tint, overlay top-up)
+
+## 4-square post-sweep card offer — 2026-06-15
+- **phase.js v1.15** — `maybeOfferFourSquarePostSweepCard`: offer one card when post-sweep empty dice slots &lt; 6
+- **sweep-anim.js v1.2** — call four-square post-sweep offer after sweep queue drains
+
+## 4-square no diagonal placement — 2026-06-15
+- **cards.js v1.52** — fourSquare: edge-adjacent placement only (blocks diagonal slots for 2nd die and internal moves)
+
+## Partial unique index toggle — 2026-06-15
+- **settings.js v2.9** — `partialUniqueIndex` toggle (Square v1 group)
+- **cards.js v1.51** — when OFF: skip unique-index duplicate check on 1–2 dice cards; 4-square hides suit index tile at 1 die (forbidden slot instead)
+
+## 4-square live discovery grid — 2026-06-15
+- **hud.js v1.3** — `renderDiscoveryGrid` / `discoveryGridHTML`; 4×13 grid above HUD when `fourSquare` ON
+- **hud.css v1.3** — `#discovery-grid-wrap` layout
+- **render.js v1.2** — `render()` refreshes discovery grid
+- **phase.js v1.14** — game-over reuses `discoveryGridHTML`; bulk convert updates grid
+
+## 4-square game-over column order — 2026-06-15
+- **cards.js v1.50** — grid columns reordered: suit-only → 2–12 → A
+
+## 4-square game-over card size — 2026-06-15
+- **game-over.css v1.7** — four-square thumbnails 32×32 (scale 32/116)
+
+## 4-square game-over grid — 2026-06-15
+- **cards.js v1.49** — `buildGameOverFourSquareGrid`: 4×13 layout (rows Z/X/Y/W, cols A/2–12/suit-only)
+- **phase.js v1.13** — `showReplay` uses fixed grid when `fourSquare` ON
+- **game-over.css v1.6** — `go-cards-grid--four-square` 13×30px columns, 4×30px rows
+
+## 4-square game-over thumbnails — 2026-06-15
+- **game-over.css v1.5** — halve discovered-card size when `fourSquare` ON (30×30 wrap, scale 0.2585)
+
+## Forbid all-extreme cards — 2026-06-15
+- **cards.js v1.48** — `isSlotForbidden` blocks completing a card whose dice are only 1s and/or 6s (1-slot suit cards exempt)
+
+## 4-square tricolor index — 2026-06-15
+- **cards.js v1.47** — `squareDisplayIndex`: tricolor shows suit only (no `*`) when `fourSquare` ON
+
+## Grid coins ban 1/6 — 2026-06-15
+- **settings.js v2.8** — grid coins: pairs involving 1 or 6 never qualify (both toggle states)
+- **cards.js v1.46** — `refreshGridCoins` extreme-value ban
+- **grid-coins.md v1.6** — documents 1/6 ban
+
+## Grid coins diff-number rule — 2026-06-15
+- **settings.js v2.7** — `gridCoinsSum7` ON: adjacent opposite dice must differ (any pair except 1+6); OFF unchanged (equal number)
+- **cards.js v1.45** — `refreshGridCoins` diff-number qualify logic replaces sum-to-7
+- **grid-coins.md v1.5** — documents diff-number rule
+
+## Grid coins sum-to-7 toggle — 2026-06-15
+- **settings.js v2.6** — `gridCoinsSum7` toggle (Square v1 group): cross-card coins when adjacent dice sum to 7; off = equal number
+- **cards.js v1.43** — `refreshGridCoins` respects `gridCoinsSum7`
+
+## 4-square grid coin pairs — 2026-06-15
+- **cards.js v1.44** — fourSquare grid coins on all edge-facing slot pairs (H: 1↔0 + 2↔3; V: 2↔1 + 3↔0)
+- **grid-coins.md v1.4** — documents four-square coin slot pairs
+
+## 4-square slot symmetry — 2026-06-15
+- **cards.js v1.43** — fourSquare: no L-shape slot-1 forbids; internal reorder bypass; symmetric third-slot adjacency; 2-dice joker by values only
+- **scoring.js v1.6** — `ruleRankSum7` uses `squareRankSlots` (same as suit-die rule)
+
+## 4-square suit from all dice — 2026-06-15
+- **cards.js v1.42** — fourSquare suit/rank from all placed dice (majority/extreme rules); `squareRankSlots` export
+- **scoring.js v1.5** — suit-die scoring uses `squareRankSlots` (non-suit dice, not L-shape pairs)
+
+## 4-square index in grid — 2026-06-15
+- **cards.js v1.42** — `squareIndexSlot`, `squareIndexTileColor`; in-grid index tile slot rule
+- **grid.js v2.7** — index tile embedded in 2×2 grid; removed top-center overlay; suit-colour converted wrapper
+- **grid.css** — `.square-tile--index` styles
+- **card-anim.css v1.5** — fourSquare convert animation from index tile slot
+- **action-bar.js v1.9** — ghost card: 4 empty holders only
+
+## 4-square toggle — 2026-06-15
+- **settings.js v2.5** — `fourSquare` toggle (Square v1 group): 2×2 slot grid, fill any 3 via CW/CCW
+- **settings-panel.js v1.6** — `fourSquare` requires SQUARE; clears when SQUARE off; reset on toggle
+- **cards.js v1.41** — 4-slot spawn, CW/CCW fill rules, `isCardPlayableFull`, monotonic/lock updates
+- **phase.js v1.12** — convert/score queue via `isCardPlayableFull` (3 of 4 for fourSquare)
+- **scoring.js v1.4** — score preview uses `isCardPlayableFull`
+- **grid.js v2.6** — 4-tile render (0,1,3,2), `converter-card--four-square` class
+- **action-bar.js v1.8** — 4-tile square ghost card; slot loops use `card.slots.length`
+- **grid-coins.js v1.3** — slot 3 centre coords for coin fallback
+- **state.js v1.8** — comment documents 4-slot square layout
+
 ## Grid coin alignment + converted toggle — 2026-06-14
 - **settings.js v2.4** — `gridCoinsExcludeConverted` toggle (Scoring group, default on)
 - **cards.js v1.40** — coins only on directly opposite slots (1↔0 horizontal, 2↔1 vertical); skip filled cards when toggle on

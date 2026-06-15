@@ -13,6 +13,7 @@ const PAD = 14;
 function slotCenterInCard(si) {
   if (si === 0) return { x: 32, y: 32 };
   if (si === 1) return { x: 84, y: 32 };
+  if (si === 3) return { x: 32, y: 84 };
   return { x: 84, y: 84 };
 }
 

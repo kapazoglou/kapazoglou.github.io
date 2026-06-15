@@ -56,7 +56,17 @@ export function renderSettingsPanel() {
             settings.diceDecks = false;
             const diceDecksInput = document.querySelector('input[data-key="diceDecks"]');
             if (diceDecksInput) diceDecksInput.checked = false;
+          } else {
+            settings.fourSquare = false;
+            const fourSquareInput = document.querySelector('input[data-key="fourSquare"]');
+            if (fourSquareInput) fourSquareInput.checked = false;
           }
+        }
+        if (item.key === 'fourSquare' && input.checked) {
+          settings.square = true;
+          document.documentElement.classList.add('square-cards');
+          const squareInput = document.querySelector('input[data-key="square"]');
+          if (squareInput) squareInput.checked = true;
         }
         if (item.key === 'diceDecks' && input.checked) {
           settings.square = false;
@@ -64,7 +74,7 @@ export function renderSettingsPanel() {
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = false;
         }
-        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square'].includes(item.key)) {
+        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare'].includes(item.key)) {
           document.getElementById('settings-panel').classList.remove('is-open');
           resetGame();
         } else {

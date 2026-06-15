@@ -1,6 +1,6 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
 import { settings, spd, getInitialStartCardCount } from './settings.js';
-import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard } from './cards.js';
+import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull } from './cards.js';
 import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
 import { getGridTotal, peekAnyScoringMatch } from './sweeps.js';
 import { evaluateCardScore } from './scoring.js';
@@ -9,7 +9,7 @@ import { evaluateCardScore } from './scoring.js';
 import { resolveAllScoringSets } from '../ui/transitions/sweep-anim.js';
 import { render } from '../ui/display/render.js';
 import { renderWithPreviewFade } from '../ui/transitions/preview-anim.js';
-import { renderHUD, initDiscards } from '../ui/display/hud.js';
+import { renderHUD, initDiscards, discoveryGridHTML, renderDiscoveryGrid } from '../ui/display/hud.js';
 import { processCardFills, launchPip } from '../ui/transitions/card-anim.js';
 import { renderCardHTML } from '../ui/display/grid.js';
 import { SCORING_RULE_LABELS } from './sweeps.js';
@@ -53,7 +53,7 @@ export function convertFilledCards(onDone, force = false) {
     if (cardId === null) continue;
     const card = state.cards[cardId];
     if (card.filled || card.scoreQueued) continue;
-    if (card.slots.every(s => s !== null)) {
+    if (isCardPlayableFull(cardId)) {
       card.scoreQueued = true;
       queue.push({ cardId, pts: evaluateCardScore(cardId) });
     }
@@ -74,7 +74,7 @@ export function convertAllGridCards(onDone) {
     const card = state.cards[cardId];
     if (!card) continue;
 
-    if (!card.filled && !card.scoreQueued && card.slots.every(s => s !== null)) {
+    if (!card.filled && !card.scoreQueued && isCardPlayableFull(cardId)) {
       card.scoreQueued = true;
       const pts = evaluateCardScore(cardId);
       if (pts > 0 && scoreEl) {
@@ -100,6 +100,8 @@ export function convertAllGridCards(onDone) {
 
     fillOneCard(cardId);
   }
+
+  renderDiscoveryGrid();
 
   const totalMs = pipDelay > 0 ? (pipDelay - PIP_GAP_MS) + PIP_TAIL_MS + 80 : 0;
   if (onDone) setTimeout(onDone, totalMs);
@@ -128,6 +130,14 @@ export function countEmptyDiceSlots() {
   }, 0);
 }
 
+/** 4-square: after sweeps, offer one card when fewer than 6 empty dice slots remain. */
+export function maybeOfferFourSquarePostSweepCard() {
+  if (!settings.fourSquare || !settings.square) return;
+  if (countEmptyDiceSlots() < 6) {
+    state.pendingPostSweepCards = 1;
+  }
+}
+
 export function hasLegalMove() {
   const trayDice = state.currentRoll.filter(id => dieInCard(id) === null);
   if (trayDice.length === 0) return true;
@@ -136,7 +146,7 @@ export function hasLegalMove() {
       if (cardId === null) continue;
       const card = state.cards[cardId];
       if (!card || card.filled || card.empty) continue;
-      for (let si = 0; si < 3; si++) {
+      for (let si = 0; si < card.slots.length; si++) {
         if (card.slots[si] !== null) continue;
         if (!isSlotForbidden(cardId, si, dieId)) return true;
       }
@@ -172,10 +182,17 @@ export function showReplay(reason = '') {
   document.getElementById('go-cards-count').textContent = state.discoveredCards.length;
 
   const cardsEl = document.getElementById('go-cards-grid');
-  const sorted = [...state.discoveredCards].sort(compareDiscoveredCards);
-  cardsEl.innerHTML = sorted.map(id =>
-    `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
-  ).join('');
+  const fourSquareGrid = settings.fourSquare && settings.square;
+  cardsEl.classList.toggle('go-cards-grid--four-square', fourSquareGrid);
+
+  if (fourSquareGrid) {
+    cardsEl.innerHTML = discoveryGridHTML();
+  } else {
+    const sorted = [...state.discoveredCards].sort(compareDiscoveredCards);
+    cardsEl.innerHTML = sorted.map(id =>
+      `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
+    ).join('');
+  }
 
   const sweepCounts = {};
   for (const s of state.scoredSets) {
@@ -290,7 +307,7 @@ export function checkPhaseTransition() {
       convertFilledCards(() => {
         const emptySlots = countEmptyDiceSlots();
         const willScore = peekAnyScoringMatch();
-        if (willScore) {
+        if (willScore && !(settings.fourSquare && settings.square)) {
           state.pendingPostSweepCards = emptySlots === 0 ? 2 : 1;
         }
         resolveAllScoringSets();

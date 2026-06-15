@@ -1,8 +1,8 @@
 ---
 module: scoring
 layer: logic
-v: 1.3
-date: 2026-06-12
+v: 1.6
+date: 2026-06-15
 deps: [state, settings, cards]
 ---
 # Scoring — User Story
