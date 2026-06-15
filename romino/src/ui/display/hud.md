@@ -1,9 +1,9 @@
 ---
 module: hud
 layer: ui/display
-v: 1.3
-date: 2026-06-15
-deps: [state, cards, dice, grid]
+v: 1.4
+date: 2026-06-16
+deps: [state, cards, dice, grid, sweeps]
 ---
 # HUD — User Story
 
@@ -13,6 +13,7 @@ As a player, I need to see my remaining deck size (card countdown) on the left a
 - `renderHUD()` — updates `#card-count` (deck remaining, or ∞ when random dice) and `#score-display` (coins)
 - `renderDiscoveryGrid()` — updates `#discovery-grid` (4×13 suit/rank grid when `fourSquare` ON)
 - `discoveryGridHTML()` — shared markup for live + game-over 4-square grids
+- `sweepListHTML()` — game-over sweep rows with mini four-square cards per scored set
 - `renderDiscards()` — updates the hidden discard-stacks DOM (data for potential future UI)
 - `initDiscards()` — builds discard label row and calls `renderDiscards()`
 

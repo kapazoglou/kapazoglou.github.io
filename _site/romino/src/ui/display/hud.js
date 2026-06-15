@@ -2,6 +2,7 @@ import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
 import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe, buildGameOverFourSquareGrid } from '../../logic/cards.js';
+import { SCORING_RULE_LABELS } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 
 let discoveryGridCount = -1;
@@ -13,6 +14,22 @@ export function discoveryGridHTML() {
       ? `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
       : '<div class="go-card-wrap go-card-wrap--empty"></div>'
   )).join('');
+}
+
+export function sweepListHTML() {
+  if (!state.scoredSets.length) {
+    return '<div class="go-sweep-empty">no sweeps</div>';
+  }
+  return state.scoredSets.map(s => {
+    const label = SCORING_RULE_LABELS[s.ruleId] ?? s.ruleId;
+    const cards = s.cardIds.map(id =>
+      `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
+    ).join('');
+    return `<div class="go-sweep-row go-sweep-row--cards">
+      <span class="go-sweep-label">${label}</span>
+      <div class="go-sweep-cards">${cards}</div>
+    </div>`;
+  }).join('');
 }
 
 export function renderDiscoveryGrid() {

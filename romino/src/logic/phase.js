@@ -9,7 +9,7 @@ import { evaluateCardScore } from './scoring.js';
 import { resolveAllScoringSets } from '../ui/transitions/sweep-anim.js';
 import { render } from '../ui/display/render.js';
 import { renderWithPreviewFade } from '../ui/transitions/preview-anim.js';
-import { renderHUD, initDiscards, discoveryGridHTML, renderDiscoveryGrid } from '../ui/display/hud.js';
+import { renderHUD, initDiscards, discoveryGridHTML, sweepListHTML, renderDiscoveryGrid } from '../ui/display/hud.js';
 import { processCardFills, launchPip } from '../ui/transitions/card-anim.js';
 import { renderCardHTML } from '../ui/display/grid.js';
 import { SCORING_RULE_LABELS } from './sweeps.js';
@@ -194,18 +194,22 @@ export function showReplay(reason = '') {
     ).join('');
   }
 
-  const sweepCounts = {};
-  for (const s of state.scoredSets) {
-    const label = SCORING_RULE_LABELS[s.ruleId] ?? s.ruleId;
-    sweepCounts[label] = (sweepCounts[label] || 0) + 1;
-  }
   const sweepsEl = document.getElementById('go-sweeps');
-  sweepsEl.innerHTML = Object.keys(sweepCounts).length
-    ? Object.entries(sweepCounts)
-        .map(([label, n]) =>
-          `<div class="go-sweep-row"><span class="go-sweep-label">${label}</span><span class="go-sweep-count">${n}</span></div>`)
-        .join('')
-    : '<div class="go-sweep-empty">no sweeps</div>';
+  if (fourSquareGrid) {
+    sweepsEl.innerHTML = sweepListHTML();
+  } else {
+    const sweepCounts = {};
+    for (const s of state.scoredSets) {
+      const label = SCORING_RULE_LABELS[s.ruleId] ?? s.ruleId;
+      sweepCounts[label] = (sweepCounts[label] || 0) + 1;
+    }
+    sweepsEl.innerHTML = Object.keys(sweepCounts).length
+      ? Object.entries(sweepCounts)
+          .map(([label, n]) =>
+            `<div class="go-sweep-row"><span class="go-sweep-label">${label}</span><span class="go-sweep-count">${n}</span></div>`)
+          .join('')
+      : '<div class="go-sweep-empty">no sweeps</div>';
+  }
 
   const overlay = document.getElementById('game-over-overlay');
   overlay.classList.remove('is-minimized');

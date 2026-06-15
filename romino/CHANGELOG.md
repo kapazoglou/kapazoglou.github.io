@@ -4,6 +4,11 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## 4-square game-over sweep list — 2026-06-16
+- **hud.js v1.4** — `sweepListHTML`: chronological sweep rows with mini four-square cards
+- **phase.js v1.16** — four-square game-over uses sweep card list instead of type counts
+- **game-over.css v1.8** — `.go-sweep-row--cards` / `.go-sweep-cards` layout
+
 ## 4-square tray return die id 0 — 2026-06-15
 - **cards.js v1.57** — `squareDieLocked`: use `dieId == null` so die id 0 is not treated as missing
 
