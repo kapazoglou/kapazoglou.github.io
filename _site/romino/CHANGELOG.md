@@ -4,6 +4,19 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## 4-square tray return die id 0 — 2026-06-15
+- **cards.js v1.57** — `squareDieLocked`: use `dieId == null` so die id 0 is not treated as missing
+
+## 4-square tray return at 3 dice — 2026-06-15
+- **cards.js v1.56** — `squareDieLocked`: at 3 dice, only current-roll dice in slots edge-adjacent to the index tile may return to tray; diagonal die stays locked
+
+## 4-square tricolor border — 2026-06-15
+- **cards.js v1.54** — tricolor index tile border white (was suit-coloured)
+
+## 4-square tricolor styling — 2026-06-15
+- **cards.js v1.53** — `squareIndexTileColor`: tricolor index tile white bg, suit-coloured text + border
+- **grid.js v2.8** — apply tricolor tile colours to in-grid index and converted card
+
 ## 4-square discovery grid empty slots — 2026-06-15
 - **hud.css v1.4** — live discovery grid empty cells match action-bar strip (remove white tint, overlay top-up)
 

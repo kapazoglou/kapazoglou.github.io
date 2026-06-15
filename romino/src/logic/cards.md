@@ -1,7 +1,7 @@
 ---
 module: cards
 layer: logic
-v: 1.52
+v: 1.57
 date: 2026-06-15
 deps: [state, settings]
 ---
@@ -20,7 +20,7 @@ As a player, I need cards to be spawned with empty die slots and to display thei
 - `dieInCard(dieId)` — returns `"cardId-slotIdx"` if die is placed in any card
 - `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); blocks completing a card whose dice are only 1s and/or 6s (111, 116, 661, 666, …; 1-slot suit cards exempt); classic 3-slot SQUARE: slot 1↔corner swaps forbidden, corner 0↔2 bypasses fill order; fourSquare: edge-adjacent only (no diagonal placement, incl. internal moves), third die via CW/CCW
 - `isCardPlayableFull(cardId)` — true when all active slots hold dice (3 of 4 for `fourSquare`, else every slot)
-- `squareFilledCount` / `squareSuitSlot` / `squareRankSlots` / … — SQUARE mode helpers; `fourSquare`: all slots 0–3 symmetric (edge adjacency only, CW/CCW third slot, value-based suit/rank, no L-shape slot-1 rules)
+- `squareFilledCount` / `squareSuitSlot` / `squareRankSlots` / `squareDieLocked` / … — SQUARE mode helpers; `fourSquare`: all slots 0–3 symmetric (edge adjacency only, CW/CCW third slot, value-based suit/rank, no L-shape slot-1 rules); at 3 dice only current-roll dice edge-adjacent to `squareIndexSlot` may return to tray
 - `wouldCreateDuplicate(cardId, si, dieId)` — detects grid rank/suit conflicts; when `settings.uniqueIndex` ON, forbids any placement whose placed-dice multiset matches another grid card; skipped for 1–2 dice cards when `partialUniqueIndex` is off
 - `squareIndexSlot(cardId)` — 4-square index tile slot; returns null at 1 die when `partialUniqueIndex` is off
 - `isDieSelectable(dieId)` — false when no legal move (placement or tray return) avoids a duplicate; move simulation clears the die's source slot

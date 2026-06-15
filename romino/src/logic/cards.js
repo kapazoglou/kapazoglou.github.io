@@ -555,8 +555,9 @@ function squareSlotAllowed(cardId, si, dieId = null) {
 
 /**
  * True when a placed die on a square card cannot be selected or dragged.
- * When all three slots are filled, slot 1 is locked until a corner is emptied.
- * When slot 1 and exactly one corner are filled, corners are locked until slot 1 is moved.
+ * Classic 3-slot: when all three slots are filled, slot 1 is locked until a corner is emptied;
+ * when slot 1 and exactly one corner are filled, corners are locked until slot 1 is moved.
+ * 4-square at 3 dice: only current-roll dice in slots edge-adjacent to the index tile may move.
  */
 export function squareDieLocked(cardId, si) {
   if (!settings.square) return false;
@@ -565,8 +566,11 @@ export function squareDieLocked(cardId, si) {
 
   if (isFourSquareCard(card)) {
     if (squareFilledCount(cardId) !== 3) return false;
-    const suitSlot = squareSuitSlot(cardId);
-    return si === suitSlot;
+    const indexSlot = squareIndexSlot(cardId);
+    if (indexSlot === null) return true;
+    const dieId = card.slots[si];
+    if (dieId == null || !state.currentRoll.includes(dieId)) return true;
+    return !SQUARE_NEIGHBORS[indexSlot].includes(si);
   }
 
   if ((card.slotCount ?? 3) !== 3) return false;

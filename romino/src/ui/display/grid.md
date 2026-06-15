@@ -1,7 +1,7 @@
 ---
 module: grid
 layer: ui/display
-v: 2.7
+v: 2.8
 date: 2026-06-15
 deps: [state, settings, cards, sweeps, grid-coins]
 ---
