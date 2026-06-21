@@ -7,14 +7,14 @@ import { isCoolOffActive, isRankCoolOffBlocked } from './cool-off.js';
 export const PIP_COLOR = {
   0: '#CCB400', // blank → V suit color
   1: '#3D4B66', 2: '#7A6BFF', 3: '#CC6525',
-  4: '#6FBA06', 5: '#25B5BA', 6: '#3D4B66', 7: '#CCB400',
+  4: '#6FBA06', 5: '#2BC5D9', 6: '#3D4B66', 7: '#CCB400',
 };
 
 // DIE_PIP_COLOR prev: 1:'#070D1A', 2:'#7161FF', 3:'#CC5529', 4:'#5DB22D', 5:'#25A5CC', 6:'#070D1A'
 export const DIE_PIP_COLOR = {
   0: '#CCB400',
   1: '#070D1A', 2: '#7A6BFF', 3: '#CC6525',
-  4: '#6FBA06', 5: '#25B5BA', 6: '#070D1A', 7: '#CCB400',
+  4: '#6FBA06', 5: '#2BC5D9', 6: '#070D1A', 7: '#CCB400',
 };
 
 export const PIP_POS = {
@@ -35,7 +35,7 @@ export const ALL_PIPS = ['tl','tr','ml','c','mr','bl','br'];
 export const SUIT_LETTER   = { 0:'V', 1:'V', 2:'Z', 3:'X', 4:'Y', 5:'W', 6:'V' };
 export const DISCARD_RANKS = ['★','A','b','c','d','e','f','g','h','i','aj','aa','ab','ac'];
 // SUIT_COLOR prev: Z:'#7161FF', X:'#CC5529', Y:'#5DB22D', W:'#25A5CC'
-export const SUIT_COLOR    = { V:'#CCB400', Z:'#7A6BFF', X:'#CC6525', Y:'#6FBA06', W:'#25B5BA' };
+export const SUIT_COLOR    = { V:'#CCB400', Z:'#7A6BFF', X:'#CC6525', Y:'#6FBA06', W:'#2BC5D9' };
 export const DISPLAY_SUITS = ['Z','X','Y','W'];
 
 /** Sorted multiset keys for Tricolor sevens (3-color combo + rank dice sum to 7). */
