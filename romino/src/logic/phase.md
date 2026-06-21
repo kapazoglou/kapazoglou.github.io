@@ -1,8 +1,8 @@
 ---
 module: phase
 layer: logic
-v: 1.16
-date: 2026-06-16
+v: 1.17
+date: 2026-06-21
 deps: [state, settings, cards, dice, sweeps, scoring, sweep-anim, render, preview-anim, hud, card-anim, grid, handlers]
 ---
 # Phase — User Story

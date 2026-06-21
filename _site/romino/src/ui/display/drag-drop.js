@@ -4,7 +4,7 @@ import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCa
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 import { updateScorePreview } from '../../logic/scoring.js';
-import { selectLeftmostTrayDie, prependReturnedDieToTrayOrder } from '../../logic/dice.js';
+import { selectLeftmostTrayDie, prependReturnedDieToTrayOrder, flipDieValue, oppositeDieValue } from '../../logic/dice.js';
 import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCardPhase } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
 import { render } from './render.js';
@@ -16,6 +16,12 @@ import { ghostCardHTML } from './action-bar.js';
 
 function countTrayDice() {
   return state.currentRoll.filter(id => dieInCard(id) === null).length;
+}
+
+function isTrayDieFlippable(dieId) {
+  if (dieInCard(dieId) !== null) return false;
+  const die = state.dice[dieId];
+  return die != null && oppositeDieValue(die.value) !== null;
 }
 
 function canReturnDieToTray(drag) {
@@ -227,6 +233,15 @@ export function initDragDrop() {
   const DRAG_THRESHOLD = 6;
 
   document.addEventListener('pointerdown', e => {
+    const scoreEl = e.target.closest('#score-display');
+    if (scoreEl?.classList.contains('is-coin-draggable')) {
+      e.preventDefault();
+      drag = { type: 'coin', originEl: scoreEl };
+      dragStartX = e.clientX; dragStartY = e.clientY; dragCommitted = false;
+      scoreEl.setPointerCapture(e.pointerId);
+      return;
+    }
+
     const cardEl = e.target.closest('.converter-card.in-tray')
       || e.target.closest('.converter-card.converter-card--grid-draggable');
     if (cardEl) {
@@ -276,9 +291,14 @@ export function initDragDrop() {
       state.selectedDieId = null;
       state.selectedCardId = null;
       if (drag.type === 'card') {
-        ghost.classList.remove('die-drag');
+        ghost.classList.remove('die-drag', 'coin-drag');
         ghost.innerHTML = renderCardHTML(drag.cardId);
         drag.originEl.classList.add('is-dragging');
+        drag.hoverTarget = null;
+      } else if (drag.type === 'coin') {
+        ghost.classList.remove('die-drag');
+        ghost.classList.add('coin-drag');
+        ghost.innerHTML = '🪙';
         drag.hoverTarget = null;
       } else {
         ghost.classList.add('die-drag');
@@ -304,10 +324,28 @@ export function initDragDrop() {
     ghost.style.top  = e.clientY + 'px';
 
     ghost.classList.remove('is-visible');
-    if (drag.type === 'card') ghost.classList.remove('die-drag');
+    if (drag.type === 'card') ghost.classList.remove('die-drag', 'coin-drag');
     const under = document.elementFromPoint(e.clientX, e.clientY);
     ghost.classList.add('is-visible');
     if (drag.type === 'die') ghost.classList.add('die-drag');
+    if (drag.type === 'coin') ghost.classList.add('coin-drag');
+
+    if (drag.type === 'coin') {
+      document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
+      let hoverTarget = null;
+      const trayDie = under?.closest('.die-wrapper');
+      const dieId = trayDie && !trayDie.dataset.slot
+        ? parseInt(trayDie.dataset.dieId, 10) : null;
+      if (dieId !== null && !Number.isNaN(dieId) && isTrayDieFlippable(dieId)) {
+        trayDie.classList.add('tray-swap-target');
+        hoverTarget = `flip:${dieId}`;
+      }
+      if (hoverTarget !== drag.hoverTarget) {
+        drag.hoverTarget = hoverTarget;
+        if (hoverTarget) vibrateSlotHover();
+      }
+      return;
+    }
 
     if (drag.type === 'card') {
       document.querySelectorAll('.grid-slot').forEach(s => s.classList.remove('drag-over'));
@@ -380,9 +418,26 @@ export function initDragDrop() {
     }
 
     clearForbiddenHolders();
-    ghost.classList.remove('is-visible');
+    ghost.classList.remove('is-visible', 'coin-drag');
     const under = document.elementFromPoint(e.clientX, e.clientY);
     ghost.classList.remove('is-visible');
+
+    if (drag.type === 'coin') {
+      document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));
+      const trayDieEl = under?.closest('.die-wrapper');
+      const dieId = trayDieEl && !trayDieEl.dataset.slot
+        ? parseInt(trayDieEl.dataset.dieId, 10) : null;
+      if (dieId !== null && !Number.isNaN(dieId) && state.score > 0 && isTrayDieFlippable(dieId)
+          && flipDieValue(dieId)) {
+        state.score--;
+        renderHUD();
+        launchPenaltyPip(trayDieEl.getBoundingClientRect());
+        render();
+        checkStuck();
+      }
+      drag = null;
+      return;
+    }
 
     if (drag.type === 'card') {
       document.querySelectorAll('.grid-slot').forEach(s => s.classList.remove('drag-over'));
@@ -535,7 +590,7 @@ export function initDragDrop() {
     if (dragCommitted && drag.originEl?.isConnected) drag.originEl.classList.remove('is-dragging');
     clearForbiddenHolders();
     ghost.classList.remove('is-visible');
-    ghost.classList.remove('die-drag');
+    ghost.classList.remove('die-drag', 'coin-drag');
     drag = null;
     document.querySelectorAll('.holder-dice').forEach(h => h.classList.remove('drag-over'));
     document.querySelectorAll('.die-wrapper').forEach(d => d.classList.remove('tray-swap-target'));

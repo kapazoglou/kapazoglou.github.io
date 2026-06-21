@@ -135,14 +135,25 @@ export function drawFromCardDeck() {
 
 /* ── Random dice (deckDice off) ──────────────────────────────────────── */
 
+function randomInt(maxExclusive) {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return buf[0] % maxExclusive;
+}
+
+function randomIntInclusive(min, max) {
+  return min + randomInt(max - min + 1);
+}
+
 function randomDieValue() {
   const start = settings.blankDie ? 0 : 1;
-  return start + Math.floor(Math.random() * (7 - start));
+  return randomIntInclusive(start, 6);
 }
 
 function randomOneDieValue() {
-  const pool = [2, 3, 4, 5, Math.random() < 0.5 ? 1 : 6];
-  return pool[Math.floor(Math.random() * pool.length)];
+  const extreme = randomInt(2) === 0 ? 1 : 6;
+  const pool = [2, 3, 4, 5, extreme];
+  return pool[randomInt(pool.length)];
 }
 
 function randomDiceValues(count) {
@@ -152,12 +163,16 @@ function randomDiceValues(count) {
 
 /* ── Spawn dice ──────────────────────────────────────────────────────── */
 
-export function spawnDice(count) {
+/** @param {number} count
+ *  @param {number[]|null} [valueOrder] — when provided (random mode), spawn these exact values */
+export function spawnDice(count, valueOrder = null) {
   const nextId = state.dice.length;
   const ids = [];
   const values = [];
 
-  if (!settings.deckDice) {
+  if (valueOrder && valueOrder.length === count) {
+    values.push(...valueOrder);
+  } else if (!settings.deckDice) {
     values.push(...randomDiceValues(count));
   } else if (count === 3) {
     values.push(...drawDiceCombination());
@@ -304,4 +319,19 @@ export function prependReturnedDieToTrayOrder(dieId) {
 export function selectLeftmostTrayDie() {
   const first = state.trayOrder.find(id => dieInCard(id) === null && isDieSelectable(id));
   state.selectedDieId = first ?? null;
+}
+
+/** Opposite face for standard pips (1↔6, 2↔5, 3↔4). Returns null for blank (0). */
+export function oppositeDieValue(value) {
+  return value >= 1 && value <= 6 ? 7 - value : null;
+}
+
+/** Flip a die to its opposite face. Returns false when value cannot flip (e.g. blank). */
+export function flipDieValue(dieId) {
+  const die = state.dice[dieId];
+  if (!die) return false;
+  const next = oppositeDieValue(die.value);
+  if (next === null) return false;
+  die.value = next;
+  return true;
 }

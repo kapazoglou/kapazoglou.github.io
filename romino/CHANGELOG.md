@@ -4,6 +4,49 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Coin flip tray dice — 2026-06-21
+- **settings.js v2.13** — `coinFlipDice` toggle (Constraints): drag HUD coin onto tray die to flip opposite face (costs 1 coin)
+- **dice.js v1.8** — `oppositeDieValue`, `flipDieValue`
+- **drag-drop.js v2.3** — coin drag type; drop on tray die flips value and spends coin
+- **hud.js v1.7** — `#score-display.is-coin-draggable` during place-dice when toggle on and score > 0
+- **hud.css v1.7** — pointer-events and grab cursor for draggable score
+- **grid.css v2.10** — `#drag-ghost.coin-drag` styling
+
+## Placement restrictions toggle — 2026-06-21
+- **settings.js v2.12** — `placementRestrictions` toggle (Square v1): fill order, slot rules, middle 1/6 ban
+- **cards.js v1.62** — first die on an empty card may use any active slot; 4-square orthogonal adjacency from 2nd die onward; `isSlotForbidden` gates fill-order rules behind `placementRestrictions`
+
+## Selection border width — 2026-06-21
+- **grid.css v2.9** — yellow selection outline/box-shadow for dice and cards reduced from 4px to 3px
+
+## deckDice random — crypto RNG — 2026-06-21
+- **dice.js v1.7** — random dice (`deckDice` off) use `crypto.getRandomValues` instead of `Math.random`
+
+## deckDice random preview ↔ tray sync — 2026-06-21
+- **dice.js v1.6** — `spawnDice(count, valueOrder?)` accepts predetermined values for random mode
+- **phase.js v1.17** — pass `previewOrder` into `spawnDice` when `deckDice` is off so tray dice match the upcoming preview
+
+## Figma suit & pip colors — 2026-06-21
+- **cards.js v1.59** — `SUIT_COLOR`, `PIP_COLOR`, `DIE_PIP_COLOR` aligned to Figma (Z/X/Y/W); 1 & 6 pips → `#3D4B66`; prior values kept commented
+
+## Cool-off rank placement block — 2026-06-18
+- **cards.js v1.58** — `isSlotForbidden` blocks placements that would give a card a cool-off rank (4-square + Cool-off)
+
+## Cool-off HUD alignment & pop — 2026-06-18
+- **hud.js v1.6** — pop class applied after paint (rAF); force row refresh on pop
+- **hud.css v1.6** — vertically centre scaled cards; overflow visible for pop animation
+
+## Cool-off toggle — 2026-06-18
+- **fix** — restore missing `cool-off.js` and HUD wiring that broke module init
+- **settings.js v2.11** — `coolOff` toggle (Square v1): swept ranks block conversion in 4-square mode
+- **cool-off.js v1.0** — `isCoolOffActive`, `isRankCoolOffBlocked`, `addCoolOffSweepCards`
+- **state.js v1.9** — `coolOffCards`, `coolOffPopping`
+- **hud.js v1.5** — cool-off row between card count and coins; `renderCoolOffRow`, `popCoolOffCard`
+- **hud.css v1.5** — `.hud-left`, `.cool-off-row`, pop animation
+- **sweep-anim.js v1.3** — append swept cards to cool-off row on commit
+- **phase.js v1.17** — skip conversion when rank is cool-off blocked; reset cool-off state
+- **card-anim.js v1.5** — pop leftmost cool-off card on each grid conversion
+
 ## 4-square game-over sweep list — 2026-06-16
 - **hud.js v1.4** — `sweepListHTML`: chronological sweep rows with mini four-square cards
 - **phase.js v1.16** — four-square game-over uses sweep card list instead of type counts

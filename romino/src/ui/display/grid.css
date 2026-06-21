@@ -40,9 +40,11 @@
   display: block;
 }
 
-.grid-slot.drag-over,
-.grid-slot:has(.converter-card.is-selected) {
+.grid-slot.drag-over {
   box-shadow: 0 0 0 4px var(--accent);
+}
+.grid-slot:has(.converter-card.is-selected) {
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 /* ─── CONVERTER CARD ─── */
@@ -173,7 +175,7 @@
 
 .holder-dice.drag-over   { box-shadow: 0 0 0 4px var(--accent); }
 .holder-dice.is-new      { box-shadow: 0 0 0 4px var(--new-border-color, var(--holder)); }
-.holder-dice.is-selected { box-shadow: 0 0 0 4px var(--accent); z-index: 100; }
+.holder-dice.is-selected { box-shadow: 0 0 0 3px var(--accent); z-index: 100; }
 
 .holder-dice.is-forbidden {
   opacity: 1;
@@ -202,8 +204,8 @@
 .die-wrapper.is-dragging  { opacity: 0; pointer-events: none; }
 .die-wrapper.is-tray-return-preview { pointer-events: none; }
 .die-wrapper.is-locked    { cursor: default; opacity: 1; }
-.die-wrapper.tray-swap-target,
-.die-wrapper.is-selected  { outline: 4px solid var(--accent); }
+.die-wrapper.tray-swap-target { outline: 4px solid var(--accent); }
+.die-wrapper.is-selected  { outline: 3px solid var(--accent); }
 .die-wrapper.is-selected  { position: relative; z-index: 100; }
 
 svg[data-name="dice_master"] {
@@ -213,7 +215,7 @@ svg[data-name="dice_master"] {
   max-width: var(--die-size); max-height: var(--die-size);
 }
 
-.converter-card.is-selected { outline: 4px solid var(--accent); }
+.converter-card.is-selected { outline: 3px solid var(--accent); }
 
 /* ─── DRAG GHOST ─── */
 #drag-ghost {
@@ -226,6 +228,13 @@ svg[data-name="dice_master"] {
   display: none;
 }
 #drag-ghost.die-drag  { transform: translate(-50%, -50%) scale(1.35); }
+#drag-ghost.coin-drag {
+  font-size: 28px;
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(1.2);
+  background: none;
+  border-radius: 0;
+}
 #drag-ghost.is-visible { display: block; }
 
 /* ─── DISCARD ENTRY ─── */

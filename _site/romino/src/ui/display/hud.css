@@ -59,10 +59,89 @@
   pointer-events: none;
   position: relative;
   z-index: 1;
+  overflow: visible;
+}
+
+.hud-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: visible;
+}
+
+.cool-off-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cool-off-row::-webkit-scrollbar {
+  display: none;
+}
+
+.cool-off-row[hidden] {
+  display: none;
+}
+
+.cool-off-card {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  position: relative;
+}
+
+html.square-cards .cool-off-row .go-card-wrap:has(.converter-card--four-square) {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  overflow: visible;
+}
+
+html.square-cards .cool-off-row .go-card-wrap .converter-card--four-square {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 116px;
+  height: 116px;
+  transform: translate(-50%, -50%) scale(calc(24 / 116));
+  transform-origin: center center;
+}
+
+@keyframes cool-off-pop {
+  0%   { transform: scale(1);    opacity: 1; filter: blur(0); }
+  35%  { transform: scale(1.35); opacity: 1; filter: blur(0); }
+  100% { transform: scale(1.7);  opacity: 0; filter: blur(4px); }
+}
+
+.cool-off-card.is-popping {
+  animation: cool-off-pop calc(0.34s * var(--t)) cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+  z-index: 2;
 }
 
 #card-count {
   pointer-events: auto;
   cursor: default;
   user-select: none;
+}
+
+#score-display.is-coin-draggable {
+  pointer-events: auto;
+  cursor: grab;
+  user-select: none;
+}
+
+#score-display.is-coin-draggable:active {
+  cursor: grabbing;
 }

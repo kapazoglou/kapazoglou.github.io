@@ -3,6 +3,7 @@ import { settings, spd } from '../../logic/settings.js';
 import { spawnCard } from '../../logic/cards.js';
 import { drawFromCardDeck, nextComboForSlotCount } from '../../logic/dice.js';
 import { lineExitKey, getGridLines, findScoringMatchOnLine, SCORING_RULE_LABELS, peekAnyScoringMatch } from '../../logic/sweeps.js';
+import { addCoolOffSweepCards } from '../../logic/cool-off.js';
 import { BEAT_MS, SWEEP_MS } from './timing.js';
 // Circular: phase.js imports resolveAllScoringSets from here.
 import { checkPhaseTransition, maybeOfferFourSquarePostSweepCard } from '../../logic/phase.js';
@@ -44,6 +45,7 @@ export function commitScoringExit() {
     cardIds:     [...se.cardIds],
     slotIndices: [...se.lineSlots],
   });
+  addCoolOffSweepCards(se.cardIds);
   state.scoringExit = null;
   document.getElementById('app')?.classList.remove('is-scoring-exit');
 

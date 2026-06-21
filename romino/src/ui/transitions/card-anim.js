@@ -2,7 +2,7 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { fillOneCard } from '../../logic/phase.js';
 import { render } from '../display/render.js';
-import { renderHUD } from '../display/hud.js';
+import { renderHUD, popCoolOffCard } from '../display/hud.js';
 
 /** Launch one score pip from fromRect toward toRect. */
 export function launchPip(fromRect, toRect, onArrival, onDone, fontSizePx = 56) {
@@ -100,11 +100,13 @@ export function processCardFills(queue, index, onDone) {
     if (cardEl) {
       cardEl.classList.add('is-converting');
       setTimeout(() => {
+        popCoolOffCard(true);
         fillOneCard(cardId);
         render();
         processCardFills(queue, index + 1, onDone);
       }, CONVERT_MS);
     } else {
+      popCoolOffCard(true);
       fillOneCard(cardId);
       render();
       processCardFills(queue, index + 1, onDone);

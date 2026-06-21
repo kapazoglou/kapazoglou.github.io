@@ -1,11 +1,71 @@
 import { state } from '../../logic/state.js';
-import { settings } from '../../logic/settings.js';
+import { settings, spd } from '../../logic/settings.js';
+import { isCoolOffActive } from '../../logic/cool-off.js';
 import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
 import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe, buildGameOverFourSquareGrid } from '../../logic/cards.js';
 import { SCORING_RULE_LABELS } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 
 let discoveryGridCount = -1;
+let coolOffRowSig = '';
+const COOL_OFF_POP_MS = 340;
+
+function coolOffRowHTML() {
+  return state.coolOffCards.map(id =>
+    `<div class="cool-off-card" data-cool-off-id="${id}">
+      <div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>
+    </div>`
+  ).join('');
+}
+
+function playCoolOffPop(cardId) {
+  requestAnimationFrame(() => {
+    const el = document.getElementById('cool-off-row')
+      ?.querySelector(`.cool-off-card[data-cool-off-id="${cardId}"]`);
+    if (!el) return;
+    void el.offsetWidth;
+    el.classList.add('is-popping');
+  });
+}
+
+export function renderCoolOffRow() {
+  const el = document.getElementById('cool-off-row');
+  if (!el) return;
+  const show = isCoolOffActive() && state.phase !== 'replay';
+  el.hidden = !show || state.coolOffCards.length === 0;
+  if (!show) {
+    el.innerHTML = '';
+    coolOffRowSig = '';
+    return;
+  }
+  const sig = state.coolOffCards.join(',');
+  if (sig === coolOffRowSig) return;
+  coolOffRowSig = sig;
+  el.innerHTML = coolOffRowHTML();
+}
+
+export function popCoolOffCard(animated = true) {
+  if (!isCoolOffActive() || !state.coolOffCards.length) return;
+  if (animated) {
+    if (state.coolOffPopping !== null) return;
+    const cardId = state.coolOffCards[0];
+    state.coolOffPopping = cardId;
+    coolOffRowSig = '';
+    renderCoolOffRow();
+    playCoolOffPop(cardId);
+    setTimeout(() => {
+      if (state.coolOffCards[0] === state.coolOffPopping) state.coolOffCards.shift();
+      state.coolOffPopping = null;
+      coolOffRowSig = '';
+      renderCoolOffRow();
+    }, spd(COOL_OFF_POP_MS));
+    return;
+  }
+  state.coolOffCards.shift();
+  state.coolOffPopping = null;
+  coolOffRowSig = '';
+  renderCoolOffRow();
+}
 
 export function discoveryGridHTML() {
   const grid = buildGameOverFourSquareGrid(state.discoveredCards);
@@ -65,8 +125,15 @@ export function renderHUD() {
   }
   if (scoreEl) {
     scoreEl.hidden = !settings.scoring;
-    if (settings.scoring) scoreEl.textContent = `${state.score} 🪙`;
+    if (settings.scoring) {
+      scoreEl.textContent = `${state.score} 🪙`;
+      const canFlip = settings.coinFlipDice && state.phase === 'place-dice' && state.score > 0;
+      scoreEl.classList.toggle('is-coin-draggable', canFlip);
+    } else {
+      scoreEl.classList.remove('is-coin-draggable');
+    }
   }
+  renderCoolOffRow();
 }
 
 export function renderDiscards() {

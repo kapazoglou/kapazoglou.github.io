@@ -1,10 +1,10 @@
 <h1 id="dice--user-story">Dice — User Story</h1>
 
-<p>As a player, I need dice drawn from a shuffled deck of unique combinations (or random when <code class="language-plaintext highlighter-rouge">deckDice</code> is off) so that I see variety without repeats until the deck runs out. Decks respect <code class="language-plaintext highlighter-rouge">blankDie</code> and <code class="language-plaintext highlighter-rouge">filterExtremes</code>; random mode uses independent rolls (1-die uses the same 2–5 + extreme pool as the 1-die deck).</p>
+<p>As a player, I need dice drawn from a shuffled deck of unique combinations (or random when <code class="language-plaintext highlighter-rouge">deckDice</code> is off) so that I see variety without repeats until the deck runs out. Decks respect <code class="language-plaintext highlighter-rouge">blankDie</code> and <code class="language-plaintext highlighter-rouge">filterExtremes</code>; random mode uses independent rolls via <code class="language-plaintext highlighter-rouge">crypto.getRandomValues</code> (1-die uses the same 2–5 + extreme pool as the 1-die deck).</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">spawnDice(count)</code> — draws <code class="language-plaintext highlighter-rouge">count/3</code> combinations, pushes dice to state, returns ids</li>
+  <li><code class="language-plaintext highlighter-rouge">spawnDice(count, valueOrder?)</code> — pushes dice to state, returns ids; optional <code class="language-plaintext highlighter-rouge">valueOrder</code> spawns exact values (random mode preview sync)</li>
   <li><code class="language-plaintext highlighter-rouge">getDeckSize()</code> — total unique 3-die combos under current settings</li>
   <li><code class="language-plaintext highlighter-rouge">getCardDeckSize()</code> — total cards in the slot-count deck (15 or 78)</li>
   <li><code class="language-plaintext highlighter-rouge">getAllDiceCombos()</code> — returns full unshuffled combo list</li>
@@ -16,6 +16,8 @@
   <li><code class="language-plaintext highlighter-rouge">orderDiceIdsByValues(ids, valueOrder)</code> — align tray order to a saved preview sequence</li>
   <li><code class="language-plaintext highlighter-rouge">prependReturnedDieToTrayOrder(dieId)</code> — prepends a returned die before dice already in the tray</li>
   <li><code class="language-plaintext highlighter-rouge">selectLeftmostTrayDie()</code> — sets <code class="language-plaintext highlighter-rouge">state.selectedDieId</code> to the first unplaced tray die</li>
+  <li><code class="language-plaintext highlighter-rouge">oppositeDieValue(value)</code> — 1↔6, 2↔5, 3↔4; null for blank (0)</li>
+  <li><code class="language-plaintext highlighter-rouge">flipDieValue(dieId)</code> — mutates die to opposite face; false when not flippable</li>
 </ul>
 
 <h2 id="related">Related</h2>

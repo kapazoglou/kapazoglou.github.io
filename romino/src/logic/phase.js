@@ -1,5 +1,6 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
 import { settings, spd, getInitialStartCardCount } from './settings.js';
+import { isRankCoolOffBlocked } from './cool-off.js';
 import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull } from './cards.js';
 import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
 import { getGridTotal, peekAnyScoringMatch } from './sweeps.js';
@@ -53,7 +54,7 @@ export function convertFilledCards(onDone, force = false) {
     if (cardId === null) continue;
     const card = state.cards[cardId];
     if (card.filled || card.scoreQueued) continue;
-    if (isCardPlayableFull(cardId)) {
+    if (isCardPlayableFull(cardId) && !isRankCoolOffBlocked(cardId)) {
       card.scoreQueued = true;
       queue.push({ cardId, pts: evaluateCardScore(cardId) });
     }
@@ -223,9 +224,10 @@ export function spawnFullGridDiceRound() {
   state.suppressGhostAnimation = true;
   state.newPreview = true;
   const diceCount = settings.diceDecks ? (state.previewOrder.length || state.pendingCardSlotCount || 3) : 3;
-  const ids = spawnDice(diceCount);
-  state.currentRoll = ids;
   const prevPreview = state.previewOrder;
+  const spawnValues = !settings.deckDice && prevPreview.length === diceCount ? prevPreview : null;
+  const ids = spawnDice(diceCount, spawnValues);
+  state.currentRoll = ids;
   state.trayOrder    = prevPreview.length ? orderDiceIdsByValues(ids, prevPreview) : sortDiceIdsForDisplay(ids);
   if (settings.diceDecks) {
     state.pendingCardSlotCount = drawFromCardDeck();
@@ -291,9 +293,10 @@ export function checkPhaseTransition() {
     // When diceDecks is ON, spawn exactly the dice shown in the upcoming-preview (previewOrder).
     // The empty-preview case is already handled above, so previewOrder.length > 0 here.
     const diceCount = settings.diceDecks ? (state.previewOrder.length || 3) : 3;
-    const ids = spawnDice(diceCount);
-    state.currentRoll = ids;
     const prevPreview = state.previewOrder;
+    const spawnValues = !settings.deckDice && prevPreview.length === diceCount ? prevPreview : null;
+    const ids = spawnDice(diceCount, spawnValues);
+    state.currentRoll = ids;
     state.trayOrder    = (prevPreview.length === ids.length) ? orderDiceIdsByValues(ids, prevPreview) : sortDiceIdsForDisplay(ids);
     if (settings.diceDecks) {
       state.pendingCardSlotCount = drawFromCardDeck();
@@ -363,6 +366,8 @@ export function resetGame() {
   state.tickerTags     = [];
   state.stars          = 0;
   state.scoredSets     = [];
+  state.coolOffCards   = [];
+  state.coolOffPopping = null;
   state.awaitingPostDiceGridPlace = false;
   state.scoringExit = null;
   state.pendingLineSweeps = [];

@@ -1,17 +1,20 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
+import { isCoolOffActive, isRankCoolOffBlocked } from './cool-off.js';
 
 /* ── Color & pip data ── */
+// PIP_COLOR prev: 1:'#FFFFFF', 2:'#7161FF', 3:'#CC5529', 4:'#5DB22D', 5:'#25A5CC', 6:'#FFFFFF'
 export const PIP_COLOR = {
   0: '#CCB400', // blank → V suit color
-  1: '#FFFFFF', 2: '#7161FF', 3: '#CC5529',
-  4: '#5DB22D', 5: '#25A5CC', 6: '#FFFFFF', 7: '#CCB400',
+  1: '#3D4B66', 2: '#7A6BFF', 3: '#CC6525',
+  4: '#6FBA06', 5: '#25B5BA', 6: '#3D4B66', 7: '#CCB400',
 };
 
+// DIE_PIP_COLOR prev: 1:'#070D1A', 2:'#7161FF', 3:'#CC5529', 4:'#5DB22D', 5:'#25A5CC', 6:'#070D1A'
 export const DIE_PIP_COLOR = {
   0: '#CCB400',
-  1: '#070D1A', 2: '#7161FF', 3: '#CC5529',
-  4: '#5DB22D', 5: '#25A5CC', 6: '#070D1A', 7: '#CCB400',
+  1: '#070D1A', 2: '#7A6BFF', 3: '#CC6525',
+  4: '#6FBA06', 5: '#25B5BA', 6: '#070D1A', 7: '#CCB400',
 };
 
 export const PIP_POS = {
@@ -31,7 +34,8 @@ export const ALL_PIPS = ['tl','tr','ml','c','mr','bl','br'];
 /* ── Suit / rank constants ── */
 export const SUIT_LETTER   = { 0:'V', 1:'V', 2:'Z', 3:'X', 4:'Y', 5:'W', 6:'V' };
 export const DISCARD_RANKS = ['★','A','b','c','d','e','f','g','h','i','aj','aa','ab','ac'];
-export const SUIT_COLOR    = { V:'#CCB400', Z:'#7161FF', X:'#CC5529', Y:'#5DB22D', W:'#25A5CC' };
+// SUIT_COLOR prev: Z:'#7161FF', X:'#CC5529', Y:'#5DB22D', W:'#25A5CC'
+export const SUIT_COLOR    = { V:'#CCB400', Z:'#7A6BFF', X:'#CC6525', Y:'#6FBA06', W:'#25B5BA' };
 export const DISPLAY_SUITS = ['Z','X','Y','W'];
 
 /** Sorted multiset keys for Tricolor sevens (3-color combo + rank dice sum to 7). */
@@ -478,8 +482,8 @@ function squareThirdSlotsFromPair(a, b) {
   return thirds;
 }
 
-/** 4-square: any slot first; further dice edge-adjacent only (no diagonals); third via CW/CCW. */
-function squareSlotAllowedFourSquare(cardId, si, dieId = null) {
+/** 4-square: edge-adjacent placement only (no diagonals); first die any slot. */
+function squareFourSquareEdgeAdjacentAllowed(cardId, si, dieId = null) {
   const card = state.cards[cardId];
   if (!card || card.slots[si] === undefined) return false;
   if (slotHasDie(card, si)) return false;
@@ -500,7 +504,26 @@ function squareSlotAllowedFourSquare(cardId, si, dieId = null) {
   if (filledSlots.length === 0) return true;
   if (filledSlots.length >= 3) return false;
 
-  if (!squareFourSquareHasEdgeNeighborFilled(card, si, vacatedSi)) return false;
+  return squareFourSquareHasEdgeNeighborFilled(card, si, vacatedSi);
+}
+
+/** 4-square: any slot first; further dice edge-adjacent only (no diagonals); third via CW/CCW. */
+function squareSlotAllowedFourSquare(cardId, si, dieId = null) {
+  if (!squareFourSquareEdgeAdjacentAllowed(cardId, si, dieId)) return false;
+
+  const card = state.cards[cardId];
+  let vacatedSi = null;
+  if (dieId != null) {
+    const prevSlot = dieInCard(dieId);
+    if (prevSlot) {
+      const [pc, fs] = prevSlot.split('-').map(Number);
+      if (pc === cardId) vacatedSi = fs;
+    }
+  }
+
+  const filledSlots = squareActiveSlotIndices(card).filter(s =>
+    slotHasDie(card, s) && s !== vacatedSi
+  );
 
   const isRearrangeToEmpty = vacatedSi != null && squareFilledCount(cardId) === 3;
   if (filledSlots.length === 1 || isRearrangeToEmpty) return true;
@@ -537,7 +560,7 @@ function squareSlotAllowed(cardId, si, dieId = null) {
   const s2 = slotHasDie(card, 2);
   const filled = squareFilledCount(cardId);
 
-  if (filled === 0) return si === 0 || si === 2; // first die: corners only
+  if (filled === 0) return true; // first die: any active slot
   if (filled === 1) {
     if (s0 && !s1 && !s2) return si === 1; // CW started: next must be slot 1
     if (!s0 && !s1 && s2) return si === 1; // CCW started: next must be slot 1
@@ -572,6 +595,8 @@ export function squareDieLocked(cardId, si) {
     if (dieId == null || !state.currentRoll.includes(dieId)) return true;
     return !SQUARE_NEIGHBORS[indexSlot].includes(si);
   }
+
+  if (!settings.placementRestrictions) return false;
 
   if ((card.slotCount ?? 3) !== 3) return false;
   const s0 = slotHasDie(card, 0);
@@ -788,7 +813,10 @@ export function squareIndexSlot(cardId) {
   if (!settings.partialUniqueIndex && filled === 1) return null;
   const empty = [0, 1, 2, 3].filter(si => !slotHasDie(card, si));
   if (empty.length === 1) return empty[0];
-  return empty.find(si => !squareSlotAllowedFourSquare(cardId, si)) ?? null;
+  const slotAllowed = (slotIdx) => settings.placementRestrictions
+    ? squareSlotAllowedFourSquare(cardId, slotIdx)
+    : squareFourSquareEdgeAdjacentAllowed(cardId, slotIdx);
+  return empty.find(si => !slotAllowed(si)) ?? null;
 }
 
 /** 4-square index tile colours (Figma 5496:8876). */
@@ -998,6 +1026,18 @@ function wouldCompleteAllExtremes(cardId, si, dieId) {
   });
 }
 
+/** True when placing dieId in slot si would give cardId a rank that appears in the cool-off row. */
+function wouldCreateCoolOffRank(cardId, si, dieId) {
+  if (!isCoolOffActive()) return false;
+  const card = state.cards[cardId];
+  if (!card || !isFourSquareCard(card)) return false;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    const rank = cardRank(cardId);
+    if (!rank || rank === ' ') return false;
+    return isRankCoolOffBlocked(cardId);
+  });
+}
+
 /** Returns true when placing dieId in slot si of cardId is forbidden by game rules. */
 export function isSlotForbidden(cardId, si, dieId) {
   const card = state.cards[cardId];
@@ -1005,58 +1045,75 @@ export function isSlotForbidden(cardId, si, dieId) {
   if (card?.slots[si] === undefined) return true;
 
   if (wouldCompleteAllExtremes(cardId, si, dieId)) return true;
+  if (wouldCreateCoolOffRank(cardId, si, dieId)) return true;
 
-  if (settings.square && isFourSquareCard(card)) {
-    if (!squareSlotAllowed(cardId, si, dieId)) return true;
-    if (!squareValuesMonotonicAfterPlace(cardId, si, dieId)) return true;
-  } else if (settings.square && (card.slotCount ?? 3) === 3) {
-    const prevSlot = dieInCard(dieId);
-    const isSameCardCornerMove = prevSlot && (() => {
-      const [pc, fromSi] = prevSlot.split('-').map(Number);
-      return pc === cardId && ((fromSi === 0 && si === 2) || (fromSi === 2 && si === 0));
-    })();
+  const isFirstDie = cardPlacedDiceCount(cardId) === 0;
 
-    if (!isSameCardCornerMove && !squareSlotAllowed(cardId, si)) return true;
-    if (!squareValuesMonotonicAfterPlace(cardId, si, dieId)) return true;
-    if (prevSlot) {
-      const [pc, fromSi] = prevSlot.split('-').map(Number);
-      if (pc === cardId && fromSi === 1 && (si === 0 || si === 2)) return true;
-      if (pc === cardId && (fromSi === 0 || fromSi === 2) && si === 1) return true;
+  if (!isFirstDie) {
+    if (settings.placementRestrictions) {
+    if (settings.square && isFourSquareCard(card)) {
+      if (!squareSlotAllowed(cardId, si, dieId)) return true;
+      if (!squareValuesMonotonicAfterPlace(cardId, si, dieId)) return true;
+    } else if (settings.square && (card.slotCount ?? 3) === 3) {
+      const prevSlot = dieInCard(dieId);
+      const isSameCardCornerMove = prevSlot && (() => {
+        const [pc, fromSi] = prevSlot.split('-').map(Number);
+        return pc === cardId && ((fromSi === 0 && si === 2) || (fromSi === 2 && si === 0));
+      })();
+
+      if (!isSameCardCornerMove && !squareSlotAllowed(cardId, si)) return true;
+      if (!squareValuesMonotonicAfterPlace(cardId, si, dieId)) return true;
+      if (prevSlot) {
+        const [pc, fromSi] = prevSlot.split('-').map(Number);
+        if (pc === cardId && fromSi === 1 && (si === 0 || si === 2)) return true;
+        if (pc === cardId && (fromSi === 0 || fromSi === 2) && si === 1) return true;
+      }
+    } else if (settings.square && !squareSlotAllowed(cardId, si)) {
+      return true;
     }
-  } else if (settings.square && !squareSlotAllowed(cardId, si)) {
-    return true;
+
+    if (!settings.forbiddenSlots && !settings.paidSlots) {
+      return settings.uniqueIndex || settings.square
+        ? wouldCreateDuplicate(cardId, si, dieId) : false;
+    }
+    const dieVal = state.dice[dieId]?.value;
+    const isBlank = dieVal === 0;
+
+    if (si === 0 || si === 2) {
+      if (isBlank) {
+        if (!settings.blanksInRank) return true;
+        const otherSi = si === 0 ? 2 : 0;
+        const otherId = state.cards[cardId]?.slots[otherSi];
+        if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value !== 0) return true;
+      } else if (settings.blanksInRank) {
+        const otherSi = si === 0 ? 2 : 0;
+        const otherId = state.cards[cardId]?.slots[otherSi];
+        if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value === 0) return true;
+      }
+    }
+
+    // For 1-slot cards (suit-only), allow any value in slot[1] — no extreme restriction
+    const slotCount = card?.slotCount ?? 3;
+    if (si === 1 && slotCount === 1) return wouldCreateDuplicate(cardId, si, dieId);
+
+    if (settings.square) {
+      return wouldCreateDuplicate(cardId, si, dieId);
+    }
+
+    return (si === 1 && (dieVal === 1 || dieVal === 6))
+        || wouldCreateDuplicate(cardId, si, dieId);
+    }
+
+    if (settings.square && isFourSquareCard(card)) {
+      if (!squareFourSquareEdgeAdjacentAllowed(cardId, si, dieId)) return true;
+    }
   }
 
   if (!settings.forbiddenSlots && !settings.paidSlots) {
     return settings.uniqueIndex || settings.square
       ? wouldCreateDuplicate(cardId, si, dieId) : false;
   }
-  const dieVal = state.dice[dieId]?.value;
-  const isBlank = dieVal === 0;
-
-  if (si === 0 || si === 2) {
-    if (isBlank) {
-      if (!settings.blanksInRank) return true;
-      const otherSi = si === 0 ? 2 : 0;
-      const otherId = state.cards[cardId]?.slots[otherSi];
-      if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value !== 0) return true;
-    } else if (settings.blanksInRank) {
-      const otherSi = si === 0 ? 2 : 0;
-      const otherId = state.cards[cardId]?.slots[otherSi];
-      if (otherId !== null && otherId !== undefined && state.dice[otherId]?.value === 0) return true;
-    }
-  }
-
-  // For 1-slot cards (suit-only), allow any value in slot[1] — no extreme restriction
-  const slotCount = card?.slotCount ?? 3;
-  if (si === 1 && slotCount === 1) return wouldCreateDuplicate(cardId, si, dieId);
-
-  if (settings.square) {
-    return wouldCreateDuplicate(cardId, si, dieId);
-  }
-
-  return (si === 1 && (dieVal === 1 || dieVal === 6))
-      || wouldCreateDuplicate(cardId, si, dieId);
+  return wouldCreateDuplicate(cardId, si, dieId);
 }
 
 function withSimulatedSlots(cardId, slots, fn) {

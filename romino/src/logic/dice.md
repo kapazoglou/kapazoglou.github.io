@@ -1,16 +1,16 @@
 ---
 module: dice
 layer: logic
-v: 1.5
-date: 2026-06-13
+v: 1.8
+date: 2026-06-21
 deps: [state, settings, cards]
 ---
 # Dice — User Story
 
-As a player, I need dice drawn from a shuffled deck of unique combinations (or random when `deckDice` is off) so that I see variety without repeats until the deck runs out. Decks respect `blankDie` and `filterExtremes`; random mode uses independent rolls (1-die uses the same 2–5 + extreme pool as the 1-die deck).
+As a player, I need dice drawn from a shuffled deck of unique combinations (or random when `deckDice` is off) so that I see variety without repeats until the deck runs out. Decks respect `blankDie` and `filterExtremes`; random mode uses independent rolls via `crypto.getRandomValues` (1-die uses the same 2–5 + extreme pool as the 1-die deck).
 
 ## Exports
-- `spawnDice(count)` — draws `count/3` combinations, pushes dice to state, returns ids
+- `spawnDice(count, valueOrder?)` — pushes dice to state, returns ids; optional `valueOrder` spawns exact values (random mode preview sync)
 - `getDeckSize()` — total unique 3-die combos under current settings
 - `getCardDeckSize()` — total cards in the slot-count deck (15 or 78)
 - `getAllDiceCombos()` — returns full unshuffled combo list
@@ -22,6 +22,8 @@ As a player, I need dice drawn from a shuffled deck of unique combinations (or r
 - `orderDiceIdsByValues(ids, valueOrder)` — align tray order to a saved preview sequence
 - `prependReturnedDieToTrayOrder(dieId)` — prepends a returned die before dice already in the tray
 - `selectLeftmostTrayDie()` — sets `state.selectedDieId` to the first unplaced tray die
+- `oppositeDieValue(value)` — 1↔6, 2↔5, 3↔4; null for blank (0)
+- `flipDieValue(dieId)` — mutates die to opposite face; false when not flippable
 
 ## Related
 [[state]] · [[settings]] · [[cards]] · [[action-bar]] · [[phase]]

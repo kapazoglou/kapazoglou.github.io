@@ -1,8 +1,8 @@
 ---
 module: hud
 layer: ui/display
-v: 1.4
-date: 2026-06-16
+v: 1.7
+date: 2026-06-21
 deps: [state, cards, dice, grid, sweeps]
 ---
 # HUD — User Story
@@ -10,7 +10,7 @@ deps: [state, cards, dice, grid, sweeps]
 As a player, I need to see my remaining deck size (card countdown) on the left and my current coin score on the right, updated after every game action. In 4-square mode, a live 4×13 discovery grid sits above the HUD and fills in as cards convert.
 
 ## Exports
-- `renderHUD()` — updates `#card-count` (deck remaining, or ∞ when random dice) and `#score-display` (coins)
+- `renderHUD()` — updates `#card-count` (deck remaining, or ∞ when random dice) and `#score-display` (coins); adds `.is-coin-draggable` when `coinFlipDice` + place-dice + score > 0
 - `renderDiscoveryGrid()` — updates `#discovery-grid` (4×13 suit/rank grid when `fourSquare` ON)
 - `discoveryGridHTML()` — shared markup for live + game-over 4-square grids
 - `sweepListHTML()` — game-over sweep rows with mini four-square cards per scored set

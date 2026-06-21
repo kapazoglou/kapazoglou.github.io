@@ -15,6 +15,8 @@ export const state = {
   tickerTags:                [],
   stars:                     0,
   scoredSets:                [],
+  coolOffCards:              [],
+  coolOffPopping:            null,
   awaitingPostDiceGridPlace: false,
   scoringExit:               null,
   pendingLineSweeps:         [],

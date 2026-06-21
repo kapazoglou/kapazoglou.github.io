@@ -4,7 +4,7 @@
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">renderHUD()</code> — updates <code class="language-plaintext highlighter-rouge">#card-count</code> (deck remaining, or ∞ when random dice) and <code class="language-plaintext highlighter-rouge">#score-display</code> (coins)</li>
+  <li><code class="language-plaintext highlighter-rouge">renderHUD()</code> — updates <code class="language-plaintext highlighter-rouge">#card-count</code> (deck remaining, or ∞ when random dice) and <code class="language-plaintext highlighter-rouge">#score-display</code> (coins); adds <code class="language-plaintext highlighter-rouge">.is-coin-draggable</code> when <code class="language-plaintext highlighter-rouge">coinFlipDice</code> + place-dice + score &gt; 0</li>
   <li><code class="language-plaintext highlighter-rouge">renderDiscoveryGrid()</code> — updates <code class="language-plaintext highlighter-rouge">#discovery-grid</code> (4×13 suit/rank grid when <code class="language-plaintext highlighter-rouge">fourSquare</code> ON)</li>
   <li><code class="language-plaintext highlighter-rouge">discoveryGridHTML()</code> — shared markup for live + game-over 4-square grids</li>
   <li><code class="language-plaintext highlighter-rouge">sweepListHTML()</code> — game-over sweep rows with mini four-square cards per scored set</li>
