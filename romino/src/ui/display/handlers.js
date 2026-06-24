@@ -5,7 +5,7 @@ import { updateScorePreview } from '../../logic/scoring.js';
 import { selectLeftmostTrayDie } from '../../logic/dice.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 // Circular: phase.js imports autoplayCardStep from here.
-import { convertFilledCards, checkPhaseTransition, checkStuck } from '../../logic/phase.js';
+import { convertFilledCards, checkPhaseTransition, checkStuck, finalizeFromStuck } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
@@ -180,6 +180,11 @@ export function initAutoplay() {
 export function initHandlers() {
   document.addEventListener('click', e => {
 
+    if (e.target.closest('[data-game-over-card]')) {
+      finalizeFromStuck();
+      return;
+    }
+
     const dieWrapper = e.target.closest('.die-wrapper');
     if (dieWrapper && !dieWrapper.dataset.locked) {
       const dieId = parseInt(dieWrapper.dataset.dieId, 10);
@@ -254,6 +259,7 @@ export function initHandlers() {
           selectLeftmostTrayDie();
           render();
           if (fromTray) { checkPhaseTransition(); checkStuck(); }
+          else if (state.phase === 'place-dice') checkStuck();
         }
         return;
       }

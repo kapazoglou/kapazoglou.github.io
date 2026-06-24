@@ -63,6 +63,29 @@
   display: none;
 }
 
+/* Stuck: clickable game-over card replaces ghost (overrides pointer-events + opacity) */
+.action-bar-card-ghost--game-over {
+  pointer-events: auto;
+  opacity: 1;
+  cursor: pointer;
+}
+
+.converter-card--game-over {
+  cursor: pointer;
+  touch-action: manipulation;
+  align-items: center;
+  justify-content: center;
+}
+
+.converter-card--game-over-label {
+  font-size: 18px;
+  color: var(--text-dim);
+  text-align: center;
+  line-height: 1.2;
+  user-select: none;
+  pointer-events: none;
+}
+
 
 /* ─── REPLAY BUTTON ─── */
 #replay-btn {

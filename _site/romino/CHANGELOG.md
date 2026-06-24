@@ -4,6 +4,11 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Post-sweep slot capacity check — 2026-06-23
+- **cards.js v1.63** — `countAvailableDiceSlots`: adjacency + max-3 capacity; ignores forbidden value rules
+- **phase.js v1.19** — restore `finalizeFromStuck` / stuck flow (fixes grid init); `maybeOfferPostSweepCard` uses adjacency-aware slot count
+- **sweep-anim.js v1.3** — call `maybeOfferPostSweepCard` after sweep queue drains
+
 ## Coin flip tray dice — 2026-06-21
 - **settings.js v2.13** — `coinFlipDice` toggle (Constraints): drag HUD coin onto tray die to flip opposite face (costs 1 coin)
 - **dice.js v1.8** — `oppositeDieValue`, `flipDieValue`

@@ -1,9 +1,9 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
 import { settings, spd, getInitialStartCardCount } from './settings.js';
 import { isRankCoolOffBlocked } from './cool-off.js';
-import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull } from './cards.js';
+import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull, countAvailableDiceSlots } from './cards.js';
 import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
-import { getGridTotal, peekAnyScoringMatch } from './sweeps.js';
+import { getGridTotal } from './sweeps.js';
 import { evaluateCardScore } from './scoring.js';
 // These create circular imports resolved at call-time via ES module live bindings.
 // All cross-module calls happen inside function bodies, never at module evaluation time.
@@ -131,10 +131,9 @@ export function countEmptyDiceSlots() {
   }, 0);
 }
 
-/** 4-square: after sweeps, offer one card when fewer than 6 empty dice slots remain. */
-export function maybeOfferFourSquarePostSweepCard() {
-  if (!settings.fourSquare || !settings.square) return;
-  if (countEmptyDiceSlots() < 6) {
+/** After sweeps, offer one card when fewer than 6 adjacency-available dice slots remain. */
+export function maybeOfferPostSweepCard() {
+  if (countAvailableDiceSlots() < 6) {
     state.pendingPostSweepCards = 1;
   }
 }
@@ -159,7 +158,58 @@ export function hasLegalMove() {
 export function checkStuck() {
   if (state.phase !== 'place-dice') return;
   if (isAllDicePlaced()) return;
-  if (!hasLegalMove()) showReplay('no legal moves remaining');
+  if (state.finalizingStuck) return;
+
+  if (hasLegalMove()) {
+    if (state.showGameOverCard) {
+      clearStuckOfferFlags();
+      render();
+    }
+    return;
+  }
+
+  if (!state.showGameOverCard) {
+    state.showGameOverCard = true;
+    state.newGameOverCard = true;
+    render();
+  }
+}
+
+function clearStuckOfferFlags() {
+  state.showGameOverCard = false;
+  state.newGameOverCard = false;
+}
+
+function clearUnplacedTrayDice() {
+  state.currentRoll = state.currentRoll.filter(id => dieInCard(id) !== null);
+  state.trayOrder   = state.trayOrder.filter(id => dieInCard(id) !== null);
+}
+
+/** After forced conversion: resolve sweeps; call onNoSweep when none start. */
+function runForcedConversionThenSweeps(onNoSweep, beforeResolve) {
+  convertFilledCards(() => {
+    beforeResolve?.();
+    resolveAllScoringSets();
+    if (!state.scoringExit) onNoSweep?.();
+    else {
+      state.finalizingStuck = false;
+      render();
+    }
+  }, true);
+}
+
+export function finalizeFromStuck() {
+  if (!state.showGameOverCard || state.finalizingStuck || state.scoringExit) return;
+
+  state.finalizingStuck = true;
+  clearStuckOfferFlags();
+  clearUnplacedTrayDice();
+  state.selectedDieId = null;
+
+  runForcedConversionThenSweeps(() => {
+    state.finalizingStuck = false;
+    showReplay('no legal moves remaining');
+  });
 }
 
 /** Undo place-dice → place-card when the post-dice hand card is returned to ghost. */
@@ -174,6 +224,8 @@ export function revertPostDiceCardPhase() {
 
 /* ── Game over / replay ── */
 export function showReplay(reason = '') {
+  clearStuckOfferFlags();
+  state.finalizingStuck = false;
   state.phase = 'replay';
   const bar = document.getElementById('action-bar');
   if (bar) bar.style.pointerEvents = 'none';
@@ -311,23 +363,11 @@ export function checkPhaseTransition() {
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
     if (state.fullGridDiceRound) {
       state.fullGridDiceRound = false;
-      convertFilledCards(() => {
+      runForcedConversionThenSweeps(() => {
         const emptySlots = countEmptyDiceSlots();
-        const willScore = peekAnyScoringMatch();
-        if (willScore && !(settings.fourSquare && settings.square)) {
-          state.pendingPostSweepCards = emptySlots === 0 ? 2 : 1;
-        }
-        resolveAllScoringSets();
-        if (!state.scoringExit) {
-          if (emptySlots === 0) {
-            showReplay();
-          } else {
-            spawnFullGridDiceRound();
-          }
-          return;
-        }
-        render();
-      }, true);
+        if (emptySlots === 0) showReplay();
+        else spawnFullGridDiceRound();
+      });
       return;
     }
     state.phase = 'place-card';
@@ -378,6 +418,9 @@ export function resetGame() {
   state.suppressPreviewDice = false;
   state.suppressGhostAnimation = false;
   state.ghostReverseIn = false;
+  state.showGameOverCard = false;
+  state.newGameOverCard = false;
+  state.finalizingStuck = false;
   state.diceDeck = [];
   state.diceDeck2 = [];
   state.diceDeck1 = [];

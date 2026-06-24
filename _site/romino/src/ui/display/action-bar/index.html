@@ -6,12 +6,13 @@
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderActionBar()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#action-bar</code> innerHTML from state</li>
   <li><code class="language-plaintext highlighter-rouge">ghostCardHTML(slotCount)</code> — skeleton card HTML for the action-bar ghost indicator</li>
+  <li><code class="language-plaintext highlighter-rouge">gameOverCardHTML()</code> — slotless “game over” card for stuck finalize (ghost slot, clickable)</li>
 </ul>
 
 <h2 id="modes">Modes</h2>
 <ul>
   <li><strong>place-card</strong>: renders hand cards (<code class="language-plaintext highlighter-rouge">.in-tray</code>) with <code class="language-plaintext highlighter-rouge">is-new</code> slide-in if flagged</li>
-  <li><strong>place-dice</strong>: renders dice tray + upcoming preview strip + card ghost</li>
+  <li><strong>place-dice</strong>: renders dice tray + upcoming preview strip + card ghost (or game-over card when stuck)</li>
 </ul>
 
 <h2 id="animation-flags-consumed">Animation flags consumed</h2>

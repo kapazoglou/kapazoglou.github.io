@@ -49,6 +49,9 @@ export const state = {
   suppressPreviewDice:       false,
   suppressGhostAnimation:    false,
   ghostReverseIn:            false,
+  showGameOverCard:          false, // stuck: clickable game-over card in ghost slot
+  newGameOverCard:           false, // one-shot slide-in for game-over ghost card
+  finalizingStuck:           false, // guard while finalizeFromStuck pipeline runs
   // Sweep exit timers (stored on state to allow mutation from any module)
   scoreExitBeatTimer:        null,
   scoreExitDoneTimer:        null,

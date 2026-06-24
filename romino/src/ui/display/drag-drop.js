@@ -562,8 +562,7 @@ export function initDragDrop() {
       selectLeftmostTrayDie();
       render();
       if (fromTray) { checkPhaseTransition(); checkStuck(); }
-
-    } else if (targetTrayId !== null && targetTrayId !== drag.dieId) {
+      else if (state.phase === 'place-dice') checkStuck();
       const ia = state.trayOrder.indexOf(drag.dieId);
       const ib = state.trayOrder.indexOf(targetTrayId);
       if (ia !== -1 && ib !== -1) {

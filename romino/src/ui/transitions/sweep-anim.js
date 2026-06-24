@@ -6,7 +6,7 @@ import { lineExitKey, getGridLines, findScoringMatchOnLine, SCORING_RULE_LABELS,
 import { addCoolOffSweepCards } from '../../logic/cool-off.js';
 import { BEAT_MS, SWEEP_MS } from './timing.js';
 // Circular: phase.js imports resolveAllScoringSets from here.
-import { checkPhaseTransition, maybeOfferFourSquarePostSweepCard } from '../../logic/phase.js';
+import { checkPhaseTransition, maybeOfferPostSweepCard } from '../../logic/phase.js';
 import { render } from '../display/render.js';
 
 export function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
@@ -72,7 +72,7 @@ export function commitScoringExit() {
   resolveAllScoringSets();
 
   if (!state.scoringExit && !peekAnyScoringMatch()) {
-    maybeOfferFourSquarePostSweepCard();
+    maybeOfferPostSweepCard();
     if (state.pendingPostSweepCards > 0) {
       state.phase = 'place-card';
       if (settings.diceDecks) {

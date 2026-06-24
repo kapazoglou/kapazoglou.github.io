@@ -136,6 +136,8 @@ html.square-cards .go-card-wrap .converter-card--four-square {
   gap: 4px;
 }
 .go-sweep-cards { display: flex; flex-wrap: wrap; gap: 2px; }
+.go-sweep-cards--inline { align-items: center; gap: 0 2px; }
+.go-sweep-comma { color: var(--text-dim); font-size: 14px; line-height: 1; margin: 0 1px; }
 .go-sweep-label { color: var(--text-dim); }
 .go-sweep-count { font-size: 20px; color: var(--accent); }
 .go-sweep-empty { font-size: 15px; color: var(--text-dim); font-style: italic; }

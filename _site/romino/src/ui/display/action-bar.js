@@ -63,6 +63,12 @@ export function ghostCardHTML(slotCount) {
   </div>`;
 }
 
+export function gameOverCardHTML() {
+  return `<div class="converter-card converter-card--game-over" data-game-over-card="true">
+    <span class="converter-card--game-over-label">game over</span>
+  </div>`;
+}
+
 export function renderActionBar() {
   const bar = document.getElementById('action-bar');
   bar.innerHTML = '';
@@ -148,14 +154,21 @@ export function renderActionBar() {
 
     const ghostReverse = !!state.ghostReverseIn;
     state.ghostReverseIn = false;
-    const animateGhost = (isNewPreview && !state.suppressGhostAnimation) || ghostReverse;
+    const isGameOverGhost = state.showGameOverCard;
+    const animateGhost = !isGameOverGhost && ((isNewPreview && !state.suppressGhostAnimation) || ghostReverse);
+    const animateGameOverGhost = isGameOverGhost && state.newGameOverCard;
     state.suppressGhostAnimation = false;
     const lastDieIdx = Math.max(combo.length - 1, 0);
     const cardGhostDelay = animateGhost && isNewPreview ? basePreviewDelay + lastDieIdx * 60 + 320 + 40 : 0;
     const cardGhostEl = document.createElement('div');
-    cardGhostEl.className = `action-bar-card-ghost${animateGhost ? ' is-new' : ''}`;
+    cardGhostEl.className = `action-bar-card-ghost${
+      isGameOverGhost ? ' action-bar-card-ghost--game-over' : ''
+    }${animateGhost || animateGameOverGhost ? ' is-new' : ''}`;
     if (animateGhost) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
-    cardGhostEl.innerHTML = ghostCardHTML(state.pendingCardSlotCount);
+    cardGhostEl.innerHTML = isGameOverGhost
+      ? gameOverCardHTML()
+      : ghostCardHTML(state.pendingCardSlotCount);
+    if (animateGameOverGhost) state.newGameOverCard = false;
     bar.appendChild(cardGhostEl);
     return;
   }

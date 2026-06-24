@@ -4,7 +4,7 @@
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">initHandlers()</code> — attaches the main <code class="language-plaintext highlighter-rouge">document</code> click listener for tap-to-select/place; when <code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> is on, tap filled grid cards toggles pre-conversion layout peek</li>
+  <li><code class="language-plaintext highlighter-rouge">initHandlers()</code> — attaches the main <code class="language-plaintext highlighter-rouge">document</code> click listener for tap-to-select/place; tap <code class="language-plaintext highlighter-rouge">[data-game-over-card]</code> when stuck → <code class="language-plaintext highlighter-rouge">finalizeFromStuck()</code>; when <code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> is on, tap filled grid cards toggles pre-conversion layout peek</li>
   <li><code class="language-plaintext highlighter-rouge">initAutoplay()</code> — attaches long-press listeners on <code class="language-plaintext highlighter-rouge">#action-bar</code></li>
   <li><code class="language-plaintext highlighter-rouge">autoplayCardStep(onDone)</code> — places one action-bar card on a random empty grid slot</li>
   <li><code class="language-plaintext highlighter-rouge">autoplayDiceStep(onDone)</code> — places all tray dice in random valid slots</li>

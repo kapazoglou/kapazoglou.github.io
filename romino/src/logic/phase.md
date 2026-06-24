@@ -1,8 +1,8 @@
 ---
 module: phase
 layer: logic
-v: 1.17
-date: 2026-06-21
+v: 1.19
+date: 2026-06-23
 deps: [state, settings, cards, dice, sweeps, scoring, sweep-anim, render, preview-anim, hud, card-anim, grid, handlers]
 ---
 # Phase — User Story
@@ -15,12 +15,13 @@ As a player, I need the game to automatically advance between phases (place-card
 - `fillOneCard(cardId)` — marks filled; records discovery via `snapshotCardIdentity` + `discoveryKey`
 - `convertFilledCards(onDone, force)` — triggers fill animations for ready cards
 - `convertAllGridCards(onDone)` — bulk-fill for endgame
-- `isAllDicePlaced()` / `hasLegalMove()` / `checkStuck()` — round-end checks
+- `isAllDicePlaced()` / `hasLegalMove()` / `checkStuck()` — round-end checks; stuck offers game-over ghost card instead of immediate overlay
+- `finalizeFromStuck()` — player confirms stuck state: forced conversion + sweeps, overlay only if no sweep
 - `showReplay(reason)` — sets phase to `'replay'`, populates game-over overlay
 - `maybeAutoplayFirstTwo()` — auto-places first two cards when setting is on
 - `revertPostDiceCardPhase()` — undo place-dice → place-card when a die is returned to an empty tray
-- `countEmptyDiceSlots()` — total empty die slots on grid cards
-- `maybeOfferFourSquarePostSweepCard()` — 4-square: sets `pendingPostSweepCards` when post-sweep empty slots &lt; 6
+- `countEmptyDiceSlots()` — total empty die slots on grid cards (raw count, no adjacency)
+- `maybeOfferPostSweepCard()` — sets `pendingPostSweepCards` when post-sweep adjacency-available slots &lt; 6
 - `resetGame()` — full state reset + re-render
 
 ## Related

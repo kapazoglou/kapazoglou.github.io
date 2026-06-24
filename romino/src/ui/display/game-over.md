@@ -1,8 +1,8 @@
 ---
 module: game-over
 layer: ui/display
-v: 1.8
-date: 2026-06-16
+v: 1.9
+date: 2026-06-23
 deps: [phase]
 ---
 # Game Over — User Story
@@ -16,7 +16,7 @@ As a player, when the game ends I want to see a bottom sheet slide up showing my
 - `#game-over-reason` — reason string (e.g. "no legal moves remaining")
 - `#go-cards-count` — unique discovered cards (count matches grid)
 - `#go-cards-grid` — one mini thumbnail per unique identity; 2-slot shows domino dice at game over; `fourSquare` ON → fixed 4×13 grid (rows Z/X/Y/W, cols suit-only/2–12/A)
-- `#go-sweeps` — sweep breakdown; `fourSquare` ON → one row per sweep with mini cards + rule label; otherwise type counts
+- `#go-sweeps` — sweep breakdown; `fourSquare` ON → one row per sweep, comma-separated mini cards; otherwise type counts
 
 ## Related
 [[phase]] · [[grid]] · [[sweeps]] · [[state]]

@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 1.8
-date: 2026-06-15
+v: 1.9
+date: 2026-06-23
 deps: []
 ---
 # State — User Story
@@ -24,6 +24,8 @@ As the game engine, I need a single mutable object that holds the complete game 
 - `state.discoveredCards` — unique filled card IDs in first-discovery order (game-over summary)
 - `state.selectedCardId` — card selected for placement/reposition
 - `state.peekUnconvertedCards` — Set of filled grid card ids currently showing pre-conversion layout (`peekUnconvertedLayout`)
+- `state.showGameOverCard` / `state.newGameOverCard` — stuck: clickable game-over card in action-bar ghost slot
+- `state.finalizingStuck` — guard while finalize pipeline runs
 
 ## Related
 [[settings]] · [[phase]] · [[cards]] · [[dice]]

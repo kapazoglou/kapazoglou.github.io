@@ -3,7 +3,6 @@ import { settings, spd } from '../../logic/settings.js';
 import { isCoolOffActive } from '../../logic/cool-off.js';
 import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
 import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe, buildGameOverFourSquareGrid } from '../../logic/cards.js';
-import { SCORING_RULE_LABELS } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 
 let discoveryGridCount = -1;
@@ -81,13 +80,12 @@ export function sweepListHTML() {
     return '<div class="go-sweep-empty">no sweeps</div>';
   }
   return state.scoredSets.map(s => {
-    const label = SCORING_RULE_LABELS[s.ruleId] ?? s.ruleId;
-    const cards = s.cardIds.map(id =>
-      `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
-    ).join('');
+    const cards = s.cardIds.map((id, i) => {
+      const sep = i > 0 ? '<span class="go-sweep-comma">,</span>' : '';
+      return `${sep}<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`;
+    }).join('');
     return `<div class="go-sweep-row go-sweep-row--cards">
-      <span class="go-sweep-label">${label}</span>
-      <div class="go-sweep-cards">${cards}</div>
+      <div class="go-sweep-cards go-sweep-cards--inline">${cards}</div>
     </div>`;
   }).join('');
 }
