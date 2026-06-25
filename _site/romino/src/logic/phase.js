@@ -131,11 +131,44 @@ export function countEmptyDiceSlots() {
   }, 0);
 }
 
-/** After sweeps, offer one card when fewer than 6 adjacency-available dice slots remain. */
-export function maybeOfferPostSweepCard() {
-  if (countAvailableDiceSlots() < 6) {
-    state.pendingPostSweepCards = 1;
+/** True when every grid cell holds a card (no empty grid slot to place a new card). */
+export function isGridSpatiallyFull() {
+  return state.grid.every(id => id !== null);
+}
+
+/** Full grid and fewer than 6 adjacency-placeable dice slots (card cannot be dealt → dice / game-over ghost). */
+export function isFullGridCapacitySqueeze() {
+  return isGridSpatiallyFull() && countAvailableDiceSlots() < 6;
+}
+
+/** Offer a card when adjacency-available grid slots are fewer than 6. Returns true if dealt. */
+export function tryOfferCapacityCard() {
+  if (countAvailableDiceSlots() >= 6) return false;
+  // Full grid: no cell for a new card — caller spawns tray dice instead (last-chance sweeps).
+  if (isGridSpatiallyFull()) return false;
+
+  state.phase = 'place-card';
+  if (settings.diceDecks) {
+    state.pendingCardSlotCount = drawFromCardDeck();
   }
+  const slotCount = settings.diceDecks ? state.pendingCardSlotCount : 3;
+  const nc1 = spawnCard(slotCount);
+  state.actionBarCards = [nc1];
+  state.newCards = new Set([nc1]);
+  state.selectedCardId = nc1;
+  state.selectedDieId  = null;
+  if (state.pendingPostSweepCards > 1) {
+    state.pendingSecondNewCard = spawnCard(slotCount);
+  }
+  state.pendingPostSweepCards = 0;
+  clearEndgameFlags();
+  render();
+  return true;
+}
+
+/** @deprecated alias — use tryOfferCapacityCard */
+export function maybeOfferPostSweepCard() {
+  if (countAvailableDiceSlots() < 6) state.pendingPostSweepCards = 1;
 }
 
 export function hasLegalMove() {
@@ -155,29 +188,64 @@ export function hasLegalMove() {
   return false;
 }
 
+/** Game-over ghost when full grid + capacity squeeze (card skipped for dice). */
+export function isEndgameGhost() {
+  if (state.phase !== 'place-dice' || !isFullGridCapacitySqueeze()) return false;
+  if (state.fullGridDiceRound) return true;
+  if (state.endgameStuck) return true;
+  return state.endgameActive && isAllDicePlaced();
+}
+
+/** True when the endgame ghost is waiting for a tap — hide tray/preview dice. */
+export function isEndgameAwaitingTap() {
+  return isEndgameGhost() && (isAllDicePlaced() || state.endgameStuck);
+}
+
+function enterEndgameSession() {
+  if (!state.endgameActive) {
+    state.endgameActive = true;
+    state.newEndgameGhost = true;
+  }
+}
+
+/** Enter or exit endgame session when capacity squeeze crosses the ghost threshold. */
+export function syncEndgameGhostSession() {
+  if (isEndgameGhost()) {
+    if (!state.endgameActive) enterEndgameSession();
+  } else if (state.endgameActive && !state.finalizingEndgame) {
+    state.endgameActive = false;
+    state.newEndgameGhost = false;
+  }
+}
+
+export function clearEndgameFlags() {
+  state.endgameActive = false;
+  state.endgameStuck = false;
+  state.newEndgameGhost = false;
+}
+
 export function checkStuck() {
   if (state.phase !== 'place-dice') return;
   if (isAllDicePlaced()) return;
-  if (state.finalizingStuck) return;
+  if (state.finalizingEndgame) return;
+  if (!isFullGridCapacitySqueeze()) return;
 
   if (hasLegalMove()) {
-    if (state.showGameOverCard) {
-      clearStuckOfferFlags();
+    if (state.endgameStuck) {
+      state.endgameStuck = false;
+      syncEndgameGhostSession();
       render();
     }
     return;
   }
 
-  if (!state.showGameOverCard) {
-    state.showGameOverCard = true;
-    state.newGameOverCard = true;
+  if (!state.endgameStuck) {
+    state.endgameStuck = true;
+    clearUnplacedTrayDice();
+    state.selectedDieId = null;
+    syncEndgameGhostSession();
     render();
   }
-}
-
-function clearStuckOfferFlags() {
-  state.showGameOverCard = false;
-  state.newGameOverCard = false;
 }
 
 function clearUnplacedTrayDice() {
@@ -192,24 +260,35 @@ function runForcedConversionThenSweeps(onNoSweep, beforeResolve) {
     resolveAllScoringSets();
     if (!state.scoringExit) onNoSweep?.();
     else {
-      state.finalizingStuck = false;
+      state.finalizingEndgame = false;
       render();
     }
   }, true);
 }
 
-export function finalizeFromStuck() {
-  if (!state.showGameOverCard || state.finalizingStuck || state.scoringExit) return;
+export function finalizeFromEndgame() {
+  if (!isEndgameGhost() || state.finalizingEndgame || state.scoringExit) return;
 
-  state.finalizingStuck = true;
-  clearStuckOfferFlags();
+  state.finalizingEndgame = true;
+  const reason = state.endgameStuck ? 'no legal moves remaining' : 'game over';
+  clearEndgameFlags();
   clearUnplacedTrayDice();
   state.selectedDieId = null;
 
   runForcedConversionThenSweeps(() => {
-    state.finalizingStuck = false;
-    showReplay('no legal moves remaining');
+    state.finalizingEndgame = false;
+    if (!isGridSpatiallyFull()) {
+      render();
+      checkPhaseTransition();
+      return;
+    }
+    showReplay(reason);
   });
+}
+
+/** @deprecated alias — use finalizeFromEndgame */
+export function finalizeFromStuck() {
+  finalizeFromEndgame();
 }
 
 /** Undo place-dice → place-card when the post-dice hand card is returned to ghost. */
@@ -224,8 +303,8 @@ export function revertPostDiceCardPhase() {
 
 /* ── Game over / replay ── */
 export function showReplay(reason = '') {
-  clearStuckOfferFlags();
-  state.finalizingStuck = false;
+  clearEndgameFlags();
+  state.finalizingEndgame = false;
   state.phase = 'replay';
   const bar = document.getElementById('action-bar');
   if (bar) bar.style.pointerEvents = 'none';
@@ -288,6 +367,7 @@ export function spawnFullGridDiceRound() {
   state.diceAccentActive = true;
   selectLeftmostTrayDie();
   renderWithPreviewFade();
+  syncEndgameGhostSession();
   setTimeout(checkStuck, 0);
 }
 
@@ -338,10 +418,11 @@ export function checkPhaseTransition() {
       return;
     }
 
+    if (tryOfferCapacityCard()) return;
+
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
-    const allSlotsFilled = state.grid.every(id => id !== null);
-    state.fullGridDiceRound = allSlotsFilled;
+    state.fullGridDiceRound = isGridSpatiallyFull();
     // When diceDecks is ON, spawn exactly the dice shown in the upcoming-preview (previewOrder).
     // The empty-preview case is already handled above, so previewOrder.length > 0 here.
     const diceCount = settings.diceDecks ? (state.previewOrder.length || 3) : 3;
@@ -358,15 +439,24 @@ export function checkPhaseTransition() {
     state.newPreview = true;
     selectLeftmostTrayDie();
     renderWithPreviewFade();
+    syncEndgameGhostSession();
     setTimeout(checkStuck, 0);
 
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
     if (state.fullGridDiceRound) {
       state.fullGridDiceRound = false;
       runForcedConversionThenSweeps(() => {
+        if (state.scoringExit) return;
         const emptySlots = countEmptyDiceSlots();
-        if (emptySlots === 0) showReplay();
-        else spawnFullGridDiceRound();
+        if (emptySlots === 0) {
+          enterEndgameSession();
+          clearUnplacedTrayDice();
+          state.selectedDieId = null;
+          syncEndgameGhostSession();
+          render();
+        } else if (!tryOfferCapacityCard()) {
+          spawnFullGridDiceRound();
+        }
       });
       return;
     }
@@ -378,6 +468,8 @@ export function checkPhaseTransition() {
     state.selectedDieId  = null;
     state.awaitingPostDiceGridPlace = true;
     render();
+  } else if (state.phase === 'place-dice') {
+    syncEndgameGhostSession();
   }
 }
 
@@ -418,9 +510,10 @@ export function resetGame() {
   state.suppressPreviewDice = false;
   state.suppressGhostAnimation = false;
   state.ghostReverseIn = false;
-  state.showGameOverCard = false;
-  state.newGameOverCard = false;
-  state.finalizingStuck = false;
+  state.endgameActive = false;
+  state.endgameStuck = false;
+  state.newEndgameGhost = false;
+  state.finalizingEndgame = false;
   state.diceDeck = [];
   state.diceDeck2 = [];
   state.diceDeck1 = [];

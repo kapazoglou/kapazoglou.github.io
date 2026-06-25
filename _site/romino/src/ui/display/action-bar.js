@@ -2,6 +2,7 @@ import { state } from '../../logic/state.js';
 import { settings, getInitialStartCardCount } from '../../logic/settings.js';
 import { dieSVG, diePipRotationDeg, isDieSelectable } from '../../logic/cards.js';
 import { nextComboForDisplay } from '../../logic/dice.js';
+import { isEndgameGhost, isEndgameAwaitingTap } from '../../logic/phase.js';
 import { renderCardHTML } from './grid.js';
 
 /** Build ghost card HTML for the upcoming-card indicator in the action bar.
@@ -64,8 +65,10 @@ export function ghostCardHTML(slotCount) {
 }
 
 export function gameOverCardHTML() {
-  return `<div class="converter-card converter-card--game-over" data-game-over-card="true">
-    <span class="converter-card--game-over-label">game over</span>
+  return `<div class="converter-card converter-card--square converter-card--game-over" data-game-over-card="true">
+    <div class="square-wrapper square-wrapper--game-over">
+      <span class="converter-card--game-over-label">game over</span>
+    </div>
   </div>`;
 }
 
@@ -96,10 +99,11 @@ export function renderActionBar() {
     state.newCards?.clear();
   } else {
     bar.classList.add('mode-dice');
+    const hideTrayDice = isEndgameAwaitingTap();
     const tray = document.createElement('div');
     tray.className = 'dice-tray';
     let newIdx = 0;
-    state.trayOrder.forEach(dieId => {
+    if (!hideTrayDice) state.trayOrder.forEach(dieId => {
       // Only render dice that are still in the tray (not in a card slot)
       let inCard = false;
       for (const card of state.cards) {
@@ -132,43 +136,54 @@ export function renderActionBar() {
 
     const isNewPreview = !!state.newPreview;
     state.newPreview = false;
-    const playableCount = state.trayOrder.filter(id => {
-      for (const card of state.cards) {
-        for (let si = 0; si < card.slots.length; si++) {
-          if (card.slots[si] === id) return false;
+    let basePreviewDelay = 0;
+    if (!hideTrayDice) {
+      const playableCount = state.trayOrder.filter(id => {
+        for (const card of state.cards) {
+          for (let si = 0; si < card.slots.length; si++) {
+            if (card.slots[si] === id) return false;
+          }
         }
-      }
-      return true;
-    }).length;
-    const basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
+        return true;
+      }).length;
+      basePreviewDelay = isNewPreview ? (Math.max(playableCount, 1) - 1) * 60 + 320 : 0;
+
+      const combo = state.previewOrder.length ? state.previewOrder : nextComboForDisplay();
+      const preview = document.createElement('div');
+      preview.className = 'upcoming-preview';
+      preview.innerHTML = combo.map((v, idx) => {
+        const cls   = `die-wrapper${isNewPreview ? ' preview-is-new' : ''}`;
+        const style = `pointer-events:none${isNewPreview ? `;animation-delay:${basePreviewDelay + idx * 60}ms` : ''}`;
+        return `<div class="${cls}" style="${style}">${dieSVG(v, 40, diePipRotationDeg(null, v))}</div>`;
+      }).join('');
+      bar.appendChild(preview);
+    }
 
     const combo = state.previewOrder.length ? state.previewOrder : nextComboForDisplay();
-    const preview = document.createElement('div');
-    preview.className = 'upcoming-preview';
-    preview.innerHTML = combo.map((v, idx) => {
-      const cls   = `die-wrapper${isNewPreview ? ' preview-is-new' : ''}`;
-      const style = `pointer-events:none${isNewPreview ? `;animation-delay:${basePreviewDelay + idx * 60}ms` : ''}`;
-      return `<div class="${cls}" style="${style}">${dieSVG(v, 40, diePipRotationDeg(null, v))}</div>`;
-    }).join('');
-    bar.appendChild(preview);
 
     const ghostReverse = !!state.ghostReverseIn;
     state.ghostReverseIn = false;
-    const isGameOverGhost = state.showGameOverCard;
-    const animateGhost = !isGameOverGhost && ((isNewPreview && !state.suppressGhostAnimation) || ghostReverse);
-    const animateGameOverGhost = isGameOverGhost && state.newGameOverCard;
+    const showEndgameGhost = isEndgameGhost();
+    const animateGhost = !showEndgameGhost && ((isNewPreview && !state.suppressGhostAnimation) || ghostReverse);
+    const animateEndgameGhost = showEndgameGhost && state.newEndgameGhost;
     state.suppressGhostAnimation = false;
     const lastDieIdx = Math.max(combo.length - 1, 0);
     const cardGhostDelay = animateGhost && isNewPreview ? basePreviewDelay + lastDieIdx * 60 + 320 + 40 : 0;
+    const endgameGhostDelay = animateEndgameGhost && isNewPreview
+      ? basePreviewDelay + lastDieIdx * 60 + 320 + 40
+      : 0;
     const cardGhostEl = document.createElement('div');
     cardGhostEl.className = `action-bar-card-ghost${
-      isGameOverGhost ? ' action-bar-card-ghost--game-over' : ''
-    }${animateGhost || animateGameOverGhost ? ' is-new' : ''}`;
+      showEndgameGhost ? ' action-bar-card-ghost--game-over' : ''
+    }${animateGhost || animateEndgameGhost ? ' is-new' : ''}`;
     if (animateGhost) cardGhostEl.style.animationDelay = `${cardGhostDelay}ms`;
-    cardGhostEl.innerHTML = isGameOverGhost
+    else if (animateEndgameGhost && endgameGhostDelay) {
+      cardGhostEl.style.animationDelay = `${endgameGhostDelay}ms`;
+    }
+    cardGhostEl.innerHTML = showEndgameGhost
       ? gameOverCardHTML()
       : ghostCardHTML(state.pendingCardSlotCount);
-    if (animateGameOverGhost) state.newGameOverCard = false;
+    if (animateEndgameGhost) state.newEndgameGhost = false;
     bar.appendChild(cardGhostEl);
     return;
   }

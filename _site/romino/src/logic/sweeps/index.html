@@ -10,9 +10,11 @@
   <li><code class="language-plaintext highlighter-rouge">SWEEP_RULE_ORDER</code> / <code class="language-plaintext highlighter-rouge">SCORING_RULE_LABELS</code> / <code class="language-plaintext highlighter-rouge">SCORING_RULES</code> — rule registry</li>
   <li><code class="language-plaintext highlighter-rouge">isConsecutiveRanks(cardIds)</code> — consecutive-rank test with wildcard support; returns false when any card is Tricolor</li>
   <li><code class="language-plaintext highlighter-rouge">effectiveSuitsFlush(cardIds)</code> / <code class="language-plaintext highlighter-rouge">effectiveSuitsDiff(cardIds)</code> — wildTarok suit resolution</li>
-  <li><code class="language-plaintext highlighter-rouge">findAllMatchesOnLine(lineSlots)</code> — all rules matching a fully-filled line; null grid slot = incomplete (no match); blocker cards skipped; all other slots must be <code class="language-plaintext highlighter-rouge">filled</code></li>
+  <li><code class="language-plaintext highlighter-rouge">findAllMatchesOnLine(lineSlots)</code> — all rules matching a slot segment; null grid slot in segment = incomplete (no match); blocker cards skipped; all other slots must be <code class="language-plaintext highlighter-rouge">filled</code></li>
   <li><code class="language-plaintext highlighter-rouge">findScoringMatchOnLine(lineSlots)</code> — first match only (for quick peek)</li>
-  <li><code class="language-plaintext highlighter-rouge">peekAnyScoringMatch()</code> — true if any line on the grid currently matches</li>
+  <li><code class="language-plaintext highlighter-rouge">getThreeSweepSegments()</code> — deduped 3-slot candidates on 4×4 when <code class="language-plaintext highlighter-rouge">sweepThreeInRow</code> is on (subsegments + offset diagonals)</li>
+  <li><code class="language-plaintext highlighter-rouge">collectScoringMatches()</code> — ordered matches: full grid lines first, then 3-segments not subsumed by a full-line match</li>
+  <li><code class="language-plaintext highlighter-rouge">peekAnyScoringMatch()</code> — true when <code class="language-plaintext highlighter-rouge">collectScoringMatches()</code> is non-empty</li>
 </ul>
 
 <h2 id="related">Related</h2>

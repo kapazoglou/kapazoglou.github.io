@@ -1,6 +1,6 @@
 import { state, forbiddenDieSlots } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCard, isDieSelectable } from '../../logic/cards.js';
+import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCard, isDieSelectable, recordFourSquareDiePlaced, recordFourSquareDieRemoved } from '../../logic/cards.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 import { updateScorePreview } from '../../logic/scoring.js';
@@ -179,6 +179,7 @@ function clearDieFromOriginSlot(originSlot, dieId) {
   }
 
   state.cards[originCardId].slots[si] = null;
+  recordFourSquareDieRemoved(originCardId, si);
   if (settings.square) updateSquareLayout(originCardId);
   return originCardId;
 }
@@ -548,12 +549,17 @@ export function initDragDrop() {
           }
         }
         const [ocStr, osiStr] = drag.originSlot.split('-');
-        state.cards[parseInt(ocStr, 10)].slots[parseInt(osiStr, 10)] = null;
+        const originCardId = parseInt(ocStr, 10);
+        const originSi = parseInt(osiStr, 10);
+        recordFourSquareDieRemoved(originCardId, originSi);
+        state.cards[originCardId].slots[originSi] = null;
       }
 
       const originCardId = drag.originSlot ? parseInt(drag.originSlot.split('-')[0], 10) : null;
+      const originSi = drag.originSlot ? parseInt(drag.originSlot.split('-')[1], 10) : null;
       const fromTray = !drag.originSlot;
       card.slots[si] = drag.dieId;
+      recordFourSquareDiePlaced(cardId, si, { fromCardId: originCardId, fromSi: originSi });
       if (settings.square) updateSquareLayout(cardId);
       drag = null;
 

@@ -247,16 +247,21 @@ click #replay-btn
 
 ---
 
-## 8. Game-over overlay
+## 8. Squeeze ghost → sheet
 
 ```
-showGameOver(reason)  [called externally when applicable]
-├── #game-over-reason.textContent = reason
-└── #game-over-overlay.classList.add('is-visible')
+full grid + capacity squeeze (≤ 6 adjacency slots) + dice round
+└── ghost: LAST DICE (dim until all tray dice placed)
+    └── tap  →  commitLastDice()
+        ├── convert + resolve sweeps
+        ├── [grid opens]  →  normal loop
+        ├── [more dice needed]  →  spawnFullGridDiceRound()  →  LAST DICE again
+        └── [no empty die slots]  →  endgameTerminal  →  ghost: GAME OVER
 
-click #game-over-restart
-├── overlay hidden
-└── resetGame()  →  (§1)
+checkStuck()  [squeeze grid, no legal placements]
+└── endgameStuck  →  ghost: GAME OVER (tappable)
+
+tap [data-game-over-card] when GAME OVER  →  finalizeGameOver()  →  showReplay(reason)
 ```
 
 ---

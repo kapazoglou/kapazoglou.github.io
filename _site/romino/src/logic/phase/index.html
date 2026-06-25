@@ -9,13 +9,18 @@
   <li><code class="language-plaintext highlighter-rouge">fillOneCard(cardId)</code> — marks filled; records discovery via <code class="language-plaintext highlighter-rouge">snapshotCardIdentity</code> + <code class="language-plaintext highlighter-rouge">discoveryKey</code></li>
   <li><code class="language-plaintext highlighter-rouge">convertFilledCards(onDone, force)</code> — triggers fill animations for ready cards</li>
   <li><code class="language-plaintext highlighter-rouge">convertAllGridCards(onDone)</code> — bulk-fill for endgame</li>
-  <li><code class="language-plaintext highlighter-rouge">isAllDicePlaced()</code> / <code class="language-plaintext highlighter-rouge">hasLegalMove()</code> / <code class="language-plaintext highlighter-rouge">checkStuck()</code> — round-end checks; stuck offers game-over ghost card instead of immediate overlay</li>
-  <li><code class="language-plaintext highlighter-rouge">finalizeFromStuck()</code> — player confirms stuck state: forced conversion + sweeps, overlay only if no sweep</li>
+  <li><code class="language-plaintext highlighter-rouge">isAllDicePlaced()</code> / <code class="language-plaintext highlighter-rouge">hasLegalMove()</code> / <code class="language-plaintext highlighter-rouge">checkStuck()</code> — round-end checks; stuck escalates ghost label to “game over”</li>
+  <li><code class="language-plaintext highlighter-rouge">isFullGridCapacitySqueeze()</code> — grid spatially full and fewer than 6 adjacency-placeable dice slots</li>
+  <li><code class="language-plaintext highlighter-rouge">isEndgameGhost()</code> / <code class="language-plaintext highlighter-rouge">isEndgameAwaitingTap()</code> / <code class="language-plaintext highlighter-rouge">syncEndgameGhostSession()</code> / <code class="language-plaintext highlighter-rouge">clearEndgameFlags()</code> — game-over ghost only under capacity squeeze (replaces card ghost)</li>
+  <li><code class="language-plaintext highlighter-rouge">finalizeFromEndgame()</code> — player taps ghost: forced conversion + sweeps, overlay if grid still full</li>
+  <li><code class="language-plaintext highlighter-rouge">finalizeFromStuck()</code> — deprecated alias for <code class="language-plaintext highlighter-rouge">finalizeFromEndgame</code></li>
   <li><code class="language-plaintext highlighter-rouge">showReplay(reason)</code> — sets phase to <code class="language-plaintext highlighter-rouge">'replay'</code>, populates game-over overlay</li>
   <li><code class="language-plaintext highlighter-rouge">maybeAutoplayFirstTwo()</code> — auto-places first two cards when setting is on</li>
   <li><code class="language-plaintext highlighter-rouge">revertPostDiceCardPhase()</code> — undo place-dice → place-card when a die is returned to an empty tray</li>
   <li><code class="language-plaintext highlighter-rouge">countEmptyDiceSlots()</code> — total empty die slots on grid cards (raw count, no adjacency)</li>
-  <li><code class="language-plaintext highlighter-rouge">maybeOfferPostSweepCard()</code> — sets <code class="language-plaintext highlighter-rouge">pendingPostSweepCards</code> when post-sweep adjacency-available slots &lt; 6</li>
+  <li><code class="language-plaintext highlighter-rouge">isGridSpatiallyFull()</code> — every grid cell holds a card (no empty grid slot)</li>
+  <li><code class="language-plaintext highlighter-rouge">tryOfferCapacityCard()</code> — deals a card when adjacency-available slots &lt; 6 and grid has a free cell; returns false on full grid so callers spawn tray dice</li>
+  <li><code class="language-plaintext highlighter-rouge">maybeOfferPostSweepCard()</code> — legacy flag setter (prefer <code class="language-plaintext highlighter-rouge">tryOfferCapacityCard</code>)</li>
   <li><code class="language-plaintext highlighter-rouge">resetGame()</code> — full state reset + re-render</li>
 </ul>
 

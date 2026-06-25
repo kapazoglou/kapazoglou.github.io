@@ -79,15 +79,15 @@ export function sweepListHTML() {
   if (!state.scoredSets.length) {
     return '<div class="go-sweep-empty">no sweeps</div>';
   }
-  return state.scoredSets.map(s => {
-    const cards = s.cardIds.map((id, i) => {
-      const sep = i > 0 ? '<span class="go-sweep-comma">,</span>' : '';
-      return `${sep}<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`;
-    }).join('');
-    return `<div class="go-sweep-row go-sweep-row--cards">
-      <div class="go-sweep-cards go-sweep-cards--inline">${cards}</div>
-    </div>`;
-  }).join('');
+  const groups = state.scoredSets.map(s => {
+    const cards = s.cardIds.map(id =>
+      `<div class="go-card-wrap">${renderCardHTML(id, false, false, { gameOver: true })}</div>`
+    ).join('');
+    return `<div class="go-sweep-group">${cards}</div>`;
+  });
+  return `<div class="go-sweeps-inline">${groups.map((group, i) =>
+    `${i > 0 ? '<span class="go-sweep-comma">,</span>' : ''}${group}`
+  ).join('')}</div>`;
 }
 
 export function renderDiscoveryGrid() {

@@ -1,8 +1,8 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.6
-date: 2026-06-15
+v: 1.9
+date: 2026-06-25
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story
@@ -16,7 +16,9 @@ As a player, I want to access a hidden settings panel (tap the card-count 4 time
 ## Toggle behaviour
 - **fastAnimations** → toggles `html.fast-anims` class immediately
 - **peekUnconvertedLayout** (off) → clears `state.peekUnconvertedCards`
-- **extendedGrid / extraStartCards / blankDie / filterExtremes** → closes panel + calls `resetGame()`
+- **extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / oneToOne / forbidThirdExtreme** → closes panel + calls `resetGame()`
+- **oneToOne** — disabled when `fourSquare` is off
+- **forbidThirdExtreme** — disabled when `fourSquare` is off or `oneToOne` is on
 - All others → calls `render()`
 
 ## Related

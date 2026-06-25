@@ -6,13 +6,13 @@
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderActionBar()</code> — rebuilds <code class="language-plaintext highlighter-rouge">#action-bar</code> innerHTML from state</li>
   <li><code class="language-plaintext highlighter-rouge">ghostCardHTML(slotCount)</code> — skeleton card HTML for the action-bar ghost indicator</li>
-  <li><code class="language-plaintext highlighter-rouge">gameOverCardHTML()</code> — slotless “game over” card for stuck finalize (ghost slot, clickable)</li>
+  <li><code class="language-plaintext highlighter-rouge">gameOverCardHTML()</code> — 116×116 SQUARE game-over tile (accent face, black GAME OVER label)</li>
 </ul>
 
 <h2 id="modes">Modes</h2>
 <ul>
   <li><strong>place-card</strong>: renders hand cards (<code class="language-plaintext highlighter-rouge">.in-tray</code>) with <code class="language-plaintext highlighter-rouge">is-new</code> slide-in if flagged</li>
-  <li><strong>place-dice</strong>: renders dice tray + upcoming preview strip + card ghost (or game-over card when stuck)</li>
+  <li><strong>place-dice</strong>: renders dice tray + upcoming preview strip + card ghost (or endgame ghost when <code class="language-plaintext highlighter-rouge">isEndgameGhost()</code>); tray and preview hidden when <code class="language-plaintext highlighter-rouge">isEndgameAwaitingTap()</code></li>
 </ul>
 
 <h2 id="animation-flags-consumed">Animation flags consumed</h2>
@@ -21,9 +21,10 @@
   <li><code class="language-plaintext highlighter-rouge">state.newDice</code> — set of die ids to animate in</li>
   <li><code class="language-plaintext highlighter-rouge">state.newPreview</code> — boolean; triggers preview + ghost slide-in</li>
   <li><code class="language-plaintext highlighter-rouge">state.newCardAfterPreview</code> / <code class="language-plaintext highlighter-rouge">state.newPreviewInCard</code> — sequencing flags</li>
-  <li><code class="language-plaintext highlighter-rouge">state.suppressGhostAnimation</code> — skips ghost re-animation in full-grid rounds</li>
+  <li><code class="language-plaintext highlighter-rouge">state.suppressGhostAnimation</code> — skips card-ghost re-animation in full-grid dice loops</li>
+  <li><code class="language-plaintext highlighter-rouge">state.newEndgameGhost</code> — one-shot endgame ghost slide-in on session entry</li>
   <li><code class="language-plaintext highlighter-rouge">state.ghostReverseIn</code> — ghost card slide-in after post-dice revert</li>
 </ul>
 
 <h2 id="related">Related</h2>
-<p>[[state]] · [[dice]] · [[grid]] · [[preview-anim]] · [[handlers]]</p>
+<p>[[state]] · [[dice]] · [[grid]] · [[preview-anim]] · [[handlers]] · [[phase]]</p>

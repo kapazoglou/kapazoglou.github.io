@@ -1,12 +1,10 @@
 import { state, clearScoreExitTimers } from '../../logic/state.js';
-import { settings, spd } from '../../logic/settings.js';
-import { spawnCard } from '../../logic/cards.js';
-import { drawFromCardDeck, nextComboForSlotCount } from '../../logic/dice.js';
-import { lineExitKey, getGridLines, findScoringMatchOnLine, SCORING_RULE_LABELS, peekAnyScoringMatch } from '../../logic/sweeps.js';
+import { spd } from '../../logic/settings.js';
+import { collectScoringMatches, lineExitKey, SCORING_RULE_LABELS, peekAnyScoringMatch } from '../../logic/sweeps.js';
 import { addCoolOffSweepCards } from '../../logic/cool-off.js';
 import { BEAT_MS, SWEEP_MS } from './timing.js';
 // Circular: phase.js imports resolveAllScoringSets from here.
-import { checkPhaseTransition, maybeOfferPostSweepCard } from '../../logic/phase.js';
+import { checkPhaseTransition, tryOfferCapacityCard } from '../../logic/phase.js';
 import { render } from '../display/render.js';
 
 export function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
@@ -72,23 +70,7 @@ export function commitScoringExit() {
   resolveAllScoringSets();
 
   if (!state.scoringExit && !peekAnyScoringMatch()) {
-    maybeOfferPostSweepCard();
-    if (state.pendingPostSweepCards > 0) {
-      state.phase = 'place-card';
-      if (settings.diceDecks) {
-        state.pendingCardSlotCount = drawFromCardDeck();
-      }
-      const slotCount = settings.diceDecks ? state.pendingCardSlotCount : 3;
-      const nc1 = spawnCard(slotCount);
-      state.actionBarCards = [nc1];
-      state.newCards = new Set([nc1]);
-      state.selectedCardId = nc1;
-      state.selectedDieId  = null;
-      if (state.pendingPostSweepCards > 1) {
-        state.pendingSecondNewCard = spawnCard(slotCount);
-      }
-      state.pendingPostSweepCards = 0;
-    } else {
+    if (!tryOfferCapacityCard()) {
       checkPhaseTransition();
       return;
     }
@@ -99,16 +81,12 @@ export function commitScoringExit() {
 export function resolveOneScoringSet() {
   if (state.scoringExit) return false;
 
-  const allMatches = [];
-  for (const line of getGridLines()) {
-    const match = findScoringMatchOnLine(line);
-    if (match) allMatches.push({
-      lineSlots: match.filteredLineSlots,  // only non-empty positions (3 slots in 4×4 + emptyCards)
-      lineKey:   lineExitKey(line),        // direction derived from the original full line
-      ruleId:    match.ruleId,
-      cardIds:   match.cardIds,
-    });
-  }
+  const allMatches = collectScoringMatches().map(m => ({
+    lineSlots: m.filteredLineSlots,
+    lineKey:   m.lineKey,
+    ruleId:    m.ruleId,
+    cardIds:   m.cardIds,
+  }));
   if (!allMatches.length) return false;
 
   const [first, ...rest] = allMatches;

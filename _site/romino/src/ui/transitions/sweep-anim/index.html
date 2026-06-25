@@ -6,7 +6,7 @@
 <ul>
   <li><code class="language-plaintext highlighter-rouge">startScoringExitAnimation(lineSlots, ruleId, cardIds)</code> — begins beat + sweep sequence</li>
   <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> — called when sweep animation finishes; clears grid slots, drains queue</li>
-  <li><code class="language-plaintext highlighter-rouge">resolveOneScoringSet()</code> — detects all simultaneous matching lines, starts first sweep</li>
+  <li><code class="language-plaintext highlighter-rouge">resolveOneScoringSet()</code> — calls <code class="language-plaintext highlighter-rouge">collectScoringMatches()</code> in sweeps.js; starts first sweep, queues rest</li>
   <li><code class="language-plaintext highlighter-rouge">resolveAllScoringSets()</code> — entry point; delegates to <code class="language-plaintext highlighter-rouge">resolveOneScoringSet</code></li>
 </ul>
 
@@ -14,7 +14,7 @@
 <ol>
   <li><strong>Beat phase</strong> (<code class="language-plaintext highlighter-rouge">BEAT_MS</code>): cards pop to 108% scale</li>
   <li><strong>Run phase</strong> (<code class="language-plaintext highlighter-rouge">SWEEP_MS</code>): cards translate along sweep axis and fade out</li>
-  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> clears slots, fires next queued sweep (cross-line), calls <code class="language-plaintext highlighter-rouge">maybeOfferPostSweepCard()</code> when done, then offers post-sweep cards or <code class="language-plaintext highlighter-rouge">checkPhaseTransition()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> clears slots, fires next queued sweep (cross-line), calls <code class="language-plaintext highlighter-rouge">tryOfferCapacityCard()</code> when done, then <code class="language-plaintext highlighter-rouge">checkPhaseTransition()</code> if no card was dealt</li>
 </ol>
 
 <h2 id="css-classes">CSS classes</h2>

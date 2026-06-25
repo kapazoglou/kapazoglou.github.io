@@ -3,6 +3,21 @@ import { settings, SETTINGS_CONFIG } from '../../logic/settings.js';
 import { resetGame } from '../../logic/phase.js';
 import { render } from './render.js';
 
+function syncFourSquareToggleRows() {
+  const fourSquare = settings.fourSquare;
+  for (const [key, needsPlacementMode] of [
+    ['oneToOne', false],
+    ['forbidThirdExtreme', true],
+  ]) {
+    const input = document.querySelector(`input[data-key="${key}"]`);
+    const row = input?.closest('.settings-row');
+    if (!input) continue;
+    const disabled = !fourSquare || (needsPlacementMode && settings.oneToOne);
+    input.disabled = disabled;
+    row?.classList.toggle('settings-row--disabled', disabled);
+  }
+}
+
 export function renderSettingsPanel() {
   const container = document.getElementById('settings-toggles');
   container.innerHTML = '';
@@ -23,6 +38,11 @@ export function renderSettingsPanel() {
       input.type = 'checkbox';
       input.dataset.key = item.key;
       input.checked = settings[item.key];
+      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme') {
+        input.disabled = !settings.fourSquare
+          || (item.key === 'forbidThirdExtreme' && settings.oneToOne);
+        row.classList.toggle('settings-row--disabled', input.disabled);
+      }
       input.addEventListener('change', () => {
         settings[item.key] = input.checked;
         // Dependency: paidSlots requires forbiddenSlots.
@@ -68,13 +88,16 @@ export function renderSettingsPanel() {
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = true;
         }
+        if (item.key === 'fourSquare' || item.key === 'square' || item.key === 'oneToOne') {
+          syncFourSquareToggleRows();
+        }
         if (item.key === 'diceDecks' && input.checked) {
           settings.square = false;
           document.documentElement.classList.remove('square-cards');
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = false;
         }
-        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare'].includes(item.key)) {
+        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare', 'oneToOne', 'forbidThirdExtreme'].includes(item.key)) {
           document.getElementById('settings-panel').classList.remove('is-open');
           resetGame();
         } else {

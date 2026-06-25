@@ -1,6 +1,6 @@
 import { state, forbiddenDieSlots } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { isSlotForbidden, dieInCard, updateSquareLayout, isDieSelectable } from '../../logic/cards.js';
+import { isSlotForbidden, dieInCard, updateSquareLayout, isDieSelectable, recordFourSquareDiePlaced, recordFourSquareDieRemoved } from '../../logic/cards.js';
 import { updateScorePreview } from '../../logic/scoring.js';
 import { selectLeftmostTrayDie } from '../../logic/dice.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
@@ -118,6 +118,7 @@ export function autoplayDiceStep(onDone) {
 
       const doPlaceDie = () => {
         state.cards[cardId].slots[si] = dieId;
+        recordFourSquareDiePlaced(cardId, si);
         updateScorePreview(cardId);
         render();
         setTimeout(() => placeNext(remaining.slice(1)), spd(60));
@@ -236,6 +237,8 @@ export function initHandlers() {
           }
           const prevSlotKey = dieInCard(state.selectedDieId);
           const fromTray = !prevSlotKey;
+          let fromCardId = null;
+          let fromSi = null;
           if (prevSlotKey) {
             if (settings.refundOnMove && forbiddenDieSlots.has(state.selectedDieId)) {
               forbiddenDieSlots.delete(state.selectedDieId);
@@ -250,9 +253,13 @@ export function initHandlers() {
               }
             }
             const [pcStr, psStr] = prevSlotKey.split('-');
-            state.cards[parseInt(pcStr, 10)].slots[parseInt(psStr, 10)] = null;
+            fromCardId = parseInt(pcStr, 10);
+            fromSi = parseInt(psStr, 10);
+            recordFourSquareDieRemoved(fromCardId, fromSi);
+            state.cards[fromCardId].slots[fromSi] = null;
           }
           card.slots[si] = state.selectedDieId;
+          recordFourSquareDiePlaced(cardId, si, { fromCardId, fromSi });
           if (settings.square) updateSquareLayout(cardId);
           state.selectedDieId = null;
           updateScorePreview(cardId);

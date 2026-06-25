@@ -11,6 +11,8 @@ export const SETTINGS_CONFIG = [
       { key: 'extraStartCards',   label: 'Extra start cards',                        default: false },
       { key: 'square',            label: 'SQUARE — square card layout',              default: true },
       { key: 'fourSquare',        label: '4-square — 4 slot card',                   default: true },
+      { key: 'oneToOne',          label: 'One-to-one — combo fixes card identity',   default: false },
+      { key: 'forbidThirdExtreme', label: 'Forbid 1/6 as third die',                default: false },
       { key: 'coolOff',           label: 'Sweep cool-off ',                          default: false },
       { key: 'uniqueIndex',      label: 'Unique index',                              default: true  },
       { key: 'partialUniqueIndex', label: 'Partial unique index',                    default: false },
@@ -43,6 +45,7 @@ export const SETTINGS_CONFIG = [
     items: [
       { key: 'colorRestriction', label: 'Color restriction — treat 1 and 6 as equivalent (SQUARE)', default: false },
       { key: 'emptyCards',        label: 'Empty cards (diagonal blockers)',               default: false },
+      { key: 'sweepThreeInRow',   label: '3-in-a-row sweeps (4×4)',                       default: false },
       { key: 'fastAnimations',    label: 'Fast animations (2×)',                         default: true  },
       { key: 'autoplayLongPress', label: 'Autoplay on long press',                       default: true  },
       { key: 'autoplayFirstTwo',  label: 'Autoplay first two cards',                     default: false  },

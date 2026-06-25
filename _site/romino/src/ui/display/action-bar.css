@@ -68,20 +68,48 @@
   pointer-events: auto;
   opacity: 1;
   cursor: pointer;
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* Endgame ghost: 116×116 SQUARE tile, accent face, black uppercase label */
+.converter-card.converter-card--square.converter-card--game-over {
+  width: 116px;
+  height: 116px;
+  padding: 0;
+  background: var(--accent);
+  display: block;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+html.square-cards .converter-card--game-over .square-wrapper--game-over,
+.converter-card--game-over .square-wrapper--game-over {
+  width: 116px;
+  height: 116px;
+  padding: 8px;
+  border-radius: 20px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .converter-card--game-over {
   cursor: pointer;
   touch-action: manipulation;
-  align-items: center;
-  justify-content: center;
 }
 
 .converter-card--game-over-label {
-  font-size: 18px;
-  color: var(--text-dim);
+  font-family: 'Averia Libre', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.15;
   user-select: none;
   pointer-events: none;
 }

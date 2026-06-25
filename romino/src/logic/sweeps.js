@@ -145,8 +145,8 @@ export const SCORING_RULES = {
   },
 };
 
-/** Returns all matching rule IDs (in display order) for a fully-filled line.
- *  A null grid slot means the line is incomplete — returns [] immediately.
+/** Returns all matching rule IDs (in display order) for a slot segment.
+ *  A null grid slot in the segment means incomplete — returns [] immediately.
  *  Blocker cards (card.empty) are skipped: they don't block completion and
  *  don't participate in pattern matching or sweep animation. */
 export function findAllMatchesOnLine(lineSlots) {
@@ -169,14 +169,98 @@ export function findAllMatchesOnLine(lineSlots) {
     .map(ruleId => ({ ruleId, cardIds: [...cardIds], filteredLineSlots: [...filteredSlots] }));
 }
 
-/** Returns the first match on any line (for quick peek). */
+/** Returns the first match on a segment (for quick peek). */
 export function findScoringMatchOnLine(lineSlots) {
   return findAllMatchesOnLine(lineSlots)[0] ?? null;
 }
 
-export function peekAnyScoringMatch() {
-  for (const line of getGridLines()) {
-    if (findAllMatchesOnLine(line).length > 0) return true;
+/** All 3-slot sweep candidates on 4×4 when sweepThreeInRow is on; otherwise []. */
+export function getThreeSweepSegments() {
+  const N = getGridSize();
+  if (N !== 4 || !settings.sweepThreeInRow) return [];
+
+  const seen = new Set();
+  const segments = [];
+
+  function add(seg) {
+    const key = seg.join(',');
+    if (seen.has(key)) return;
+    seen.add(key);
+    segments.push(seg);
   }
-  return false;
+
+  for (const line of getGridLines()) {
+    add(line.slice(0, 3));
+    add(line.slice(1, 4));
+  }
+
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N; c++) {
+      const d1 = [];
+      for (let i = 0; i < 3; i++) {
+        const nr = r + i;
+        const nc = c + i;
+        if (nr >= N || nc >= N) break;
+        d1.push(nr * N + nc);
+      }
+      if (d1.length === 3) add(d1);
+
+      const d2 = [];
+      for (let i = 0; i < 3; i++) {
+        const nr = r + i;
+        const nc = c - i;
+        if (nr >= N || nc < 0) break;
+        d2.push(nr * N + nc);
+      }
+      if (d2.length === 3) add(d2);
+    }
+  }
+
+  return segments;
+}
+
+function segmentIsSubsetOf(sub, sup) {
+  const supSet = new Set(sup);
+  return sub.every(i => supSet.has(i));
+}
+
+/** Ordered sweep matches: full lines first, then 3-segments (4×4 + sweepThreeInRow). */
+export function collectScoringMatches() {
+  const matches = [];
+
+  for (const line of getGridLines()) {
+    const match = findScoringMatchOnLine(line);
+    if (match) {
+      matches.push({
+        ruleId:            match.ruleId,
+        cardIds:           match.cardIds,
+        filteredLineSlots: match.filteredLineSlots,
+        lineKey:           lineExitKey(match.filteredLineSlots),
+      });
+    }
+  }
+
+  if (getThreeSweepSegments().length === 0) return matches;
+
+  const suppressed = matches.map(m => m.filteredLineSlots);
+  const threeSegments = getThreeSweepSegments();
+
+  for (const seg of threeSegments) {
+    if (suppressed.some(full => segmentIsSubsetOf(seg, full))) continue;
+    const match = findScoringMatchOnLine(seg);
+    if (match) {
+      matches.push({
+        ruleId:            match.ruleId,
+        cardIds:           match.cardIds,
+        filteredLineSlots: match.filteredLineSlots,
+        lineKey:           lineExitKey(match.filteredLineSlots),
+      });
+    }
+  }
+
+  return matches;
+}
+
+export function peekAnyScoringMatch() {
+  return collectScoringMatches().length > 0;
 }

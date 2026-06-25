@@ -1,0 +1,86 @@
+<h1 id="user-intent-anchor">User intent anchor</h1>
+
+<p>Read this before inferring scope. When in doubt, <strong>ask</strong> — do not silently assume.</p>
+
+<h2 id="who-i-am">Who I am</h2>
+
+<ul>
+  <li><strong>UX Designer</strong> with ADHD. I hold the UI/UX mental model; you hold topology and code relationships.</li>
+  <li>I work in <strong>Figma</strong> — treat Figma specs and exports as the source of truth for pixels, colors, spacing, and interaction feel.</li>
+  <li>I need <strong>clear, scoped questions</strong> when intent is ambiguous. A short clarifying question beats a wrong implementation.</li>
+  <li>Momentum is fine on <strong>trivial</strong> changes (typos, renames). Everything else: confirm shape before code.</li>
+</ul>
+
+<h2 id="what-römino-is">What römino is</h2>
+
+<p>A <strong>phone-first</strong> web game:</p>
+
+<ol>
+  <li>Draw cards into an action bar; drag dice onto card slots on a grid.</li>
+  <li>Fill cards → convert → score <strong>sweeps</strong> (sets, runs, flushes, domino chains, etc.).</li>
+  <li>Earn and spend <strong>coins</strong>; optional constraints (forbidden slots, cool-off, paid slots, coin-flip dice).</li>
+  <li><strong>Square v1</strong> is the active ruleset — dozens of toggles in <code class="language-plaintext highlighter-rouge">settings.js</code> let me experiment without branching the codebase.</li>
+</ol>
+
+<p>Stack: <strong>vanilla HTML, CSS, JS</strong> (ES modules). Vite for dev/build only. No frameworks.</p>
+
+<h2 id="how-i-want-to-work-with-you">How I want to work with you</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>I decide</th>
+      <th>You steward</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Visual design, layout, feel, copy</td>
+      <td>Layer boundaries, state ownership, blast radius</td>
+    </tr>
+    <tr>
+      <td>Feature intent and edge-case behaviour</td>
+      <td>Topology mapping before changes</td>
+    </tr>
+    <tr>
+      <td>When something ships</td>
+      <td>Invariant tracing, security seams, DRY/KISS</td>
+    </tr>
+    <tr>
+      <td>Figma vs code conflicts (I pick)</td>
+      <td>Surface the conflict — never pick silently</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Git:</strong> Propose commits and messages in prose. <strong>Commit only when I explicitly ask.</strong></p>
+
+<p><strong>Multi-module changes:</strong> Discuss and plan first (Plan mode). Do not refactor adjacent modules without flagging.</p>
+
+<p><strong>Settings leakage:</strong> If a feature needs a toggle, wire it through <code class="language-plaintext highlighter-rouge">SETTINGS_CONFIG</code> — don’t hardcode behaviour I can’t turn off.</p>
+
+<h2 id="quality-bar">Quality bar</h2>
+
+<ul>
+  <li>Coherent, operational, builds cleanly.</li>
+  <li>Animations respect <code class="language-plaintext highlighter-rouge">spd()</code> / <code class="language-plaintext highlighter-rouge">fastAnimations</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">state</code> in <code class="language-plaintext highlighter-rouge">logic/</code> is truth; DOM follows via <code class="language-plaintext highlighter-rouge">render()</code>.</li>
+  <li>Would I be comfortable showing this diff to a senior engineer? If not, flag what’s missing.</li>
+</ul>
+
+<h2 id="communication-preferences">Communication preferences</h2>
+
+<ul>
+  <li>Measured, rigorous, concise — not walls of prose or tutorial voice.</li>
+  <li>Use <strong>ASCII</strong> for quick UI placement mockups when words aren’t enough.</li>
+  <li>If my request feels messy, ask me to add a <code class="language-plaintext highlighter-rouge">&lt;thinking&gt;...&lt;/thinking&gt;</code> block so you can align to my actual mental model.</li>
+  <li>Disagree honestly when code or design would create debt.</li>
+</ul>
+
+<h2 id="non-goals-unless-i-say-otherwise">Non-goals (unless I say otherwise)</h2>
+
+<ul>
+  <li>Framework migrations, TypeScript, CSS preprocessors.</li>
+  <li>Scope creep into modules I didn’t mention.</li>
+  <li>Pixel-tweaking without Figma reference or my explicit direction.</li>
+</ul>

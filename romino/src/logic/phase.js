@@ -131,11 +131,38 @@ export function countEmptyDiceSlots() {
   }, 0);
 }
 
-/** After sweeps, offer one card when fewer than 6 adjacency-available dice slots remain. */
-export function maybeOfferPostSweepCard() {
-  if (countAvailableDiceSlots() < 6) {
-    state.pendingPostSweepCards = 1;
+/** True when every grid cell holds a card (no empty grid slot to place a new card). */
+export function isGridSpatiallyFull() {
+  return state.grid.every(id => id !== null);
+}
+
+/** Offer a card when adjacency-available grid slots are fewer than 6. Returns true if dealt. */
+export function tryOfferCapacityCard() {
+  if (countAvailableDiceSlots() >= 6) return false;
+  // Full grid: no cell for a new card — caller spawns tray dice instead (last-chance sweeps).
+  if (isGridSpatiallyFull()) return false;
+
+  state.phase = 'place-card';
+  if (settings.diceDecks) {
+    state.pendingCardSlotCount = drawFromCardDeck();
   }
+  const slotCount = settings.diceDecks ? state.pendingCardSlotCount : 3;
+  const nc1 = spawnCard(slotCount);
+  state.actionBarCards = [nc1];
+  state.newCards = new Set([nc1]);
+  state.selectedCardId = nc1;
+  state.selectedDieId  = null;
+  if (state.pendingPostSweepCards > 1) {
+    state.pendingSecondNewCard = spawnCard(slotCount);
+  }
+  state.pendingPostSweepCards = 0;
+  render();
+  return true;
+}
+
+/** @deprecated alias — use tryOfferCapacityCard */
+export function maybeOfferPostSweepCard() {
+  if (countAvailableDiceSlots() < 6) state.pendingPostSweepCards = 1;
 }
 
 export function hasLegalMove() {
@@ -338,10 +365,11 @@ export function checkPhaseTransition() {
       return;
     }
 
+    if (tryOfferCapacityCard()) return;
+
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
-    const allSlotsFilled = state.grid.every(id => id !== null);
-    state.fullGridDiceRound = allSlotsFilled;
+    state.fullGridDiceRound = isGridSpatiallyFull();
     // When diceDecks is ON, spawn exactly the dice shown in the upcoming-preview (previewOrder).
     // The empty-preview case is already handled above, so previewOrder.length > 0 here.
     const diceCount = settings.diceDecks ? (state.previewOrder.length || 3) : 3;
@@ -366,7 +394,7 @@ export function checkPhaseTransition() {
       runForcedConversionThenSweeps(() => {
         const emptySlots = countEmptyDiceSlots();
         if (emptySlots === 0) showReplay();
-        else spawnFullGridDiceRound();
+        else if (!tryOfferCapacityCard()) spawnFullGridDiceRound();
       });
       return;
     }

@@ -1,8 +1,8 @@
 ---
 module: grid
 layer: ui/display
-v: 2.10
-date: 2026-06-21
+v: 2.12
+date: 2026-06-25
 deps: [state, settings, cards, sweeps, grid-coins]
 ---
 # Grid — User Story
@@ -43,6 +43,7 @@ As a player, I need to see my cards laid out on a 3×3 (or 4×4) grid with empty
 - Index lives **in-grid** as `.square-tile--index` in the empty slot that cannot receive the next die (or the sole empty slot at 3 dice); no index tile at 0 dice
 - Full convert: wrapper background = suit colour, centred 54px white `.card-index--square-filled`
 - `converter-card--four-square` + `data-index-slot` scopes CSS and convert animation
+- Domino frame: `.square-bar--four-hor-top/bottom` and `--four-ver-left/right` wrap the rank dice pair (2- and 3-dice); center when rank pair is diagonal (suit@1); `square-bar__sep` uses same 1×40 / 40×1 px as 3-slot hor/ver bars
 
 ## Related
 [[state]] · [[settings]] · [[cards]] · [[sweeps]] · [[sweep-anim]] · [[drag-drop]] · [[handlers]] · [[grid-coins]]

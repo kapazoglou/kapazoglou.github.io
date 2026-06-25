@@ -247,10 +247,25 @@ click #replay-btn
 
 ---
 
-## 8. Game-over overlay
+## 8. Game-over overlay (endgame ghost → tap → sheet)
 
 ```
-showGameOver(reason)  [called externally when applicable]
+enterEndgameSession()  [full grid + capacity squeeze: &lt; 6 adjacency slots, card skipped → dice]
+├── endgameActive = true
+├── newEndgameGhost = true  (animate once; loops suppress re-slide)
+└── ghost: game-over card (replaces card ghost)
+
+checkStuck()  [full grid + capacity squeeze — no legal die placements]
+├── endgameStuck = true, tray cleared
+└── game-over ghost (awaiting tap)
+
+tap [data-game-over-card]  →  finalizeFromEndgame()
+├── forced conversion + resolveAllScoringSets()
+├── [sweep opens grid]  →  continue normal loop (no sheet)
+└── [grid still full]  →  showReplay(reason)
+
+showReplay(reason)
+├── phase = 'replay'
 ├── #game-over-reason.textContent = reason
 └── #game-over-overlay.classList.add('is-visible')
 

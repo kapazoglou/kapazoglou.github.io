@@ -82,9 +82,17 @@ export function tricolorSevenKey(cardId) {
   return rankSum === 7 ? key : null;
 }
 
+/** True when tricolor rules apply to this card (4-square + One-to-one off disables tricolor). */
+function tricolorActiveForCard(cardId) {
+  if (!settings.tricolor) return false;
+  const card = state.cards[cardId];
+  if (card && isFourSquareCard(card) && !isFourSquareOneToOne()) return false;
+  return true;
+}
+
 /** True when settings.tricolor is ON and card is a Tricolor seven. */
 export function isTricolorCard(cardId) {
-  return settings.tricolor && tricolorSevenKey(cardId) !== null;
+  return tricolorActiveForCard(cardId) && tricolorSevenKey(cardId) !== null;
 }
 
 /** Game-over grid sort: rank 2→12, A, tricolor, *; suit Z→X→Y→W→V→2-slot; pip pair tie-break. */
@@ -195,9 +203,65 @@ function slot1SixExtraRotation(cardId) {
   return false; // portrait / suit at slot 1: rank slots [0, 2], slot 1 is suit
 }
 
+function squareDominoBarOrientationForRotation(cardId) {
+  const card = state.cards[cardId];
+  if (!card || !settings.square) return 'center';
+  if (isFourSquareCard(card)) return squareFourSquareBarOrientation(cardId);
+  return squareAlignment(cardId);
+}
+
+/** True when slot holds a rank die inside an active hor/ver domino frame. */
+function slotInSquareDominoRankPair(cardId, slotIdx) {
+  const card = state.cards[cardId];
+  if (!card || !settings.square) return false;
+  const count = squareFilledCount(cardId);
+
+  if (isFourSquareCard(card)) {
+    if (count === 2) {
+      if (!isFourSquareOneToOne()) {
+        const order = card.fourSquareFillOrder ?? [];
+        if (order.length === 2) return order.includes(slotIdx);
+      }
+      return squareActiveSlotIndices(card).filter(si => slotHasDie(card, si)).includes(slotIdx);
+    }
+    if (count === 3) {
+      const rankSlots = squareRankSlots(cardId);
+      return rankSlots?.includes(slotIdx) ?? false;
+    }
+    return false;
+  }
+
+  if (count === 2) {
+    const s0 = slotHasDie(card, 0);
+    const s1 = slotHasDie(card, 1);
+    const s2 = slotHasDie(card, 2);
+    if (s0 && s1 && !s2) return slotIdx === 0 || slotIdx === 1;
+    if (!s0 && s1 && s2) return slotIdx === 1 || slotIdx === 2;
+    return false;
+  }
+  if (count === 3) {
+    const rankSlots = squareRankSlots(cardId);
+    return rankSlots?.includes(slotIdx) ?? false;
+  }
+  return false;
+}
+
+/** 0° = pip rows horizontal; 90° = pip rows vertical — aligned to domino long side. */
+function squareDominoSixRotationDeg(cardId, slotIdx) {
+  if (!slotInSquareDominoRankPair(cardId, slotIdx)) return null;
+  const orient = squareDominoBarOrientationForRotation(cardId);
+  if (orient === 'horizontal' || orient === 'four-hor-top' || orient === 'four-hor-bottom') return 0;
+  if (orient === 'vertical' || orient === 'four-ver-left' || orient === 'four-ver-right') return 90;
+  return null;
+}
+
 /** Clockwise pip rotation (deg). slotIdx null/undefined = tray/preview; cardId required for slot-aware rules. */
 export function diePipRotationDeg(slotIdx, value, cardId = null) {
   if (value !== 6) return 90;
+  if (cardId != null && slotIdx != null && settings.square) {
+    const dominoRot = squareDominoSixRotationDeg(cardId, slotIdx);
+    if (dominoRot != null) return dominoRot;
+  }
   if (slotIdx === 0) return 180;
   if (slotIdx === 1 && cardId != null && slot1SixExtraRotation(cardId)) return 180;
   return 90;
@@ -239,7 +303,10 @@ export function spawnCard(slotCount = 3) {
   } else {
     slots = [null, null, null];
   }
-  state.cards.push({ id, slotCount, slots, filled: false });
+  state.cards.push({
+    id, slotCount, slots, filled: false,
+    ...(settings.fourSquare && settings.square ? { fourSquareFillOrder: [] } : {}),
+  });
   return id;
 }
 
@@ -255,6 +322,275 @@ const SQUARE_CW  = { 0: 1, 1: 2, 2: 3, 3: 0 };
 const SQUARE_CCW = { 0: 3, 3: 2, 2: 1, 1: 0 };
 const SQUARE_NEIGHBORS = { 0: [1, 3], 1: [0, 2], 2: [1, 3], 3: [0, 2] };
 const SQUARE_CORNER_SLOTS = [0, 2, 3];
+
+const FOUR_SQUARE_DOMINO_PAIRS = [[0, 1], [1, 2], [2, 3], [3, 0]];
+const FOUR_SQUARE_DIAGONAL = { 0: 2, 2: 0, 1: 3, 3: 1 };
+
+function isFourSquareOneToOne() {
+  return settings.fourSquare && settings.square && settings.oneToOne;
+}
+
+/** Map rank slot pair to 4-square domino bar class suffix; 'center' when diagonal or unknown. */
+function squareFourSquareBarFromRankSlots(rankSlots) {
+  if (!rankSlots || rankSlots.length !== 2) return 'center';
+  const [a, b] = rankSlots.slice().sort((x, y) => x - y);
+  if (a === 0 && b === 1) return 'four-hor-top';
+  if (a === 1 && b === 2) return 'four-ver-right';
+  if (a === 2 && b === 3) return 'four-hor-bottom';
+  if (a === 0 && b === 3) return 'four-ver-left';
+  return 'center';
+}
+
+/** Adjacent hor/ver pairs among filled slots, optionally excluding one slot. */
+function squareFourSquareAdjacentPairs(filledSet, excludeSlot = null) {
+  const pairs = [];
+  for (const [a, b] of FOUR_SQUARE_DOMINO_PAIRS) {
+    if (excludeSlot === a || excludeSlot === b) continue;
+    if (filledSet.has(a) && filledSet.has(b)) pairs.push([a, b]);
+  }
+  return pairs;
+}
+
+/** True when two slots share an edge in the 4-square grid. */
+function isFourSquareAdjacentPair(pair) {
+  if (!pair || pair.length !== 2) return false;
+  const [a, b] = pair;
+  return FOUR_SQUARE_DOMINO_PAIRS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+}
+
+/** Record slot fill order for 4-square placement mode (One-to-one OFF). */
+export function recordFourSquareDiePlaced(cardId, si, { fromCardId = null, fromSi = null } = {}) {
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card) || isFourSquareOneToOne()) return;
+  let order = [...(card.fourSquareFillOrder ?? [])];
+  if (fromCardId === cardId && fromSi !== null) order = order.filter(s => s !== fromSi);
+  if (!order.includes(si)) order.push(si);
+  card.fourSquareFillOrder = order.slice(0, 3);
+}
+
+/** Drop a slot from fill order when its die leaves the card. */
+export function recordFourSquareDieRemoved(cardId, si) {
+  const card = state.cards[cardId];
+  if (!card?.fourSquareFillOrder || isFourSquareOneToOne()) return;
+  card.fourSquareFillOrder = card.fourSquareFillOrder.filter(s => s !== si);
+}
+
+/** Fill order aligned to a slot snapshot (for move simulation). */
+function squareFourSquareFillOrderForSlots(cardId, slots) {
+  const card = state.cards[cardId];
+  if (!card) return [];
+  const filled = squareActiveSlotIndices(card).filter(si => slots[si] != null);
+  const stored = (card.fourSquareFillOrder ?? []).filter(si => filled.includes(si));
+  if (stored.length === filled.length) return stored;
+  if (stored.length === filled.length - 1) {
+    const added = filled.find(s => !stored.includes(s));
+    if (added !== undefined) return [...stored, added];
+  }
+  if (stored.length === filled.length) {
+    const gone = stored.filter(s => !filled.includes(s));
+    const added = filled.filter(s => !stored.includes(s));
+    if (gone.length === 1 && added.length === 1) {
+      return stored.map(s => (s === gone[0] ? added[0] : s));
+    }
+  }
+  return stored;
+}
+
+/**
+ * One-to-one OFF at 3 dice: first two placed = rank; third = suit.
+ * Third die 1/6 switches rank to an adjacent domino that includes the third slot,
+ * unless `forbidThirdExtreme` (third 1/6 is then invalid).
+ */
+function squareFourSquareResolveSuitRankPlacement(cardId, fillOrder) {
+  if (fillOrder.length !== 3) return { suitSlot: null, rankSlots: null };
+  const [first, second, third] = fillOrder;
+  if (!isFourSquareAdjacentPair([first, second])) return { suitSlot: null, rankSlots: null };
+
+  const thirdVal = cardSlotValue(cardId, third);
+  if (thirdVal !== 1 && thirdVal !== 6) {
+    return { suitSlot: third, rankSlots: [first, second] };
+  }
+
+  if (settings.forbidThirdExtreme) return { suitSlot: null, rankSlots: null };
+
+  const filled = new Set(fillOrder);
+  const candidates = FOUR_SQUARE_DOMINO_PAIRS.filter(([a, b]) =>
+    filled.has(a) && filled.has(b) && (a === third || b === third)
+  );
+  if (!candidates.length) return { suitSlot: null, rankSlots: null };
+
+  let rankSlots = candidates[0];
+  if (candidates.length > 1) {
+    const shared = candidates.find(([a, b]) => [first, second].includes(a) || [first, second].includes(b));
+    rankSlots = shared ?? candidates.sort((a, b) => Math.min(...a) - Math.min(...b))[0];
+  }
+
+  const suitSlot = fillOrder.find(s => !rankSlots.includes(s));
+  return suitSlot === undefined ? { suitSlot: null, rankSlots: null } : { suitSlot, rankSlots: [...rankSlots] };
+}
+
+/** Pick the best adjacent rank pair for a given suit slot. Never returns a diagonal pair. */
+function pickFourSquareRankCandidate(candidates, suitSlot) {
+  if (!candidates.length) return null;
+  const preferred = squareRankSlotsForSuit(suitSlot);
+  if (isFourSquareAdjacentPair(preferred)) {
+    for (const c of candidates) {
+      if ((c[0] === preferred[0] && c[1] === preferred[1]) ||
+          (c[0] === preferred[1] && c[1] === preferred[0])) return c;
+    }
+    const partial = preferred.filter(si => si !== suitSlot);
+    for (const c of candidates) {
+      if (partial.some(si => c.includes(si))) return c;
+    }
+  }
+  if (candidates.length === 1) return candidates[0];
+  candidates.sort((a, b) => Math.min(...a) - Math.min(...b));
+  return candidates[0];
+}
+
+/** Adjacent rank pair excluding suitSlot; null when none exists. */
+function squareFourSquareRankForSuit(cardId, suitSlot) {
+  const card = state.cards[cardId];
+  if (!card || suitSlot === null) return null;
+  const filled = new Set(squareActiveSlotIndices(card).filter(si => slotHasDie(card, si)));
+  if (filled.size !== 3) return null;
+  const candidates = squareFourSquareAdjacentPairs(filled, suitSlot);
+  return pickFourSquareRankCandidate(candidates, suitSlot);
+}
+
+/** Suit slot candidates in priority order (One-to-one ON: all slots holding suit value). */
+function squareFourSquareSuitSlotCandidates(cardId) {
+  const card = state.cards[cardId];
+  const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+  if (filled.length !== 3) return [];
+  if (!isFourSquareOneToOne()) return [];
+  const suitVal = squareSuitValueFromValues(filled.map(si => cardSlotValue(cardId, si)));
+  if (!suitVal) return [];
+  return filled.filter(si => cardSlotValue(cardId, si) === suitVal).sort((a, b) => a - b);
+}
+
+/** Resolve suit + adjacent rank pair at 3 dice; null rankSlots when no valid assignment. */
+function squareFourSquareResolveSuitRank(cardId, slotsOverride = null) {
+  if (squareFilledCount(cardId) !== 3) return { suitSlot: null, rankSlots: null };
+  if (!isFourSquareOneToOne()) {
+    const slots = slotsOverride ?? state.cards[cardId].slots;
+    const order = squareFourSquareFillOrderForSlots(cardId, slots);
+    return squareFourSquareResolveSuitRankPlacement(cardId, order);
+  }
+  for (const suitSlot of squareFourSquareSuitSlotCandidates(cardId)) {
+    const rankSlots = squareFourSquareRankForSuit(cardId, suitSlot);
+    if (rankSlots) return { suitSlot, rankSlots };
+  }
+  return { suitSlot: null, rankSlots: null };
+}
+
+/** True when simulating this move completes a card with no valid adjacent rank pair. */
+function wouldFourSquareInvalidRank(cardId, si, dieId) {
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return false;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    if (squareFilledCount(cardId) !== 3) return false;
+    return squareFourSquareResolveSuitRank(cardId).rankSlots === null;
+  });
+}
+
+/** One-to-one OFF: forbid last die 1/6 placed diagonally from another 1/6 on the card. */
+function wouldFourSquareDiagonalExtremeLast(cardId, si, dieId) {
+  if (isFourSquareOneToOne()) return false;
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return false;
+  const dieVal = state.dice[dieId]?.value;
+  if (dieVal !== 1 && dieVal !== 6) return false;
+  const diag = FOUR_SQUARE_DIAGONAL[si];
+  if (diag === undefined) return false;
+
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    if (squareFilledCount(cardId) !== 3) return false;
+    const diagId = state.cards[cardId].slots[diag];
+    if (diagId == null) return false;
+    const diagVal = state.dice[diagId]?.value;
+    return diagVal === 1 || diagVal === 6;
+  });
+}
+
+/** Resolved rank+suit for a 4-square card at 3 dice; null when unresolved. */
+function fourSquareRankSuitIdentity(cardId) {
+  if (squareFilledCount(cardId) !== 3) return null;
+  const resolved = squareFourSquareResolveSuitRank(cardId);
+  if (resolved.suitSlot === null || !resolved.rankSlots) return null;
+  const m = squareSlotValueMap(cardId);
+  const suit = SUIT_LETTER[m[resolved.suitSlot]];
+  const va = m[resolved.rankSlots[0]];
+  const vb = m[resolved.rankSlots[1]];
+  const rankSum = va + vb;
+  const isJoker = rankSum === 7 && ((va === 1 && vb === 6) || (va === 6 && vb === 1));
+  const rank = isJoker ? 'A' : ndTranscribe(rankSum);
+  const rankPair = [va, vb].sort((a, b) => a - b).join(',');
+  return { suit, rank, rankPair };
+}
+
+function gridCardMatchesRankSuitIdentity(gid, identity) {
+  const gc = state.cards[gid];
+  if (!gc || !identity) return false;
+  if (!gc.filled && !isCardPlayableFull(gid)) return false;
+  if (cardSuit(gid) !== identity.suit) return false;
+  if (identity.suit === 'V') {
+    const theirPair = squareRankPipPair(gid) ?? strictRankPipPair(gid);
+    return theirPair === identity.rankPair;
+  }
+  return cardRank(gid) === identity.rank;
+}
+
+/** One-to-one OFF: forbid completing with rank+suit already on the grid. */
+function wouldFourSquareDuplicateRankSuit(cardId, si, dieId) {
+  if (isFourSquareOneToOne()) return false;
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return false;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    const identity = fourSquareRankSuitIdentity(cardId);
+    if (!identity) return false;
+    for (const gid of state.grid) {
+      if (gid === null || gid === cardId) continue;
+      if (gridCardMatchesRankSuitIdentity(gid, identity)) return true;
+    }
+    return false;
+  });
+}
+
+/** 4-square bar orientation for domino frame (always-on visual). */
+export function squareFourSquareBarOrientation(cardId) {
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return 'center';
+
+  const count = squareFilledCount(cardId);
+  if (count === 2) {
+    if (!isFourSquareOneToOne()) {
+      const order = card.fourSquareFillOrder ?? [];
+      if (order.length === 2) return squareFourSquareBarFromRankSlots(order);
+    }
+    const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+    const [a, b] = filled;
+    for (const pair of FOUR_SQUARE_DOMINO_PAIRS) {
+      if ((pair[0] === a && pair[1] === b) || (pair[0] === b && pair[1] === a)) {
+        return squareFourSquareBarFromRankSlots(pair);
+      }
+    }
+    return 'center';
+  }
+
+  if (count === 3) {
+    const rankSlots = squareRankSlots(cardId);
+    if (!isFourSquareOneToOne()) {
+      return squareFourSquareBarFromRankSlots(rankSlots);
+    }
+    if (isTricolorCard(cardId)) return 'center';
+    const vals = squareFilledValues(cardId);
+    if (vals.length === 3 && squareIsWrapTriple(vals[0], vals[1], vals[2])) return 'center';
+    return squareFourSquareBarFromRankSlots(rankSlots);
+  }
+
+  return 'center';
+}
 
 /** True when si shares an edge with a filled slot (vacatedSi treated as empty). */
 function squareFourSquareHasEdgeNeighborFilled(card, si, vacatedSi = null) {
@@ -352,26 +688,13 @@ function squareSuitValueFromValues(vals) {
   return 0;
 }
 
-/** 4-square: slot holding the suit die; null unless 3 dice. Tie: lowest slot index. */
-function squareFourSquareSuitSlot(cardId) {
-  const card = state.cards[cardId];
-  const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
-  if (filled.length !== 3) return null;
-  const suitVal = squareSuitValueFromValues(filled.map(si => cardSlotValue(cardId, si)));
-  if (!suitVal) return null;
-  return filled.find(si => cardSlotValue(cardId, si) === suitVal) ?? null;
-}
-
 /** Rank slot pair for scoring/rank sum; null when unavailable. */
 export function squareRankSlots(cardId) {
   const card = state.cards[cardId];
   if (!card) return null;
   if (isFourSquareCard(card)) {
-    const filled = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
-    if (filled.length !== 3) return null;
-    const suitSlot = squareFourSquareSuitSlot(cardId);
-    if (suitSlot === null) return null;
-    return filled.filter(si => si !== suitSlot);
+    if (squareFilledCount(cardId) !== 3) return null;
+    return squareFourSquareResolveSuitRank(cardId).rankSlots;
   }
   const suitSlot = squareSuitSlot(cardId);
   if (suitSlot === null) return null;
@@ -466,7 +789,9 @@ function squareSuitSlotFromValues(v0, v1, v2) {
 export function squareSuitSlot(cardId) {
   if (squareFilledCount(cardId) !== 3) return null;
   const card = state.cards[cardId];
-  if (isFourSquareCard(card)) return squareFourSquareSuitSlot(cardId);
+  if (isFourSquareCard(card)) {
+    return squareFourSquareResolveSuitRank(cardId).suitSlot;
+  }
   const v0 = cardSlotValue(cardId, 0);
   const v1 = cardSlotValue(cardId, 1);
   const v2 = cardSlotValue(cardId, 2);
@@ -770,7 +1095,7 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
 export function squareAlignment(cardId) {
   const card = state.cards[cardId];
   if (!card) return 'center';
-  if (isFourSquareCard(card)) return 'center';
+  if (isFourSquareCard(card)) return squareFourSquareBarOrientation(cardId);
 
   const s0 = slotHasDie(card, 0);
   const s1 = slotHasDie(card, 1);
@@ -796,7 +1121,7 @@ export function updateSquareLayout(cardId) {
   const card = state.cards[cardId];
   if (!card) return;
   if (isFourSquareCard(card)) {
-    card.squareLayout = 'center';
+    card.squareLayout = squareFourSquareBarOrientation(cardId);
     return;
   }
   const s0 = slotHasDie(card, 0);
@@ -894,10 +1219,23 @@ function squareCardRank(cardId) {
   if (count === 0) return ' ';
   if (count === 1) return '';
   if (count === 2) {
-    const indices = squareActiveSlotIndices(card);
-    const filledSlots = indices.filter(si => slotHasDie(card, si));
-    const va = cardSlotValue(cardId, filledSlots[0]);
-    const vb = cardSlotValue(cardId, filledSlots[1]);
+    let va, vb;
+    let filledSlots;
+    if (isFourSquareCard(card) && !isFourSquareOneToOne()) {
+      const order = card.fourSquareFillOrder ?? [];
+      if (order.length === 2) {
+        va = cardSlotValue(cardId, order[0]);
+        vb = cardSlotValue(cardId, order[1]);
+      } else {
+        filledSlots = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+        va = cardSlotValue(cardId, filledSlots[0]);
+        vb = cardSlotValue(cardId, filledSlots[1]);
+      }
+    } else {
+      filledSlots = squareActiveSlotIndices(card).filter(si => slotHasDie(card, si));
+      va = cardSlotValue(cardId, filledSlots[0]);
+      vb = cardSlotValue(cardId, filledSlots[1]);
+    }
     if (isFourSquareCard(card)) {
       if ((va === 1 && vb === 6) || (va === 6 && vb === 1)) return 'A';
       return ndTranscribe(va + vb);
@@ -920,6 +1258,10 @@ function squareCardSuit(cardId) {
   if (count === 0) return '';
   if (isFourSquareCard(card)) {
     if (isTricolorCard(cardId)) return tricolorSuitFromCombo(tricolorComboKey(cardId));
+    if (count === 3) {
+      const ss = squareSuitSlot(cardId);
+      return ss !== null ? SUIT_LETTER[cardSlotValue(cardId, ss)] : '';
+    }
     const suitVal = squareSuitValueFromValues(squareFilledValues(cardId));
     return suitVal ? SUIT_LETTER[suitVal] : '';
   }
@@ -1094,6 +1436,9 @@ export function isSlotForbidden(cardId, si, dieId) {
 
   if (wouldCompleteAllExtremes(cardId, si, dieId)) return true;
   if (wouldCreateCoolOffRank(cardId, si, dieId)) return true;
+  if (wouldFourSquareInvalidRank(cardId, si, dieId)) return true;
+  if (wouldFourSquareDiagonalExtremeLast(cardId, si, dieId)) return true;
+  if (wouldFourSquareDuplicateRankSuit(cardId, si, dieId)) return true;
 
   const isFirstDie = cardPlacedDiceCount(cardId) === 0;
 
@@ -1302,14 +1647,14 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
     if (isFourSquareCard(card)) {
       if (squareFilledCount(cardId) !== 3) return false;
       const m = squareSlotValueMap(cardId);
-      const suitSlot = squareFourSquareSuitSlot(cardId);
+      const suitSlot = squareSuitSlot(cardId);
       const rankSlots = squareRankSlots(cardId);
       if (suitSlot === null || !rankSlots) return false;
       const suit = SUIT_LETTER[m[suitSlot]];
       const va = m[rankSlots[0]];
       const vb = m[rankSlots[1]];
       const rankSum = va + vb;
-      const tricolorKey = settings.tricolor ? sortedComboKey(Object.values(m)) : null;
+      const tricolorKey = tricolorActiveForCard(cardId) ? sortedComboKey(Object.values(m)) : null;
       if (tricolorKey) {
         const triSuit = tricolorSuitFromCombo(tricolorKey);
         for (const gid of state.grid) {

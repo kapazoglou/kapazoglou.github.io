@@ -1,8 +1,8 @@
 ---
 module: cards
 layer: logic
-v: 1.63
-date: 2026-06-23
+v: 1.71
+date: 2026-06-25
 deps: [state, settings, cool-off]
 ---
 # Cards — User Story
@@ -21,11 +21,11 @@ As a player, I need cards to be spawned with empty die slots and to display thei
 - `countAvailableDiceSlots()` — grid total of slots placeable by adjacency/capacity (max 3 dice per card; ignores forbidden value rules)
 - `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); always blocks completing a card whose dice are only 1s and/or 6s (111, 116, 661, 666, …; 1-slot suit cards exempt); first die on an empty card may use any active slot; 4-square requires orthogonal edge adjacency from the 2nd die onward (no diagonals); when `placementRestrictions` ON: classic 3-slot fill order, slot 1↔corner swap guards, CW/CCW third slot, monotonic values, middle 1/6 ban, blank-die rules from 2nd die onward; when OFF: all-extremes block, 4-square edge adjacency from 2nd die, plus independent toggles (`uniqueIndex`, `coolOff`, duplicate checks)
 - `isCardPlayableFull(cardId)` — true when all active slots hold dice (3 of 4 for `fourSquare`, else every slot)
-- `squareFilledCount` / `squareSuitSlot` / `squareRankSlots` / `squareDieLocked` / … — SQUARE mode helpers; `fourSquare`: orthogonal edge adjacency always; CW/CCW third slot when `placementRestrictions` ON; at 3 dice only current-roll dice edge-adjacent to `squareIndexSlot` may return to tray
+- `squareFilledCount` / `squareSuitSlot` / `squareRankSlots` / `squareFourSquareBarOrientation` / `squareDieLocked` / … — SQUARE mode helpers; `fourSquare`: rank pair is always an edge-adjacent domino (diagonal `[0,2]` never rank); invalid 3-dice layouts forbidden in `isSlotForbidden`; `oneToOne` OFF disables tricolor and forbids duplicate rank+suit on grid at completion; `forbidThirdExtreme` rejects third die 1/6 (no rank switch)
 - `wouldCreateDuplicate(cardId, si, dieId)` — detects grid rank/suit conflicts; when `settings.uniqueIndex` ON, forbids any placement whose placed-dice multiset matches another grid card; skipped for 1–2 dice cards when `partialUniqueIndex` is off
 - `squareIndexSlot(cardId)` — 4-square index tile slot; returns null at 1 die when `partialUniqueIndex` is off
 - `isDieSelectable(dieId)` — false when no legal move (placement or tray return) avoids a duplicate; move simulation clears the die's source slot
-- `diePipRotationDeg(slotIdx, value, cardId)` — clockwise pip rotation: 90° everywhere; 180° for value 6 in slot 0; slot 1 + value 6 → 180° when slot 0 filled, or when corners 0+2 filled only if slot 1 forms rank with slot 0 (square suit@2)
+- `diePipRotationDeg(slotIdx, value, cardId)` — clockwise pip rotation: 90° everywhere; value 6 in square domino rank slots → 0° (hor bar) or 90° (ver bar) so pip rows align with frame long side; legacy slot-0/1 rules when outside domino rank pair
 - `dieSVG(value, size, pipRotationDeg)` — returns SVG string for a single die face (pips rotated, face upright)
 - `ndTranscribe(str)` — converts digit chars to Numbers Deuce font glyph letters
 - Constants: `SUIT_LETTER`, `SUIT_COLOR`, `DISCARD_RANKS`, `PIP_COLOR`, `DIE_PIP_COLOR`

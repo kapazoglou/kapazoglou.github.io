@@ -128,16 +128,11 @@ html.square-cards .go-card-wrap .converter-card--four-square {
   text-transform: uppercase; letter-spacing: 0.08em;
 }
 
-.go-sweeps { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.go-sweeps { display: flex; flex-wrap: wrap; align-items: center; width: 100%; }
+.go-sweeps-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
+.go-sweep-group { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 0; }
 .go-sweep-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; color: var(--text-primary); }
-.go-sweep-row--cards {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-.go-sweep-cards { display: flex; flex-wrap: wrap; gap: 2px; }
-.go-sweep-cards--inline { align-items: center; gap: 0 2px; }
-.go-sweep-comma { color: var(--text-dim); font-size: 14px; line-height: 1; margin: 0 1px; }
+.go-sweep-comma { color: var(--text-dim); font-size: 14px; line-height: 1; margin: 0 2px; flex-shrink: 0; }
 .go-sweep-label { color: var(--text-dim); }
 .go-sweep-count { font-size: 20px; color: var(--accent); }
 .go-sweep-empty { font-size: 15px; color: var(--text-dim); font-style: italic; }

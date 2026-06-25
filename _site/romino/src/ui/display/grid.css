@@ -431,14 +431,49 @@ html.square-cards .square-bar__sep {
   background: var(--tile-border);
 }
 
-html.square-cards .square-bar--hor .square-bar__sep {
+html.square-cards .square-bar--hor .square-bar__sep,
+html.square-cards .square-bar--four-hor-top .square-bar__sep,
+html.square-cards .square-bar--four-hor-bottom .square-bar__sep {
   width: 1px;
   height: 40px;
 }
 
-html.square-cards .square-bar--ver .square-bar__sep {
+html.square-cards .square-bar--ver .square-bar__sep,
+html.square-cards .square-bar--four-ver-left .square-bar__sep,
+html.square-cards .square-bar--four-ver-right .square-bar__sep {
   width: 40px;
   height: 1px;
+}
+
+/* 4-square domino bars — hor/ver frames around rank dice pairs in the 2×2 grid */
+html.square-cards .square-bar--four-hor-top {
+  left: 8px;
+  top: 8px;
+  width: 100px;
+  height: 48px;
+}
+
+html.square-cards .square-bar--four-hor-bottom {
+  left: 8px;
+  top: 60px;
+  width: 100px;
+  height: 48px;
+}
+
+html.square-cards .square-bar--four-ver-left {
+  left: 8px;
+  top: 8px;
+  width: 48px;
+  height: 100px;
+  flex-direction: column;
+}
+
+html.square-cards .square-bar--four-ver-right {
+  left: 60px;
+  top: 8px;
+  width: 48px;
+  height: 100px;
+  flex-direction: column;
 }
 
 html.square-cards .square-bar--converted .square-bar__sep {

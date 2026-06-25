@@ -1,8 +1,8 @@
 ---
 module: card-anim
 layer: ui/transitions
-v: 1.4
-date: 2026-06-14
+v: 1.6
+date: 2026-06-25
 deps: [state, settings, phase, render, hud]
 ---
 # Card Anim — User Story
@@ -31,6 +31,7 @@ As a player, I want to see a coin fly from a filled card's score badge to the sc
 ## SQUARE conversion (settings.square)
 - `square-index-expand` keyframe: bottom-left 36px → centred 54px
 - `.square-dice` fades on convert; partial-converted stub suppresses fade
+- 4-square: `.square-bar` fades with dice tiles on convert; index tile expands from `data-index-slot`
 
 ## Related
 [[timing]] · [[scoring]] · [[phase]] · [[hud]] · [[render]]

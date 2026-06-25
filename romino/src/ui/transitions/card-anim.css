@@ -171,6 +171,10 @@ html.square-cards .converter-card--four-square.is-converting .square-tile:not(.s
   animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
 }
 
+html.square-cards .converter-card--four-square.is-converting .square-bar {
+  animation: card-dice-fadeout calc(0.16s * var(--t)) ease forwards;
+}
+
 html.square-cards .converter-card--four-square.is-converting .square-tiles {
   position: relative;
 }

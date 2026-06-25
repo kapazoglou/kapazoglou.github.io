@@ -4,6 +4,44 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Endgame ghost — unified — 2026-06-25
+- **phase.js v1.22** — endgame session: `last dice` / `game over` ghost on full-grid dice + stuck; tap always opens sheet; animate once per session
+- **state.js v1.10** — `endgameActive`, `endgameStuck`, `newEndgameGhost`, `finalizingEndgame` replace stuck-only flags
+- **action-bar.js v1.10** — endgame ghost label + session entry animation
+- **handlers.js v2.2** — tap endgame ghost → `finalizeFromEndgame()`
+
+## Game-over sweeps inline — 2026-06-25
+- **hud.js v1.9** — `sweepListHTML`: sweeps comma-separated inline; tiles within a sweep touch with no separator
+
+## Full-grid capacity dice — 2026-06-25
+- **phase.js v1.21** — `tryOfferCapacityCard` skips card deal when grid is spatially full (< 6 adjacency slots); callers spawn tray dice instead (last-chance sweeps)
+
+## 4-square domino frame separator — 2026-06-25
+- **grid.css** — `square-bar__sep` sizing for `--four-hor-*` / `--four-ver-*` (matched 3-slot SQUARE hor/ver rules)
+
+## 4-square One-to-one toggle + domino frame — 2026-06-25
+- **settings.js v2.16** — `forbidThirdExtreme` toggle: when ON with One-to-one OFF, third die cannot be 1 or 6 (no rank switch)
+- **settings-panel.js v1.9** — `forbidThirdExtreme` disabled without 4-square or with One-to-one ON; reset on toggle
+- **cards.js v1.71** — resolver rejects third 1/6 when `forbidThirdExtreme` (blocked via existing invalid-rank check)
+- **settings.js v2.15** — `oneToOne` toggle (Square v1): combo fixes card identity when ON; placement-sensitive rank/suit when OFF
+- **settings-panel.js v1.8** — `oneToOne` disabled without `fourSquare`; reset on toggle
+- **cards.js v1.70** — One-to-one OFF: forbid completing with rank+suit already on grid (independent of unique index)
+- **cards.js v1.69** — One-to-one OFF: forbid completing with 1/6 diagonally opposite another 1/6
+- **handlers.js v1.9** / **drag-drop.js** — record 4-square fill order on place/remove
+- **grid.js v2.11** — 4-square domino `.square-bar` render (hor/ver around rank pair)
+- **grid.css** — `.square-bar--four-hor-top/bottom`, `--four-ver-left/right` positions
+- **card-anim.css v1.6** — 4-square convert fades domino bar with dice
+
+## 3-in-a-row sweeps (4×4) — 2026-06-24
+- **settings.js v2.14** — `sweepThreeInRow` toggle (Grid group): 3-card segments on 4×4 rows/cols/diagonals
+- **sweeps.js v1.4** — `getThreeSweepSegments`, `collectScoringMatches`; full-line matches suppress overlapping 3-segments
+- **sweep-anim.js v1.5** — sweep discovery via `collectScoringMatches`; `lineKey` from matched segment slots
+- **settings-panel.js v1.2** — `sweepThreeInRow` toggle triggers `resetGame`
+
+## Capacity card before dice — 2026-06-23
+- **phase.js v1.20** — `tryOfferCapacityCard` also runs in `checkPhaseTransition` (and full-grid path) so low slot count is caught after card placement, not only post-sweep
+- **sweep-anim.js v1.4** — delegate capacity offer to `tryOfferCapacityCard`
+
 ## Post-sweep slot capacity check — 2026-06-23
 - **cards.js v1.63** — `countAvailableDiceSlots`: adjacency + max-3 capacity; ignores forbidden value rules
 - **phase.js v1.19** — restore `finalizeFromStuck` / stuck flow (fixes grid init); `maybeOfferPostSweepCard` uses adjacency-aware slot count
@@ -481,7 +519,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - 1.0 | 2026-06-01 | initial — extracted from monolithic main.js
 
 ## settings — logic
-- 1.1 | 2026-06-01 | add emptyCards setting (diagonal blockers for 4×4)
+- 2.14 | 2026-06-24 | add sweepThreeInRow toggle (3-in-a-row sweeps on 4×4 grid)
 - 1.0 | 2026-06-01 | initial — extracted from monolithic main.js
 
 ## cards — logic
@@ -502,7 +540,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - 1.0 | 2026-06-01 | initial — card scoring rules, score preview badge
 
 ## sweeps — logic
-- 1.2 | 2026-06-01 | fix premature sweeps: null grid slots now invalidate a line immediately; only blocker (empty) cards are skipped
+- 1.4 | 2026-06-24 | getThreeSweepSegments, collectScoringMatches; 3-in-a-row when sweepThreeInRow + extendedGrid
 - 1.1 | 2026-06-01 | filter empty cards in findAllMatchesOnLine; return filteredLineSlots; guard cardIsGridRepositionable
 - 1.0 | 2026-06-01 | initial — grid geometry, sweep rules, match detection
 
@@ -518,7 +556,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - 1.0 | 2026-06-01 | initial — animation duration constants
 
 ## sweep-anim — ui/transitions
-- 1.1 | 2026-06-01 | use filteredLineSlots from match so empty card slots are never cleared by sweep exits
+- 1.5 | 2026-06-24 | resolveOneScoringSet uses collectScoringMatches from sweeps.js
 - 1.0 | 2026-06-01 | initial — beat + sweep exit animations, multi-line queue
 
 ## card-anim — ui/transitions
@@ -550,7 +588,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - 1.0 | 2026-06-01 | initial — game-over sheet event listeners
 
 ## settings-panel — ui/display
-- 1.1 | 2026-06-01 | emptyCards toggle triggers resetGame
+- 1.2 | 2026-06-24 | sweepThreeInRow toggle triggers resetGame
 - 1.0 | 2026-06-01 | initial — settings panel render + 4-tap reveal
 
 ## drag-drop — ui/display

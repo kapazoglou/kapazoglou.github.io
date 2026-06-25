@@ -4,7 +4,7 @@ import { settings } from '../../logic/settings.js';
 import { PIP_COLOR, SUIT_COLOR, cardRank, cardSuit, cardColor, dieSVG, diePipRotationDeg, isSlotForbidden,
   squareAlignment, squareDisplayIndex, squareIndexColor, squareIndexSlot, squareIndexTileColor,
   squarePartialConverted, squareDieLocked, refreshGridCoins,
-  isDieSelectable } from '../../logic/cards.js';
+  isDieSelectable, squareFourSquareBarOrientation } from '../../logic/cards.js';
 import { getGridTotal, cardIsGridRepositionable } from '../../logic/sweeps.js';
 
 /** Render the small slot-count indicator squares (top-right corner).
@@ -96,9 +96,16 @@ function renderFourSquareCell(cardId, si, bordered = true) {
   return renderSquareTile(cardId, si, bordered);
 }
 
-function renderFourSquareTiles(cardId, bordered = true) {
+function renderFourSquareBar(cardId, converted = false) {
+  const orient = squareFourSquareBarOrientation(cardId);
+  if (orient === 'center') return '';
+  const barCls = converted ? ' square-bar--converted' : '';
+  return `<div class="square-bar square-bar--${orient}${barCls}"><div class="square-bar__sep"></div></div>`;
+}
+
+function renderFourSquareTiles(cardId, bordered = true, converted = false) {
   const cell = (si) => renderFourSquareCell(cardId, si, bordered);
-  return `<div class="square-tiles square-tiles--four">
+  return `${renderFourSquareBar(cardId, converted)}<div class="square-tiles square-tiles--four">
     ${cell(0)}${cell(1)}${cell(3)}${cell(2)}
   </div>`;
 }
@@ -108,7 +115,7 @@ function renderFourSquareTiles(cardId, bordered = true) {
  *  The hor/ver bars are purely decorative and use pointer-events:none. */
 function renderSquareWrapperContent(cardId, alignment, converted = false) {
   if (settings.fourSquare) {
-    return renderFourSquareTiles(cardId, !converted);
+    return renderFourSquareTiles(cardId, !converted, converted);
   }
   const barCls = converted ? ' square-bar--converted' : '';
   if (alignment === 'horizontal') {
