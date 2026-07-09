@@ -92,6 +92,73 @@
   margin-inline: auto;
 }
 
+.go-cards-grid--fill-discovery {
+  display: grid;
+  grid-template-columns: repeat(13, 24px);
+  grid-template-rows: repeat(4, 24px) 24px;
+  gap: 4px;
+  margin-inline: auto;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-cell {
+  width: 24px;
+  height: 24px;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-cell--empty {
+  visibility: hidden;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-tile {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-tile__suit {
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  isolation: isolate;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #404040;
+  mix-blend-mode: overlay;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header__label {
+  position: relative;
+  z-index: 1;
+  color: var(--text-primary);
+}
+
 html.square-cards .go-cards-grid--four-square .go-card-wrap--empty {
   width: 32px;
   height: 32px;

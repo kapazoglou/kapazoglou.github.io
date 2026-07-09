@@ -60,14 +60,14 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `src/logic/phase.js` — full grid + low slot capacity → tray dice, not capacity card
-- `src/ui/display/grid.css` — 4-square domino bar `square-bar__sep` sizing
-- `src/ui/display/grid.md` v2.12
-- `assets/Noosphere Steward/AGENT.md` — STEWARD PASS layout pointer
-- `src/logic/settings.js` — `sweepThreeInRow` toggle
-- `src/logic/sweeps.js` — `getThreeSweepSegments`, `collectScoringMatches`
-- `src/ui/transitions/sweep-anim.js` — discovery delegated to sweeps
-- `src/ui/display/settings-panel.js` — reset on toggle change
+- `index.html` — `#hud-tally` + `#hud-score` as separate HUD divs
+- `src/ui/display/hud.js` — swept-suit tally into `#hud-tally`; shared `suitTileHTML`
+- `src/ui/display/hud.css` — three-column HUD flex distribution; HUD bottom flush with grid overlay
+- `src/logic/dice.js` — progressive tray/preview dice display sort
+- `src/logic/settings.js` — `progressiveDicePlacement` toggle
+- `src/logic/cards.js` — progressive uniqueIndex only at 3 dice (1–2 may duplicate); joker uniqueness; progressive suit-only joker missing-pip suit
+- `src/logic/sweeps.js` — progressive suit-only joker sweep wildcards
+- `src/ui/display/settings-panel.js` — toggle wiring + reset
 
 ## Next topological move
 

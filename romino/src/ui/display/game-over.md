@@ -1,8 +1,8 @@
 ---
 module: game-over
 layer: ui/display
-v: 1.9
-date: 2026-06-23
+v: 1.13
+date: 2026-07-09
 deps: [phase]
 ---
 # Game Over — User Story

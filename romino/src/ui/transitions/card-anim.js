@@ -102,12 +102,14 @@ export function processCardFills(queue, index, onDone) {
       setTimeout(() => {
         popCoolOffCard(true);
         fillOneCard(cardId);
+        if (state.phase === 'replay') { onDone?.(); return; }
         render();
         processCardFills(queue, index + 1, onDone);
       }, CONVERT_MS);
     } else {
       popCoolOffCard(true);
       fillOneCard(cardId);
+      if (state.phase === 'replay') { onDone?.(); return; }
       render();
       processCardFills(queue, index + 1, onDone);
     }

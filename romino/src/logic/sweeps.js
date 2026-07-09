@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { cardRank, cardSuit, cardSlotValue, DISCARD_RANKS, isTricolorCard } from './cards.js';
+import { cardRank, cardSuit, cardSlotValue, DISCARD_RANKS, isTricolorCard, isProgressiveSuitOnlyJoker } from './cards.js';
 
 /* ── Grid geometry helpers (3×3 or 4×4) ── */
 export function getGridSize()  { return settings.extendedGrid ? 4 : 3; }
@@ -53,7 +53,9 @@ export function isConsecutiveRanks(cardIds) {
   if (cardIds.some(id => isTricolorCard(id))) return false;
   const WRAP = 12;
   const N    = cardIds.length;
-  const wildcards = cardIds.filter(id => cardRank(id) === '*').length;
+  const wildcards = cardIds.filter(id =>
+    cardRank(id) === '*' || isProgressiveSuitOnlyJoker(id)
+  ).length;
   if (wildcards === N) return true;
 
   const nonWild = cardIds.filter(id => cardRank(id) !== '*');
@@ -99,7 +101,9 @@ export const SCORING_RULES = {
   set(cardIds) {
     if (cardIds.every(id => isTricolorCard(id))) return true;
     if (cardIds.some(id => isTricolorCard(id))) return false;
-    const isWild  = id => !isTricolorCard(id) && (cardRank(id) === '*' || cardSuit(id) === 'V');
+    const isWild  = id => !isTricolorCard(id) && (
+      cardRank(id) === '*' || cardSuit(id) === 'V' || isProgressiveSuitOnlyJoker(id)
+    );
     const nonWild = cardIds.filter(id => !isWild(id));
     const wilds   = cardIds.filter(id =>  isWild(id));
     if (nonWild.length === 0) return true;

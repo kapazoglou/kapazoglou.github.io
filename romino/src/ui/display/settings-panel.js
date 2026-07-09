@@ -8,14 +8,31 @@ function syncFourSquareToggleRows() {
   for (const [key, needsPlacementMode] of [
     ['oneToOne', false],
     ['forbidThirdExtreme', true],
+    ['fillDiscovery', false],
+    ['progressiveDicePlacement', false],
+    ['progressiveSuitJoker', false],
   ]) {
     const input = document.querySelector(`input[data-key="${key}"]`);
     const row = input?.closest('.settings-row');
     if (!input) continue;
-    const disabled = !fourSquare || (needsPlacementMode && settings.oneToOne);
+    let disabled = !fourSquare || (needsPlacementMode && settings.oneToOne);
+    if (key === 'progressiveSuitJoker') {
+      disabled = !fourSquare || !isProgressiveDicePlacementActive();
+    }
     input.disabled = disabled;
     row?.classList.toggle('settings-row--disabled', disabled);
   }
+  const partialInput = document.querySelector('input[data-key="partialUniqueIndex"]');
+  const partialRow = partialInput?.closest('.settings-row');
+  if (partialInput) {
+    const disabled = isProgressiveDicePlacementActive();
+    partialInput.disabled = disabled;
+    partialRow?.classList.toggle('settings-row--disabled', disabled);
+  }
+}
+
+function isProgressiveDicePlacementActive() {
+  return settings.progressiveDicePlacement && settings.fourSquare && settings.square;
 }
 
 export function renderSettingsPanel() {
@@ -38,9 +55,17 @@ export function renderSettingsPanel() {
       input.type = 'checkbox';
       input.dataset.key = item.key;
       input.checked = settings[item.key];
-      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme') {
-        input.disabled = !settings.fourSquare
+      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme' || item.key === 'fillDiscovery' || item.key === 'progressiveDicePlacement' || item.key === 'progressiveSuitJoker') {
+        let disabled = !settings.fourSquare
           || (item.key === 'forbidThirdExtreme' && settings.oneToOne);
+        if (item.key === 'progressiveSuitJoker') {
+          disabled = !settings.fourSquare || !isProgressiveDicePlacementActive();
+        }
+        input.disabled = disabled;
+        row.classList.toggle('settings-row--disabled', disabled);
+      }
+      if (item.key === 'partialUniqueIndex') {
+        input.disabled = isProgressiveDicePlacementActive();
         row.classList.toggle('settings-row--disabled', input.disabled);
       }
       input.addEventListener('change', () => {
@@ -88,7 +113,7 @@ export function renderSettingsPanel() {
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = true;
         }
-        if (item.key === 'fourSquare' || item.key === 'square' || item.key === 'oneToOne') {
+        if (item.key === 'fourSquare' || item.key === 'square' || item.key === 'oneToOne' || item.key === 'progressiveDicePlacement') {
           syncFourSquareToggleRows();
         }
         if (item.key === 'diceDecks' && input.checked) {
@@ -97,7 +122,7 @@ export function renderSettingsPanel() {
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = false;
         }
-        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare', 'oneToOne', 'forbidThirdExtreme'].includes(item.key)) {
+        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare', 'fillDiscovery', 'oneToOne', 'forbidThirdExtreme', 'progressiveDicePlacement', 'progressiveSuitJoker'].includes(item.key)) {
           document.getElementById('settings-panel').classList.remove('is-open');
           resetGame();
         } else {

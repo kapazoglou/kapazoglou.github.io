@@ -4,6 +4,124 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## HUD bottom alignment — 2026-07-10
+- **hud.css v1.17** — remove `#hud` `top: 8px` so HUD bottom flush with `.grid-overlay` bottom
+
+## HUD three-column distribution — 2026-07-10
+- **hud.css v1.16** — `.hud-left` / `.hud-tally` / `.hud-score` each `flex: 1` with start / centre / end alignment; `#hud` `top: 8px`
+
+## HUD tally + score divs — 2026-07-10
+- **hud.css v1.15** — `.hud-tally` + `.hud-score` as separate HUD slots (replaces `.hud-suit-tally`)
+- **index.html** — `#hud-tally` and `#hud-score` > `#score-display` as sibling HUD children
+- **hud.js v2.7** — render swept-suit tally into `#hud-tally`
+
+## HUD spacing — browser preview — 2026-07-10
+- **hud.css v1.14** — discovery grid wrap bottom padding `2px` → `8px`; HUD bottom padding `10px` → `22px`
+
+## HUD below discovery grid — 2026-07-10
+- **hud.css v1.13** — discovery grid above HUD; grid wrap padding `8px 8px 2px`; HUD bottom padding `10px`
+- **index.html** — `#discovery-grid-wrap` before `#hud` in overlay stack
+
+## Progressive uniqueIndex — allow duplicate 1–2 dice — 2026-07-10
+- **cards.js v1.88** — progressive: skip uniqueIndex dedup at 1–2 dice so two tiles may share the same single die or pair; full-card identity dedup unchanged at 3 dice
+
+## HUD swept-suit tally — 2026-07-10
+- **hud.js v2.5** — live suit counts from `scoredSets`; reuses discovery-fill tiles with count on the left; Z–W always shown from 0; V appended when swept
+- **hud.css v1.12** — `.hud-suit-tally` centred in `#hud` row; `.hud-suit-entry` layout
+- **index.html** — `#hud-suit-tally` as `#hud` middle child (absolute centre)
+
+## Progressive dice placement — display sort — 2026-07-10
+- **dice.js v1.9** — progressive tray/preview sort: duplicates first; 1/6 anchor away-from ordering; both extremes → middle die first
+
+## Progressive uniqueIndex + 1↔6 wrap — 2026-07-10
+- **cards.js v1.87** — progressive 1+6 rank snapshots as `3:suit:1,6` (not global `3:A:V`); uniqueIndex at 3 dice compares progressive identity key so wrap completions (e.g. 5→1→6) are not blocked by an existing V joker
+
+## Joker uniqueness — one per game — 2026-07-09
+- **cards.js v1.86** — block completing a joker when its identity key (`3:A:V` or `3:Z|X|Y|W:`) already exists on grid or in `discoveredKeys`
+
+## Progressive suit joker — missing-suit identity — 2026-07-09
+- **cards.js v1.85** — progressive suit-only joker suit = missing pip from {2,3,4,5} among all three dice (tricolor rule; was die1)
+
+## Progressive 1/6 first die — no index at 1 dice — 2026-07-09
+- **cards.js v1.84** — progressive ON at 1 die when die1 is 1/6: hide in-grid index tile (display text was already blank)
+
+## Progressive 1/6 first two — no index, open slots — 2026-07-09
+- **cards.js v1.83** — progressive ON at 2 dice when die1 is 1/6: hide index tile; both remaining slots accept dice (no CW/CCW third restriction)
+
+## Progressive domino frame — last two dice — 2026-07-09
+- **cards.js v1.82** — progressive ON: domino frame on last two placed dice; when die1 is 1/6, frame on first two (hidden at 2 dice until die1 is 1/6)
+
+## Progressive adjacent 1↔6 third die — 2026-07-09
+- **cards.js v1.84** — progressive: when die2 is 1 or 6, third may be the opposite extreme (e.g. 5→1→6, 5→6→1); monotonic falls back to fill order when no CW/CCW path
+
+## Monotonic adjacent 1↔6 wrap — 2026-07-09
+- **cards.js v1.82** — monotonic step allows 1↔6 wrap when dice share an edge; validates at 2-dice placement (4-square fill order + classic L)
+
+## Progressive 2-die index suit color — 2026-07-09
+- **cards.js v1.80** — progressive ON at 2 dice: in-grid index tile keeps suit background when switching slots (was forced grey)
+
+## Progressive 2-die index diagonal — 2026-07-09
+- **cards.js v1.79** — progressive ON: at 2 dice, suit index tile moves to the empty slot diagonal from the most recently placed die
+
+## Progressive matching pair allows 1/6 third — 2026-07-09
+- **cards.js v1.81** — when die1=die2, third die may be 1 or 6 (any value)
+
+## Progressive partialUniqueIndex fully inert — 2026-07-09
+- **cards.js v1.78** — progressive never reads `partialUniqueIndex`; uniqueIndex at 1–2 only when `uniqueIndex` ON (no partial gate); progressive index tile is separate
+
+## Progressive 1/6 third + suit joker toggle — 2026-07-09
+- **settings.js v2.19** — `progressiveSuitJoker` toggle; 1/6 third only when first two differ
+- **settings-panel.js v1.13** — suit joker disabled without progressive dice placement
+- **cards.js v1.77** — tighten third-die gates; joker path gated by `progressiveSuitJoker`
+
+## Progressive partialUniqueIndex bypass — 2026-07-09
+- **cards.js v1.76** — `partialUniqueIndexActive()` / `uniqueIndexAppliesAtPartialFill()`; progressive ignores partialUniqueIndex for dedup and index tile
+- **settings-panel.js v1.12** — grey out Partial unique index when progressive dice placement is ON
+
+## Progressive dice placement — fix empty-card slot count — 2026-07-09
+- **cards.js v1.75** — `squareSlotAllowedFourSquare`: empty card (0 dice) returns true so capacity count and dice rounds work with progressive ON
+
+## Progressive dice placement — 2026-07-09
+- **settings.js v2.18** — `progressiveDicePlacement` toggle (Square v1)
+- **settings-panel.js v1.11** — disable without 4-square; reset on toggle
+- **cards.js v1.74** — fill-order suit/rank resolver, 2nd/3rd die value gates, forced uniqueIndex, suit-only V joker identity
+- **sweeps.js v1.5** — progressive suit-only joker wild in sets and consecutive-rank runs
+
+## Discovery grid text — action bar match — 2026-07-09
+- **hud.css v1.11** — discovery fill text uses `var(--text-primary)`; header overlay on `::before` only (action-bar pattern)
+- **game-over.css v1.13** — same text tokens on game-over fill-discovery grid
+
+## Discovery grid visible on game over — 2026-07-09
+- **hud.js v2.3** — keep `#discovery-grid-wrap` visible during replay (no longer hidden when game-over sheet opens)
+
+## Fill discovery header label — 2026-07-05
+- **cards.js v1.73** — suit-only column header `J` → `V` in `FILL_DISCOVERY_RANK_HEADERS`
+
+## Discovery grid wrap padding — 2026-07-05
+- **hud.css v1.10** — `.discovery-grid-wrap` padding `8px 8px 14px` (top/bottom breathing room)
+
+## Discovery fill tile text — 2026-07-05
+- **hud.css v1.9** — lighten suit glyph on fill-discovery colored tiles (`0.33` → `0.45` white)
+- **game-over.css v1.12** — same suit glyph lightness on game-over fill-discovery grid
+
+## HUD above discovery grid — 2026-07-05
+- **hud.css v1.8** — swap overlay stack: HUD first, discovery grid below; padding `2px 8px 6px`
+- **index.html** — reorder `#hud` before `#discovery-grid-wrap`
+
+## Discovery fill header bg — 2026-07-05
+- **hud.css v1.7** — discovery-fill-header: `var(--bg)` base + `isolation: isolate` so `#404040` overlay blend darkens to navy (action-bar match)
+- **game-over.css v1.11** — same isolated overlay on game-over fill-discovery grid
+- **hud.js v2.1** — wrap rank header text in `.discovery-fill-header__label`
+
+## Fill Discovery toggle — 2026-07-04
+- **settings.js v2.17** — `fillDiscovery` toggle (Square v1): rank columns stack bottom-up; game ends on full bottom row or 2 full columns
+- **cards.js v1.72** — `buildFillDiscoveryGrid`, `fillDiscoveryColumn`, `isFillDiscoveryEnd`, `FILL_DISCOVERY_RANK_HEADERS`
+- **phase.js v1.23** — `maybeEndFillDiscovery()` after new discovery; game-over grid class for fill mode
+- **hud.js v2.0** — fill-discovery grid HTML (suit tiles + rank header row)
+- **hud.css v1.5** — `.go-cards-grid--fill-discovery` live grid layout
+- **game-over.css v1.9** — fill-discovery grid on game-over sheet
+- **settings-panel.js v1.10** — `fillDiscovery` disabled without 4-square; reset on toggle
+
 ## Endgame ghost — unified — 2026-06-25
 - **phase.js v1.22** — endgame session: `last dice` / `game over` ghost on full-grid dice + stuck; tap always opens sheet; animate once per session
 - **state.js v1.10** — `endgameActive`, `endgameStuck`, `newEndgameGhost`, `finalizingEndgame` replace stuck-only flags

@@ -1,7 +1,7 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
 import { settings, spd, getInitialStartCardCount } from './settings.js';
 import { isRankCoolOffBlocked } from './cool-off.js';
-import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull, countAvailableDiceSlots } from './cards.js';
+import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull, countAvailableDiceSlots, isFillDiscoveryEnd } from './cards.js';
 import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
 import { getGridTotal } from './sweeps.js';
 import { evaluateCardScore } from './scoring.js';
@@ -39,8 +39,17 @@ export function fillOneCard(cardId) {
     if (!state.discoveredKeys.has(key)) {
       state.discoveredKeys.add(key);
       state.discoveredCards.push(cardId);
+      maybeEndFillDiscovery();
     }
   }
+}
+
+export function maybeEndFillDiscovery() {
+  if (state.phase === 'replay') return true;
+  if (!settings.fillDiscovery || !settings.fourSquare || !settings.square) return false;
+  if (!isFillDiscoveryEnd(state.discoveredCards)) return false;
+  showReplay('fill discovery complete');
+  return true;
 }
 
 /* ── Convert cards (delegates animation to card-anim layer) ── */
@@ -263,7 +272,8 @@ export function showReplay(reason = '') {
 
   const cardsEl = document.getElementById('go-cards-grid');
   const fourSquareGrid = settings.fourSquare && settings.square;
-  cardsEl.classList.toggle('go-cards-grid--four-square', fourSquareGrid);
+  cardsEl.classList.toggle('go-cards-grid--four-square', fourSquareGrid && !settings.fillDiscovery);
+  cardsEl.classList.toggle('go-cards-grid--fill-discovery', fourSquareGrid && settings.fillDiscovery);
 
   if (fourSquareGrid) {
     cardsEl.innerHTML = discoveryGridHTML();

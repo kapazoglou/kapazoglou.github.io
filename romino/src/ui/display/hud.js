@@ -2,11 +2,12 @@ import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { isCoolOffActive } from '../../logic/cool-off.js';
 import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
-import { DISCARD_RANKS, SUIT_COLOR, ndTranscribe, buildGameOverFourSquareGrid } from '../../logic/cards.js';
+import { DISCARD_RANKS, SUIT_COLOR, DISPLAY_SUITS, ndTranscribe, buildGameOverFourSquareGrid, buildFillDiscoveryGrid, FILL_DISCOVERY_RANK_HEADERS, cardSuit } from '../../logic/cards.js';
 import { renderCardHTML } from './grid.js';
 
 let discoveryGridCount = -1;
 let coolOffRowSig = '';
+let sweepSuitSig = null;
 const COOL_OFF_POP_MS = 340;
 
 function coolOffRowHTML() {
@@ -66,7 +67,60 @@ export function popCoolOffCard(animated = true) {
   renderCoolOffRow();
 }
 
+function suitTileHTML(suit) {
+  const bg = suit ? SUIT_COLOR[suit] : '#9A9FB6';
+  const label = suit ?? '';
+  return `<div class="discovery-fill-tile" style="background:${bg}">
+    <span class="discovery-fill-tile__suit">${label}</span>
+  </div>`;
+}
+
+function discoveryFillTileHTML(cardId) {
+  return suitTileHTML(cardSuit(cardId));
+}
+
+function sweptSuitCounts() {
+  const counts = {};
+  for (const set of state.scoredSets) {
+    for (const id of set.cardIds) {
+      const suit = cardSuit(id);
+      if (!suit) continue;
+      counts[suit] = (counts[suit] || 0) + 1;
+    }
+  }
+  return counts;
+}
+
+function sweepSuitTallyHTML() {
+  const counts = sweptSuitCounts();
+  const suits = counts.V ? [...DISPLAY_SUITS, 'V'] : DISPLAY_SUITS;
+  return suits.map(suit =>
+    `<div class="hud-suit-entry">
+      <span class="hud-suit-entry__count">${counts[suit] || 0}</span>
+      ${suitTileHTML(suit)}
+    </div>`
+  ).join('');
+}
+
+function discoveryFillGridHTML() {
+  const grid = buildFillDiscoveryGrid(state.discoveredCards);
+  const cells = [];
+  for (let row = 0; row < 4; row++) {
+    for (let col = 0; col < 13; col++) {
+      const id = grid[row][col];
+      cells.push(id != null
+        ? `<div class="discovery-fill-cell">${discoveryFillTileHTML(id)}</div>`
+        : '<div class="discovery-fill-cell discovery-fill-cell--empty"></div>');
+    }
+  }
+  for (const label of FILL_DISCOVERY_RANK_HEADERS) {
+    cells.push(`<div class="discovery-fill-header"><span class="discovery-fill-header__label">${ndTranscribe(label)}</span></div>`);
+  }
+  return cells.join('');
+}
+
 export function discoveryGridHTML() {
+  if (settings.fillDiscovery) return discoveryFillGridHTML();
   const grid = buildGameOverFourSquareGrid(state.discoveredCards);
   return grid.flatMap(row => row.map(id =>
     id != null
@@ -95,13 +149,16 @@ export function renderDiscoveryGrid() {
   const el = document.getElementById('discovery-grid');
   if (!wrap || !el) return;
 
-  const show = settings.fourSquare && settings.square && state.phase !== 'replay';
+  const show = settings.fourSquare && settings.square;
   wrap.hidden = !show;
   if (!show) {
     el.innerHTML = '';
     discoveryGridCount = -1;
     return;
   }
+
+  el.classList.toggle('go-cards-grid--fill-discovery', settings.fillDiscovery);
+  el.classList.toggle('go-cards-grid--four-square', !settings.fillDiscovery);
 
   const count = state.discoveredCards.length;
   if (count === discoveryGridCount) return;
@@ -112,6 +169,7 @@ export function renderDiscoveryGrid() {
 
 export function renderHUD() {
   const countEl = document.getElementById('card-count');
+  const scoreWrap = document.getElementById('hud-score');
   const scoreEl = document.getElementById('score-display');
   if (countEl) {
     if (!settings.diceDecks && !settings.deckDice) {
@@ -121,14 +179,20 @@ export function renderHUD() {
       countEl.textContent = Math.max(0, total - state.cardsPlaced);
     }
   }
-  if (scoreEl) {
-    scoreEl.hidden = !settings.scoring;
-    if (settings.scoring) {
-      scoreEl.textContent = `${state.score} 🪙`;
-      const canFlip = settings.coinFlipDice && state.phase === 'place-dice' && state.score > 0;
-      scoreEl.classList.toggle('is-coin-draggable', canFlip);
-    } else {
-      scoreEl.classList.remove('is-coin-draggable');
+  if (scoreWrap) scoreWrap.hidden = !settings.scoring;
+  if (scoreEl && settings.scoring) {
+    scoreEl.textContent = `${state.score} 🪙`;
+    const canFlip = settings.coinFlipDice && state.phase === 'place-dice' && state.score > 0;
+    scoreEl.classList.toggle('is-coin-draggable', canFlip);
+  } else if (scoreEl) {
+    scoreEl.classList.remove('is-coin-draggable');
+  }
+  const tallyEl = document.getElementById('hud-tally');
+  if (tallyEl) {
+    const sig = state.scoredSets.map(s => s.cardIds.join(',')).join('|');
+    if (sig !== sweepSuitSig) {
+      sweepSuitSig = sig;
+      tallyEl.innerHTML = sweepSuitTallyHTML();
     }
   }
   renderCoolOffRow();

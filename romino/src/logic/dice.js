@@ -201,15 +201,21 @@ export function spawnDice(count, valueOrder = null) {
 
 /* ── Preview combo helpers ───────────────────────────────────────────── */
 
+function isProgressiveDicePlacement() {
+  return settings.progressiveDicePlacement && settings.fourSquare && settings.square;
+}
+
 /** Return the next preview combo of length n, in display order. */
 export function nextComboForSlotCount(n) {
   if (!settings.deckDice) {
     const vals = randomDiceValues(n);
+    if (isProgressiveDicePlacement()) return sortProgressiveDiceValuesForDisplay(vals);
     return n >= 2 && settings.sortDice ? sortDiceValuesForDisplay(vals) : vals;
   }
 
   if (!settings.diceDecks) {
     const combo = peekNextDiceCombination();
+    if (isProgressiveDicePlacement()) return sortProgressiveDiceValuesForDisplay(combo);
     return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
   }
 
@@ -217,9 +223,11 @@ export function nextComboForSlotCount(n) {
     return [peekOneDie()];
   } else if (n === 2) {
     const combo = peekNextTwoDiceCombination();
+    if (isProgressiveDicePlacement()) return sortProgressiveDiceValuesForDisplay(combo);
     return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
   } else {
     const combo = peekNextDiceCombination();
+    if (isProgressiveDicePlacement()) return sortProgressiveDiceValuesForDisplay(combo);
     return settings.sortDice ? sortDiceValuesForDisplay(combo) : shuffleArray([...combo]);
   }
 }
@@ -281,8 +289,61 @@ export function sortDiceValuesForDisplay(values) {
   return [...blanks, ...others.sort((a, b) => b - a), ...ones];
 }
 
+/**
+ * Progressive dice placement — tray/preview order:
+ *  - Duplicates first (by frequency, then value).
+ *  - No duplicates + only 1 or only 6: start with the extreme, rest by increasing distance from it.
+ *  - No duplicates + both 1 and 6: non-extremes first, then 1/6 by distance from the anchor other.
+ */
+export function sortProgressiveDiceValuesForDisplay(values) {
+  const blanks = values.filter(v => v === 0);
+  const rest   = values.filter(v => v !== 0);
+
+  if (rest.length === 0) return [...blanks];
+
+  const freq = {};
+  for (const v of rest) freq[v] = (freq[v] || 0) + 1;
+  const hasDuplicates = Object.values(freq).some(c => c > 1);
+
+  if (hasDuplicates) {
+    return [...blanks, ...[...rest].sort((a, b) => freq[b] - freq[a] || a - b)];
+  }
+
+  const hasOne  = rest.includes(1);
+  const hasSix  = rest.includes(6);
+  const others  = rest.filter(v => v !== 1 && v !== 6);
+
+  if (hasOne && hasSix) {
+    const sortedOthers = [...others].sort((a, b) => a - b);
+    if (sortedOthers.length === 0) return [...blanks, 1, 6];
+    const anchor = sortedOthers[0];
+    const extremes = [1, 6].sort((a, b) => Math.abs(a - anchor) - Math.abs(b - anchor));
+    return [...blanks, ...sortedOthers, ...extremes];
+  }
+
+  if (hasOne) {
+    const sorted = [...others].sort((a, b) => a - b);
+    return [...blanks, 1, ...sorted];
+  }
+
+  if (hasSix) {
+    const sorted = [...others].sort((a, b) => b - a);
+    return [...blanks, 6, ...sorted];
+  }
+
+  return [...blanks, ...rest.sort((a, b) => a - b)];
+}
+
 /** Sort an array of die IDs by their values using sortDiceValuesForDisplay. */
 export function sortDiceIdsForDisplay(ids) {
+  if (isProgressiveDicePlacement()) {
+    const sorted = sortProgressiveDiceValuesForDisplay(ids.map(id => state.dice[id].value));
+    const pool = [...ids];
+    return sorted.map(v => {
+      const i = pool.findIndex(id => state.dice[id].value === v);
+      return pool.splice(i, 1)[0];
+    });
+  }
   if (!settings.sortDice) return shuffleArray([...ids]);
   const sorted = sortDiceValuesForDisplay(ids.map(id => state.dice[id].value));
   const pool = [...ids];

@@ -188,6 +188,43 @@ export function buildGameOverFourSquareGrid(cardIds) {
   return grid;
 }
 
+/** Fill Discovery: rank column headers A, 2–12, V (suit-only). */
+export const FILL_DISCOVERY_RANK_HEADERS = ['A', ...GAME_OVER_FOUR_SQUARE_RANK_COLS, 'V'];
+
+/** Fill Discovery: column for a card rank (A→0, 2–12→1–11, suit-only→12). */
+export function fillDiscoveryColumn(rank) {
+  if (rank === 'A') return 0;
+  if (rank === '' || rank === 'gg') return 12;
+  const i = GAME_OVER_FOUR_SQUARE_RANK_COLS.indexOf(rank);
+  return i >= 0 ? i + 1 : -1;
+}
+
+/** Fill Discovery: 4×13 grid; each rank column stacks bottom-up in conversion order. */
+export function buildFillDiscoveryGrid(cardIds) {
+  const grid = Array.from({ length: 4 }, () => Array(13).fill(null));
+  const colHeights = Array(13).fill(0);
+  for (const id of cardIds) {
+    const col = fillDiscoveryColumn(cardRank(id));
+    if (col < 0 || colHeights[col] >= 4) continue;
+    grid[3 - colHeights[col]][col] = id;
+    colHeights[col]++;
+  }
+  return grid;
+}
+
+/** True when bottom row is full or any two rank columns hold four cards. */
+export function isFillDiscoveryEnd(cardIds) {
+  const grid = buildFillDiscoveryGrid(cardIds);
+  if (grid[3].every(id => id != null)) return true;
+  let fullCols = 0;
+  for (let c = 0; c < 13; c++) {
+    if (grid[0][c] != null && grid[1][c] != null && grid[2][c] != null && grid[3][c] != null) {
+      fullCols++;
+    }
+  }
+  return fullCols >= 2;
+}
+
 export function ndTranscribe(str) {
   return String(str).replace(/[0-9]/g, d => 'jabcdefghi'[+d]);
 }
@@ -218,6 +255,10 @@ function slotInSquareDominoRankPair(cardId, slotIdx) {
 
   if (isFourSquareCard(card)) {
     if (count === 2) {
+      if (isProgressiveDicePlacement()) {
+        const rankSlots = progressiveDominoFrameRankSlots(cardId);
+        return rankSlots?.includes(slotIdx) ?? false;
+      }
       if (!isFourSquareOneToOne()) {
         const order = card.fourSquareFillOrder ?? [];
         if (order.length === 2) return order.includes(slotIdx);
@@ -330,6 +371,186 @@ function isFourSquareOneToOne() {
   return settings.fourSquare && settings.square && settings.oneToOne;
 }
 
+/** True when progressive fill-order placement rules apply (4-square). */
+function isProgressiveDicePlacement() {
+  return settings.progressiveDicePlacement && settings.fourSquare && settings.square;
+}
+
+/** partialUniqueIndex has no effect while progressive dice placement is active. */
+function partialUniqueIndexActive() {
+  return settings.partialUniqueIndex && !isProgressiveDicePlacement();
+}
+
+/** Unique-index duplicate checks at 1–2 dice (partialUniqueIndex gate; progressive skips until 3 dice). */
+function uniqueIndexAppliesAtPartialFill(count) {
+  if (count > 2) return true;
+  if (isProgressiveDicePlacement()) return false;
+  return settings.uniqueIndex && partialUniqueIndexActive();
+}
+
+/** Progressive 4-square shows its own index tile at 1 die (not via partialUniqueIndex). */
+function progressiveShowsIndexTileAtOneDie() {
+  return isProgressiveDicePlacement();
+}
+
+function progressiveSecondDieValueAllowed(v1, v2) {
+  if (v1 === 1 || v1 === 6) return v2 === 1 || v2 === 6;
+  return true;
+}
+
+function progressiveIsExtremeValue(v) {
+  return v === 1 || v === 6;
+}
+
+/** Suit-only joker third: toggle ON, first two differ, neither is 1/6, third is not 1/6 and ≠ both. */
+function progressiveSuitJokerThirdAllowed(v1, v2, v3) {
+  if (!settings.progressiveSuitJoker) return false;
+  if (v1 === v2) return false;
+  if (progressiveIsExtremeValue(v1) || progressiveIsExtremeValue(v2)) return false;
+  if (progressiveIsExtremeValue(v3)) return false;
+  return v3 !== v1 && v3 !== v2;
+}
+
+/** Forced 1/6 third when first two differ: lower → 1, higher → 6. */
+function progressiveForcedExtremeThirdAllowed(v1, v2, v3) {
+  if (v1 === v2) return false;
+  if (!progressiveIsExtremeValue(v3)) return false;
+  if (v2 < v1 && v3 === 1) return true;
+  if (v2 > v1 && v3 === 6) return true;
+  return false;
+}
+
+/** Third die opposite extreme of die2 (1↔6 wrap along fill order). */
+function progressiveAdjacentExtremeWrapThirdAllowed(v1, v2, v3) {
+  if (progressiveIsExtremeValue(v1)) return false;
+  if (v1 === v2) return false;
+  return (v2 === 1 && v3 === 6) || (v2 === 6 && v3 === 1);
+}
+
+function progressiveThirdDieValueAllowed(v1, v2, v3) {
+  if (progressiveIsExtremeValue(v1)) return true;
+  if (v1 === v2) return true;
+  if (progressiveForcedExtremeThirdAllowed(v1, v2, v3)) return true;
+  if (progressiveAdjacentExtremeWrapThirdAllowed(v1, v2, v3)) return true;
+  if (progressiveSuitJokerThirdAllowed(v1, v2, v3)) return true;
+  return false;
+}
+
+/**
+ * Progressive 4-square: fill-order suit/rank at 3 dice.
+ * Normal: die1=suit, die2+die3=rank; optional suit-only joker via progressiveSuitJoker (suit = missing pip among all three dice).
+ * 1/6 as third when first two differ (forced or suit-joker). Matching first two: any third.
+ */
+function squareFourSquareResolveSuitRankProgressive(cardId, fillOrder) {
+  if (fillOrder.length !== 3) return { suitSlot: null, rankSlots: null, isSuitOnlyJoker: false };
+  const [s1, s2, s3] = fillOrder;
+  const v1 = cardSlotValue(cardId, s1);
+  const v2 = cardSlotValue(cardId, s2);
+  const v3 = cardSlotValue(cardId, s3);
+
+  if (v1 === 1 || v1 === 6) {
+    return { suitSlot: s3, rankSlots: [s1, s2], isSuitOnlyJoker: false };
+  }
+  if (v1 === v2) {
+    return { suitSlot: s1, rankSlots: [s2, s3], isSuitOnlyJoker: false };
+  }
+  if (progressiveForcedExtremeThirdAllowed(v1, v2, v3)) {
+    return { suitSlot: s1, rankSlots: [s2, s3], isSuitOnlyJoker: false };
+  }
+  if (progressiveAdjacentExtremeWrapThirdAllowed(v1, v2, v3)) {
+    return { suitSlot: s1, rankSlots: [s2, s3], isSuitOnlyJoker: false };
+  }
+  if (progressiveSuitJokerThirdAllowed(v1, v2, v3)) {
+    return { suitSlot: s1, rankSlots: null, isSuitOnlyJoker: true };
+  }
+  return { suitSlot: null, rankSlots: null, isSuitOnlyJoker: false };
+}
+
+/** True when progressive off-color third yields a suit-only V joker at 3 dice. */
+export function isProgressiveSuitOnlyJoker(cardId) {
+  if (!isProgressiveDicePlacement()) return false;
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card) || squareFilledCount(cardId) !== 3) return false;
+  const order = squareFourSquareFillOrderForSlots(cardId, card.slots);
+  return squareFourSquareResolveSuitRankProgressive(cardId, order).isSuitOnlyJoker;
+}
+
+/** Progressive suit-only joker suit: missing pip from {2,3,4,5} among all three dice (tricolor rule). */
+function progressiveSuitJokerSuit(cardId) {
+  const order = state.cards[cardId]?.fourSquareFillOrder ?? [];
+  if (order.length !== 3) return '';
+  const comboKey = sortedComboKey(order.map(si => cardSlotValue(cardId, si)));
+  return tricolorSuitFromCombo(comboKey);
+}
+
+/** Identity keys for joker cards — each may exist at most once per game (grid or discovered). */
+const JOKER_IDENTITY_KEYS = new Set(['3:A:V', '3:Z:', '3:X:', '3:Y:', '3:W:']);
+
+function isJokerIdentityKey(key) {
+  return key != null && JOKER_IDENTITY_KEYS.has(key);
+}
+
+/** True when placing dieId would complete a joker whose identity already exists on or off grid. */
+function wouldViolateJokerUniqueness(cardId, si, dieId) {
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    if (!isCardPlayableFull(cardId)) return false;
+    const key = snapshotCardIdentity(cardId);
+    if (!isJokerIdentityKey(key)) return false;
+    if (state.discoveredKeys.has(key)) return true;
+    for (const gid of state.grid) {
+      if (gid === null || gid === cardId) continue;
+      const gc = state.cards[gid];
+      if (!gc || gc.empty) continue;
+      const theirKey = gc.discoveryKey
+        ?? (isCardPlayableFull(gid) ? snapshotCardIdentity(gid) : null);
+      if (theirKey === key) return true;
+    }
+    return false;
+  });
+}
+
+function progressiveFirstDieValue(cardId) {
+  const order = state.cards[cardId]?.fourSquareFillOrder ?? [];
+  if (!order.length) return null;
+  return cardSlotValue(cardId, order[0]);
+}
+
+function progressiveIsExtremeFirst(cardId) {
+  const v = progressiveFirstDieValue(cardId);
+  return v === 1 || v === 6;
+}
+
+/** Progressive 4-square at 2 dice with die1 1/6: no index tile; both empty slots accept dice. */
+function progressiveExtremeFirstAtTwoDice(cardId) {
+  return isProgressiveDicePlacement()
+    && squareFilledCount(cardId) === 2
+    && progressiveIsExtremeFirst(cardId);
+}
+
+/** Progressive 4-square at 1–2 dice with die1 1/6: hide in-grid index tile. */
+function progressiveExtremeFirstHidesIndex(cardId) {
+  return isProgressiveDicePlacement()
+    && progressiveIsExtremeFirst(cardId)
+    && squareFilledCount(cardId) <= 2;
+}
+
+/** Progressive domino frame slots: last two placed dice, or first two when die1 is 1/6. */
+function progressiveDominoFrameRankSlots(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return null;
+  const order = card.fourSquareFillOrder ?? [];
+  const count = squareFilledCount(cardId);
+  if (count === 2) {
+    if (!progressiveIsExtremeFirst(cardId) || order.length < 2) return null;
+    return [order[0], order[1]];
+  }
+  if (count === 3 && order.length >= 3) {
+    if (progressiveIsExtremeFirst(cardId)) return [order[0], order[1]];
+    return [order[1], order[2]];
+  }
+  return null;
+}
+
 /** Map rank slot pair to 4-square domino bar class suffix; 'center' when diagonal or unknown. */
 function squareFourSquareBarFromRankSlots(rankSlots) {
   if (!rankSlots || rankSlots.length !== 2) return 'center';
@@ -358,10 +579,10 @@ function isFourSquareAdjacentPair(pair) {
   return FOUR_SQUARE_DOMINO_PAIRS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
 }
 
-/** Record slot fill order for 4-square placement mode (One-to-one OFF). */
+/** Record slot fill order for 4-square placement mode (One-to-one OFF or progressive ON). */
 export function recordFourSquareDiePlaced(cardId, si, { fromCardId = null, fromSi = null } = {}) {
   const card = state.cards[cardId];
-  if (!isFourSquareCard(card) || isFourSquareOneToOne()) return;
+  if (!isFourSquareCard(card) || (isFourSquareOneToOne() && !isProgressiveDicePlacement())) return;
   let order = [...(card.fourSquareFillOrder ?? [])];
   if (fromCardId === cardId && fromSi !== null) order = order.filter(s => s !== fromSi);
   if (!order.includes(si)) order.push(si);
@@ -371,7 +592,7 @@ export function recordFourSquareDiePlaced(cardId, si, { fromCardId = null, fromS
 /** Drop a slot from fill order when its die leaves the card. */
 export function recordFourSquareDieRemoved(cardId, si) {
   const card = state.cards[cardId];
-  if (!card?.fourSquareFillOrder || isFourSquareOneToOne()) return;
+  if (!card?.fourSquareFillOrder || (isFourSquareOneToOne() && !isProgressiveDicePlacement())) return;
   card.fourSquareFillOrder = card.fourSquareFillOrder.filter(s => s !== si);
 }
 
@@ -472,6 +693,12 @@ function squareFourSquareSuitSlotCandidates(cardId) {
 /** Resolve suit + adjacent rank pair at 3 dice; null rankSlots when no valid assignment. */
 function squareFourSquareResolveSuitRank(cardId, slotsOverride = null) {
   if (squareFilledCount(cardId) !== 3) return { suitSlot: null, rankSlots: null };
+  if (isProgressiveDicePlacement()) {
+    const slots = slotsOverride ?? state.cards[cardId].slots;
+    const order = squareFourSquareFillOrderForSlots(cardId, slots);
+    const r = squareFourSquareResolveSuitRankProgressive(cardId, order);
+    return { suitSlot: r.suitSlot, rankSlots: r.rankSlots };
+  }
   if (!isFourSquareOneToOne()) {
     const slots = slotsOverride ?? state.cards[cardId].slots;
     const order = squareFourSquareFillOrderForSlots(cardId, slots);
@@ -488,6 +715,14 @@ function squareFourSquareResolveSuitRank(cardId, slotsOverride = null) {
 function wouldFourSquareInvalidRank(cardId, si, dieId) {
   const card = state.cards[cardId];
   if (!isFourSquareCard(card)) return false;
+  if (isProgressiveDicePlacement()) {
+    return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+      if (squareFilledCount(cardId) !== 3) return false;
+      const order = squareFourSquareFillOrderForSlots(cardId, state.cards[cardId].slots);
+      const r = squareFourSquareResolveSuitRankProgressive(cardId, order);
+      return r.suitSlot === null && !r.isSuitOnlyJoker;
+    });
+  }
   return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
     if (squareFilledCount(cardId) !== 3) return false;
     return squareFourSquareResolveSuitRank(cardId).rankSlots === null;
@@ -496,6 +731,7 @@ function wouldFourSquareInvalidRank(cardId, si, dieId) {
 
 /** One-to-one OFF: forbid last die 1/6 placed diagonally from another 1/6 on the card. */
 function wouldFourSquareDiagonalExtremeLast(cardId, si, dieId) {
+  if (isProgressiveDicePlacement()) return false;
   if (isFourSquareOneToOne()) return false;
   const card = state.cards[cardId];
   if (!isFourSquareCard(card)) return false;
@@ -543,6 +779,7 @@ function gridCardMatchesRankSuitIdentity(gid, identity) {
 
 /** One-to-one OFF: forbid completing with rank+suit already on the grid. */
 function wouldFourSquareDuplicateRankSuit(cardId, si, dieId) {
+  if (isProgressiveDicePlacement()) return false;
   if (isFourSquareOneToOne()) return false;
   const card = state.cards[cardId];
   if (!isFourSquareCard(card)) return false;
@@ -557,6 +794,27 @@ function wouldFourSquareDuplicateRankSuit(cardId, si, dieId) {
   });
 }
 
+/** True when placing dieId would violate progressive 2nd/3rd die value rules. */
+function wouldViolateProgressiveDieValue(cardId, si, dieId) {
+  if (!isProgressiveDicePlacement()) return false;
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card)) return false;
+  return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
+    const order = squareFourSquareFillOrderForSlots(cardId, state.cards[cardId].slots);
+    if (order.length < 2) return false;
+    const v1 = cardSlotValue(cardId, order[0]);
+    const dieVal = state.dice[dieId]?.value;
+    if (order.length === 2) {
+      return !progressiveSecondDieValueAllowed(v1, dieVal);
+    }
+    if (order.length === 3) {
+      const v2 = cardSlotValue(cardId, order[1]);
+      return !progressiveThirdDieValueAllowed(v1, v2, dieVal);
+    }
+    return false;
+  });
+}
+
 /** 4-square bar orientation for domino frame (always-on visual). */
 export function squareFourSquareBarOrientation(cardId) {
   const card = state.cards[cardId];
@@ -564,6 +822,9 @@ export function squareFourSquareBarOrientation(cardId) {
 
   const count = squareFilledCount(cardId);
   if (count === 2) {
+    if (isProgressiveDicePlacement()) {
+      return squareFourSquareBarFromRankSlots(progressiveDominoFrameRankSlots(cardId));
+    }
     if (!isFourSquareOneToOne()) {
       const order = card.fourSquareFillOrder ?? [];
       if (order.length === 2) return squareFourSquareBarFromRankSlots(order);
@@ -579,6 +840,10 @@ export function squareFourSquareBarOrientation(cardId) {
   }
 
   if (count === 3) {
+    if (isProgressiveDicePlacement()) {
+      if (isProgressiveSuitOnlyJoker(cardId)) return 'center';
+      return squareFourSquareBarFromRankSlots(progressiveDominoFrameRankSlots(cardId));
+    }
     const rankSlots = squareRankSlots(cardId);
     if (!isFourSquareOneToOne()) {
       return squareFourSquareBarFromRankSlots(rankSlots);
@@ -851,7 +1116,9 @@ function squareSlotAllowedFourSquare(cardId, si, dieId = null) {
   );
 
   const isRearrangeToEmpty = vacatedSi != null && squareFilledCount(cardId) === 3;
+  if (filledSlots.length === 0) return true;
   if (filledSlots.length === 1 || isRearrangeToEmpty) return true;
+  if (filledSlots.length === 2 && progressiveExtremeFirstAtTwoDice(cardId)) return true;
 
   const thirds = new Set();
   for (const [a, b] of [[filledSlots[0], filledSlots[1]], [filledSlots[1], filledSlots[0]]]) {
@@ -914,7 +1181,7 @@ function isSlotAvailableByAdjacency(cardId, si) {
 
   if (settings.square) {
     if (isFourSquareCard(card)) {
-      if (settings.placementRestrictions) {
+      if (settings.placementRestrictions || isProgressiveDicePlacement()) {
         return squareSlotAllowedFourSquare(cardId, si, null);
       }
       return squareFourSquareEdgeAdjacentAllowed(cardId, si, null);
@@ -1021,24 +1288,55 @@ function squareIsWrapTriple(v0, v1, v2) {
          [v0, v1, v2].includes(1) && [v0, v1, v2].includes(6);
 }
 
-/** One step non-decreasing with 6→1 wrap allowed. */
-function squareStepIncreasing(a, b) {
+/** True when pip values form an adjacent 1↔6 wrap pair. */
+function squareIsExtremeWrapPair(a, b) {
+  return (a === 1 && b === 6) || (a === 6 && b === 1);
+}
+
+/** True when two slots share an edge (4-square grid or classic L). */
+function squareSlotsEdgeAdjacent(card, si, sj) {
+  if (si == null || sj == null) return false;
+  if (isFourSquareCard(card)) {
+    return SQUARE_NEIGHBORS[si]?.includes(sj) ?? false;
+  }
+  return (si === 0 && sj === 1) || (si === 1 && sj === 0) ||
+         (si === 1 && sj === 2) || (si === 2 && sj === 1);
+}
+
+/** 1↔6 wrap allowed when values are extremes and slots share an edge. */
+function squareAdjacentExtremeWrap(a, b, slotA, slotB, card) {
+  return card && squareIsExtremeWrapPair(a, b) && squareSlotsEdgeAdjacent(card, slotA, slotB);
+}
+
+/** One step non-decreasing; 6→1 wrap; adjacent 1↔6 always OK. */
+function squareStepIncreasing(a, b, slotA, slotB, card) {
   if (a === b) return true;
+  if (squareAdjacentExtremeWrap(a, b, slotA, slotB, card)) return true;
   if (b > a) return true;
   return a === 6 && b === 1;
 }
 
-/** One step non-increasing with 1→6 wrap allowed. */
-function squareStepDecreasing(a, b) {
+/** One step non-increasing; 1→6 wrap; adjacent 1↔6 always OK. */
+function squareStepDecreasing(a, b, slotA, slotB, card) {
   if (a === b) return true;
+  if (squareAdjacentExtremeWrap(a, b, slotA, slotB, card)) return true;
   if (b < a) return true;
   return a === 1 && b === 6;
 }
 
-/** True if values along a fill order are monotonic (repeats/skips OK; 6↔1 wrap OK). */
-function squareIsMonotonic(vals) {
-  return (squareStepIncreasing(vals[0], vals[1]) && squareStepIncreasing(vals[1], vals[2])) ||
-         (squareStepDecreasing(vals[0], vals[1]) && squareStepDecreasing(vals[1], vals[2]));
+/** True if values along a fill order are monotonic (repeats/skips OK; adjacent 1↔6 wrap OK). */
+function squareIsMonotonic(vals, slots, card) {
+  if (!vals?.length) return true;
+  if (vals.length === 2 && slots?.length === 2) {
+    return squareStepIncreasing(vals[0], vals[1], slots[0], slots[1], card) ||
+           squareStepDecreasing(vals[0], vals[1], slots[0], slots[1], card);
+  }
+  if (vals.length !== 3 || slots?.length !== 3) return vals.length < 2;
+  const inc = squareStepIncreasing(vals[0], vals[1], slots[0], slots[1], card) &&
+            squareStepIncreasing(vals[1], vals[2], slots[1], slots[2], card);
+  const dec = squareStepDecreasing(vals[0], vals[1], slots[0], slots[1], card) &&
+            squareStepDecreasing(vals[1], vals[2], slots[1], slots[2], card);
+  return inc || dec;
 }
 
 /**
@@ -1050,7 +1348,7 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
   const card = state.cards[cardId];
   if (!card) return true;
   if (isFourSquareCard(card)) {
-    if (squareFilledCount(cardId) < 2) return true;
+    if (squareFilledCount(cardId) < 1) return true;
     const sim = [...card.slots];
     const prevSlot = dieInCard(dieId);
     if (prevSlot) {
@@ -1058,15 +1356,22 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
       if (pc === cardId) sim[ps] = null;
     }
     sim[si] = dieId;
-    const filled = squareActiveSlotIndices(card).filter(s => sim[s] != null);
-    if (filled.length !== 3) return true;
     const valAt = (slot) => state.dice[sim[slot]]?.value;
+    const order = squareFourSquareFillOrderForSlots(cardId, sim)
+      .filter(s => sim[s] != null);
+    if (order.length === 2) {
+      return squareIsMonotonic(order.map(valAt), order, card);
+    }
+    if (order.length !== 3) return true;
     const orders = squareFillOrdersFourSquare(sim, squareActiveSlotIndices(card));
-    return orders.some(order => squareIsMonotonic(order.map(valAt)));
+    if (orders.length) {
+      return orders.some(o => squareIsMonotonic(o.map(valAt), o, card));
+    }
+    return squareIsMonotonic(order.map(valAt), order, card);
   }
 
   if ((card.slotCount ?? 3) !== 3) return true;
-  if (squareFilledCount(cardId) < 2) return true; // only check the 3rd placement
+  if (squareFilledCount(cardId) < 1) return true;
 
   const sim = [...card.slots];
   // If this die already lives on this card, clear its old slot so the simulation is clean
@@ -1076,6 +1381,19 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
     if (pc === cardId) sim[ps] = null;
   }
   sim[si] = dieId;
+
+  const filledSlots = [0, 1, 2].filter(s => sim[s] != null);
+  const valAt = (slot) => state.dice[sim[slot]]?.value;
+  if (filledSlots.length === 2) {
+    const s0 = slotHasDie(card, 0);
+    const s2 = slotHasDie(card, 2);
+    const orders = squareFillOrders(s0, false, s2);
+    return orders.some(order => {
+      const pairSlots = order.filter(s => sim[s] != null);
+      if (pairSlots.length !== 2) return true;
+      return squareIsMonotonic(pairSlots.map(valAt), pairSlots, card);
+    });
+  }
   if (sim.some(s => s == null)) return true;
 
   const v0 = state.dice[sim[0]]?.value;
@@ -1088,7 +1406,11 @@ function squareValuesMonotonicAfterPlace(cardId, si, dieId) {
   // Compute orders from the pre-placement state (not the sim) so winding reflects history
   const orders = squareFillOrders(s0, false, s2);
   const vals = [v0, v1, v2];
-  return orders.some(order => squareIsMonotonic([vals[order[0]], vals[order[1]], vals[order[2]]]));
+  return orders.some(order => {
+    const slots = order;
+    const orderedVals = [vals[order[0]], vals[order[1]], vals[order[2]]];
+    return squareIsMonotonic(orderedVals, slots, card);
+  });
 }
 
 /** Layout alignment derived from filled slots and suit position. */
@@ -1152,6 +1474,21 @@ export function squarePartialConverted(cardId) {
 export function squareDisplayIndex(cardId) {
   const count = squareFilledCount(cardId);
   if (count === 0) return ' ';
+  if (isProgressiveDicePlacement() && isFourSquareCard(state.cards[cardId])) {
+    if (count === 1 || count === 2) {
+      if (progressiveExtremeFirstHidesIndex(cardId)) return ' ';
+      if (count === 1) {
+        const suit = cardSuit(cardId);
+        return suit || '*';
+      }
+      const suit = cardSuit(cardId);
+      return suit || '*';
+    }
+    if (isProgressiveSuitOnlyJoker(cardId)) {
+      const suit = cardSuit(cardId);
+      return suit || 'V';
+    }
+  }
   if (count === 1) {
     const suit = cardSuit(cardId);
     return suit || '*';
@@ -1170,11 +1507,27 @@ export function squareDisplayIndex(cardId) {
 /** Index text color for square unfilled cards. */
 export function squareIndexColor(cardId) {
   const count = squareFilledCount(cardId);
+  const card = state.cards[cardId];
+  if (isProgressiveDicePlacement() && isFourSquareCard(card) && count === 2 && !progressiveIsExtremeFirst(cardId)) {
+    const suit = cardSuit(cardId);
+    return suit ? SUIT_COLOR[suit] : '#9A9FB6';
+  }
   if (count === 1 || count === 3) {
     const suit = cardSuit(cardId);
     return suit ? SUIT_COLOR[suit] : '#9A9FB6';
   }
   return '#9A9FB6';
+}
+
+/** Progressive 4-square at 2 dice: index on the empty slot diagonal from the last placed die. */
+function progressiveIndexSlotAtTwoDice(cardId) {
+  const card = state.cards[cardId];
+  const order = card.fourSquareFillOrder ?? [];
+  if (order.length < 2) return null;
+  const lastSlot = order[order.length - 1];
+  const diagSlot = FOUR_SQUARE_DIAGONAL[lastSlot];
+  if (diagSlot !== undefined && !slotHasDie(card, diagSlot)) return diagSlot;
+  return null;
 }
 
 /** 4-square: grid slot that shows the index tile (0–3), or null when empty card. */
@@ -1183,10 +1536,18 @@ export function squareIndexSlot(cardId) {
   if (!isFourSquareCard(card)) return null;
   const filled = squareFilledCount(cardId);
   if (filled === 0) return null;
-  if (!settings.partialUniqueIndex && filled === 1) return null;
+  if (progressiveExtremeFirstHidesIndex(cardId)) return null;
+  if (filled === 1) {
+    if (progressiveShowsIndexTileAtOneDie()) { /* fall through to index slot resolve */ }
+    else if (!partialUniqueIndexActive()) return null;
+  }
+  if (filled === 2 && isProgressiveDicePlacement()) {
+    const progressiveSlot = progressiveIndexSlotAtTwoDice(cardId);
+    if (progressiveSlot !== null) return progressiveSlot;
+  }
   const empty = [0, 1, 2, 3].filter(si => !slotHasDie(card, si));
   if (empty.length === 1) return empty[0];
-  const slotAllowed = (slotIdx) => settings.placementRestrictions
+  const slotAllowed = (slotIdx) => (settings.placementRestrictions || isProgressiveDicePlacement())
     ? squareSlotAllowedFourSquare(cardId, slotIdx)
     : squareFourSquareEdgeAdjacentAllowed(cardId, slotIdx);
   return empty.find(si => !slotAllowed(si)) ?? null;
@@ -1196,7 +1557,14 @@ export function squareIndexSlot(cardId) {
 export function squareIndexTileColor(cardId) {
   const count = squareFilledCount(cardId);
   const grey = '#9A9FB6';
-  if (count === 2) return { bg: grey, border: null };
+  const card = state.cards[cardId];
+  if (count === 2) {
+    if (isProgressiveDicePlacement() && isFourSquareCard(card) && !progressiveIsExtremeFirst(cardId)) {
+      const suit = cardSuit(cardId);
+      return { bg: suit ? SUIT_COLOR[suit] : grey, border: null };
+    }
+    return { bg: grey, border: null };
+  }
   const suit = cardSuit(cardId);
   const bg = suit ? SUIT_COLOR[suit] : grey;
   const border = count === 3 && suit ? bg : null;
@@ -1219,6 +1587,16 @@ function squareCardRank(cardId) {
   if (count === 0) return ' ';
   if (count === 1) return '';
   if (count === 2) {
+    if (isFourSquareCard(card) && isProgressiveDicePlacement()) {
+      const order = card.fourSquareFillOrder ?? [];
+      if (order.length >= 2 && progressiveIsExtremeFirst(cardId)) {
+        const va = cardSlotValue(cardId, order[0]);
+        const vb = cardSlotValue(cardId, order[1]);
+        if ((va === 1 && vb === 6) || (va === 6 && vb === 1)) return 'A';
+        return ndTranscribe(va + vb);
+      }
+      return '';
+    }
     let va, vb;
     let filledSlots;
     if (isFourSquareCard(card) && !isFourSquareOneToOne()) {
@@ -1246,6 +1624,7 @@ function squareCardRank(cardId) {
     return ndTranscribe(va + vb);
   }
   if (isJokerCard(cardId)) return 'A';
+  if (isProgressiveSuitOnlyJoker(cardId)) return '';
   const rankSlots = squareRankSlots(cardId);
   if (!rankSlots) return ' ';
   const sum = cardSlotValue(cardId, rankSlots[0]) + cardSlotValue(cardId, rankSlots[1]);
@@ -1258,6 +1637,19 @@ function squareCardSuit(cardId) {
   if (count === 0) return '';
   if (isFourSquareCard(card)) {
     if (isTricolorCard(cardId)) return tricolorSuitFromCombo(tricolorComboKey(cardId));
+    if (isProgressiveDicePlacement()) {
+      if (count === 3) {
+        if (isProgressiveSuitOnlyJoker(cardId)) {
+          return progressiveSuitJokerSuit(cardId);
+        }
+        const ss = squareSuitSlot(cardId);
+        return ss !== null ? SUIT_LETTER[cardSlotValue(cardId, ss)] : '';
+      }
+      if (progressiveIsExtremeFirst(cardId)) return '';
+      const order = card.fourSquareFillOrder ?? [];
+      if (order.length) return SUIT_LETTER[cardSlotValue(cardId, order[0])];
+      return '';
+    }
     if (count === 3) {
       const ss = squareSuitSlot(cardId);
       return ss !== null ? SUIT_LETTER[cardSlotValue(cardId, ss)] : '';
@@ -1365,7 +1757,18 @@ export function snapshotCardIdentity(cardId) {
     if (isTricolorCard(cardId)) {
       return `T:${tricolorSevenKey(cardId)}:${cardSuit(cardId)}`;
     }
-    if (isJokerCard(cardId)) return '3:A:V';
+    if (isProgressiveSuitOnlyJoker(cardId)) {
+      const suit = cardSuit(cardId);
+      return suit ? `3:${suit}:` : null;
+    }
+    if (isJokerCard(cardId)) {
+      if (isProgressiveDicePlacement() && isFourSquareCard(card)) {
+        const suit = cardSuit(cardId);
+        const pair = squareRankPipPair(cardId);
+        return pair ? `3:${suit}:${pair}` : null;
+      }
+      return '3:A:V';
+    }
     const suit = cardSuit(cardId);
     const pair = squareRankPipPair(cardId);
     return pair ? `3:${suit}:${pair}` : null;
@@ -1436,11 +1839,20 @@ export function isSlotForbidden(cardId, si, dieId) {
 
   if (wouldCompleteAllExtremes(cardId, si, dieId)) return true;
   if (wouldCreateCoolOffRank(cardId, si, dieId)) return true;
+  if (wouldViolateJokerUniqueness(cardId, si, dieId)) return true;
+
+  const isFirstDie = cardPlacedDiceCount(cardId) === 0;
+
+  if (isProgressiveDicePlacement() && isFourSquareCard(card)) {
+    if (wouldFourSquareInvalidRank(cardId, si, dieId)) return true;
+    if (!isFirstDie && !squareSlotAllowed(cardId, si, dieId)) return true;
+    if (!isFirstDie && wouldViolateProgressiveDieValue(cardId, si, dieId)) return true;
+    return wouldCreateDuplicate(cardId, si, dieId);
+  }
+
   if (wouldFourSquareInvalidRank(cardId, si, dieId)) return true;
   if (wouldFourSquareDiagonalExtremeLast(cardId, si, dieId)) return true;
   if (wouldFourSquareDuplicateRankSuit(cardId, si, dieId)) return true;
-
-  const isFirstDie = cardPlacedDiceCount(cardId) === 0;
 
   if (!isFirstDie) {
     if (settings.placementRestrictions) {
@@ -1567,13 +1979,13 @@ function withSimulatedGridSlots(slotMap, fn) {
   }
 }
 
-/** True when two grid cards share the same placed-dice multiset (uniqueIndex rule). */
+/** True when two grid cards share the same uniqueIndex dedup key. */
 function gridHasDuplicateDiceKeys() {
   const seen = new Set();
   for (const gid of state.grid) {
     if (gid === null) continue;
-    if (!settings.partialUniqueIndex && cardPlacedDiceCount(gid) <= 2) continue;
-    const k = cardDiceValuesKey(gid);
+    if (!uniqueIndexAppliesAtPartialFill(cardPlacedDiceCount(gid))) continue;
+    const k = cardUniqueIndexKey(gid);
     if (!k) continue;
     if (seen.has(k)) return true;
     seen.add(k);
@@ -1613,27 +2025,39 @@ function cardDiceValuesKey(cardId) {
   return vals.length ? vals.sort((a, b) => a - b).join(',') : null;
 }
 
-/** Unique-index rule: no two grid cards may hold the same multiset of placed dice. */
+/** Dedup key for uniqueIndex: progressive 3-dice uses suit+rank identity; partial fills use dice multiset. */
+function cardUniqueIndexKey(cardId) {
+  const card = state.cards[cardId];
+  if (!card) return null;
+  if (isProgressiveDicePlacement() && isFourSquareCard(card)
+      && squareFilledCount(cardId) === 3 && isCardPlayableFull(cardId)) {
+    return snapshotCardIdentity(cardId) ?? cardDiceValuesKey(cardId);
+  }
+  return cardDiceValuesKey(cardId);
+}
+
+/** Unique-index rule: no two grid cards may hold the same dedup key. */
 function wouldViolateUniqueIndex(cardId, si, dieId) {
   return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
-    const myDice = cardDiceValuesKey(cardId);
-    if (!myDice) return false;
+    const myKey = cardUniqueIndexKey(cardId);
+    if (!myKey) return false;
 
     const myCount = cardPlacedDiceCount(cardId);
-    if (!settings.partialUniqueIndex && myCount <= 2) return false;
+    if (!uniqueIndexAppliesAtPartialFill(myCount)) return false;
 
     for (const gid of state.grid) {
       if (gid === null || gid === cardId) continue;
-      if (!settings.partialUniqueIndex && cardPlacedDiceCount(gid) <= 2) continue;
-      const theirDice = cardDiceValuesKey(gid);
-      if (theirDice && theirDice === myDice) return true;
+      if (!uniqueIndexAppliesAtPartialFill(cardPlacedDiceCount(gid))) continue;
+      const theirKey = cardUniqueIndexKey(gid);
+      if (theirKey && theirKey === myKey) return true;
     }
     return false;
   });
 }
 
 export function wouldCreateDuplicate(cardId, si, dieId) {
-  if (settings.uniqueIndex) return wouldViolateUniqueIndex(cardId, si, dieId);
+  if (!settings.uniqueIndex) return false;
+  return wouldViolateUniqueIndex(cardId, si, dieId);
 
   const card = state.cards[cardId];
   if (!card) return false;
