@@ -46,7 +46,7 @@ export function fillOneCard(cardId) {
 
 export function maybeEndFillDiscovery() {
   if (state.phase === 'replay') return true;
-  if (!settings.fillDiscovery || !settings.fourSquare || !settings.square) return false;
+  if (!settings.fillDiscoveryEnd || !settings.fourSquare || !settings.square) return false;
   if (!isFillDiscoveryEnd(state.discoveredCards)) return false;
   showReplay('fill discovery complete');
   return true;

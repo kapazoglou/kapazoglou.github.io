@@ -1,8 +1,8 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.13
-date: 2026-07-09
+v: 1.14
+date: 2026-07-10
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story
@@ -19,6 +19,7 @@ As a player, I want to access a hidden settings panel (tap the card-count 4 time
 - **extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / fillDiscovery / oneToOne / forbidThirdExtreme / progressiveDicePlacement / progressiveSuitJoker** → closes panel + calls `resetGame()`
 - **oneToOne** — disabled when `fourSquare` is off
 - **fillDiscovery** — disabled when `fourSquare` is off
+- **fillDiscoveryEnd** — disabled when `fourSquare` is off; `render()` only (no reset)
 - **progressiveDicePlacement** — disabled when `fourSquare` is off
 - **progressiveSuitJoker** — disabled when `fourSquare` or `progressiveDicePlacement` is off
 - **partialUniqueIndex** — disabled when `progressiveDicePlacement` is on (no effect while progressive is active)

@@ -4,6 +4,11 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Fill Discovery game-over toggle — 2026-07-10
+- **settings.js v2.21** — split `fillDiscovery` (grid layout) from `fillDiscoveryEnd` (win condition); default ON
+- **phase.js v1.24** — `maybeEndFillDiscovery` gated by `fillDiscoveryEnd`
+- **settings-panel.js v1.14** — `fillDiscoveryEnd` disabled without 4-square; render-only side-effect
+
 ## Progressive suit-only joker uniqueness — fix sim fill order — 2026-07-10
 - **cards.js v1.95** — progressive joker key uses `squareFourSquareFillOrderForSlots` (not stale `fourSquareFillOrder`) so 3rd-die simulation resolves suit and blocks duplicates
 

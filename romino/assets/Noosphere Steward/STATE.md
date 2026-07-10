@@ -60,9 +60,9 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `index.html` — `#go-hud` in game-over sheet after sweeps
-- `src/ui/display/hud.js` — mirror HUD into game-over sheet during replay
-- `src/ui/display/game-over.css` — `.go-hud` layout
+- `src/logic/settings.js` — `fillDiscoveryEnd` toggle; `fillDiscovery` label → grid layout only
+- `src/logic/phase.js` — `maybeEndFillDiscovery` gated by `fillDiscoveryEnd`
+- `src/ui/display/settings-panel.js` — `fillDiscoveryEnd` disabled without 4-square; render-only
 
 ## Next topological move
 

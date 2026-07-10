@@ -9,6 +9,7 @@ function syncFourSquareToggleRows() {
     ['oneToOne', false],
     ['forbidThirdExtreme', true],
     ['fillDiscovery', false],
+    ['fillDiscoveryEnd', false],
     ['progressiveDicePlacement', false],
     ['progressiveSuitJoker', false],
   ]) {
@@ -55,7 +56,7 @@ export function renderSettingsPanel() {
       input.type = 'checkbox';
       input.dataset.key = item.key;
       input.checked = settings[item.key];
-      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme' || item.key === 'fillDiscovery' || item.key === 'progressiveDicePlacement' || item.key === 'progressiveSuitJoker') {
+      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme' || item.key === 'fillDiscovery' || item.key === 'fillDiscoveryEnd' || item.key === 'progressiveDicePlacement' || item.key === 'progressiveSuitJoker') {
         let disabled = !settings.fourSquare
           || (item.key === 'forbidThirdExtreme' && settings.oneToOne);
         if (item.key === 'progressiveSuitJoker') {
