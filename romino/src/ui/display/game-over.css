@@ -72,6 +72,7 @@
   background: var(--accent);
   height: 36px; padding: 0 20px;
   border-radius: 99px; border: none; cursor: pointer;
+  font-family: 'Averia Libre', serif;
   font-size: 18px; color: #364254; white-space: nowrap; flex-shrink: 0;
 }
 .game-over-btn:active { transform: scale(0.95); }
