@@ -139,9 +139,7 @@ export function sweepListHTML() {
     ).join('');
     return `<div class="go-sweep-group">${cards}</div>`;
   });
-  return `<div class="go-sweeps-inline">${groups.map((group, i) =>
-    `${i > 0 ? '<span class="go-sweep-comma">,</span>' : ''}${group}`
-  ).join('')}</div>`;
+  return `<div class="go-sweeps-inline">${groups.join('')}</div>`;
 }
 
 export function renderDiscoveryGrid() {

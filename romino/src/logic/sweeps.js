@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { cardRank, cardSuit, cardSlotValue, DISCARD_RANKS, isTricolorCard, isProgressiveSuitOnlyJoker } from './cards.js';
+import { cardRank, cardSuit, cardSlotValue, DISCARD_RANKS, isTricolorCard, isJokerCard, isSuitOnlyJokerTile } from './cards.js';
 
 /* ── Grid geometry helpers (3×3 or 4×4) ── */
 export function getGridSize()  { return settings.extendedGrid ? 4 : 3; }
@@ -47,18 +47,19 @@ export const SCORING_RULE_LABELS = {
   domino:     'Domino',
 };
 
+function isRunWildcard(id) {
+  return cardRank(id) === '*' || isSuitOnlyJokerTile(id);
+}
+
 /** Returns true when all N rank-positions form a consecutive circular run (wraps at A/12).
- *  Cards with rank '*' (double-blank) act as wildcards and fill any gap. */
+ *  Wildcards (`rank '*'`, 3-color suit-only joker) fill any gap. */
 export function isConsecutiveRanks(cardIds) {
-  if (cardIds.some(id => isTricolorCard(id))) return false;
   const WRAP = 12;
   const N    = cardIds.length;
-  const wildcards = cardIds.filter(id =>
-    cardRank(id) === '*' || isProgressiveSuitOnlyJoker(id)
-  ).length;
+  const wildcards = cardIds.filter(isRunWildcard).length;
   if (wildcards === N) return true;
 
-  const nonWild = cardIds.filter(id => cardRank(id) !== '*');
+  const nonWild = cardIds.filter(id => !isRunWildcard(id));
   const rawIdx  = nonWild.map(id => DISCARD_RANKS.indexOf(cardRank(id)));
   if (rawIdx.some(i => i <= 0)) return false;
   const sorted = rawIdx.map(i => i - 1).sort((a, b) => a - b);
@@ -99,10 +100,8 @@ export function effectiveSuitsDiff(cardIds) {
 
 export const SCORING_RULES = {
   set(cardIds) {
-    if (cardIds.every(id => isTricolorCard(id))) return true;
-    if (cardIds.some(id => isTricolorCard(id))) return false;
-    const isWild  = id => !isTricolorCard(id) && (
-      cardRank(id) === '*' || cardSuit(id) === 'V' || isProgressiveSuitOnlyJoker(id)
+    const isWild = id => !isJokerCard(id) && (
+      cardRank(id) === '*' || cardSuit(id) === 'V' || isSuitOnlyJokerTile(id)
     );
     const nonWild = cardIds.filter(id => !isWild(id));
     const wilds   = cardIds.filter(id =>  isWild(id));
@@ -110,6 +109,7 @@ export const SCORING_RULES = {
     const r0 = cardRank(nonWild[0]);
     if (r0 === '' || r0 === ' ' || !nonWild.every(id => cardRank(id) === r0)) return false;
     for (const wild of wilds) {
+      if (isSuitOnlyJokerTile(wild)) continue;
       const ws = cardSuit(wild);
       if (cardIds.some(id => id !== wild && cardSuit(id) === ws)) return false;
     }

@@ -475,6 +475,12 @@ export function isProgressiveSuitOnlyJoker(cardId) {
   return squareFourSquareResolveSuitRankProgressive(cardId, order).isSuitOnlyJoker;
 }
 
+/** 3-color-combo suit-only joker tile (rank shows suit only); not 1+6 aces. */
+export function isSuitOnlyJokerTile(cardId) {
+  if (isJokerCard(cardId)) return false;
+  return isProgressiveSuitOnlyJoker(cardId) || isTricolorCard(cardId);
+}
+
 /** Progressive suit-only joker suit: missing pip from {2,3,4,5} among all three dice (tricolor rule). */
 function progressiveSuitJokerSuit(cardId) {
   const order = state.cards[cardId]?.fourSquareFillOrder ?? [];

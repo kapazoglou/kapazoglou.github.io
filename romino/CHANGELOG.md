@@ -4,6 +4,24 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Game-over body alignment — 2026-07-10
+- **game-over.css v1.16** — `.go-body`: `justify-content: flex-start`, `align-items: center`
+
+## Game-over sweep spacing — 2026-07-10
+- **game-over.css v1.14** — sweep groups: 4px tile gap; suit-tile-width column/row gaps (no commas)
+- **hud.js v2.8** — `sweepListHTML`: drop comma separators; spacing via CSS
+
+## Joker identity — suit-only 3-color combos — 2026-07-10
+- **cards.js v1.93** — `isSuitOnlyJokerTile`: 3-color-combo suit-only jokers (progressive + tricolor); excludes 1+6 aces
+- **sweeps.js v1.9** — sweep wildcards use `isSuitOnlyJokerTile` only; 1+6 aces fixed rank `A`; tricolor jokers wild in runs/sets
+
+## Joker set sweeps — 2026-07-10
+- **sweeps.js v1.8** — joker cards wildcard in sets (pair + joker, two jokers + any rank); skip suit-dedup for joker wilds
+
+## Joker run sweeps — 2026-07-10
+- **sweeps.js v1.7** — joker cards full run wildcards (bridge gaps, e.g. 5–Joker–7)
+- **sweeps.js v1.6** — joker cards wildcard in runs when all other fixed ranks are consecutive; fixes `nonWild` filter for blank wildcards
+
 ## Progressive LIFO die removal — 2026-07-10
 - **cards.js v1.92** — progressive ON: only the most recently placed die on a 4-square card may be selected or dragged (LIFO); earlier dice locked (no border); `isDieSelectable` respects `squareDieLocked`
 

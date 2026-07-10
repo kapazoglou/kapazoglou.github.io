@@ -76,7 +76,15 @@
 }
 .game-over-btn:active { transform: scale(0.95); }
 
-.go-body { width: 100%; display: flex; flex-direction: column; gap: 16px; padding: 4px 2px; }
+.go-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 2px;
+}
 
 .go-stat-row   { display: flex; align-items: baseline; gap: 10px; }
 .go-stat-value { font-size: 40px; color: var(--text-primary); line-height: 1; }
@@ -193,13 +201,27 @@ html.square-cards .go-card-wrap .converter-card--four-square {
 .go-section-label {
   font-size: 13px; color: var(--text-dim);
   text-transform: uppercase; letter-spacing: 0.08em;
+  text-align: center;
 }
 
-.go-sweeps { display: flex; flex-wrap: wrap; align-items: center; width: 100%; }
-.go-sweeps-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
-.go-sweep-group { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 0; }
+.go-sweeps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.go-sweeps-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  --go-suit-tile: 32px;
+  column-gap: var(--go-suit-tile);
+  row-gap: var(--go-suit-tile);
+}
+.go-sweep-group { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 4px; }
 .go-sweep-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; color: var(--text-primary); }
-.go-sweep-comma { color: var(--text-dim); font-size: 14px; line-height: 1; margin: 0 2px; flex-shrink: 0; }
 .go-sweep-label { color: var(--text-dim); }
 .go-sweep-count { font-size: 20px; color: var(--accent); }
 .go-sweep-empty { font-size: 15px; color: var(--text-dim); font-style: italic; }

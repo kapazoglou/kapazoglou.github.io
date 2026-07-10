@@ -60,7 +60,8 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `src/logic/cards.js` — progressive LIFO die removal via `squareDieLocked` + `isDieSelectable`
+- `src/logic/sweeps.js` — suit-only 3-color jokers wild in runs/sets; 1+6 aces not wild
+- `src/logic/cards.js` — `isSuitOnlyJokerTile`; progressive LIFO die removal
 
 ## Next topological move
 

@@ -16,7 +16,7 @@ export const SETTINGS_CONFIG = [
       { key: 'forbidThirdExtreme', label: 'Forbid 1/6 as third die',                default: false },
       { key: 'progressiveDicePlacement', label: 'Progressive dice placement',         default: true },
       { key: 'progressiveSuitJoker',   label: 'Progressive suit joker',             default: true },
-      { key: 'gridCoinsDiffColor',      label: 'Coins diff color / same dice',       default: false },
+      { key: 'gridCoinsDiffColor',      label: 'Coin same dice / diff color',       default: true },
       { key: 'coolOff',           label: 'Sweep cool-off ',                          default: false },
       { key: 'uniqueIndex',      label: 'Unique index',                              default: true  },
       { key: 'partialUniqueIndex', label: 'Partial unique index',                    default: false },
