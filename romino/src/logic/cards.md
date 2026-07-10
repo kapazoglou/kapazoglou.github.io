@@ -1,7 +1,7 @@
 ---
 module: cards
 layer: logic
-v: 1.94
+v: 1.95
 date: 2026-07-10
 deps: [state, settings, cool-off]
 ---

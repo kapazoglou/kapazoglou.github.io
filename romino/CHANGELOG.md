@@ -4,6 +4,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Progressive suit-only joker uniqueness — fix sim fill order — 2026-07-10
+- **cards.js v1.95** — progressive joker key uses `squareFourSquareFillOrderForSlots` (not stale `fourSquareFillOrder`) so 3rd-die simulation resolves suit and blocks duplicates
+
 ## Progressive suit-only joker uniqueness — 2026-07-10
 - **cards.js v1.94** — progressive: block completing a suit-only joker (`3:Z|X|Y|W:`) when that key already exists on grid or in Discovery
 

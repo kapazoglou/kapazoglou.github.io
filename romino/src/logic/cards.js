@@ -499,10 +499,13 @@ function isJokerIdentityKey(key) {
 /** Progressive suit-only joker uniqueness key (234→W, 235→Y, 245→X, 345→Z). */
 function progressiveSuitJokerUniquenessKey(cardId) {
   if (!isProgressiveDicePlacement()) return null;
-  if (!isFourSquareCard(state.cards[cardId])) return null;
-  if (!isCardPlayableFull(cardId)) return null;
-  if (!isProgressiveSuitOnlyJoker(cardId)) return null;
-  const suit = cardSuit(cardId);
+  const card = state.cards[cardId];
+  if (!isFourSquareCard(card) || !isCardPlayableFull(cardId)) return null;
+  const order = squareFourSquareFillOrderForSlots(cardId, card.slots);
+  const r = squareFourSquareResolveSuitRankProgressive(cardId, order);
+  if (!r.isSuitOnlyJoker) return null;
+  const comboKey = sortedComboKey(order.map(si => cardSlotValue(cardId, si)));
+  const suit = tricolorSuitFromCombo(comboKey);
   return suit ? `3:${suit}:` : null;
 }
 
