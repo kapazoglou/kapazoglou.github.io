@@ -4,6 +4,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Progressive suit-only joker uniqueness — 2026-07-10
+- **cards.js v1.94** — progressive: block completing a suit-only joker (`3:Z|X|Y|W:`) when that key already exists on grid or in Discovery
+
 ## Game-over HUD — 2026-07-10
 - **hud.js v2.9** — `renderHUD` mirrors deck count, suit tally, and coins into `#go-hud` during replay
 - **game-over.css v1.17** — `.go-hud` row after sweeps section

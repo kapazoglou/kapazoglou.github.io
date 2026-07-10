@@ -496,10 +496,36 @@ function isJokerIdentityKey(key) {
   return key != null && JOKER_IDENTITY_KEYS.has(key);
 }
 
-/** True when placing dieId would complete a joker already in Discovery (`discoveredKeys`). */
+/** Progressive suit-only joker uniqueness key (234→W, 235→Y, 245→X, 345→Z). */
+function progressiveSuitJokerUniquenessKey(cardId) {
+  if (!isProgressiveDicePlacement()) return null;
+  if (!isFourSquareCard(state.cards[cardId])) return null;
+  if (!isCardPlayableFull(cardId)) return null;
+  if (!isProgressiveSuitOnlyJoker(cardId)) return null;
+  const suit = cardSuit(cardId);
+  return suit ? `3:${suit}:` : null;
+}
+
+function suitOnlyJokerKeyAlreadyTaken(key, excludeCardId) {
+  if (!key) return false;
+  if (state.discoveredKeys.has(key)) return true;
+  for (const gid of state.grid) {
+    if (gid === null || gid === excludeCardId) continue;
+    if (progressiveSuitJokerUniquenessKey(gid) === key) return true;
+  }
+  return false;
+}
+
+/** True when placing dieId would complete a duplicate joker (grid or Discovery). */
 function wouldViolateJokerUniqueness(cardId, si, dieId) {
   return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
     if (!isCardPlayableFull(cardId)) return false;
+
+    if (isProgressiveDicePlacement() && isFourSquareCard(state.cards[cardId])) {
+      const key = progressiveSuitJokerUniquenessKey(cardId);
+      return key != null && suitOnlyJokerKeyAlreadyTaken(key, cardId);
+    }
+
     const key = snapshotCardIdentity(cardId);
     return isJokerIdentityKey(key) && state.discoveredKeys.has(key);
   });
