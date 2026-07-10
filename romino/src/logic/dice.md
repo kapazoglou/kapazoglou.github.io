@@ -18,7 +18,7 @@ As a player, I need dice drawn from a shuffled deck of unique combinations (or r
 - `shuffleArray(arr)` — Fisher-Yates in-place shuffle
 - `nextComboForDisplay()` — next preview combo sorted by display rules
 - `sortDiceValuesForDisplay(values)` — display-order sort (blanks left, 1s/6s right)
-- `sortProgressiveDiceValuesForDisplay(values)` — progressive placement tray/preview order (duplicates first; 1/6 anchor rules)
+- `sortProgressiveDiceValuesForDisplay(values)` — progressive placement tray/preview order (duplicates first; others lead toward 1/6 at end)
 - `sortDiceIdsForDisplay(ids)` — same but for die ID arrays
 - `orderDiceIdsByValues(ids, valueOrder)` — align tray order to a saved preview sequence
 - `prependReturnedDieToTrayOrder(dieId)` — prepends a returned die before dice already in the tray

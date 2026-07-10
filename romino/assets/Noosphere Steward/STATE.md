@@ -60,14 +60,7 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `index.html` — `#hud-tally` + `#hud-score` as separate HUD divs
-- `src/ui/display/hud.js` — swept-suit tally into `#hud-tally`; shared `suitTileHTML`
-- `src/ui/display/hud.css` — three-column HUD flex distribution; HUD bottom flush with grid overlay
-- `src/logic/dice.js` — progressive tray/preview dice display sort
-- `src/logic/settings.js` — `progressiveDicePlacement` toggle
-- `src/logic/cards.js` — progressive uniqueIndex only at 3 dice (1–2 may duplicate); joker uniqueness; progressive suit-only joker missing-pip suit
-- `src/logic/sweeps.js` — progressive suit-only joker sweep wildcards
-- `src/ui/display/settings-panel.js` — toggle wiring + reset
+- `src/logic/cards.js` — progressive LIFO die removal via `squareDieLocked` + `isDieSelectable`
 
 ## Next topological move
 

@@ -292,8 +292,8 @@ export function sortDiceValuesForDisplay(values) {
 /**
  * Progressive dice placement — tray/preview order:
  *  - Duplicates first (by frequency, then value).
- *  - No duplicates + only 1 or only 6: start with the extreme, rest by increasing distance from it.
- *  - No duplicates + both 1 and 6: non-extremes first, then 1/6 by distance from the anchor other.
+ *  - No duplicates + only 1 or only 6: others lead toward the extreme (asc→6, desc→1), extreme last.
+ *  - No duplicates + both 1 and 6: non-extremes first, then 6, then 1.
  */
 export function sortProgressiveDiceValuesForDisplay(values) {
   const blanks = values.filter(v => v === 0);
@@ -315,20 +315,18 @@ export function sortProgressiveDiceValuesForDisplay(values) {
 
   if (hasOne && hasSix) {
     const sortedOthers = [...others].sort((a, b) => a - b);
-    if (sortedOthers.length === 0) return [...blanks, 1, 6];
-    const anchor = sortedOthers[0];
-    const extremes = [1, 6].sort((a, b) => Math.abs(a - anchor) - Math.abs(b - anchor));
-    return [...blanks, ...sortedOthers, ...extremes];
+    if (sortedOthers.length === 0) return [...blanks, 6, 1];
+    return [...blanks, ...sortedOthers, 6, 1];
   }
 
   if (hasOne) {
-    const sorted = [...others].sort((a, b) => a - b);
-    return [...blanks, 1, ...sorted];
+    const sorted = [...others].sort((a, b) => b - a);
+    return [...blanks, ...sorted, 1];
   }
 
   if (hasSix) {
-    const sorted = [...others].sort((a, b) => b - a);
-    return [...blanks, 6, ...sorted];
+    const sorted = [...others].sort((a, b) => a - b);
+    return [...blanks, ...sorted, 6];
   }
 
   return [...blanks, ...rest.sort((a, b) => a - b)];

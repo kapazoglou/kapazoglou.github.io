@@ -483,29 +483,19 @@ function progressiveSuitJokerSuit(cardId) {
   return tricolorSuitFromCombo(comboKey);
 }
 
-/** Identity keys for joker cards — each may exist at most once per game (grid or discovered). */
+/** Identity keys for joker cards — each may exist at most once in Discovery per game. */
 const JOKER_IDENTITY_KEYS = new Set(['3:A:V', '3:Z:', '3:X:', '3:Y:', '3:W:']);
 
 function isJokerIdentityKey(key) {
   return key != null && JOKER_IDENTITY_KEYS.has(key);
 }
 
-/** True when placing dieId would complete a joker whose identity already exists on or off grid. */
+/** True when placing dieId would complete a joker already in Discovery (`discoveredKeys`). */
 function wouldViolateJokerUniqueness(cardId, si, dieId) {
   return withSimulatedGridSlots(buildSimulatedSlotsForMove(dieId, cardId, si), () => {
     if (!isCardPlayableFull(cardId)) return false;
     const key = snapshotCardIdentity(cardId);
-    if (!isJokerIdentityKey(key)) return false;
-    if (state.discoveredKeys.has(key)) return true;
-    for (const gid of state.grid) {
-      if (gid === null || gid === cardId) continue;
-      const gc = state.cards[gid];
-      if (!gc || gc.empty) continue;
-      const theirKey = gc.discoveryKey
-        ?? (isCardPlayableFull(gid) ? snapshotCardIdentity(gid) : null);
-      if (theirKey === key) return true;
-    }
-    return false;
+    return isJokerIdentityKey(key) && state.discoveredKeys.has(key);
   });
 }
 
@@ -1220,7 +1210,8 @@ export function countAvailableDiceSlots() {
  * True when a placed die on a square card cannot be selected or dragged.
  * Classic 3-slot: when all three slots are filled, slot 1 is locked until a corner is emptied;
  * when slot 1 and exactly one corner are filled, corners are locked until slot 1 is moved.
- * 4-square at 3 dice: only current-roll dice in slots edge-adjacent to the index tile may move.
+ * 4-square progressive: only the most recently placed die may leave the card (LIFO).
+ * 4-square non-progressive at 3 dice: only current-roll dice in slots edge-adjacent to the index tile may move.
  */
 export function squareDieLocked(cardId, si) {
   if (!settings.square) return false;
@@ -1228,7 +1219,18 @@ export function squareDieLocked(cardId, si) {
   if (!card) return false;
 
   if (isFourSquareCard(card)) {
-    if (squareFilledCount(cardId) !== 3) return false;
+    const count = squareFilledCount(cardId);
+    if (count === 0) return false;
+
+    if (isProgressiveDicePlacement()) {
+      const order = card.fourSquareFillOrder ?? [];
+      if (order.length === 0) return false;
+      const dieId = card.slots[si];
+      if (dieId == null || !state.currentRoll.includes(dieId)) return true;
+      return si !== order[order.length - 1];
+    }
+
+    if (count !== 3) return false;
     const indexSlot = squareIndexSlot(cardId);
     if (indexSlot === null) return true;
     const dieId = card.slots[si];
@@ -2203,6 +2205,8 @@ export function isDieSelectable(dieId) {
   const prevSlot = dieInCard(dieId);
 
   if (prevSlot) {
+    const [cidStr, siStr] = prevSlot.split('-');
+    if (squareDieLocked(parseInt(cidStr, 10), parseInt(siStr, 10))) return false;
     const removeMap = buildSimulatedSlotsForRemove(dieId);
     const removeOk = !withSimulatedGridSlots(removeMap, () =>
       settings.uniqueIndex ? gridHasDuplicateDiceKeys() : false);
@@ -2250,10 +2254,13 @@ function tryAddAlignedGridCoin(matches, gridA, gridB, slotA, slotB) {
   if (!slotHasDie(cardA, slotA) || !slotHasDie(cardB, slotB)) return;
   const dA = cardA.slots[slotA];
   const dB = cardB.slots[slotB];
-  const vA = normaliseDieValue(state.dice[dA]?.value);
-  const vB = normaliseDieValue(state.dice[dB]?.value);
+  const vA = state.dice[dA]?.value;
+  const vB = state.dice[dB]?.value;
+  if (vA == null || vB == null) return;
   const extreme = vA === 1 || vA === 6 || vB === 1 || vB === 6;
-  const qualifies = !extreme && (settings.gridCoinsSum7 ? vA !== vB : vA === vB);
+  const qualifies = settings.gridCoinsDiffColor
+    ? !extreme && PIP_COLOR[vA] !== PIP_COLOR[vB]
+    : vA === vB;
   if (qualifies) matches.add(gridCoinKey(gridA, gridB, slotA, slotB));
 }
 

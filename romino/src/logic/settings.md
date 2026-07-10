@@ -1,8 +1,8 @@
 ---
 module: settings
 layer: logic
-v: 2.19
-date: 2026-07-09
+v: 2.20
+date: 2026-07-10
 deps: []
 ---
 # Settings — User Story
@@ -24,7 +24,7 @@ As a player, I want to toggle game rules on/off (grid size, sweep types, forbidd
 - **Sweeps** — set, runFlush, runDiff, runAny, wildTarok, flush, tarokFlush, domino
 
 - `gridCoinsExcludeConverted` (default `true`) — when ON with SQUARE + Scoring, filled (converted) cards do not participate in grid coin matches.
-- `gridCoinsSum7` (default `false`) — when ON with SQUARE + Scoring, grid coins spawn when adjacent opposite dice differ; when OFF, dice must match (equal number). Pairs involving 1 or 6 never qualify.
+- `gridCoinsDiffColor` (default `true`) — when ON with SQUARE + Scoring, grid coins spawn when adjacent opposite dice have different tile colors (`PIP_COLOR`); pairs involving 1 or 6 never qualify. When OFF, dice must match (equal value), including 1 and 6 pairs.
 
 ## Notes
 - `vSuitDominoFill` (default `true`) — when `true`, converted 2-slot V cards show the domino layout (rank + blank, bottom dice visible); when `false`, they show a compact filled index (centered rank + literal **V**, gold color, no dice) matching the converted 3-slot non-V style. Same toggle applies to 1-slot V cards: domino (`*` + blank, center die visible) when on; compact (`*` + **V**, no die) when off.

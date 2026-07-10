@@ -4,6 +4,16 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Progressive LIFO die removal — 2026-07-10
+- **cards.js v1.92** — progressive ON: only the most recently placed die on a 4-square card may be selected or dragged (LIFO); earlier dice locked (no border); `isDieSelectable` respects `squareDieLocked`
+
+## Grid coins diff color — 1/6 ban when ON — 2026-07-10
+- **cards.js v1.90** — diff-color mode: pairs involving 1 or 6 never qualify; same-dice mode unchanged
+
+## Grid coins diff color / same dice — 2026-07-10
+- **settings.js v2.20** — `gridCoinsDiffColor` replaces `gridCoinsSum7`: ON = different tile colors; OFF = same die value (incl. 1 & 6)
+- **cards.js v1.89** — `refreshGridCoins` uses `PIP_COLOR` for diff-color qualify; same-dice mode drops 1/6 ban
+
 ## HUD bottom alignment — 2026-07-10
 - **hud.css v1.17** — remove `#hud` `top: 8px` so HUD bottom flush with `.grid-overlay` bottom
 
@@ -30,11 +40,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **hud.css v1.12** — `.hud-suit-tally` centred in `#hud` row; `.hud-suit-entry` layout
 - **index.html** — `#hud-suit-tally` as `#hud` middle child (absolute centre)
 
-## Progressive dice placement — display sort — 2026-07-10
-- **dice.js v1.9** — progressive tray/preview sort: duplicates first; 1/6 anchor away-from ordering; both extremes → middle die first
+## Progressive dice placement — display sort (1/6 last) — 2026-07-10
+- **dice.js v1.9** — progressive sort: 1/6 always last with others leading toward it; both extremes → middle first, then 6, then 1
 
 ## Progressive uniqueIndex + 1↔6 wrap — 2026-07-10
 - **cards.js v1.87** — progressive 1+6 rank snapshots as `3:suit:1,6` (not global `3:A:V`); uniqueIndex at 3 dice compares progressive identity key so wrap completions (e.g. 5→1→6) are not blocked by an existing V joker
+
+## Joker uniqueness — Discovery only — 2026-07-10
+- **cards.js v1.91** — joker duplicate block checks `discoveredKeys` only (not in-progress grid cards)
 
 ## Joker uniqueness — one per game — 2026-07-09
 - **cards.js v1.86** — block completing a joker when its identity key (`3:A:V` or `3:Z|X|Y|W:`) already exists on grid or in `discoveredKeys`
