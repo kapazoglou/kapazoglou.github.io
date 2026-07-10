@@ -4,6 +4,11 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Game-over HUD — 2026-07-10
+- **hud.js v2.9** — `renderHUD` mirrors deck count, suit tally, and coins into `#go-hud` during replay
+- **game-over.css v1.17** — `.go-hud` row after sweeps section
+- **index.html** — `#go-hud` markup in game-over sheet body
+
 ## Game-over body alignment — 2026-07-10
 - **game-over.css v1.16** — `.go-body`: `justify-content: flex-start`, `align-items: center`
 

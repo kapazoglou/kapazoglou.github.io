@@ -8,6 +8,7 @@ import { renderCardHTML } from './grid.js';
 let discoveryGridCount = -1;
 let coolOffRowSig = '';
 let sweepSuitSig = null;
+let sweepTallyHTMLCache = '';
 const COOL_OFF_POP_MS = 340;
 
 function coolOffRowHTML() {
@@ -165,33 +166,54 @@ export function renderDiscoveryGrid() {
   el.innerHTML = discoveryGridHTML();
 }
 
-export function renderHUD() {
-  const countEl = document.getElementById('card-count');
-  const scoreWrap = document.getElementById('hud-score');
-  const scoreEl = document.getElementById('score-display');
-  if (countEl) {
-    if (!settings.diceDecks && !settings.deckDice) {
-      countEl.textContent = '∞';
-    } else {
-      const total = settings.diceDecks ? getCardDeckSize() : getDeckSize();
-      countEl.textContent = Math.max(0, total - state.cardsPlaced);
-    }
-  }
+function deckCountText() {
+  if (!settings.diceDecks && !settings.deckDice) return '∞';
+  const total = settings.diceDecks ? getCardDeckSize() : getDeckSize();
+  return String(Math.max(0, total - state.cardsPlaced));
+}
+
+function scoreText() {
+  return `${state.score} 🪙`;
+}
+
+function updateHUDTargets(targets, { interactive = true, tallyHTML = null } = {}) {
+  const { countEl, tallyEl, scoreWrap, scoreEl } = targets;
+  if (countEl) countEl.textContent = deckCountText();
   if (scoreWrap) scoreWrap.hidden = !settings.scoring;
   if (scoreEl && settings.scoring) {
-    scoreEl.textContent = `${state.score} 🪙`;
-    const canFlip = settings.coinFlipDice && state.phase === 'place-dice' && state.score > 0;
+    scoreEl.textContent = scoreText();
+    const canFlip = interactive
+      && settings.coinFlipDice
+      && state.phase === 'place-dice'
+      && state.score > 0;
     scoreEl.classList.toggle('is-coin-draggable', canFlip);
   } else if (scoreEl) {
     scoreEl.classList.remove('is-coin-draggable');
   }
-  const tallyEl = document.getElementById('hud-tally');
-  if (tallyEl) {
-    const sig = state.scoredSets.map(s => s.cardIds.join(',')).join('|');
-    if (sig !== sweepSuitSig) {
-      sweepSuitSig = sig;
-      tallyEl.innerHTML = sweepSuitTallyHTML();
-    }
+  if (tallyEl && tallyHTML !== null) tallyEl.innerHTML = tallyHTML;
+}
+
+export function renderHUD() {
+  const sig = state.scoredSets.map(s => s.cardIds.join(',')).join('|');
+  if (sig !== sweepSuitSig) {
+    sweepSuitSig = sig;
+    sweepTallyHTMLCache = sweepSuitTallyHTML();
+  }
+  const tallyHTML = sweepTallyHTMLCache;
+
+  updateHUDTargets({
+    countEl: document.getElementById('card-count'),
+    tallyEl: document.getElementById('hud-tally'),
+    scoreWrap: document.getElementById('hud-score'),
+    scoreEl: document.getElementById('score-display'),
+  }, { tallyHTML });
+  if (state.phase === 'replay') {
+    updateHUDTargets({
+      countEl: document.getElementById('go-card-count'),
+      tallyEl: document.getElementById('go-hud-tally'),
+      scoreWrap: document.getElementById('go-hud-score'),
+      scoreEl: document.getElementById('go-score-display'),
+    }, { interactive: false, tallyHTML });
   }
   renderCoolOffRow();
 }

@@ -60,8 +60,9 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `src/logic/sweeps.js` — suit-only 3-color jokers wild in runs/sets; 1+6 aces not wild
-- `src/logic/cards.js` — `isSuitOnlyJokerTile`; progressive LIFO die removal
+- `index.html` — `#go-hud` in game-over sheet after sweeps
+- `src/ui/display/hud.js` — mirror HUD into game-over sheet during replay
+- `src/ui/display/game-over.css` — `.go-hud` layout
 
 ## Next topological move
 
