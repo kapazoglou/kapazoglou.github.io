@@ -14,7 +14,7 @@ export const SETTINGS_CONFIG = [
       { key: 'square',            label: 'SQUARE — square card layout',              default: true },
       { key: 'fourSquare',        label: '4-square — 4 slot card',                   default: true },
       { key: 'fillDiscovery',     label: 'Fill Discovery — grid layout',             default: true },
-      { key: 'fillDiscoveryEnd', label: 'Fill Discovery — game over',              default: true },
+      { key: 'fillDiscoveryEnd', label: 'Fill Discovery — game over',              default: false },
       { key: 'oneToOne',          label: 'One-to-one — combo fixes card identity',   default: true },
       { key: 'sweepThreeInRow',   label: '3-in-a-row sweeps (4×4)',                       default: true },
       { key: 'fastAnimations',    label: 'Fast animations (2×)',                         default: true  },
