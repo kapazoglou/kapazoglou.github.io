@@ -1,9 +1,9 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.5
-date: 2026-06-24
-deps: [state, settings, cards, sweeps, timing, phase, render]
+v: 1.8
+date: 2026-07-11
+deps: [state, settings, cards, sweeps, timing, phase, render, card-anim]
 ---
 # Sweep Anim — User Story
 
@@ -11,7 +11,7 @@ As a player, I want filled cards that form a scoring line to visually pop and th
 
 ## Exports
 - `startScoringExitAnimation(lineSlots, ruleId, cardIds)` — begins beat + sweep sequence
-- `commitScoringExit()` — called when sweep animation finishes; clears grid slots, drains queue
+- `commitScoringExit()` — called when sweep animation finishes; drains all queued/cascade sweeps, then animates score → swept points once
 - `resolveOneScoringSet()` — calls `collectScoringMatches()` in sweeps.js; starts first sweep, queues rest
 - `resolveAllScoringSets()` — entry point; delegates to `resolveOneScoringSet`
 

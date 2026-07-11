@@ -6,6 +6,8 @@ export const SETTINGS_CONFIG = [
     label: 'Square v1',
     items: [
       { key: 'deckDice',         label: 'Dice decks/Random',                         default: false  },
+      { key: 'chooseDice',      label: 'Choose Dice',                                     default: true  },
+      { key: 'allowFirstExtreme',  label: 'Allow 1/6 on empty tile',                default: false  },
       { key: 'coinFlipDice',   label: 'Flip dice for coin',                          default: false },
       { key: 'extendedGrid',      label: 'Extended grid (4 × 4)',                    default: false },
       { key: 'extraStartCards',   label: 'Extra start cards',                        default: false },

@@ -199,6 +199,24 @@ export function spawnDice(count, valueOrder = null) {
   return ids;
 }
 
+/** Choose Dice — spawn 6 tray dice (two deck combos when deckDice is on). */
+export function spawnChooseDiceSix() {
+  if (settings.deckDice) {
+    const c1 = drawDiceCombination();
+    const c2 = drawDiceCombination();
+    return spawnDice(6, [...c1, ...c2]);
+  }
+  return spawnDice(6);
+}
+
+/** Choose Dice — spawn 3 new dice after tray card placement. */
+export function spawnChooseDiceThree() {
+  if (settings.deckDice) {
+    return spawnDice(3, drawDiceCombination());
+  }
+  return spawnDice(3);
+}
+
 /* ── Preview combo helpers ───────────────────────────────────────────── */
 
 function isProgressiveDicePlacement() {
@@ -376,8 +394,14 @@ export function prependReturnedDieToTrayOrder(dieId) {
 }
 
 export function selectLeftmostTrayDie() {
-  const first = state.trayOrder.find(id => dieInCard(id) === null && isDieSelectable(id));
-  state.selectedDieId = first ?? null;
+  const trayDice = state.trayOrder.filter(id => dieInCard(id) === null && isDieSelectable(id));
+  if (trayDice.length === 0) {
+    state.selectedDieId = null;
+    return;
+  }
+  state.selectedDieId = settings.chooseDice && !settings.diceDecks
+    ? trayDice[trayDice.length - 1]
+    : trayDice[0];
 }
 
 /** Opposite face for standard pips (1↔6, 2↔5, 3↔4). Returns null for blank (0). */
@@ -392,5 +416,17 @@ export function flipDieValue(dieId) {
   const next = oppositeDieValue(die.value);
   if (next === null) return false;
   die.value = next;
+  return true;
+}
+
+const REROLL_NON_EXTREME_POOL = [2, 3, 4, 5];
+
+/** Reroll a tray extreme (1 or 6) to a random 2–5. Returns false when not extreme. */
+export function rerollExtremeDieValue(dieId) {
+  const die = state.dice[dieId];
+  if (!die || (die.value !== 1 && die.value !== 6)) return false;
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  die.value = REROLL_NON_EXTREME_POOL[buf[0] % REROLL_NON_EXTREME_POOL.length];
   return true;
 }

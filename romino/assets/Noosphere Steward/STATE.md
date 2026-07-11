@@ -60,9 +60,9 @@ lastVerified: 2026-06-24
 
 ## Modified this session
 
-- `src/logic/settings.js` — `fillDiscoveryEnd` toggle; `fillDiscovery` label → grid layout only
-- `src/logic/phase.js` — `maybeEndFillDiscovery` gated by `fillDiscoveryEnd`
-- `src/ui/display/settings-panel.js` — `fillDiscoveryEnd` disabled without 4-square; render-only
+- `src/logic/dice.js` — `rerollExtremeDieValue` for coin reroll on tray 1/6
+- `src/ui/display/hud.js` — coin draggable when `allowFirstExtreme` OFF
+- `src/ui/display/drag-drop.js` — coin drop reroll on tray 1/6 (precedence over flip)
 
 ## Next topological move
 

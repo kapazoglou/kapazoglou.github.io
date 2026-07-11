@@ -1,8 +1,8 @@
 ---
 module: cards
 layer: logic
-v: 1.95
-date: 2026-07-10
+v: 1.97
+date: 2026-07-11
 deps: [state, settings, cool-off]
 ---
 # Cards — User Story
@@ -22,7 +22,7 @@ As a player, I need cards to be spawned with empty die slots and to display thei
 - `FILL_DISCOVERY_RANK_HEADERS` — rank header labels for fill-discovery grid
 - `dieInCard(dieId)` — returns `"cardId-slotIdx"` if die is placed in any card
 - `countAvailableDiceSlots()` — grid total of slots placeable by adjacency/capacity (max 3 dice per card; ignores forbidden value rules)
-- `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); always blocks completing a card whose dice are only 1s and/or 6s (111, 116, 661, 666, …; 1-slot suit cards exempt); **blocks completing a joker whose identity key is already in Discovery** (`discoveredKeys`: `3:A:V`, `3:Z:`, `3:X:`, `3:Y:`, `3:W:`); **progressive suit-only jokers** (`3:Z:`, `3:X:`, `3:Y:`, `3:W:`) also blocked when the same key exists on the grid; first die on an empty card may use any active slot; 4-square requires orthogonal edge adjacency from the 2nd die onward (no diagonals); when `placementRestrictions` ON: classic 3-slot fill order, slot 1↔corner swap guards, CW/CCW third slot, monotonic values, middle 1/6 ban, blank-die rules from 2nd die onward; when `progressiveDicePlacement` ON: fill-order value gates + progressive suit/rank resolve; **`partialUniqueIndex` fully inert**; `uniqueIndex` dedup at 3 dice only (same single die or pair allowed on two tiles at 1–2 dice); when OFF: all-extremes block, 4-square edge adjacency from 2nd die, plus independent toggles (`uniqueIndex`, `coolOff`, duplicate checks)
+- `isSlotForbidden(cardId, si, dieId)` — pure constraint check (no DOM); always blocks completing a card whose dice are only 1s and/or 6s (111, 116, 661, 666, …; 1-slot suit cards exempt); **blocks completing a joker whose identity key is already in Discovery** (`discoveredKeys`: `3:A:V`, `3:Z:`, `3:X:`, `3:Y:`, `3:W:`); **progressive suit-only jokers** (`3:Z:`, `3:X:`, `3:Y:`, `3:W:`) also blocked when the same key exists on the grid; first die on an empty card may use any active slot (unless `allowFirstExtreme` is OFF — then 1/6 forbidden); 4-square requires orthogonal edge adjacency from the 2nd die onward (no diagonals); when `placementRestrictions` ON: classic 3-slot fill order, slot 1↔corner swap guards, CW/CCW third slot, monotonic values, middle 1/6 ban, blank-die rules from 2nd die onward; when `progressiveDicePlacement` ON: fill-order value gates + progressive suit/rank resolve; **`partialUniqueIndex` fully inert**; `uniqueIndex` dedup at 3 dice only (same single die or pair allowed on two tiles at 1–2 dice); when OFF: all-extremes block, 4-square edge adjacency from 2nd die, plus independent toggles (`uniqueIndex`, `coolOff`, duplicate checks)
 - `isProgressiveSuitOnlyJoker(cardId)` — true when `progressiveSuitJoker` ON and off-color non-1/6 third completes as suit-only V joker (rank `''`, suit = missing pip from {2,3,4,5} among all three dice — same as tricolor)
 - `isSuitOnlyJokerTile(cardId)` — 3-color-combo suit-only joker (progressive suit-only or tricolor); **not** 1+6 aces (`isJokerCard`)
 - `isCardPlayableFull(cardId)` — true when all active slots hold dice (3 of 4 for `fourSquare`, else every slot)

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>römino</title>
-  <script type="module" crossorigin src="/assets/index-CUovf-bh.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-D49QAAq4.css">
+  <script type="module" crossorigin src="/assets/index-BUKpOE8Z.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-OIMc-RDw.css">
 </head>
 <body>
 <div id="app">
@@ -17,17 +17,20 @@
       <div class="discard-stacks" id="discard-stacks"></div>
     </div>
 
-    <!-- Overlay region: tint strip + HUD + discovery grid -->
+    <!-- Overlay region: tint strip + discovery grid + HUD -->
     <div class="grid-overlay">
-      <div id="hud">
-        <div class="hud-left">
-          <span id="card-count">52</span>
-          <div id="cool-off-row" class="cool-off-row" hidden></div>
-        </div>
-        <span id="score-display">0🪙</span>
-      </div>
       <div id="discovery-grid-wrap" class="discovery-grid-wrap" hidden>
         <div id="discovery-grid" class="go-cards-grid go-cards-grid--four-square" aria-hidden="true"></div>
+      </div>
+      <div id="hud">
+        <div class="hud-left">
+          <span id="swept-points">0</span>
+          <div id="cool-off-row" class="cool-off-row" hidden></div>
+        </div>
+        <div id="hud-tally" class="hud-tally" aria-hidden="true"></div>
+        <div id="hud-score" class="hud-score">
+          <div id="score-display">0🪙</div>
+        </div>
       </div>
     </div>
 
@@ -43,7 +46,7 @@
 <!-- Drag ghost -->
 <div id="drag-ghost"></div>
 
-<!-- Settings panel (secret: tap card-count 4×) -->
+<!-- Settings panel (secret: tap swept-points 4×) -->
 <div id="settings-panel" aria-hidden="true">
   <div id="settings-content">
     <button id="settings-back" aria-label="Back">←</button>
@@ -85,6 +88,17 @@
         <!-- sweeps breakdown -->
         <div class="go-section-label">sweeps</div>
         <div class="go-sweeps" id="go-sweeps"></div>
+
+        <!-- HUD summary (deck left, suit tally centre, coins right) -->
+        <div id="go-hud" class="go-hud">
+          <div class="hud-left">
+            <span id="go-swept-points"></span>
+          </div>
+          <div id="go-hud-tally" class="hud-tally" aria-hidden="true"></div>
+          <div id="go-hud-score" class="hud-score">
+            <div id="go-score-display"></div>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -26,7 +26,7 @@
   overflow: hidden;
 }
 
-/* ─── HUD (card countdown left, tally centre, score right) ─── */
+/* ─── HUD (swept points left, tally centre, score right) ─── */
 .discovery-grid-wrap {
   width: 100%;
   display: flex;
@@ -246,7 +246,7 @@ html.square-cards .cool-off-row .go-card-wrap .converter-card--four-square {
   z-index: 2;
 }
 
-#card-count {
+#swept-points {
   pointer-events: auto;
   cursor: default;
   user-select: none;

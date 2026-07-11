@@ -5,7 +5,7 @@ import { updateScorePreview } from '../../logic/scoring.js';
 import { selectLeftmostTrayDie } from '../../logic/dice.js';
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 // Circular: phase.js imports autoplayCardStep from here.
-import { convertFilledCards, checkPhaseTransition, checkStuck, finalizeFromStuck } from '../../logic/phase.js';
+import { convertFilledCards, checkPhaseTransition, checkStuck, finalizeFromStuck, finalizeChooseDiceLastChance, finishChooseDiceCardPlacement, countChooseDicePlaced, maybeRevertChooseDiceAwaitCard, isChooseDiceFullGridMode } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
@@ -53,7 +53,9 @@ function flyAutoplay(fromEl, toEl, type, onLand) {
 }
 
 export function autoplayCardStep(onDone) {
-  if (state.phase !== 'place-card') { onDone?.(); return; }
+  const chooseDiceTray = settings.chooseDice && !settings.diceDecks
+    && state.phase === 'place-dice' && state.chooseDiceAwaitingCard;
+  if (state.phase !== 'place-card' && !chooseDiceTray) { onDone?.(); return; }
   if (state.actionBarCards.length === 0) { onDone?.(); return; }
   const emptySlots = state.grid.map((v, i) => v === null ? i : -1).filter(i => i >= 0);
   if (emptySlots.length === 0) { onDone?.(); return; }
@@ -75,7 +77,8 @@ export function autoplayCardStep(onDone) {
       convertFilledCards(() => {
         resolveAllScoringSets();
         render();
-        checkPhaseTransition();
+        if (chooseDiceTray) finishChooseDiceCardPlacement();
+        else checkPhaseTransition();
         setTimeout(() => onDone?.(), spd(380));
       });
     }, spd(220));
@@ -89,8 +92,23 @@ export function autoplayCardStep(onDone) {
 
 export function autoplayDiceStep(onDone) {
   if (state.phase !== 'place-dice') { onDone?.(); return; }
-  const trayDice = state.trayOrder.filter(id => dieInCard(id) === null);
+  if (state.chooseDiceAwaitingLastChance) {
+    finalizeChooseDiceLastChance();
+    setTimeout(() => onDone?.(), spd(800));
+    return;
+  }
+  if (state.chooseDiceAwaitingCard) {
+    autoplayCardStep(onDone);
+    return;
+  }
+  const chooseDice = settings.chooseDice && !settings.diceDecks;
+  const trayDice = state.trayOrder.filter(id => dieInCard(id) === null && isDieSelectable(id));
   if (trayDice.length === 0) { onDone?.(); return; }
+  const capAtThree = chooseDice && !isChooseDiceFullGridMode();
+  const toPlace = capAtThree
+    ? trayDice.slice(0, Math.max(0, 3 - countChooseDicePlaced()))
+    : trayDice;
+  if (toPlace.length === 0) { onDone?.(); return; }
 
   function placeNext(remaining) {
     if (remaining.length === 0) {
@@ -131,7 +149,7 @@ export function autoplayDiceStep(onDone) {
     }
   }
 
-  placeNext(trayDice);
+  placeNext(toPlace);
 }
 
 export function autoplayStep(onDone) {
@@ -183,6 +201,11 @@ export function initHandlers() {
 
     if (e.target.closest('[data-game-over-card]')) {
       finalizeFromStuck();
+      return;
+    }
+
+    if (e.target.closest('[data-last-chance-card]')) {
+      finalizeChooseDiceLastChance();
       return;
     }
 
@@ -264,9 +287,14 @@ export function initHandlers() {
           state.selectedDieId = null;
           updateScorePreview(cardId);
           selectLeftmostTrayDie();
+          if (fromTray) {
+            checkPhaseTransition();
+            checkStuck();
+          } else if (state.phase === 'place-dice') {
+            maybeRevertChooseDiceAwaitCard();
+            checkStuck();
+          }
           render();
-          if (fromTray) { checkPhaseTransition(); checkStuck(); }
-          else if (state.phase === 'place-dice') checkStuck();
         }
         return;
       }
@@ -339,11 +367,14 @@ export function initHandlers() {
             state.selectedCardId = null;
             collectGridCoins();
             render();
+            const chooseDiceTrayCard = settings.chooseDice && !settings.diceDecks
+              && state.phase === 'place-dice' && state.chooseDiceAwaitingCard;
             setTimeout(() => {
               convertFilledCards(() => {
                 resolveAllScoringSets();
                 render();
-                checkPhaseTransition();
+                if (chooseDiceTrayCard) finishChooseDiceCardPlacement();
+                else checkPhaseTransition();
               });
             }, spd(220));
           }

@@ -1,9 +1,9 @@
 ---
 module: card-anim
 layer: ui/transitions
-v: 1.6
-date: 2026-06-25
-deps: [state, settings, phase, render, hud]
+v: 1.8
+date: 2026-07-11
+deps: [state, settings, phase, render, hud, timing]
 ---
 # Card Anim — User Story
 
@@ -13,6 +13,7 @@ As a player, I want to see a coin fly from a filled card's score badge to the sc
 - `launchPip(fromRect, toRect, onArrival, onDone)` — coin pop → travel → fade animation
 - `launchPenaltyPip(toRect)` — reverse coin (score → forbidden slot, for paid-slot penalty)
 - `firePipsSequential(fromRect, toRect, pts, idx, onAllDone)` — chain multiple coin launches
+- `bankScoreToSweptPoints(onDone)` — slower overlapping pips from score counter to swept points on sweep bank
 - `processCardFills(queue, index, onDone)` — sequentially animates each card in the fill queue
 
 ## Animation sequence (per card)

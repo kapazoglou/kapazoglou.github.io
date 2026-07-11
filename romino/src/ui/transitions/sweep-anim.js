@@ -2,6 +2,7 @@ import { state, clearScoreExitTimers } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { collectScoringMatches, lineExitKey, SCORING_RULE_LABELS, peekAnyScoringMatch } from '../../logic/sweeps.js';
 import { addCoolOffSweepCards } from '../../logic/cool-off.js';
+import { bankScoreToSweptPoints } from './card-anim.js';
 import { BEAT_MS, SWEEP_MS } from './timing.js';
 // Circular: phase.js imports resolveAllScoringSets from here.
 import { checkPhaseTransition, tryOfferCapacityCard } from '../../logic/phase.js';
@@ -59,23 +60,32 @@ export function commitScoringExit() {
     state.grid[slotIdx] = null;
   }
 
-  if (state.pendingLineSweeps.length > 0) {
-    const next = state.pendingLineSweeps.shift();
-    startScoringExitAnimation(next.lineSlots, next.ruleId, next.cardIds);
-    return;
-  }
+  render();
 
-  state.sweepOverlay = {};
-
-  resolveAllScoringSets();
-
-  if (!state.scoringExit && !peekAnyScoringMatch()) {
-    if (!tryOfferCapacityCard()) {
-      checkPhaseTransition();
+  const finishSweepChain = () => {
+    if (state.pendingLineSweeps.length > 0) {
+      const next = state.pendingLineSweeps.shift();
+      startScoringExitAnimation(next.lineSlots, next.ruleId, next.cardIds);
       return;
     }
-  }
-  render();
+
+    state.sweepOverlay = {};
+
+    resolveAllScoringSets();
+    if (state.scoringExit) return;
+
+    bankScoreToSweptPoints(() => {
+      if (!peekAnyScoringMatch()) {
+        if (!tryOfferCapacityCard()) {
+          checkPhaseTransition();
+          return;
+        }
+      }
+      render();
+    });
+  };
+
+  finishSweepChain();
 }
 
 export function resolveOneScoringSet() {

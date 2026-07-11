@@ -4,6 +4,87 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Allow 1/6 on empty tile — coin reroll — 2026-07-11
+- **dice.js v1.12** — `rerollExtremeDieValue`: tray 1/6 → random 2–5
+- **hud.js v3.1** — coin draggable when `allowFirstExtreme` OFF (even without `coinFlipDice`)
+- **drag-drop.js v2.5** — coin drop on tray 1/6 rerolls (takes precedence over flip)
+
+## Choose Dice — tray card font — 2026-07-11
+- **action-bar.css v1.12** — Last Chance + Game Over labels use Averia Libre
+
+## Choose Dice — game over card styling — 2026-07-11
+- **action-bar.js v1.16** — game-over card: square shell, two-line yellow "GAME / OVER" on black; tray offer whenever stuck (not only last die)
+- **action-bar.css v1.11** — `.square-wrapper--game-over` black fill; yellow Avenir label
+
+## Swept Points bank animation — 2026-07-11
+- **sweep-anim.js v1.8** — bank score → swept points only after all sweeps in chain finish
+- **timing.js v1.1** — `BANK_PIP_*` constants (2× slower); `BANK_PIP_GAP_MS` mid-travel stagger
+- **card-anim.js v1.8** — `bankScoreToSweptPoints` + `launchBankPip`; overlapping slower bank launches
+- **card-anim.js v1.7** — `bankScoreToSweptPoints`: staggered coin pips score → swept points
+- **sweep-anim.js v1.7** — defer post-sweep continuation until bank animation completes
+
+## Swept Points HUD — 2026-07-11
+- **state.js v1.11** — `sweptPoints` field; banks running score on each sweep
+- **phase.js v1.29** — reset `sweptPoints` on new game
+- **sweep-anim.js v1.6** — transfer `score` → `sweptPoints` in `commitScoringExit`
+- **hud.js v3.0** — left HUD shows swept points (replaces deck card-count)
+- **hud.css v2.10** — `#swept-points` selector (settings secret tap target)
+- **settings-panel.js v1.16** — 4-tap listener on `#swept-points`
+- **index.html** — `#swept-points` / `#go-swept-points` IDs
+
+## Choose Dice — Last Chance label — 2026-07-11
+- **action-bar.js v1.15** — Last Chance label: two-line uppercase "LAST" / "CHANCE"
+- **action-bar.css v1.10** — black Avenir label on yellow square wrapper
+
+## Choose Dice — Last Chance no-sweep game over — 2026-07-11
+- **phase.js v1.30** — Last Chance with no sweeps after convert → `showReplay('no sweeps remaining')` (no new dice)
+
+## Choose Dice — Last Chance square yellow — 2026-07-11
+- **action-bar.js v1.14** — Last Chance uses square card shell + yellow `square-wrapper`
+- **action-bar.css v1.9** — `.square-wrapper--last-chance` fill `var(--accent)`
+
+## Choose Dice — Last Chance card — 2026-07-11
+- **state.js v1.11** — `chooseDiceAwaitingLastChance`, `chooseDicePostLastChance`, `finalizingLastChance`
+- **phase.js v1.29** — Last Chance offer after 6 placed; convert/sweep on click; capacity cards until 6 adjacency slots
+- **action-bar.js v1.13** — `lastChanceCardHTML()` in tray offer slot
+- **action-bar.css v1.8** — last-chance card styling
+- **handlers.js v2.4** — tap Last Chance → `finalizeChooseDiceLastChance()`
+
+## Choose Dice — last die stuck tray game over — 2026-07-11
+- **action-bar.js v1.12** — game-over card in tray offer slot when 1 of 6 cannot be placed
+- **action-bar.css v1.7** — tray game-over card clickable styling
+
+## Choose Dice — full grid no reserve — 2026-07-11
+- **phase.js v1.28** — full grid: all 6 dice placeable, no await-card reserve
+- **handlers.js v2.3** — autoplay places all tray dice on full-grid choose-dice rounds
+
+## Choose Dice — autoselect right — 2026-07-11
+- **dice.js v1.11** — `selectLeftmostTrayDie` picks rightmost selectable tray die when chooseDice is on
+
+## Choose Dice — no tray sort — 2026-07-11
+- **phase.js v1.27** — chooseDice preserves spawn/roll order in tray (sortDice inert)
+
+## Choose Dice tray layout — 2026-07-11
+- **action-bar.js v1.11** — choose-dice: dice left, offered card right, ghost below; dice/card sub-rows
+- **action-bar.css v1.6** — `.choose-dice-tray-dice` / `.choose-dice-tray-offer`; top-aligned tray
+- **phase.js v1.26** — refill appends new dice after reserved (tray order)
+
+## Choose Dice toggle — 2026-07-11
+- **settings.js v2.23** — `chooseDice` toggle (Dice Deck group); 6-die tray pick-3 loop, no upcoming preview
+- **settings-panel.js v1.15** — `chooseDice` reset on toggle; mutual exclusion with `diceDecks`
+- **state.js v1.10** — `chooseDiceAwaitingCard` flag
+- **phase.js v1.25** — choose-dice spawn/refill/revert helpers; stay in `place-dice` through tray-card cycle
+- **dice.js v1.10** — `spawnChooseDiceSix()` / `spawnChooseDiceThree()`
+- **action-bar.js v1.10** — 6-die tray, reserved styling, in-tray card; hide preview/ghost when chooseDice
+- **action-bar.css v1.5** — `.is-reserved`, `.dice-tray--choose-dice`
+- **cards.js v1.97** — reserved tray dice not selectable during choose-dice await
+- **handlers.js v2.2** — choose-dice card placement refill; autoplay pick-3 cap; revert on die return
+- **drag-drop.js v2.4** — choose-dice card placement + die-return revert
+
+## Allow 1/6 on empty tile toggle — 2026-07-10
+- **settings.js v2.22** — `allowFirstExtreme` toggle (default ON); OFF forbids placing 1 or 6 as first die on an empty card
+- **cards.js v1.96** — `isSlotForbidden` gates first-die 1/6 when `allowFirstExtreme` is off
+
 ## Fill Discovery game-over toggle — 2026-07-10
 - **settings.js v2.21** — split `fillDiscovery` (grid layout) from `fillDiscoveryEnd` (win condition); default ON
 - **phase.js v1.24** — `maybeEndFillDiscovery` gated by `fillDiscoveryEnd`

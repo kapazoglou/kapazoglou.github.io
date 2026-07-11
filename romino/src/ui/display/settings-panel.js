@@ -69,6 +69,10 @@ export function renderSettingsPanel() {
         input.disabled = isProgressiveDicePlacementActive();
         row.classList.toggle('settings-row--disabled', input.disabled);
       }
+      if (item.key === 'chooseDice') {
+        input.disabled = settings.diceDecks;
+        row.classList.toggle('settings-row--disabled', input.disabled);
+      }
       input.addEventListener('change', () => {
         settings[item.key] = input.checked;
         // Dependency: paidSlots requires forbiddenSlots.
@@ -119,11 +123,23 @@ export function renderSettingsPanel() {
         }
         if (item.key === 'diceDecks' && input.checked) {
           settings.square = false;
+          settings.chooseDice = false;
           document.documentElement.classList.remove('square-cards');
           const squareInput = document.querySelector('input[data-key="square"]');
           if (squareInput) squareInput.checked = false;
+          const chooseDiceInput = document.querySelector('input[data-key="chooseDice"]');
+          if (chooseDiceInput) {
+            chooseDiceInput.checked = false;
+            chooseDiceInput.disabled = true;
+            chooseDiceInput.closest('.settings-row')?.classList.add('settings-row--disabled');
+          }
         }
-        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'square', 'fourSquare', 'fillDiscovery', 'oneToOne', 'forbidThirdExtreme', 'progressiveDicePlacement', 'progressiveSuitJoker'].includes(item.key)) {
+        if (item.key === 'chooseDice' && input.checked) {
+          settings.diceDecks = false;
+          const diceDecksInput = document.querySelector('input[data-key="diceDecks"]');
+          if (diceDecksInput) diceDecksInput.checked = false;
+        }
+        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'chooseDice', 'square', 'fourSquare', 'fillDiscovery', 'oneToOne', 'forbidThirdExtreme', 'progressiveDicePlacement', 'progressiveSuitJoker'].includes(item.key)) {
           document.getElementById('settings-panel').classList.remove('is-open');
           resetGame();
         } else {
@@ -143,7 +159,7 @@ export function initSettingsPanel() {
   let _settingsTapCount = 0;
   let _settingsTapTimer = null;
 
-  document.getElementById('card-count').addEventListener('click', () => {
+  document.getElementById('swept-points').addEventListener('click', () => {
     _settingsTapCount++;
     clearTimeout(_settingsTapTimer);
     _settingsTapTimer = setTimeout(() => { _settingsTapCount = 0; }, 2000);

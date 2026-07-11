@@ -24,3 +24,14 @@ export const PIP_GAP_MS = 830;
 
 /** Total duration from last pip launch until done callback fires. */
 export const PIP_TAIL_MS = 990;
+
+/** Bank pip (score → swept points): 2× earn-pip duration (half speed). */
+export const BANK_PIP_POP_UP_MS = 220;
+export const BANK_PIP_POP_DOWN_MS = 260;
+export const BANK_PIP_TRAVEL_MS = 1100;
+export const BANK_PIP_FADE_DONE_MS = 1500;
+export const BANK_PIP_FADE_MS = 1200;
+export const BANK_PIP_FADE_DELAY_MS = 300;
+
+/** Launch next bank pip midway through the previous pip's travel phase. */
+export const BANK_PIP_GAP_MS = BANK_PIP_POP_UP_MS + BANK_PIP_POP_DOWN_MS + BANK_PIP_TRAVEL_MS / 2;

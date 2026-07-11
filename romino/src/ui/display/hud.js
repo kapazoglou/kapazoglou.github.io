@@ -1,7 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { isCoolOffActive } from '../../logic/cool-off.js';
-import { getDeckSize, getCardDeckSize } from '../../logic/dice.js';
 import { DISCARD_RANKS, SUIT_COLOR, DISPLAY_SUITS, ndTranscribe, buildGameOverFourSquareGrid, buildFillDiscoveryGrid, FILL_DISCOVERY_RANK_HEADERS, cardSuit } from '../../logic/cards.js';
 import { renderCardHTML } from './grid.js';
 
@@ -166,10 +165,8 @@ export function renderDiscoveryGrid() {
   el.innerHTML = discoveryGridHTML();
 }
 
-function deckCountText() {
-  if (!settings.diceDecks && !settings.deckDice) return '∞';
-  const total = settings.diceDecks ? getCardDeckSize() : getDeckSize();
-  return String(Math.max(0, total - state.cardsPlaced));
+function sweptPointsText() {
+  return String(state.sweptPoints);
 }
 
 function scoreText() {
@@ -178,15 +175,16 @@ function scoreText() {
 
 function updateHUDTargets(targets, { interactive = true, tallyHTML = null } = {}) {
   const { countEl, tallyEl, scoreWrap, scoreEl } = targets;
-  if (countEl) countEl.textContent = deckCountText();
+  if (countEl) countEl.textContent = sweptPointsText();
   if (scoreWrap) scoreWrap.hidden = !settings.scoring;
   if (scoreEl && settings.scoring) {
     scoreEl.textContent = scoreText();
-    const canFlip = interactive
-      && settings.coinFlipDice
+    const canCoinDrag = interactive
+      && settings.scoring
       && state.phase === 'place-dice'
-      && state.score > 0;
-    scoreEl.classList.toggle('is-coin-draggable', canFlip);
+      && state.score > 0
+      && (settings.coinFlipDice || !settings.allowFirstExtreme);
+    scoreEl.classList.toggle('is-coin-draggable', canCoinDrag);
   } else if (scoreEl) {
     scoreEl.classList.remove('is-coin-draggable');
   }
@@ -202,14 +200,14 @@ export function renderHUD() {
   const tallyHTML = sweepTallyHTMLCache;
 
   updateHUDTargets({
-    countEl: document.getElementById('card-count'),
+    countEl: document.getElementById('swept-points'),
     tallyEl: document.getElementById('hud-tally'),
     scoreWrap: document.getElementById('hud-score'),
     scoreEl: document.getElementById('score-display'),
   }, { tallyHTML });
   if (state.phase === 'replay') {
     updateHUDTargets({
-      countEl: document.getElementById('go-card-count'),
+      countEl: document.getElementById('go-swept-points'),
       tallyEl: document.getElementById('go-hud-tally'),
       scoreWrap: document.getElementById('go-hud-score'),
       scoreEl: document.getElementById('go-score-display'),

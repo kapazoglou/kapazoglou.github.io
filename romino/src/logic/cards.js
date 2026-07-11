@@ -1880,6 +1880,11 @@ export function isSlotForbidden(cardId, si, dieId) {
 
   const isFirstDie = cardPlacedDiceCount(cardId) === 0;
 
+  if (isFirstDie && !settings.allowFirstExtreme) {
+    const dieVal = state.dice[dieId]?.value;
+    if (dieVal === 1 || dieVal === 6) return true;
+  }
+
   if (isProgressiveDicePlacement() && isFourSquareCard(card)) {
     if (wouldFourSquareInvalidRank(cardId, si, dieId)) return true;
     if (!isFirstDie && !squareSlotAllowed(cardId, si, dieId)) return true;
@@ -2236,6 +2241,11 @@ export function wouldCreateDuplicate(cardId, si, dieId) {
 /** True when dieId can be selected: at least one legal move (incl. tray return) avoids duplicates. */
 export function isDieSelectable(dieId) {
   if (!state.currentRoll.includes(dieId)) return false;
+  if (settings.chooseDice && !settings.diceDecks
+      && state.chooseDiceAwaitingCard
+      && dieInCard(dieId) === null) {
+    return false;
+  }
 
   const prevSlot = dieInCard(dieId);
 

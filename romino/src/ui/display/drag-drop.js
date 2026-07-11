@@ -4,8 +4,8 @@ import { isSlotForbidden, dieSVG, diePipRotationDeg, updateSquareLayout, dieInCa
 import { cardIsGridRepositionable } from '../../logic/sweeps.js';
 import { renderCardHTML } from './grid.js';
 import { updateScorePreview } from '../../logic/scoring.js';
-import { selectLeftmostTrayDie, prependReturnedDieToTrayOrder, flipDieValue, oppositeDieValue } from '../../logic/dice.js';
-import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCardPhase } from '../../logic/phase.js';
+import { selectLeftmostTrayDie, prependReturnedDieToTrayOrder, flipDieValue, oppositeDieValue, rerollExtremeDieValue } from '../../logic/dice.js';
+import { convertFilledCards, checkPhaseTransition, checkStuck, revertPostDiceCardPhase, finishChooseDiceCardPlacement, maybeRevertChooseDiceAwaitCard } from '../../logic/phase.js';
 import { resolveAllScoringSets } from '../transitions/sweep-anim.js';
 import { render } from './render.js';
 import { renderHUD } from './hud.js';
@@ -22,6 +22,18 @@ function isTrayDieFlippable(dieId) {
   if (dieInCard(dieId) !== null) return false;
   const die = state.dice[dieId];
   return die != null && oppositeDieValue(die.value) !== null;
+}
+
+function isTrayDieRerollable(dieId) {
+  if (settings.allowFirstExtreme || dieInCard(dieId) !== null) return false;
+  const die = state.dice[dieId];
+  return die != null && (die.value === 1 || die.value === 6);
+}
+
+function coinDropActionForTrayDie(dieId) {
+  if (isTrayDieRerollable(dieId)) return 'reroll';
+  if (settings.coinFlipDice && isTrayDieFlippable(dieId)) return 'flip';
+  return null;
 }
 
 function canReturnDieToTray(drag) {
@@ -202,6 +214,8 @@ function returnDieToTray(drag, shouldRevertPhase) {
     revertPostDiceCardPhase();
   }
 
+  maybeRevertChooseDiceAwaitCard();
+
   render();
   checkStuck();
 }
@@ -337,9 +351,11 @@ export function initDragDrop() {
       const trayDie = under?.closest('.die-wrapper');
       const dieId = trayDie && !trayDie.dataset.slot
         ? parseInt(trayDie.dataset.dieId, 10) : null;
-      if (dieId !== null && !Number.isNaN(dieId) && isTrayDieFlippable(dieId)) {
+      const coinAction = dieId !== null && !Number.isNaN(dieId)
+        ? coinDropActionForTrayDie(dieId) : null;
+      if (coinAction) {
         trayDie.classList.add('tray-swap-target');
-        hoverTarget = `flip:${dieId}`;
+        hoverTarget = `${coinAction}:${dieId}`;
       }
       if (hoverTarget !== drag.hoverTarget) {
         drag.hoverTarget = hoverTarget;
@@ -428,8 +444,12 @@ export function initDragDrop() {
       const trayDieEl = under?.closest('.die-wrapper');
       const dieId = trayDieEl && !trayDieEl.dataset.slot
         ? parseInt(trayDieEl.dataset.dieId, 10) : null;
-      if (dieId !== null && !Number.isNaN(dieId) && state.score > 0 && isTrayDieFlippable(dieId)
-          && flipDieValue(dieId)) {
+      const coinAction = dieId !== null && !Number.isNaN(dieId)
+        ? coinDropActionForTrayDie(dieId) : null;
+      const applied = state.score > 0 && coinAction === 'reroll'
+        ? rerollExtremeDieValue(dieId)
+        : state.score > 0 && coinAction === 'flip' && flipDieValue(dieId);
+      if (applied) {
         state.score--;
         renderHUD();
         launchPenaltyPip(trayDieEl.getBoundingClientRect());
@@ -457,9 +477,12 @@ export function initDragDrop() {
             state.actionBarCards = state.actionBarCards.filter(id => id !== drag.cardId);
             if (state.awaitingPostDiceGridPlace) state.awaitingPostDiceGridPlace = false;
             state.cardsPlaced++;
+            state.lastPlacedCardSlotCount = state.cards[drag.cardId]?.slotCount ?? 3;
           }
           state.grid[i] = drag.cardId;
           drag = null;
+          const chooseDiceTrayCard = settings.chooseDice && !settings.diceDecks
+            && state.phase === 'place-dice' && state.chooseDiceAwaitingCard;
           if (!fromGrid) {
             state.diceAccentActive = false;
             collectGridCoins();
@@ -469,7 +492,8 @@ export function initDragDrop() {
             convertFilledCards(() => {
               resolveAllScoringSets();
               render();
-              checkPhaseTransition();
+              if (chooseDiceTrayCard) finishChooseDiceCardPlacement();
+              else checkPhaseTransition();
             });
           }, spd(220));
           return;
@@ -566,9 +590,12 @@ export function initDragDrop() {
       updateScorePreview(cardId);
       if (originCardId !== null && originCardId !== cardId) updateScorePreview(originCardId);
       selectLeftmostTrayDie();
-      render();
       if (fromTray) { checkPhaseTransition(); checkStuck(); }
-      else if (state.phase === 'place-dice') checkStuck();
+      else if (state.phase === 'place-dice') {
+        maybeRevertChooseDiceAwaitCard();
+        checkStuck();
+      }
+      render();
       const ia = state.trayOrder.indexOf(drag.dieId);
       const ib = state.trayOrder.indexOf(targetTrayId);
       if (ia !== -1 && ib !== -1) {

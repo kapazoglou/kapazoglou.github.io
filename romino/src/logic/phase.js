@@ -1,8 +1,8 @@
 import { state, forbiddenDieSlots, clearScoreExitTimers } from './state.js';
 import { settings, spd, getInitialStartCardCount } from './settings.js';
 import { isRankCoolOffBlocked } from './cool-off.js';
-import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isCardPlayableFull, countAvailableDiceSlots, isFillDiscoveryEnd } from './cards.js';
-import { spawnDice, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
+import { spawnCard, spawnEmptyCard, cardRank, cardSuit, snapshotCardIdentity, compareDiscoveredCards, DISCARD_RANKS, isSlotForbidden, dieInCard, isDieSelectable, isCardPlayableFull, countAvailableDiceSlots, isFillDiscoveryEnd } from './cards.js';
+import { spawnDice, spawnChooseDiceSix, spawnChooseDiceThree, nextComboForDisplay, nextComboForSlotCount, orderDiceIdsByValues, sortDiceIdsForDisplay, selectLeftmostTrayDie, drawFromCardDeck } from './dice.js';
 import { getGridTotal } from './sweeps.js';
 import { evaluateCardScore } from './scoring.js';
 // These create circular imports resolved at call-time via ES module live bindings.
@@ -55,7 +55,7 @@ export function maybeEndFillDiscovery() {
 /* ── Convert cards (delegates animation to card-anim layer) ── */
 // Pass force=true to skip the place-dice phase guard (used by full-grid endgame).
 export function convertFilledCards(onDone, force = false) {
-  if (!force && state.phase === 'place-dice') { onDone?.(); return; }
+  if (!force && state.phase === 'place-dice' && !state.chooseDiceAwaitingCard) { onDone?.(); return; }
   if (state.awaitingPostDiceGridPlace)        { onDone?.(); return; }
 
   const queue = [];
@@ -117,8 +117,135 @@ export function convertAllGridCards(onDone) {
   if (onDone) setTimeout(onDone, totalMs);
 }
 
+/* ── Choose Dice helpers ── */
+export function isChooseDiceActive() {
+  return settings.chooseDice && !settings.diceDecks;
+}
+
+export function countChooseDicePlaced() {
+  return state.currentRoll.filter(id => dieInCard(id) !== null).length;
+}
+
+export function isChooseDiceAllSixPlaced() {
+  return state.currentRoll.length === 6
+    && state.currentRoll.every(id => dieInCard(id) !== null);
+}
+
+export function isChooseDicePickComplete() {
+  if (isChooseDiceAllSixPlaced()) return true;
+  if (isChooseDiceFullGridMode()) return false;
+  return state.currentRoll.length === 6 && countChooseDicePlaced() >= 3;
+}
+
+/** Choose Dice on a grid with no empty card cells — place all 6, no reserve/await-card. */
+export function isChooseDiceFullGridMode() {
+  return isChooseDiceActive() && (state.fullGridDiceRound || isGridSpatiallyFull());
+}
+
+export function getChooseDiceReservedIds() {
+  if (!state.chooseDiceAwaitingCard) return [];
+  return state.currentRoll.filter(id => dieInCard(id) === null);
+}
+
+export function spawnChooseDiceRound() {
+  const ids = spawnChooseDiceSix();
+  state.currentRoll = ids;
+  state.trayOrder = [...ids];
+  state.diceAccentActive = true;
+  selectLeftmostTrayDie();
+}
+
+export function offerChooseDiceLastChance() {
+  state.chooseDiceAwaitingLastChance = true;
+  state.newLastChanceCard = true;
+  state.selectedDieId = null;
+  render();
+}
+
+/** After Last Chance: offer capacity cards while adjacency slots < 6, else spawn next 6-die round. */
+export function continueChooseDiceAfterLastChance() {
+  if (state.phase === 'place-card' && state.actionBarCards.length > 0) return;
+
+  if (countEmptyDiceSlots() === 0) {
+    state.chooseDicePostLastChance = false;
+    showReplay();
+    return;
+  }
+  if (countAvailableDiceSlots() < 6 && !isGridSpatiallyFull()) {
+    if (tryOfferCapacityCard()) return;
+  }
+  state.chooseDicePostLastChance = false;
+  state.phase = 'place-dice';
+  state.fullGridDiceRound = isGridSpatiallyFull();
+  spawnChooseDiceRound();
+  render();
+  setTimeout(checkStuck, 0);
+}
+
+export function finalizeChooseDiceLastChance() {
+  if (!state.chooseDiceAwaitingLastChance || state.finalizingLastChance || state.scoringExit) return;
+
+  state.finalizingLastChance = true;
+  state.chooseDiceAwaitingLastChance = false;
+  state.chooseDicePostLastChance = true;
+  state.fullGridDiceRound = false;
+  state.currentRoll = [];
+  state.trayOrder = [];
+  state.selectedDieId = null;
+
+  runForcedConversionThenSweeps(() => {
+    state.finalizingLastChance = false;
+    state.chooseDicePostLastChance = false;
+    showReplay('no sweeps remaining');
+  });
+}
+
+export function offerChooseDiceTrayCard() {
+  const cardId = spawnCard(3);
+  state.actionBarCards = [cardId];
+  state.newCards = new Set([cardId]);
+  state.selectedCardId = cardId;
+  state.selectedDieId = null;
+  state.chooseDiceAwaitingCard = true;
+  render();
+}
+
+export function refillChooseDiceAfterCard() {
+  const remaining = state.currentRoll.filter(id => dieInCard(id) === null);
+  const newIds = spawnChooseDiceThree();
+  state.currentRoll = [...remaining, ...newIds];
+  state.trayOrder = [...remaining, ...newIds];
+  state.actionBarCards = [];
+  state.chooseDiceAwaitingCard = false;
+  state.selectedCardId = null;
+  state.diceAccentActive = true;
+  selectLeftmostTrayDie();
+}
+
+export function revertChooseDiceAwaitCard() {
+  state.actionBarCards = [];
+  state.chooseDiceAwaitingCard = false;
+  state.selectedCardId = null;
+  selectLeftmostTrayDie();
+}
+
+export function maybeRevertChooseDiceAwaitCard() {
+  if (!isChooseDiceActive() || !state.chooseDiceAwaitingCard) return;
+  if (countChooseDicePlaced() < 3) revertChooseDiceAwaitCard();
+}
+
+export function finishChooseDiceCardPlacement() {
+  refillChooseDiceAfterCard();
+  render();
+  if (!tryOfferCapacityCard()) setTimeout(checkStuck, 0);
+}
+
 /* ── State checks ── */
 export function isAllDicePlaced() {
+  if (isChooseDiceActive()) {
+    if (state.chooseDiceAwaitingCard || state.chooseDiceAwaitingLastChance) return false;
+    return isChooseDicePickComplete();
+  }
   return state.currentRoll.length > 0 &&
          state.currentRoll.every(id => dieInCard(id) !== null);
 }
@@ -175,7 +302,7 @@ export function maybeOfferPostSweepCard() {
 }
 
 export function hasLegalMove() {
-  const trayDice = state.currentRoll.filter(id => dieInCard(id) === null);
+  const trayDice = state.currentRoll.filter(id => dieInCard(id) === null && isDieSelectable(id));
   if (trayDice.length === 0) return true;
   for (const dieId of trayDice) {
     for (const cardId of state.grid) {
@@ -193,6 +320,7 @@ export function hasLegalMove() {
 
 export function checkStuck() {
   if (state.phase !== 'place-dice') return;
+  if (state.chooseDiceAwaitingCard || state.chooseDiceAwaitingLastChance) return;
   if (isAllDicePlaced()) return;
   if (state.finalizingStuck) return;
 
@@ -229,6 +357,7 @@ function runForcedConversionThenSweeps(onNoSweep, beforeResolve) {
     if (!state.scoringExit) onNoSweep?.();
     else {
       state.finalizingStuck = false;
+      state.finalizingLastChance = false;
       render();
     }
   }, true);
@@ -262,6 +391,10 @@ export function revertPostDiceCardPhase() {
 export function showReplay(reason = '') {
   clearStuckOfferFlags();
   state.finalizingStuck = false;
+  state.chooseDiceAwaitingLastChance = false;
+  state.chooseDicePostLastChance = false;
+  state.finalizingLastChance = false;
+  state.newLastChanceCard = false;
   state.phase = 'replay';
   const bar = document.getElementById('action-bar');
   if (bar) bar.style.pointerEvents = 'none';
@@ -311,6 +444,12 @@ export function spawnFullGridDiceRound() {
   state.phase = 'place-dice';
   state.fullGridDiceRound = true;
   state.suppressGhostAnimation = true;
+  if (isChooseDiceActive()) {
+    spawnChooseDiceRound();
+    render();
+    setTimeout(checkStuck, 0);
+    return;
+  }
   state.newPreview = true;
   const diceCount = settings.diceDecks ? (state.previewOrder.length || state.pendingCardSlotCount || 3) : 3;
   const prevPreview = state.previewOrder;
@@ -330,6 +469,11 @@ export function spawnFullGridDiceRound() {
 
 /* ── Phase transitions ── */
 export function checkPhaseTransition() {
+  if (state.chooseDicePostLastChance && isChooseDiceActive()) {
+    continueChooseDiceAfterLastChance();
+    return;
+  }
+
   if (state.phase === 'place-card' && state.actionBarCards.length === 0) {
     if (state.scoringExit) return;
 
@@ -380,6 +524,12 @@ export function checkPhaseTransition() {
     state.phase = 'place-dice';
     state.awaitingPostDiceGridPlace = false;
     state.fullGridDiceRound = isGridSpatiallyFull();
+    if (isChooseDiceActive()) {
+      spawnChooseDiceRound();
+      render();
+      setTimeout(checkStuck, 0);
+      return;
+    }
     // When diceDecks is ON, spawn exactly the dice shown in the upcoming-preview (previewOrder).
     // The empty-preview case is already handled above, so previewOrder.length > 0 here.
     const diceCount = settings.diceDecks ? (state.previewOrder.length || 3) : 3;
@@ -399,6 +549,10 @@ export function checkPhaseTransition() {
     setTimeout(checkStuck, 0);
 
   } else if (state.phase === 'place-dice' && isAllDicePlaced()) {
+    if (isChooseDiceActive() && isChooseDiceAllSixPlaced()) {
+      offerChooseDiceLastChance();
+      return;
+    }
     if (state.fullGridDiceRound) {
       state.fullGridDiceRound = false;
       runForcedConversionThenSweeps(() => {
@@ -406,6 +560,10 @@ export function checkPhaseTransition() {
         if (emptySlots === 0) showReplay();
         else if (!tryOfferCapacityCard()) spawnFullGridDiceRound();
       });
+      return;
+    }
+    if (isChooseDiceActive()) {
+      offerChooseDiceTrayCard();
       return;
     }
     state.phase = 'place-card';
@@ -459,6 +617,11 @@ export function resetGame() {
   state.showGameOverCard = false;
   state.newGameOverCard = false;
   state.finalizingStuck = false;
+  state.chooseDiceAwaitingCard = false;
+  state.chooseDiceAwaitingLastChance = false;
+  state.chooseDicePostLastChance = false;
+  state.finalizingLastChance = false;
+  state.newLastChanceCard = false;
   state.diceDeck = [];
   state.diceDeck2 = [];
   state.diceDeck1 = [];
@@ -467,6 +630,7 @@ export function resetGame() {
   state.lastPlacedCardSlotCount = 3;
   state.previewOrder = [];
   state.score = 0;
+  state.sweptPoints = 0;
   state.cardsPlaced = 0;
   state.diceAccentActive = true;
   state.newDice = null;
@@ -503,8 +667,9 @@ export function resetGame() {
   state.selectedCardId = initialCards[0];
   state.selectedDieId  = null;
   // diceDecks ON: preview starts empty; first card placement fills it (no dice round).
-  // diceDecks OFF: pre-populate with a 3-die combo as before.
-  state.previewOrder = settings.diceDecks ? [] : nextComboForSlotCount(3);
+  // chooseDice ON: no upcoming preview.
+  // diceDecks OFF + chooseDice OFF: pre-populate with a 3-die combo as before.
+  state.previewOrder = (settings.diceDecks || settings.chooseDice) ? [] : nextComboForSlotCount(3);
   render();
   maybeAutoplayFirstTwo();
 }

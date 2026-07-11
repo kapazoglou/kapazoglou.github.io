@@ -33,6 +33,7 @@ export const state = {
   lastPlacedCardSlotCount:   3,    // slot count of the card most recently placed on the grid
   previewOrder:              [],
   score:                     0,
+  sweptPoints:               0,
   cardsPlaced:               0,
   diceAccentActive:          true,
   // Animation flags (consumed on first render after spawn)
@@ -52,6 +53,11 @@ export const state = {
   showGameOverCard:          false, // stuck: clickable game-over card in ghost slot
   newGameOverCard:           false, // one-shot slide-in for game-over ghost card
   finalizingStuck:           false, // guard while finalizeFromStuck pipeline runs
+  chooseDiceAwaitingCard:    false, // chooseDice: 3 placed, tray card pending grid placement
+  chooseDiceAwaitingLastChance: false, // chooseDice: all 6 placed, awaiting Last Chance click
+  chooseDicePostLastChance:    false, // chooseDice: after Last Chance — offer cards until 6 slots
+  finalizingLastChance:        false,
+  newLastChanceCard:           false,
   // Sweep exit timers (stored on state to allow mutation from any module)
   scoreExitBeatTimer:        null,
   scoreExitDoneTimer:        null,
