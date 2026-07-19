@@ -56,6 +56,7 @@ lastVerified: 2026-07-19
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
 - **turn.js v1.6, row.js v1.10, settings.js v2.3** — `nTiles` cap + stuck-tray game over
 - **game-over.js v1.4, turn.js v1.5+** — game-over sheet; sweep history only (no discovery grid)
+- **navigation-guard.js v1.0, turn.js v1.7** — `beforeunload` when `shouldWarnOnLeave()` (not pristine idle / not replay)
 
 ## Next topological move
 

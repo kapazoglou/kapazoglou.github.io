@@ -22,6 +22,19 @@ export function canConfirm() {
   return state.phase === 'rolled' && state.placedThisTurn >= settings.nPlace;
 }
 
+/** True when leaving the page would discard an in-progress session (not fresh reset / game over). */
+export function shouldWarnOnLeave() {
+  if (state.phase === 'replay') return false;
+  return !(
+    state.phase === 'idle' &&
+    state.dicePool === settings.nDice &&
+    Object.keys(state.row).length === 0 &&
+    state.points === 0 &&
+    state.stars === 0 &&
+    state.actionBar.length === 0
+  );
+}
+
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();

@@ -4,6 +4,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+### Added
+- **navigation-guard.js v1.0** — `beforeunload` confirm when session has progress
+- **turn.js v1.7** — `shouldWarnOnLeave()` (skip fresh reset + game-over replay)
+
 ### Fixed
 - **stars.js v1.1** — star matches ignore tile columns (dice stacks only)
 

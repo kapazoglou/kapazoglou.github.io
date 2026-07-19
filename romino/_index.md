@@ -9,7 +9,7 @@ date: 2026-07-19
 [[state]] · [[settings]] · [[dice-visual]] · [[dice]] · [[row]] · [[convert]] · [[stars]] · [[sweeps-row]] · [[turn]]
 
 ## UI / Display
-[[render]] · [[placement-row]] · [[hud-v2]] · [[action-bar]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
+[[render]] · [[placement-row]] · [[hud-v2]] · [[action-bar]] · [[settings-panel]] · [[drag-drop]] · [[handlers]] · [[navigation-guard]]
 
 ## UI / Transitions
 [[timing]] · [[haptics]] · [[convert-anim]] · [[sweep-anim]] · [[pip-anim]] · [[confirm-anim]]
