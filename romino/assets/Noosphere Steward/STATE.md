@@ -14,7 +14,7 @@ lastVerified: 2026-07-19
 | Domain | Home | Notes |
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace + toggles incl. `suitRestriction` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nTiles + toggles incl. `suitRestriction` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -29,6 +29,7 @@ lastVerified: 2026-07-19
 
 ## Modified this session
 
+- **stars.js v1.1** — star matching skips tile columns (stack dice only)
 - **settings-panel.js v1.19** — deferred apply on back (draft buffer)
 - **turn.js v1.4** — roll uses spawn id directly (fixes empty tray after roll)
 - **convert.js v1.2** — converted stack dice return to dicePool
@@ -53,7 +54,8 @@ lastVerified: 2026-07-19
 - **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
 - **placement-row.js, placement-row.css, render.js** — star emoji gap markers + `getStarMatchRects` for collect pip
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
-- **game-over.js v1.0, discovery.js v1.0, turn.js v1.5** — game-over sheet when pool < nRoll; discovery grid + sweep history
+- **turn.js v1.6, row.js v1.10, settings.js v2.3** — `nTiles` cap + stuck-tray game over
+- **game-over.js v1.4, turn.js v1.5+** — game-over sheet; sweep history only (no discovery grid)
 
 ## Next topological move
 

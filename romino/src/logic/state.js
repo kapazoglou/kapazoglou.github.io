@@ -20,9 +20,6 @@ export function createInitialState() {
     stars: 0,
     points: 0,
     suitTally: EMPTY_SUIT_TALLY(),
-    /** Unique tile identities discovered via convert, in first-discovery order. */
-    discoveredTiles: [],
-    discoveredKeys: new Set(),
     /** Swept tile runs for game-over summary (each run = tile snapshots). */
     sweepHistory: [],
     phase: 'idle',

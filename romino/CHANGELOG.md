@@ -5,6 +5,20 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Fixed
+- **stars.js v1.1** — star matches ignore tile columns (dice stacks only)
+
+### Removed
+- **discovery.js** — discovery grid + tile tracking (removed from game over)
+
+### Changed
+- **game-over.js v1.4, game-over.css** — discovery grid removed; sheet content fits 412px width
+
+### Added
+- **settings.js v2.3** — `nTiles` stepper (default 12); row tile cap game over after sweeps
+- **turn.js v1.6** — `evaluateGameOver`; stuck-tray check on fresh roll; tile cap after confirm/sweeps
+- **row.js v1.10** — `countTilesInRow`, `hasAnyLegalPlacementForTray`
+
+### Fixed
 - **settings-panel.css, game-over.css** — hide scrollbars on settings + game-over scroll areas; touch scroll unchanged
 - **game-over.css, index.html** — game-over sheet lives inside `.viewport-inner` (412 design frame), not full-screen fixed
 

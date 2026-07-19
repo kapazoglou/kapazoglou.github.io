@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { getOccupiedCols, dieValueAt, dieIdAt, stackHeight } from './row.js';
+import { getOccupiedCols, dieValueAt, dieIdAt, stackHeight, getColumn } from './row.js';
 
 function matchIncludesNewDie(leftCol, rightCol, row, newDieIds) {
   const leftId = dieIdAt(leftCol, row);
@@ -8,13 +8,14 @@ function matchIncludesNewDie(leftCol, rightCol, row, newDieIds) {
     || (rightId != null && newDieIds.has(rightId));
 }
 
-/** Adjacent same-row value pairs that earn one star each (≥1 die placed this turn). */
+/** Adjacent same-row stack-die value pairs (tiles excluded). ≥1 matching die placed this turn. */
 export function findStarMatches(newDieIds = state.placedDieIds) {
   const matches = [];
   const cols = getOccupiedCols();
   for (let i = 0; i < cols.length - 1; i++) {
     const leftCol = cols[i];
     const rightCol = cols[i + 1];
+    if (getColumn(leftCol)?.kind === 'tile' || getColumn(rightCol)?.kind === 'tile') continue;
     const maxRows = Math.max(stackHeight(leftCol), stackHeight(rightCol));
     for (let row = 0; row < maxRows; row++) {
       const va = dieValueAt(leftCol, row);

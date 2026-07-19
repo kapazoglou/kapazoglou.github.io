@@ -1,20 +1,19 @@
 ---
 module: game-over
 layer: ui/display
-v: 1.2
+v: 1.4
 date: 2026-07-19
-deps: [discovery, dice-visual, turn, render]
+deps: [dice-visual, turn, render]
 ---
 # Game Over
 
-Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`). Rendered inside `.viewport-inner` (412×412 design frame), same as settings panel.
+Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), tile cap exceeded, or tray is stuck. Rendered inside `.viewport-inner` (412×412 design frame).
 
 ## Exports
 - `initGameOver()` — handle minimize + PLAY AGAIN → `resetGame()`
-- `showGameOver(reason?)` — populate swept points, discovery grid, sweeps; reveal overlay
-- `discoveryGridHTML()` / `sweepListHTML()` — shared markup builders
+- `showGameOver(reason?)` — populate swept points, sweeps; reveal overlay
+- `sweepListHTML()` — sweep row markup
 
 ## DOM
 - `#go-score-value` — final `state.points` (swept points only)
-- `#go-cards-grid` — 4×13 mini tiles
-- `#go-sweeps` — comma-separated sweep groups
+- `#go-sweeps` — wrapped sweep groups within sheet width

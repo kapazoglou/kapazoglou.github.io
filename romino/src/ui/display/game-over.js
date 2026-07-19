@@ -1,5 +1,4 @@
 import { state } from '../../logic/state.js';
-import { buildDiscoveryGrid } from '../../logic/discovery.js';
 import { SUIT_COLOR } from '../../logic/dice-visual.js';
 import { resetGame } from '../../logic/turn.js';
 import { render } from './render.js';
@@ -12,15 +11,6 @@ function miniTileHTML(tile) {
       <span class="go-tile-suit">${tile.suit}</span>
     </div>
   </div>`;
-}
-
-export function discoveryGridHTML() {
-  const grid = buildDiscoveryGrid(state.discoveredTiles);
-  return grid.flatMap(row => row.map(tile =>
-    tile != null
-      ? miniTileHTML(tile)
-      : '<div class="go-tile-wrap go-tile-wrap--empty"></div>',
-  )).join('');
 }
 
 export function sweepListHTML() {
@@ -40,12 +30,6 @@ export function showGameOver(reason = '') {
 
   const scoreEl = document.getElementById('go-score-value');
   if (scoreEl) scoreEl.textContent = String(state.points);
-
-  const gridEl = document.getElementById('go-cards-grid');
-  if (gridEl) {
-    gridEl.className = 'go-cards-grid go-cards-grid--four-square';
-    gridEl.innerHTML = discoveryGridHTML();
-  }
 
   const sweepsEl = document.getElementById('go-sweeps');
   if (sweepsEl) sweepsEl.innerHTML = sweepListHTML();

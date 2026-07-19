@@ -187,6 +187,18 @@ export function slotFromHintDataset(ds) {
   return { col: Number(ds.col), kind: ds.kind };
 }
 
+export function countTilesInRow() {
+  return Object.values(state.row).filter(column => column.kind === 'tile').length;
+}
+
+/** Any freshly rolled tray die with at least one valid slot? */
+export function hasAnyLegalPlacementForTray() {
+  for (const dieId of state.actionBar) {
+    if (getValidSlotsForDie(dieId).length > 0) return true;
+  }
+  return false;
+}
+
 export function slotsEqual(a, b) {
   if (a.kind !== b.kind) return false;
   if (a.kind === 'stack' || a.kind === 'new-column') return a.col === b.col;

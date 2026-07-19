@@ -32,7 +32,9 @@ handleRollButton()
     │   ├── animateConverts() — stack → tile per column; dicePool += 3 per convert
     │   ├── resolveSweepsAnimated() — beat + sweep each run; star pips → points
     │   └── phase = 'idle'
-    └── rollDice() — fresh tray with slide-in if dicePool > 0
+    └── rollDice() if dicePool >= nRoll
+        ├── post-roll: no legal tray slots → game over
+        └── post-sweeps: tiles > nTiles → game over
 ```
 
 ---

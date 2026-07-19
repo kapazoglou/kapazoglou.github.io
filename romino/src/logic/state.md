@@ -14,6 +14,6 @@ Single source of truth for v2 row game.
 - `actionBar` — die IDs in tray this turn
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
-- `discoveredTiles`, `discoveredKeys`, `sweepHistory` — game-over summary
+- `sweepHistory` — game-over sweep summary
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`
 - `placedDieIds` — unconfirmed placements this turn
