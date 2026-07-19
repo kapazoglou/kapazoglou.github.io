@@ -1,17 +1,32 @@
 import { state } from '../../logic/state.js';
-import { isDieSelectable } from '../../logic/cards.js';
-import { renderGrid } from './grid.js';
+import { isBarDieInactive } from '../../logic/row.js';
+import { renderHUD } from './hud-v2.js';
+import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, restorePinnedRowScroll } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
-import { renderHUD, renderDiscards, renderDiscoveryGrid } from './hud.js';
 
 export function render() {
-  if (state.selectedDieId !== null && !isDieSelectable(state.selectedDieId)) {
+  if (state.selectedDieId != null && isBarDieInactive(state.selectedDieId)) {
     state.selectedDieId = null;
   }
-  renderGrid();
-  // During game over leave the action bar exactly as it was — the sheet overlays it.
-  if (state.phase !== 'replay') renderActionBar();
-  renderDiscards();
+  renderPlacementRow();
   renderHUD();
-  renderDiscoveryGrid();
+  renderActionBar();
+  requestAnimationFrame(() => {
+    restorePinnedRowScroll();
+    positionEdgeGhosts();
+    positionHints();
+  });
+}
+
+/** Selection-only refresh — avoids rebuilding tiles when hint arrows appear. */
+export function renderSelection() {
+  if (state.selectedDieId != null && isBarDieInactive(state.selectedDieId)) {
+    state.selectedDieId = null;
+  }
+  updatePlacementSelection();
+  renderActionBar();
+  requestAnimationFrame(() => {
+    positionEdgeGhosts();
+    positionHints();
+  });
 }

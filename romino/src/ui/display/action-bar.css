@@ -1,198 +1,110 @@
-/* ─── ACTION BAR ─── */
 .action-bar {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: flex-end;
-  overflow: hidden;
-  padding: 30px;
-  height: 176px; /* 80px content + 56px preview strip */
-  min-width: 0;
-  width: 100%;
   flex-shrink: 0;
+  height: 140px;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 60px;
+  overflow: hidden;
 }
 
 .action-bar::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: #404040;
+  background: var(--overlay);
   mix-blend-mode: overlay;
   pointer-events: none;
 }
 
-/* When showing dice: column layout — dice row on top, card ghost below */
-.action-bar.mode-dice {
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
+.action-bar-dice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   gap: 20px;
-  padding-bottom: 56px;
-}
-
-/* ─── DICE TRAY ─── */
-.dice-tray {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  align-items: center;
-}
-
-.dice-tray--choose-dice {
   width: 100%;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
-.choose-dice-tray-dice {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-start;
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
-.choose-dice-tray-offer {
-  margin-left: auto;
-  flex-shrink: 0;
-  align-self: flex-start;
-}
-
-.choose-dice-tray-dice .die-wrapper {
-  align-self: flex-start;
-}
-
-.choose-dice-tray-offer .converter-card {
-  align-self: flex-start;
-}
-
-.choose-dice-tray-offer .converter-card--game-over,
-.choose-dice-tray-offer .converter-card--last-chance {
+.die--action {
+  width: var(--die-size);
+  height: var(--die-size);
   cursor: pointer;
-  touch-action: manipulation;
+  line-height: 0;
 }
 
-.die-wrapper.is-reserved {
-  opacity: 0.4;
+.die--action svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}
+
+.die--action-inactive {
+  opacity: 0.45;
+  cursor: default;
   pointer-events: none;
 }
 
-/* ─── UPCOMING PREVIEW ─── */
-.upcoming-preview {
+.roll-btn-wrap {
   position: absolute;
-  top: 100px;
-  left: 30px;
-  height: 56px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  opacity: 0.4;
+  right: 0;
+  top: 24px;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  background: var(--bg);
+  border-radius: 20px 0 0 20px;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 0;
+  margin-left: 0;
+}
+
+.roll-btn-face {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: var(--die-size);
+  height: var(--die-size);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.roll-btn-face svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+  mix-blend-mode: overlay;
+}
+
+.roll-btn-wrap:has(.roll-btn:not(:disabled)) .roll-btn-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 var(--die-border) var(--accent);
   pointer-events: none;
 }
 
-/* ─── ACTION BAR CARD GHOST ─── */
-.action-bar-card-ghost {
-  flex-shrink: 0;
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.converter-card.in-tray.is-tray-return-hidden {
-  display: none;
-}
-
-/* Stuck: clickable game-over card replaces ghost (overrides pointer-events + opacity) */
-.action-bar-card-ghost--game-over {
-  pointer-events: auto;
-  opacity: 1;
-  cursor: pointer;
-}
-
-.converter-card--game-over {
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-html.square-cards .converter-card--game-over {
-  display: block;
-}
-
-html.square-cards .square-wrapper--game-over {
-  background: #000;
-  align-items: center;
-  justify-content: center;
-}
-
-.converter-card--game-over-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Averia Libre', serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent);
-  text-align: center;
-  line-height: 1.1;
-  user-select: none;
-  pointer-events: none;
-  letter-spacing: 0.02em;
-}
-
-.converter-card--game-over-line {
-  display: block;
-}
-
-.converter-card--last-chance {
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-html.square-cards .converter-card--last-chance {
-  display: block;
-}
-
-html.square-cards .square-wrapper--last-chance {
-  background: var(--accent);
-  align-items: center;
-  justify-content: center;
-}
-
-.converter-card--last-chance-label {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Averia Libre', serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: #000;
-  text-align: center;
-  line-height: 1.1;
-  user-select: none;
-  pointer-events: none;
-  letter-spacing: 0.02em;
-}
-
-.converter-card--last-chance-line {
-  display: block;
-}
-
-
-/* ─── REPLAY BUTTON ─── */
-#replay-btn {
-  background: none;
+.roll-btn {
+  position: relative;
+  z-index: 1;
+  width: var(--die-size);
+  height: var(--die-size);
   border: none;
-  color: var(--accent);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  background: transparent;
   cursor: pointer;
-  padding: 8px 20px;
-  line-height: 1;
+  font-family: 'Averia Libre', serif;
+  font-size: 24px;
+  line-height: 38px;
+  color: #fff;
+  text-align: center;
+  padding: 0;
 }
-#replay-btn:hover { opacity: 0.8; }
+
+.roll-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

@@ -1,8 +1,8 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.5
-date: 2026-07-11
+v: 2.9
+date: 2026-07-19
 deps: [state, settings, cards, sweeps, scoring, dice, phase, sweep-anim, render, hud, card-anim, preview-anim, haptics]
 ---
 # Drag-Drop — User Story
@@ -16,7 +16,7 @@ As a player, I want to drag dice from the tray into card slots and drag hand car
 
 ## Drag types
 - **card drag** — from `.in-tray` or `.converter-card--grid-draggable`; drops onto empty `.grid-slot`
-- **die drag** — from `.die-wrapper`; drops onto `.holder-dice` slot, swaps tray order, or returns to tray via `#action-bar` drop (hover shows die in tray + post-dice hand card as ghost, selected on release)
+- **die drag** — from `.die--action` or returnable `.die--placed`; 8px movement starts drag; tap toggles selection (tray) or returns to bar (placed-this-turn); drops onto placement hints or action bar return zone
 - **coin drag** — from `#score-display.is-coin-draggable`; drops onto tray `.die-wrapper` (no slot): flip die value when `coinFlipDice` on (1↔6, 2↔5, 3↔4), or reroll 1/6 → 2–5 when `allowFirstExtreme` off (1 coin each; reroll wins on extremes)
 
 ## Related

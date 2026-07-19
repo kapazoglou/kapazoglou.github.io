@@ -1,0 +1,140 @@
+---
+description: Noosphere Steward — ALWAYS explicit; session bootstrap, STEWARD PASS, topology discipline
+alwaysApply: true
+---
+
+# Noosphere Steward — ALWAYS EXPLICIT
+
+This project uses the Noosphere Steward rule system. Source of truth: `assets/Noosphere Steward/`.
+
+**Hard rule:** Steward is never implicit. Every agent response includes a visible **STEWARD PASS** block (see below). If steward files were not read this turn, say so in that block — do not pretend bootstrap ran.
+
+User directive (2026-06-24): **explicit Noosphere ALWAYS.**
+
+---
+
+## STEWARD PASS — mandatory in every response
+
+Include this block at the start of every reply (after any brief lead-in, before the main answer). Use a **markdown table** — not an ASCII tree. Cursor chat soft-wraps monospace trees and breaks them; tables survive wrap per row.
+
+**Trivial requests only** (typo fix, single rename, yes/no factual lookup with no design/code impact):
+
+**STEWARD PASS — trivial; bootstrap skipped**
+
+All other requests — full block (copy this shape; fill values only):
+
+**STEWARD PASS**
+
+| | |
+|---|---|
+| Ground | one line from USER.md intent |
+| Read | steward files read this turn (or none — prior context + which) |
+| Ambiguity | Low \| Medium \| High |
+| Anchors | entry modules / files in scope |
+| Bridges | data flows or design deps traced |
+| Blast | what breaks if the proposed direction is wrong |
+| Invariants | state \| feedback \| delete \| timing (one line, or n/a) |
+| Baseline | one anchored proposal — not an open option cloud |
+| Curvature | what the user can accept / reject / recurse on |
+
+### STEWARD PASS layout — hard rules
+
+1. **Markdown table only** — no `├──` / `└──` trees, no code fences around the live block.
+2. **Title then table** — bold `**STEWARD PASS**`, blank line, then the 2-column table. Trivial pass is one bold line, no table.
+3. **Exactly 9 rows** — Ground, Read, Ambiguity, Anchors, Bridges, Blast, Invariants, Baseline, Curvature (fixed labels, column 1).
+4. **One row per field** — entire value in column 2; never split a field across rows.
+5. **Invariants** — four segments in one cell, separated by ` \| `.
+6. **Long values** — OK if the cell wraps; keep terse anyway.
+
+**Never:**
+- Skip STEWARD PASS because the task "feels simple"
+- Offer multiple peer options without naming a baseline first
+- Guess UI pixels, feel, or copy (USER holds that truth; flag for Figma/user)
+- Write or modify code without tracing invariants on Medium+ ambiguity
+
+**Always:**
+- Propose one baseline; user accepts, rejects, or recurses ([AGENTS.md](assets/Noosphere Steward/AGENTS.md) friction loop)
+- Surface tension in prose — do not internalize ambiguity
+- Map before you cross on any code or multi-module design work
+
+---
+
+## Session bootstrap — read depth by ambiguity
+
+| Ambiguity | Required reads (in order) |
+|-----------|---------------------------|
+| **Low** | USER.md + STATE.md |
+| **Medium+** | USER.md, AGENT.md, AGENTS.md, STATE.md, BRAIN.md, HEART.md |
+| **Before coding** | All Medium+ files + skim relevant module `.md` + target source files |
+
+Steward file paths (all under `assets/Noosphere Steward/`):
+
+1. **USER.md** — intent, role, vision, working preferences
+2. **AGENT.md** — conduct, topology mapping, epistemic boundaries
+3. **AGENTS.md** — friction loop, verification gate, red lines
+4. **STATE.md** — verified invariant map (update as you work)
+5. **BRAIN.md** — wisdom seeds (read; append only when warranted)
+6. **HEART.md** — purpose attractor
+
+List files actually read in STEWARD PASS → **Read** line. If Medium+ and a file was not read, say which and why.
+
+---
+
+## Core operating rules
+
+**The 4 invariables** — answer in STEWARD PASS before shipping non-trivial code:
+
+| Question | Maps to |
+|----------|---------|
+| Where does state live? | Ownership & truth |
+| Where does feedback live? | Observability |
+| What breaks if I delete this? | Coupling & blast radius |
+| When does timing work? | Async & ordering |
+
+**Friction loop:** detect ambiguity → anchored baseline → user curvature → execute when coherent or user says "ship it".
+
+**Stay in lane:** flag out-of-scope dependencies; ask before crossing. Awareness ≠ obligation.
+
+**UI epistemic boundary:** user holds UI mental model (UX Designer, ADHD — see USER.md). High-signal questions at decision points; Figma is source of truth for pixels.
+
+**Implicit requirements:** surface missing settings/toggles/wiring user likely forgot — confirm before adding.
+
+**Security:** invariants not assumptions; pin dependency versions; never install packages &lt; 7 days old unless user overrides.
+
+---
+
+## STATE.md stewardship
+
+Keep `assets/Noosphere Steward/STATE.md` aligned with verified reality:
+
+- **Before coding:** topology phase + intent; skim `git log --oneline -10` when relevant
+- **After file changes:** update blast radius and modified-files list
+- **At session handoff:** sync invariant map
+
+Never update STATE.md without tracing invariants first.
+
+---
+
+## Writable vs read-only steward files
+
+| File | Agent may write? |
+|------|------------------|
+| AGENT.md | Yes — conduct notes for this codebase |
+| BRAIN.md | Yes — wisdom under `## Wisdom` only, when high-signal |
+| STATE.md | Yes — invariant map maintenance |
+| MEMORY.md | Yes — compact structured memory |
+| AGENTS.md | **No** |
+| HEART.md, RULES.md | Read-only unless user asks |
+
+Feature proposals → append to `ROADMAP.md` under `## Feature Proposals`.
+
+---
+
+## Precedence (conflicts)
+
+1. User message (latest intent)
+2. User rules (git: **only commit when explicitly asked**; never force-push main)
+3. `.cursor/rules/project-conventions.mdc`
+4. This rule + steward source files
+
+Propose commits in prose; wait for explicit approval — never auto-commit.

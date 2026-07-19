@@ -1,20 +1,18 @@
 ---
 title: römino — Module Graph
 type: MOC
-date: 2026-06-01
+date: 2026-07-19
 ---
-# römino — Module Graph
-
-This is the Obsidian Map of Content. Every module in the project is linked here. Open the graph view to explore dependencies.
+# römino — Module Graph (v2)
 
 ## Logic
-[[state]] · [[settings]] · [[cards]] · [[dice]] · [[scoring]] · [[sweeps]] · [[phase]]
+[[state]] · [[settings]] · [[dice-visual]] · [[dice]] · [[row]] · [[convert]] · [[stars]] · [[sweeps-row]] · [[turn]]
 
 ## UI / Display
-[[render]] · [[grid]] · [[grid-coins]] · [[action-bar]] · [[hud]] · [[game-over]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
+[[render]] · [[placement-row]] · [[hud-v2]] · [[action-bar]] · [[settings-panel]] · [[drag-drop]] · [[handlers]]
 
 ## UI / Transitions
-[[timing]] · [[sweep-anim]] · [[card-anim]] · [[preview-anim]] · [[haptics]]
+[[timing]] · [[haptics]] · [[convert-anim]] · [[sweep-anim]] · [[pip-anim]] · [[confirm-anim]]
 
 ## Reference
 [[EVENTS]] · [[design-specs]] · [[CHANGELOG]]

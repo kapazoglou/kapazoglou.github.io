@@ -1,78 +1,58 @@
 ---
-Purpose: The STATE.md file is the boundary file between my own shape and the shape of the projects environment. The only way I know what I am, and what the project is. Is when the STATE.md file is in symbiosis with this gap.
-topologyPhase: floor
-lastVerified: 2026-06-24
+topologyPhase: row
+lastVerified: 2026-07-19
 ---
 
 # römino — Verified Pattern State
 
-## Agent governance
-
-- **2026-06-24:** Noosphere **ALWAYS explicit** — `.cursor/rules/noosphere-steward.mdc` mandates STEWARD PASS every response; AGENT.md records user directive.
-- **2026-06-24:** STEWARD PASS **markdown table** (replaces ASCII tree — chat soft-wrap broke trees).
-
-> Keep this file aligned with the codebase. Update after meaningful changes.
-
 ## Topology phase
 
-**floor** — stable baseline; game loop, scoring, UI layers established.
+**row** — v2 row-based dice game; Square v1 removed.
 
 ## State ownership
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | Single source of truth |
-| Settings | `src/logic/settings.js` | `SETTINGS_CONFIG`, `settings`, `spd()` |
-| DOM | Derived | Read/write via `render()` only — never authoritative |
-| Persistence | localStorage | Settings panel |
-
-## Layer invariants
-
-| Layer | Owns | Must NOT |
-|-------|------|----------|
-| `logic/` | Rules, pure state mutations | Touch DOM |
-| `ui/display/` | DOM, event listeners | Encode game rules |
-| `ui/transitions/` | CSS classes, timed animations | Mutate game state (except anim flags) |
+| Game state | `src/logic/state.js` | row map, pool, stars, points |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace + toggles incl. `suitRestriction` |
+| DOM | Derived | `render()` only |
 
 ## Entry & render path
 
-`index.html` → `src/main.js` → init handlers → `render()` dispatcher (`ui/display/render.js`)
+`index.html` → `src/main.js` → init → `render()` → hud-v2, placement-row, action-bar
 
-## High-centrality modules (blast radius)
+## High-centrality modules
 
-- `src/logic/cards.js` — card constants, spawn, slot helpers
-- `src/logic/phase.js` — phase transitions, reset, replay
-- `src/ui/display/handlers.js` — input, autoplay
-- `src/ui/transitions/sweep-anim.js` — scoring exit animations
-
-**Intentional circular imports:** `phase.js` ↔ `sweep-anim.js`, `phase.js` ↔ `handlers.js` (calls inside function bodies only).
-
-## Feedback & observability
-
-- `render()` re-syncs DOM from state
-- `EVENTS.md` — phase/transition event reference
-- Score preview via `scoring.js` / `updateScorePreview`
-
-## Timing & async
-
-- All animation ms wrapped in `spd(ms)` from `settings.js`
-- Score exit timers, sweep animations, card fill sequences — ordering-sensitive
+- `src/logic/turn.js` — roll / confirm pipeline
+- `src/logic/row.js` — placement rules
+- `src/ui/display/handlers.js` — input
 
 ## Modified this session
 
-- `src/logic/dice.js` — `rerollExtremeDieValue` for coin reroll on tray 1/6
-- `src/ui/display/hud.js` — coin draggable when `allowFirstExtreme` OFF
-- `src/ui/display/drag-drop.js` — coin drop reroll on tray 1/6 (precedence over flip)
+- **settings-panel.js v1.19** — deferred apply on back (draft buffer)
+- **turn.js v1.4** — roll uses spawn id directly (fixes empty tray after roll)
+- **convert.js v1.2** — converted stack dice return to dicePool
+- **placement-row, action-bar, hud-v2, handlers, drag-drop** — animation classes + `animating` input guard
+- **drag-drop.js** — tap vs drag threshold; tap selects tray dice / returns placed-this-turn die
+- **handlers.js** — die tap delegated to drag-drop pointer-up; click keeps placement hints + deselect
+- **drag-drop.js** — drop on action bar returns placed-this-turn die
+- **turn.js v1.1** — confirm gated on `placedThisTurn >= nPlace`
+- **sweeps-row.js v1.5** — consecutive rank runs (asc/desc + ace wrap); visual row adjacency (sparse col ids OK)
+- **sweeps-row.js v1.4** — ace dual rank (1|13) + wrap bridges for ascending sweep runs
+- **row.js v1.6, convert.js v1.3, sweeps-row.js v1.2, dice-visual.js v1.9** — 1↔6 ace: bypass 1to1 on pair, convert to rank A (sum 1), sweep 2–A–12
+- **dice-visual.js v2.2, action-bar.js, placement-row.js, base.css** — tray + this-turn dice brightened face border; settled row dice white; tiles keep `--tile-border`
+- **base.css** — `--design-size: 412px`; `.viewport` + `.viewport-inner` scale to `min(100vw, 100dvh)` with no upper cap; settings panel inside scaled frame
+- **placement-row.css** — tile content-box outside border (48×92 outer); horizontal + vertical column border overlap; col padding removed
+- **base.css** — `--die-stack-pair-height`; `--col-width` aliases `--die-size`
+- **row.js v1.2** — gap insert between dice/tiles (not tile↔tile); column shift on adjacency
+- **placement-row.css/js, hud-v2.js** — horizontal overflow scroll (all columns visible); HUD chevrons scroll DOM; virtual `viewOffset` window removed
+- **row.js v1.3** — dropped scroll-range helpers
+- **settings.js v2.2, row.js v1.7** — `suitRestriction` blocks insert slots adjacent to same-value bottom die
+- **row.js v1.9, dice-visual.js v2.3, convert.js v1.4** — block stack completion when convert would duplicate existing tile rank+suit
+- **placement-row.js, placement-row.css** — edge ghosts absolute overlay; column layout invariant on die select
+- **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
+- **placement-row.js, render.js, drag-drop.js, handlers.js, placement-row.css** — `renderSelection()` for die select/deselect; tiles not rebuilt when hint arrows appear
 
 ## Next topological move
 
-- (unset)
-
----
-
-# Steward routine (reference)
-
-- **Before coding:** Update topology phase and verified intent; skim `git log --oneline -10` when relevant
-- **After file changes:** Update blast radius and modified-files list above
-- **At session boundary:** Sync STATE.md; propose commits/tags in prose — commit only when user explicitly asks
-- **Never:** Update STATE.md without tracing invariants; commit without user approval and testing
+- Suit tally HUD, game-over when pool empty

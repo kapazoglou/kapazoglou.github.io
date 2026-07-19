@@ -1,8 +1,8 @@
 ---
 module: handlers
 layer: ui/display
-v: 2.4
-date: 2026-07-11
+v: 2.6
+date: 2026-07-19
 deps: [state, settings, cards, scoring, dice, sweeps, phase, sweep-anim, render, hud, card-anim, drag-drop]
 ---
 # Handlers — User Story
@@ -10,7 +10,7 @@ deps: [state, settings, cards, scoring, dice, sweeps, phase, sweep-anim, render,
 As a player, I want to tap dice and cards to select and place them. I also want a long-press on the action bar to trigger autoplay mode — the game automatically places cards and dice while I hold down. When `autoplayFirstTwo` is on, the first two cards are placed automatically.
 
 ## Exports
-- `initHandlers()` — attaches the main `document` click listener for tap-to-select/place; tap `[data-game-over-card]` when stuck → `finalizeFromStuck()`; when `peekUnconvertedLayout` is on, tap filled grid cards toggles pre-conversion layout peek
+- `initHandlers()` — click listener for hint/ghost placement, roll/confirm, and deselect on empty row tap; die tap-to-select handled via drag-drop pointer-up (8px tap vs drag threshold)
 - `initAutoplay()` — attaches long-press listeners on `#action-bar`
 - `autoplayCardStep(onDone)` — places one action-bar card on a random empty grid slot
 - `autoplayDiceStep(onDone)` — places all tray dice in random valid slots

@@ -18,28 +18,27 @@ romino/
 └── src/
     ├── main.js         ← entry: wires all init calls, boots game
     ├── logic/          ← Game Design / Logic (pure state, no DOM)
-    │   ├── state.js    — state object, forbiddenDieSlots, clearScoreExitTimers
+    │   ├── state.js    — state object, row map, pool, stars/points
     │   ├── settings.js — SETTINGS_CONFIG, settings, spd()
-    │   ├── cards.js    — card constants, dieSVG, spawnCard, isSlotForbidden, helpers
-    │   ├── dice.js     — deck, shuffle, spawnDice, display sort
-    │   ├── scoring.js  — evaluateCardScore, updateScorePreview
-    │   ├── sweeps.js   — grid geometry, SCORING_RULES, peekAnyScoringMatch
-    │   └── phase.js    — checkPhaseTransition, resetGame, showReplay, convertFilledCards
+    │   ├── dice-visual.js — dieSVG, suit/rank constants, colors
+    │   ├── dice.js     — spawnDie, random roll
+    │   ├── row.js      — placement rules, adjacency, 1to1
+    │   ├── convert.js  — 3-dice column → tile
+    │   ├── stars.js    — adjacent same-row star detection
+    │   ├── sweeps-row.js — linear tile sweeps, suit tally
+    │   └── turn.js     — rollDice, confirmTurn, resetGame
     └── ui/
         ├── display/    ← UI / Display (DOM manipulation)
         │   ├── render.js         — render() dispatcher
-        │   ├── grid.js           — renderGrid, renderCardHTML, renderHolderDice
-        │   ├── action-bar.js     — renderActionBar
-        │   ├── hud.js            — renderHUD, initDiscards
-        │   ├── game-over.js      — initGameOver (event listeners only)
-        │   ├── settings-panel.js — renderSettingsPanel, initSettingsPanel
-        │   ├── drag-drop.js      — initDragDrop, markForbiddenHolders
-        │   └── handlers.js       — initHandlers, initAutoplay, autoplayCardStep
+        │   ├── placement-row.js  — row + tiles + hint triangles
+        │   ├── hud-v2.js         — stars | points HUD, scroll
+        │   ├── action-bar.js     — dice tray + roll button
+        │   ├── settings-panel.js — steppers, toggles, triple-click entry
+        │   ├── drag-drop.js      — bar ↔ row drag
+        │   └── handlers.js       — tap/click handlers
         └── transitions/ ← Transitions / Animations
-            ├── timing.js         — BEAT_MS, SWEEP_MS, PIP_GAP_MS, …
-            ├── sweep-anim.js     — startScoringExitAnimation, resolveAllScoringSets
-            ├── card-anim.js      — launchPip, processCardFills
-            └── preview-anim.js  — renderWithPreviewFade
+            ├── timing.js         — animation ms constants
+            └── haptics.js        — vibration
 ```
 
 ## Layer Rules
@@ -60,11 +59,9 @@ romino/
 
 4. **ES modules only** — Use `import`/`export`. No `require()` or global script tags for new code.
 
-5. **Circular imports are allowed** between `phase.js` ↔ `sweep-anim.js` and `phase.js` ↔ `handlers.js`. They resolve correctly because all cross-module calls happen inside function bodies, not at module evaluation time.
+5. **State is the single source of truth** — Never duplicate state in the DOM. Read from `state`, write to `state`, call `render()`.
 
-6. **State is the single source of truth** — Never duplicate state in the DOM. Read from `state`, write to `state`, call `render()`.
-
-7. **`spd(ms)`** — Always wrap animation milliseconds with `spd(ms)` from `settings.js` to respect the `fastAnimations` toggle.
+6. **`spd(ms)`** — Always wrap animation milliseconds with `spd(ms)` from `settings.js` to respect the `fastAnimations` toggle.
 
 ## Version History
 

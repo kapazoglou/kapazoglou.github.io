@@ -1,20 +1,21 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.16
-date: 2026-07-11
+v: 1.19
+date: 2026-07-19
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story
 
-As a player, I want to access a hidden settings panel (tap the swept-points 4 times) with iOS-style toggles for all game options, and have changes take effect immediately. Changes to grid size or deck composition restart the game; other changes re-render in place.
+As a player, I want to access a hidden settings panel (triple-tap the HUD score) with iOS-style toggles for all game options, and have changes apply when I tap back — not after each toggle. Changes to counts or core rules restart the game; other changes re-render in place.
 
 ## Exports
 - `renderSettingsPanel()` — builds toggle rows from `SETTINGS_CONFIG` into `#settings-toggles`
 - `initSettingsPanel()` — attaches 4-tap listener on `#swept-points` and back-button listener
 
 ## Toggle behaviour
-- **fastAnimations** → toggles `html.fast-anims` class immediately
+- Edits buffer in a draft while the panel is open; **back** applies all, saves, then `resetGame()` or `render()`
+- **fastAnimations** → toggles `html.fast-anims` on apply
 - **peekUnconvertedLayout** (off) → clears `state.peekUnconvertedCards`
 - **extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / chooseDice / fillDiscovery / oneToOne / forbidThirdExtreme / progressiveDicePlacement / progressiveSuitJoker** → closes panel + calls `resetGame()`
 - **oneToOne** — disabled when `fourSquare` is off

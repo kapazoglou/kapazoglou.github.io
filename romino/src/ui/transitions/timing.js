@@ -1,8 +1,11 @@
 /** Pause before sweep animation starts (beat). */
 export const BEAT_MS = 320;
 
-/** Duration of card sweep-out animation. */
+/** Duration of tile sweep-out animation (upward). */
 export const SWEEP_MS = 780;
+
+/** Remaining columns slide together after swept tiles leave. */
+export const COL_COLLAPSE_MS = 100;
 
 /** Fade duration for the outgoing upcoming-preview strip. */
 export const PREVIEW_FADE_MS = 180;
@@ -12,6 +15,12 @@ export const CARD_PLACE_DELAY_MS = 220;
 
 /** Duration of the card conversion (dice → filled) animation. */
 export const CONVERT_MS = 240;
+
+/** Columns slide aside before a gap insert. */
+export const COL_SPREAD_MS = 110;
+
+/** Die flies from the tray into the opened gap. */
+export const COL_DIE_IN_MS = 95;
 
 /** Stagger between each tray die sliding in. */
 export const TRAY_STAGGER_MS = 60;

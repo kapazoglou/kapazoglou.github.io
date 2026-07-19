@@ -1,121 +1,140 @@
-import { state, clearScoreExitTimers } from '../../logic/state.js';
+import { state, clearSweepExitTimers } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
-import { collectScoringMatches, lineExitKey, SCORING_RULE_LABELS, peekAnyScoringMatch } from '../../logic/sweeps.js';
-import { addCoolOffSweepCards } from '../../logic/cool-off.js';
-import { bankScoreToSweptPoints } from './card-anim.js';
-import { BEAT_MS, SWEEP_MS } from './timing.js';
-// Circular: phase.js imports resolveAllScoringSets from here.
-import { checkPhaseTransition, tryOfferCapacityCard } from '../../logic/phase.js';
+import { findSweepRuns, applySweepRun } from '../../logic/sweeps-row.js';
 import { render } from '../display/render.js';
+import { pinRowScroll, unpinRowScroll } from '../display/placement-row.js';
+import { bankStarsToPoints } from './pip-anim.js';
+import { BEAT_MS, SWEEP_MS, COL_COLLAPSE_MS } from './timing.js';
 
-export function startScoringExitAnimation(lineSlots, ruleId, cardIds) {
-  clearScoreExitTimers();
-  state.scoringExit = {
-    lineSlots: [...lineSlots],
-    cardIds:   [...cardIds],
-    ruleId,
-    lineKey:   lineExitKey(lineSlots),
-    phase:     'wait',
-  };
-  document.getElementById('app')?.classList.add('is-scoring-exit');
+const COLLAPSE_EASING = 'ease-out';
+
+function captureColLeftPositions() {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return new Map();
+  const map = new Map();
+  for (const el of inner.querySelectorAll('.placement-col[data-col]')) {
+    const col = Number(el.dataset.col);
+    if (!Number.isNaN(col)) map.set(col, el.offsetLeft);
+  }
+  return map;
+}
+
+/** FLIP remaining columns inward after swept tiles are removed from state. */
+function animateColumnCollapse(beforeLeft, onDone) {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) {
+    onDone();
+    return;
+  }
+
+  const ms = spd(COL_COLLAPSE_MS);
+  const movers = [];
+
+  for (const el of inner.querySelectorAll('.placement-col[data-col]')) {
+    const col = Number(el.dataset.col);
+    const oldLeft = beforeLeft.get(col);
+    if (oldLeft == null) continue;
+    const dx = oldLeft - el.offsetLeft;
+    if (Math.abs(dx) < 0.5) continue;
+    movers.push({ el, dx });
+  }
+
+  if (!movers.length) {
+    onDone();
+    return;
+  }
+
+  for (const { el, dx } of movers) {
+    el.classList.add('placement-col--collapsing');
+    el.style.transition = 'none';
+    el.style.transform = `translate3d(${dx}px, 0, 0)`;
+  }
+  inner.offsetHeight;
+
+  for (const { el } of movers) {
+    el.style.transition = `transform ${ms}ms ${COLLAPSE_EASING}`;
+    el.style.transform = 'translate3d(0, 0, 0)';
+  }
+
+  setTimeout(() => {
+    for (const { el } of movers) {
+      el.classList.remove('placement-col--collapsing');
+      el.style.transition = '';
+      el.style.transform = '';
+    }
+    onDone();
+  }, ms);
+}
+
+export function startRowSweepAnimation(cols, onDone) {
+  pinRowScroll();
+  clearSweepExitTimers();
+  state.sweepExit = { cols: [...cols], phase: 'wait', onDone };
+  document.getElementById('app')?.classList.add('is-sweep-exit');
   render();
 
-  state.scoreExitBeatTimer = setTimeout(() => {
-    state.scoreExitBeatTimer = null;
-    if (!state.scoringExit) return;
-    state.scoringExit.phase = 'run';
+  state.sweepExitBeatTimer = setTimeout(() => {
+    state.sweepExitBeatTimer = null;
+    if (!state.sweepExit) return;
+    state.sweepExit.phase = 'run';
     render();
-    state.scoreExitDoneTimer = setTimeout(() => {
-      state.scoreExitDoneTimer = null;
-      commitScoringExit();
+    state.sweepExitDoneTimer = setTimeout(() => {
+      state.sweepExitDoneTimer = null;
+      commitRowSweepExit();
     }, spd(SWEEP_MS));
   }, spd(BEAT_MS));
 }
 
-/** After one line sweep: record it, manage cross-line overlay, then drain queue. */
-export function commitScoringExit() {
-  clearScoreExitTimers();
-  const se = state.scoringExit;
+function commitRowSweepExit() {
+  clearSweepExitTimers();
+  const se = state.sweepExit;
   if (!se) return;
 
-  state.scoredSets.push({
-    ruleId:      se.ruleId,
-    label:       SCORING_RULE_LABELS[se.ruleId] || se.ruleId,
-    cardIds:     [...se.cardIds],
-    slotIndices: [...se.lineSlots],
-  });
-  addCoolOffSweepCards(se.cardIds);
-  state.scoringExit = null;
-  document.getElementById('app')?.classList.remove('is-scoring-exit');
+  const done = se.onDone;
+  state.sweepExit = null;
+  document.getElementById('app')?.classList.remove('is-sweep-exit');
+  render();
+  done?.();
+}
 
-  const stillNeeded = new Set(state.pendingLineSweeps.flatMap(p => p.lineSlots));
-
-  for (let pos = 0; pos < se.lineSlots.length; pos++) {
-    const slotIdx = se.lineSlots[pos];
-    if (stillNeeded.has(slotIdx)) {
-      state.sweepOverlay[slotIdx] = se.cardIds[pos];
-    } else {
-      delete state.sweepOverlay[slotIdx];
-    }
-    state.grid[slotIdx] = null;
+/** Beat → sweep each run; bank stars → points once at the end. */
+export function resolveSweepsAnimated(onDone) {
+  const runs = findSweepRuns();
+  if (!runs.length) {
+    onDone?.();
+    return;
   }
 
-  render();
+  const starsToBank = state.stars;
+  let runIndex = 0;
 
-  const finishSweepChain = () => {
-    if (state.pendingLineSweeps.length > 0) {
-      const next = state.pendingLineSweeps.shift();
-      startScoringExitAnimation(next.lineSlots, next.ruleId, next.cardIds);
+  const finish = () => {
+    if (starsToBank > 0) {
+      state.points += starsToBank;
+      state.stars = 0;
+      render();
+      bankStarsToPoints(starsToBank, onDone);
+    } else {
+      onDone?.();
+    }
+  };
+
+  const next = () => {
+    if (runIndex >= runs.length) {
+      finish();
       return;
     }
-
-    state.sweepOverlay = {};
-
-    resolveAllScoringSets();
-    if (state.scoringExit) return;
-
-    bankScoreToSweptPoints(() => {
-      if (!peekAnyScoringMatch()) {
-        if (!tryOfferCapacityCard()) {
-          checkPhaseTransition();
-          return;
-        }
-      }
+    const run = runs[runIndex++];
+    startRowSweepAnimation(run.map(([col]) => col), () => {
+      const beforeLeft = captureColLeftPositions();
+      applySweepRun(run);
       render();
+      animateColumnCollapse(beforeLeft, () => {
+        requestAnimationFrame(() => unpinRowScroll());
+        next();
+      });
     });
   };
 
-  finishSweepChain();
-}
-
-export function resolveOneScoringSet() {
-  if (state.scoringExit) return false;
-
-  const allMatches = collectScoringMatches().map(m => ({
-    lineSlots: m.filteredLineSlots,
-    lineKey:   m.lineKey,
-    ruleId:    m.ruleId,
-    cardIds:   m.cardIds,
-  }));
-  if (!allMatches.length) return false;
-
-  const [first, ...rest] = allMatches;
-  state.pendingLineSweeps = rest;
-
-  for (const pending of rest) {
-    for (let i = 0; i < pending.lineSlots.length; i++) {
-      const slotIdx = pending.lineSlots[i];
-      if (state.grid[slotIdx] !== null) {
-        state.sweepOverlay[slotIdx] = pending.cardIds[i];
-      }
-    }
-  }
-
-  startScoringExitAnimation(first.lineSlots, first.ruleId, first.cardIds);
-  return true;
-}
-
-export function resolveAllScoringSets() {
-  if (state.scoringExit) return;
-  resolveOneScoringSet();
+  next();
 }

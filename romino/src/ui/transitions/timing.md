@@ -1,8 +1,8 @@
 ---
 module: timing
 layer: ui/transitions
-v: 1.1
-date: 2026-07-11
+v: 1.3
+date: 2026-07-19
 deps: []
 ---
 # Timing — User Story
@@ -11,10 +11,13 @@ As an animator, I need a single source of truth for animation durations so that 
 
 ## Exports
 - `BEAT_MS` (320) — pause before sweep animation starts
-- `SWEEP_MS` (780) — duration of card sweep-out
+- `SWEEP_MS` (780) — duration of upward tile sweep-out
+- `COL_COLLAPSE_MS` (100) — remaining columns slide together after sweep
 - `PREVIEW_FADE_MS` (180) — upcoming-preview strip exit duration
 - `CARD_PLACE_DELAY_MS` (220) — delay after card placement before fill pipeline
 - `CONVERT_MS` (240) — card dice → filled animation duration
+- `COL_SPREAD_MS` (110) — columns slide aside before gap insert
+- `COL_DIE_IN_MS` (95) — die flies tray → gap (fast start, ease-out landing)
 - `TRAY_STAGGER_MS` / `PREVIEW_STAGGER_MS` (60) — stagger between spawned elements
 - `PIP_GAP_MS` (830) / `PIP_TAIL_MS` (990) — earn-coin pip animation spacing
 - `BANK_PIP_*` — score → swept-points pip (2× earn duration); `BANK_PIP_GAP_MS` staggers at mid-travel
@@ -23,4 +26,4 @@ As an animator, I need a single source of truth for animation durations so that 
 All durations are in milliseconds at `--t: 1`. The `spd()` helper in `settings.js` applies the `fastAnimations` multiplier (0.5×) at call-time.
 
 ## Related
-[[sweep-anim]] · [[card-anim]] · [[preview-anim]] · [[settings]]
+[[sweep-anim]] · [[convert-anim]] · [[pip-anim]] · [[settings]]

@@ -1,176 +1,175 @@
-import { state } from '../../logic/state.js';
-import { settings, SETTINGS_CONFIG } from '../../logic/settings.js';
-import { resetGame } from '../../logic/phase.js';
+import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
+import { resetGame } from '../../logic/turn.js';
 import { render } from './render.js';
 
-function syncFourSquareToggleRows() {
-  const fourSquare = settings.fourSquare;
-  for (const [key, needsPlacementMode] of [
-    ['oneToOne', false],
-    ['forbidThirdExtreme', true],
-    ['fillDiscovery', false],
-    ['fillDiscoveryEnd', false],
-    ['progressiveDicePlacement', false],
-    ['progressiveSuitJoker', false],
-  ]) {
-    const input = document.querySelector(`input[data-key="${key}"]`);
-    const row = input?.closest('.settings-row');
-    if (!input) continue;
-    let disabled = !fourSquare || (needsPlacementMode && settings.oneToOne);
-    if (key === 'progressiveSuitJoker') {
-      disabled = !fourSquare || !isProgressiveDicePlacementActive();
+const STORAGE_KEY = 'romino-v2-settings';
+
+/** Pending edits while the panel is open; applied on back. */
+let draftSettings = null;
+
+const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'adjacentColumnsOnly', 'oneToOne', 'suitRestriction'];
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    for (const [k, v] of Object.entries(saved)) {
+      if (k in settings) settings[k] = v;
     }
-    input.disabled = disabled;
-    row?.classList.toggle('settings-row--disabled', disabled);
-  }
-  const partialInput = document.querySelector('input[data-key="partialUniqueIndex"]');
-  const partialRow = partialInput?.closest('.settings-row');
-  if (partialInput) {
-    const disabled = isProgressiveDicePlacementActive();
-    partialInput.disabled = disabled;
-    partialRow?.classList.toggle('settings-row--disabled', disabled);
-  }
+    clampSettings();
+  } catch { /* ignore */ }
 }
 
-function isProgressiveDicePlacementActive() {
-  return settings.progressiveDicePlacement && settings.fourSquare && settings.square;
+function saveSettings() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...settings }));
+  } catch { /* ignore */ }
+}
+
+function clampDraft() {
+  if (draftSettings.nPlace > draftSettings.nRoll) draftSettings.nPlace = draftSettings.nRoll;
+  if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
+}
+
+function needsGameReset(before, after) {
+  return RESET_KEYS.some(key => before[key] !== after[key]);
+}
+
+function applyDraftSettings() {
+  if (!draftSettings) return;
+
+  const previous = { ...settings };
+  const changed = Object.keys(settings).some(key => draftSettings[key] !== settings[key]);
+
+  for (const [key, value] of Object.entries(draftSettings)) {
+    settings[key] = value;
+  }
+  clampSettings();
+  saveSettings();
+  document.documentElement.classList.toggle('fast-anims', settings.fastAnimations);
+  draftSettings = null;
+
+  if (!changed) return;
+
+  if (needsGameReset(previous, settings)) {
+    resetGame();
+  } else {
+    render();
+  }
 }
 
 export function renderSettingsPanel() {
   const container = document.getElementById('settings-toggles');
   container.innerHTML = '';
+
   for (const group of SETTINGS_CONFIG) {
     const header = document.createElement('div');
     header.className = 'settings-group-label';
     header.textContent = group.label;
     container.appendChild(header);
+
     for (const item of group.items) {
-      const row = document.createElement('label');
-      row.className = 'settings-row';
-      const span = document.createElement('span');
-      span.className = 'settings-row-label';
-      span.textContent = item.label;
-      const track = document.createElement('span');
-      track.className = 'settings-toggle';
-      const input = document.createElement('input');
-      input.type = 'checkbox';
-      input.dataset.key = item.key;
-      input.checked = settings[item.key];
-      if (item.key === 'oneToOne' || item.key === 'forbidThirdExtreme' || item.key === 'fillDiscovery' || item.key === 'fillDiscoveryEnd' || item.key === 'progressiveDicePlacement' || item.key === 'progressiveSuitJoker') {
-        let disabled = !settings.fourSquare
-          || (item.key === 'forbidThirdExtreme' && settings.oneToOne);
-        if (item.key === 'progressiveSuitJoker') {
-          disabled = !settings.fourSquare || !isProgressiveDicePlacementActive();
-        }
-        input.disabled = disabled;
-        row.classList.toggle('settings-row--disabled', disabled);
+      if (item.type === 'stepper') {
+        container.appendChild(buildStepperRow(item));
+      } else {
+        container.appendChild(buildToggleRow(item));
       }
-      if (item.key === 'partialUniqueIndex') {
-        input.disabled = isProgressiveDicePlacementActive();
-        row.classList.toggle('settings-row--disabled', input.disabled);
-      }
-      if (item.key === 'chooseDice') {
-        input.disabled = settings.diceDecks;
-        row.classList.toggle('settings-row--disabled', input.disabled);
-      }
-      input.addEventListener('change', () => {
-        settings[item.key] = input.checked;
-        // Dependency: paidSlots requires forbiddenSlots.
-        if (item.key === 'scoring') {
-          settings.paidSlots = false;
-          const paidInput = document.querySelector('input[data-key="paidSlots"]');
-          if (paidInput) paidInput.checked = false;
-        }
-        if (item.key === 'paidSlots' && input.checked) {
-          settings.scoring = true;
-          const scoringInput = document.querySelector('input[data-key="scoring"]');
-          if (scoringInput) scoringInput.checked = true;
-          settings.forbiddenSlots = true;
-          const forbiddenInput = document.querySelector('input[data-key="forbiddenSlots"]');
-          if (forbiddenInput) forbiddenInput.checked = true;
-        }
-        if (item.key === 'forbiddenSlots' && !input.checked) {
-          settings.paidSlots = false;
-          const paidInput = document.querySelector('input[data-key="paidSlots"]');
-          if (paidInput) paidInput.checked = false;
-        }
-        if (item.key === 'fastAnimations') {
-          document.documentElement.classList.toggle('fast-anims', input.checked);
-        }
-        if (item.key === 'peekUnconvertedLayout' && !input.checked) {
-          state.peekUnconvertedCards.clear();
-        }
-        if (item.key === 'square') {
-          document.documentElement.classList.toggle('square-cards', input.checked);
-          if (input.checked) {
-            settings.diceDecks = false;
-            const diceDecksInput = document.querySelector('input[data-key="diceDecks"]');
-            if (diceDecksInput) diceDecksInput.checked = false;
-          } else {
-            settings.fourSquare = false;
-            const fourSquareInput = document.querySelector('input[data-key="fourSquare"]');
-            if (fourSquareInput) fourSquareInput.checked = false;
-          }
-        }
-        if (item.key === 'fourSquare' && input.checked) {
-          settings.square = true;
-          document.documentElement.classList.add('square-cards');
-          const squareInput = document.querySelector('input[data-key="square"]');
-          if (squareInput) squareInput.checked = true;
-        }
-        if (item.key === 'fourSquare' || item.key === 'square' || item.key === 'oneToOne' || item.key === 'progressiveDicePlacement') {
-          syncFourSquareToggleRows();
-        }
-        if (item.key === 'diceDecks' && input.checked) {
-          settings.square = false;
-          settings.chooseDice = false;
-          document.documentElement.classList.remove('square-cards');
-          const squareInput = document.querySelector('input[data-key="square"]');
-          if (squareInput) squareInput.checked = false;
-          const chooseDiceInput = document.querySelector('input[data-key="chooseDice"]');
-          if (chooseDiceInput) {
-            chooseDiceInput.checked = false;
-            chooseDiceInput.disabled = true;
-            chooseDiceInput.closest('.settings-row')?.classList.add('settings-row--disabled');
-          }
-        }
-        if (item.key === 'chooseDice' && input.checked) {
-          settings.diceDecks = false;
-          const diceDecksInput = document.querySelector('input[data-key="diceDecks"]');
-          if (diceDecksInput) diceDecksInput.checked = false;
-        }
-        if (['extendedGrid', 'extraStartCards', 'emptyCards', 'sweepThreeInRow', 'blankDie', 'filterExtremes', 'diceDecks', 'extendedCardDeck', 'deckDice', 'chooseDice', 'square', 'fourSquare', 'fillDiscovery', 'oneToOne', 'forbidThirdExtreme', 'progressiveDicePlacement', 'progressiveSuitJoker'].includes(item.key)) {
-          document.getElementById('settings-panel').classList.remove('is-open');
-          resetGame();
-        } else {
-          render();
-        }
-      });
-      track.appendChild(input);
-      track.insertAdjacentHTML('beforeend', '<span class="settings-toggle-thumb"></span>');
-      row.appendChild(span);
-      row.appendChild(track);
-      container.appendChild(row);
     }
   }
 }
 
-export function initSettingsPanel() {
-  let _settingsTapCount = 0;
-  let _settingsTapTimer = null;
+function buildStepperRow(item) {
+  const row = document.createElement('div');
+  row.className = 'settings-row settings-row--stepper';
 
-  document.getElementById('swept-points').addEventListener('click', () => {
-    _settingsTapCount++;
-    clearTimeout(_settingsTapTimer);
-    _settingsTapTimer = setTimeout(() => { _settingsTapCount = 0; }, 2000);
-    if (_settingsTapCount >= 4) {
-      _settingsTapCount = 0;
+  const label = document.createElement('span');
+  label.className = 'settings-row-label';
+  label.textContent = item.label;
+
+  const controls = document.createElement('div');
+  controls.className = 'settings-stepper';
+
+  const minus = document.createElement('button');
+  minus.type = 'button';
+  minus.className = 'settings-stepper-btn';
+  minus.textContent = '−';
+  minus.setAttribute('aria-label', `Decrease ${item.label}`);
+
+  const value = document.createElement('span');
+  value.className = 'settings-stepper-value';
+  value.textContent = String(draftSettings[item.key]);
+
+  const plus = document.createElement('button');
+  plus.type = 'button';
+  plus.className = 'settings-stepper-btn';
+  plus.textContent = '+';
+  plus.setAttribute('aria-label', `Increase ${item.label}`);
+
+  const update = delta => {
+    const min = item.min ?? 1;
+    const max = item.max ?? 99;
+    draftSettings[item.key] = Math.min(max, Math.max(min, draftSettings[item.key] + delta));
+    clampDraft();
+    value.textContent = String(draftSettings[item.key]);
+  };
+
+  minus.addEventListener('click', () => update(-1));
+  plus.addEventListener('click', () => update(1));
+
+  controls.append(minus, value, plus);
+  row.append(label, controls);
+  return row;
+}
+
+function buildToggleRow(item) {
+  const row = document.createElement('label');
+  row.className = 'settings-row';
+
+  const span = document.createElement('span');
+  span.className = 'settings-row-label';
+  span.textContent = item.label;
+
+  const track = document.createElement('span');
+  track.className = 'settings-toggle';
+
+  const input = document.createElement('input');
+  input.type = 'checkbox';
+  input.dataset.key = item.key;
+  input.checked = draftSettings[item.key];
+
+  input.addEventListener('change', () => {
+    draftSettings[item.key] = input.checked;
+  });
+
+  track.appendChild(input);
+  track.insertAdjacentHTML('beforeend', '<span class="settings-toggle-thumb"></span>');
+  row.append(span, track);
+  return row;
+}
+
+export function initSettingsPanel() {
+  loadSettings();
+  document.documentElement.classList.toggle('fast-anims', settings.fastAnimations);
+
+  let tapCount = 0;
+  let tapTimer = null;
+
+  document.getElementById('app').addEventListener('click', e => {
+    if (!e.target.closest('#hud-score-tap')) return;
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 600);
+    if (tapCount >= 3) {
+      tapCount = 0;
+      draftSettings = { ...settings };
       renderSettingsPanel();
       document.getElementById('settings-panel').classList.add('is-open');
     }
   });
 
   document.getElementById('settings-back').addEventListener('click', () => {
+    applyDraftSettings();
     document.getElementById('settings-panel').classList.remove('is-open');
   });
 }
