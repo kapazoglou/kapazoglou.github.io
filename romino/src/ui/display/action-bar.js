@@ -1,7 +1,8 @@
 import { state } from '../../logic/state.js';
+import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor } from '../../logic/dice-visual.js';
 import { canRoll, canConfirm, canEndGame } from '../../logic/turn.js';
-import { isBarDieInactive } from '../../logic/row.js';
+import { countDiceInRow, isBarDieInactive } from '../../logic/row.js';
 
 export function renderActionBar() {
   const bar = document.getElementById('action-bar');
@@ -22,12 +23,13 @@ export function renderActionBar() {
 
   const confirm = canConfirm();
   const rollDisabled = !canRoll() && !confirm && !canEndGame();
+  const rollLabel = settings.nDice - countDiceInRow();
 
   bar.innerHTML = `
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
     <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}">
       <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
-      <button type="button" class="roll-btn" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${confirm ? 'Confirm placement' : 'Roll dice'}">${state.dicePool}</button>
+      <button type="button" class="roll-btn" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${confirm ? 'Confirm placement' : 'Roll dice'}">${rollLabel}</button>
     </div>
   `;
 }

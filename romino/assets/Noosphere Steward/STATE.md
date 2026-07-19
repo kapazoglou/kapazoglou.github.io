@@ -14,7 +14,7 @@ lastVerified: 2026-07-19
 | Domain | Home | Notes |
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nTiles + toggles incl. `suitRestriction` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nTiles + toggles incl. `suitRestriction`, `consecutiveStars` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -29,6 +29,8 @@ lastVerified: 2026-07-19
 
 ## Modified this session
 
+- **stars.js v1.3** — `consecutiveStars` setting: ±1 / 1↔6 ace pairs vs same value
+- **settings.js v2.4** — `consecutiveStars` toggle in Rules group
 - **stars.js v1.1** — star matching skips tile columns (stack dice only)
 - **settings-panel.js v1.19** — deferred apply on back (draft buffer)
 - **turn.js v1.4** — roll uses spawn id directly (fixes empty tray after roll)
@@ -56,7 +58,7 @@ lastVerified: 2026-07-19
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
 - **turn.js v1.6, row.js v1.10, settings.js v2.3** — `nTiles` cap + stuck-tray game over
 - **game-over.js v1.4, turn.js v1.5+** — game-over sheet; sweep history only (no discovery grid)
-- **navigation-guard.js v1.0, turn.js v1.7** — `beforeunload` when `shouldWarnOnLeave()` (not pristine idle / not replay)
+- **action-bar.js v1.20, row.js v1.11** — roll button label = `nDice − dice in row`
 
 ## Next topological move
 

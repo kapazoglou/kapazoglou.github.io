@@ -4,7 +4,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+### Changed
+- **action-bar.js v1.20, row.js v1.11** — roll button shows `nDice − dice in row` (not unrolled pool only)
+
 ### Added
+- **settings.js v2.4, stars.js v1.3** — `consecutiveStars` toggle (adjacent ±1 / 1↔6 ace vs same value)
+- **settings-panel.js v1.22** — `consecutiveStars` in game-reset keys
 - **navigation-guard.js v1.0** — `beforeunload` confirm when session has progress
 - **turn.js v1.7** — `shouldWarnOnLeave()` (skip fresh reset + game-over replay)
 

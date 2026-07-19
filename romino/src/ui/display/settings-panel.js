@@ -7,7 +7,7 @@ const STORAGE_KEY = 'romino-v2-settings';
 /** Pending edits while the panel is open; applied on back. */
 let draftSettings = null;
 
-const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'nTiles', 'adjacentColumnsOnly', 'oneToOne', 'suitRestriction'];
+const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'nTiles', 'adjacentColumnsOnly', 'oneToOne', 'suitRestriction', 'consecutiveStars'];
 
 function loadSettings() {
   try {

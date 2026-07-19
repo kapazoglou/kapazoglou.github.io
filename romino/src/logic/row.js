@@ -191,6 +191,13 @@ export function countTilesInRow() {
   return Object.values(state.row).filter(column => column.kind === 'tile').length;
 }
 
+export function countDiceInRow() {
+  return Object.values(state.row).reduce(
+    (n, column) => n + (column.kind === 'stack' ? column.dice.length : 0),
+    0,
+  );
+}
+
 /** Any freshly rolled tray die with at least one valid slot? */
 export function hasAnyLegalPlacementForTray() {
   for (const dieId of state.actionBar) {

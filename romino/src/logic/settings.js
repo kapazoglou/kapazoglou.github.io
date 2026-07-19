@@ -14,9 +14,10 @@ export const SETTINGS_CONFIG = [
     group: 'rules',
     label: 'Rules',
     items: [
-      { key: 'adjacentColumnsOnly', label: 'Adjacent columns only', default: true,  type: 'toggle' },
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
+      { key: 'adjacentColumnsOnly', label: 'Adjacent columns only', default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
+      { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: true,  type: 'toggle' },
     ],

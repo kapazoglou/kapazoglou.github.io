@@ -10,7 +10,7 @@ deps: []
 Single source of truth for v2 row game.
 
 ## Key fields
-- `dicePool` — remaining dice (shown on roll button)
+- `dicePool` — unrolled dice remaining in pool
 - `actionBar` — die IDs in tray this turn
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
