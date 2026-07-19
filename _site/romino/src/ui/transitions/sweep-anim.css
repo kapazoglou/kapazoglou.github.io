@@ -1,79 +1,47 @@
-/* ─── Scoring exit: pointer-events freeze ─── */
-#app.is-scoring-exit {
+/* ─── Sweep exit: pointer-events freeze ─── */
+#app.is-sweep-exit {
   pointer-events: none;
 }
 
-/* ─── Score-pending beat (pop before sweep) ─── */
-@keyframes score-card-pop {
-  0%   { transform: scale(1);    }
+.placement-row.is-sweep-run {
+  overflow: visible;
+}
+
+.placement-row-inner.is-sweep-run {
+  overflow: visible;
+}
+
+/* ─── Sweep beat (pop before exit) ─── */
+@keyframes sweep-tile-pop {
+  0%   { transform: scale(1); }
   45%  { transform: scale(1.08); }
-  100% { transform: scale(1);    }
+  100% { transform: scale(1); }
 }
 
-.grid-slot--score-pending .converter-card {
-  animation: score-card-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
+.placement-col--sweep-pending .placement-tile {
+  animation: sweep-tile-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
 }
 
-/* ─── Sweep slot ─── */
-.grid-slot--score-sweep {
+/* ─── Upward tile sweep ─── */
+.placement-col--sweep {
   overflow: visible;
   z-index: 6;
 }
 
-.grid-slot--score-sweep .converter-card {
+.placement-col--sweep .placement-tile {
   overflow: visible;
   animation-duration: calc(0.58s * var(--t));
   animation-fill-mode: forwards;
   animation-timing-function: cubic-bezier(0.33, 1, 0.45, 1);
   animation-delay: calc(var(--exit-order, 0) * 68ms * var(--t));
+  animation-name: row-sweep-v;
 }
 
-/* ─── Sweep direction keyframes ─── */
-@keyframes score-sweep-h {
-  to { transform: translateX(135%); opacity: 0; }
+@keyframes row-sweep-v {
+  to { transform: translateY(-135%); opacity: 0; }
 }
 
-@keyframes score-sweep-v {
-  to { transform: translateY(142%); opacity: 0; }
+/* ─── Post-sweep column collapse ─── */
+.placement-col--collapsing {
+  will-change: transform;
 }
-
-@keyframes score-sweep-d1 {
-  to { transform: translate(128%, 128%); opacity: 0; }
-}
-
-@keyframes score-sweep-d2 {
-  to { transform: translate(-128%, 128%); opacity: 0; }
-}
-
-.grid-slot--score-sweep--h  .converter-card { animation-name: score-sweep-h;  }
-.grid-slot--score-sweep--v  .converter-card { animation-name: score-sweep-v;  }
-.grid-slot--score-sweep--d1 .converter-card { animation-name: score-sweep-d1; }
-.grid-slot--score-sweep--d2 .converter-card { animation-name: score-sweep-d2; }
-
-/* ─── Grid overflow while sweeping ─── */
-#grid-container.is-scoring-sweep {
-  overflow: visible;
-  z-index: 2;
-}
-
-/* ─── SQUARE grid sweep distances (116px cells) ─── */
-@keyframes score-sweep-h-square {
-  to { transform: translateX(135%); opacity: 0; }
-}
-
-@keyframes score-sweep-v-square {
-  to { transform: translateY(115%); opacity: 0; }
-}
-
-@keyframes score-sweep-d1-square {
-  to { transform: translate(115%, 115%); opacity: 0; }
-}
-
-@keyframes score-sweep-d2-square {
-  to { transform: translate(-115%, 115%); opacity: 0; }
-}
-
-html.square-cards .grid-slot--score-sweep--h  .converter-card { animation-name: score-sweep-h-square;  }
-html.square-cards .grid-slot--score-sweep--v  .converter-card { animation-name: score-sweep-v-square;  }
-html.square-cards .grid-slot--score-sweep--d1 .converter-card { animation-name: score-sweep-d1-square; }
-html.square-cards .grid-slot--score-sweep--d2 .converter-card { animation-name: score-sweep-d2-square; }

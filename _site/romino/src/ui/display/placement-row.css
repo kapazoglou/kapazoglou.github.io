@@ -1,0 +1,212 @@
+.placement-row {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overflow-anchor: none;
+  touch-action: pan-x;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  position: relative;
+}
+
+.placement-row::-webkit-scrollbar {
+  display: none;
+}
+
+.placement-row-inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  min-height: 140px;
+  min-width: 100%;
+  width: max-content;
+  position: relative;
+  overflow: visible;
+}
+
+.placement-row-inner > .placement-col + .placement-col {
+  margin-left: var(--die-gap-h);
+}
+
+.placement-row-inner > .placement-col--tile + .placement-col--tile {
+  margin-left: calc(-1 * var(--die-border));
+}
+
+.placement-col {
+  width: var(--col-width);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.placement-col--ghost {
+  height: var(--die-size);
+  width: var(--col-width);
+  padding: 0;
+  opacity: 0.33;
+  border-radius: 12px;
+  align-self: flex-end;
+}
+
+/* Empty row: taller tap target for first die (Figma) */
+.placement-col--ghost-first,
+.placement-col--ghost-edge {
+  height: 140px;
+}
+
+.placement-col--stack,
+.placement-col--tile {
+  min-height: 48px;
+}
+
+.placement-col--stack {
+  gap: 0;
+}
+
+.placement-col--stack:not(.placement-col--stack-bottom-up) > .die--placed + .die--placed {
+  margin-top: calc(-1 * var(--die-border));
+}
+
+.placement-col--stack-bottom-up > .die--placed + .die--placed {
+  margin-bottom: calc(-1 * var(--die-border));
+}
+
+.placement-col--stack-pair {
+  align-items: flex-end;
+}
+
+/* First placed die anchors at bottom; later dice stack upward */
+.placement-col--stack-bottom-up {
+  flex-direction: column-reverse;
+}
+
+.placement-tile {
+  width: var(--die-face);
+  height: var(--tile-face-h);
+  box-sizing: content-box;
+  background: #fff;
+  border: var(--die-border) solid var(--tile-border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Numbers Deuce', serif;
+  font-size: 40px;
+  line-height: 38px;
+  text-align: center;
+  flex-shrink: 0;
+  contain: layout style;
+}
+
+.placement-tile-rank {
+  display: block;
+  margin: 0;
+}
+
+.placement-tile-suit {
+  display: block;
+  margin: 0;
+}
+
+.placement-edge-ghosts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.placement-edge-ghosts .placement-col--ghost-edge {
+  position: absolute;
+  bottom: 0;
+  pointer-events: auto;
+}
+
+.placement-hints {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.placement-hint {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  pointer-events: auto;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 0;
+}
+
+.placement-hint svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.placement-hint:active svg {
+  filter: brightness(1.08);
+}
+
+.die--placed,
+.die--action {
+  width: var(--die-size);
+  height: var(--die-size);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.die--placed svg,
+.die--action svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}
+
+.die--placed {
+  position: relative;
+  z-index: var(--stack-z, 1);
+}
+
+.die--returnable {
+  cursor: pointer;
+}
+
+.die--placed-selected,
+.die--action-selected {
+  position: relative;
+  z-index: calc(var(--stack-z, 1) + 100);
+}
+
+.placement-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.placement-star {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  line-height: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.placement-star .star-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,20 @@
+<h1 id="game-over--user-story">Game Over — User Story</h1>
+
+<p>As a player, when the game ends I want to see a bottom sheet slide up showing my final score, the cards I discovered, and a breakdown of sweeps by type. I can minimize the sheet or tap “play again” to restart.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">initGameOver()</code> — attaches click listeners to <code class="language-plaintext highlighter-rouge">#go-handle</code> (minimize toggle) and <code class="language-plaintext highlighter-rouge">#game-over-restart</code> (calls <code class="language-plaintext highlighter-rouge">resetGame()</code>)</li>
+</ul>
+
+<h2 id="dom-populated-by-showreplay-in-phasejs">DOM populated by <code class="language-plaintext highlighter-rouge">showReplay()</code> in phase.js</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">#game-over-reason</code> — reason string (e.g. “no legal moves remaining”)</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-cards-count</code> — unique discovered cards (count matches grid)</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-cards-grid</code> — one mini thumbnail per unique identity; 2-slot shows domino dice at game over; <code class="language-plaintext highlighter-rouge">fourSquare</code> ON → fixed 4×13 grid (rows Z/X/Y/W, cols suit-only/2–12/A)</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-sweeps</code> — sweep breakdown; <code class="language-plaintext highlighter-rouge">fourSquare</code> ON → centred inline sweep groups (4px between tiles, 32px between groups/lines); otherwise type counts</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-hud</code> — deck remaining (left), swept suit tally (centre), final coins (right); populated by <code class="language-plaintext highlighter-rouge">renderHUD()</code> during replay</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[phase]] · [[grid]] · [[sweeps]] · [[state]]</p>

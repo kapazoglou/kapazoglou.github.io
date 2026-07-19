@@ -1,29 +1,20 @@
-<h1 id="sweep-anim--user-story">Sweep Anim — User Story</h1>
+<h1 id="sweep-anim">Sweep Anim</h1>
 
-<p>As a player, I want filled cards that form a scoring line to visually pop and then fly off the board in their sweep direction (horizontal, vertical, diagonal) before the next round begins.</p>
+<p>Beat pop → upward tile sweep → remaining columns collapse inward.</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">startScoringExitAnimation(lineSlots, ruleId, cardIds)</code> — begins beat + sweep sequence</li>
-  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> — called when sweep animation finishes; clears grid slots, drains queue</li>
-  <li><code class="language-plaintext highlighter-rouge">resolveOneScoringSet()</code> — calls <code class="language-plaintext highlighter-rouge">collectScoringMatches()</code> in sweeps.js; starts first sweep, queues rest</li>
-  <li><code class="language-plaintext highlighter-rouge">resolveAllScoringSets()</code> — entry point; delegates to <code class="language-plaintext highlighter-rouge">resolveOneScoringSet</code></li>
+  <li><code class="language-plaintext highlighter-rouge">startRowSweepAnimation(cols, onDone)</code> — beat then sweep run</li>
+  <li><code class="language-plaintext highlighter-rouge">resolveSweepsAnimated(onDone)</code> — drain all runs, then bank stars with pips</li>
 </ul>
 
-<h2 id="animation-sequence">Animation sequence</h2>
-<ol>
-  <li><strong>Beat phase</strong> (<code class="language-plaintext highlighter-rouge">BEAT_MS</code>): cards pop to 108% scale</li>
-  <li><strong>Run phase</strong> (<code class="language-plaintext highlighter-rouge">SWEEP_MS</code>): cards translate along sweep axis and fade out</li>
-  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> clears slots, fires next queued sweep (cross-line), calls <code class="language-plaintext highlighter-rouge">tryOfferCapacityCard()</code> when done, then <code class="language-plaintext highlighter-rouge">checkPhaseTransition()</code> if no card was dealt</li>
-</ol>
-
-<h2 id="css-classes">CSS classes</h2>
+<h2 id="css">CSS</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">grid-slot--score-pending</code> → beat scale animation</li>
-  <li><code class="language-plaintext highlighter-rouge">grid-slot--score-sweep--h/v/d1/d2</code> → directional sweep keyframes</li>
-  <li><code class="language-plaintext highlighter-rouge">#app.is-scoring-exit</code> → pointer-events: none during animation</li>
-  <li><code class="language-plaintext highlighter-rouge">html.square-cards</code> → alternate sweep keyframes tuned for 110×110 grid cells</li>
+  <li><code class="language-plaintext highlighter-rouge">#app.is-sweep-exit</code> — input freeze</li>
+  <li><code class="language-plaintext highlighter-rouge">.placement-col--sweep-pending</code> — beat scale</li>
+  <li><code class="language-plaintext highlighter-rouge">.placement-col--sweep</code> — <code class="language-plaintext highlighter-rouge">row-sweep-v</code> exit (upward)</li>
+  <li><code class="language-plaintext highlighter-rouge">.placement-col--collapsing</code> — post-sweep FLIP slide</li>
 </ul>
 
 <h2 id="related">Related</h2>
-<p>[[timing]] · [[sweeps]] · [[phase]] · [[render]] · [[card-anim]]</p>
+<p>[[timing]] · [[sweeps-row]] · [[pip-anim]] · [[confirm-anim]]</p>

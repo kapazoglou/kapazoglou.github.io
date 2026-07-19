@@ -678,6 +678,10 @@ body.navbar-auto-hidden > nav.navbar {
     background-image: var(--navbar-rainbow-gradient);
   }
 }
+.card-pin a.stretched-link,
+.card-pin > a[href] {
+  touch-action: pan-y;
+}
 .card-pin.raco.position-relative .stretched-link::after {
   position: absolute;
   top: 0;

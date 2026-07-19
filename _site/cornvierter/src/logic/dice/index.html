@@ -1,0 +1,25 @@
+<h1 id="dice--user-story">Dice — User Story</h1>
+
+<p>As a player, I need dice drawn from a shuffled deck of unique combinations (or random when <code class="language-plaintext highlighter-rouge">deckDice</code> is off) so that I see variety without repeats until the deck runs out. Decks respect <code class="language-plaintext highlighter-rouge">blankDie</code> and <code class="language-plaintext highlighter-rouge">filterExtremes</code>; random mode uses independent rolls via <code class="language-plaintext highlighter-rouge">crypto.getRandomValues</code> (1-die uses the same 2–5 + extreme pool as the 1-die deck).</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">spawnChooseDiceSix()</code> / <code class="language-plaintext highlighter-rouge">spawnChooseDiceThree()</code> — choose-dice tray spawn (6 at round start; 3 after tray card placed)</li>
+  <li><code class="language-plaintext highlighter-rouge">getDeckSize()</code> — total unique 3-die combos under current settings</li>
+  <li><code class="language-plaintext highlighter-rouge">getCardDeckSize()</code> — total cards in the slot-count deck (15 or 78)</li>
+  <li><code class="language-plaintext highlighter-rouge">getAllDiceCombos()</code> — returns full unshuffled combo list</li>
+  <li><code class="language-plaintext highlighter-rouge">drawDiceCombination()</code> / <code class="language-plaintext highlighter-rouge">peekNextDiceCombination()</code> — deck draw / non-consuming peek</li>
+  <li><code class="language-plaintext highlighter-rouge">shuffleArray(arr)</code> — Fisher-Yates in-place shuffle</li>
+  <li><code class="language-plaintext highlighter-rouge">nextComboForDisplay()</code> — next preview combo sorted by display rules</li>
+  <li><code class="language-plaintext highlighter-rouge">sortDiceValuesForDisplay(values)</code> — display-order sort (blanks left, 1s/6s right)</li>
+  <li><code class="language-plaintext highlighter-rouge">sortProgressiveDiceValuesForDisplay(values)</code> — progressive placement tray/preview order (duplicates first; others lead toward 1/6 at end)</li>
+  <li><code class="language-plaintext highlighter-rouge">sortDiceIdsForDisplay(ids)</code> — same but for die ID arrays</li>
+  <li><code class="language-plaintext highlighter-rouge">orderDiceIdsByValues(ids, valueOrder)</code> — align tray order to a saved preview sequence</li>
+  <li><code class="language-plaintext highlighter-rouge">prependReturnedDieToTrayOrder(dieId)</code> — prepends a returned die before dice already in the tray</li>
+  <li><code class="language-plaintext highlighter-rouge">selectLeftmostTrayDie()</code> — sets <code class="language-plaintext highlighter-rouge">state.selectedDieId</code> to the first unplaced selectable tray die (rightmost when <code class="language-plaintext highlighter-rouge">chooseDice</code> is on)</li>
+  <li><code class="language-plaintext highlighter-rouge">oppositeDieValue(value)</code> — 1↔6, 2↔5, 3↔4; null for blank (0)</li>
+  <li><code class="language-plaintext highlighter-rouge">rerollExtremeDieValue(dieId)</code> — tray 1/6 → random 2–5; false when not extreme</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[settings]] · [[cards]] · [[action-bar]] · [[phase]]</p>

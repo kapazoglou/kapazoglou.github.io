@@ -1,0 +1,22 @@
+<h1 id="handlers--user-story">Handlers — User Story</h1>
+
+<p>As a player, I want to tap dice and cards to select and place them. I also want a long-press on the action bar to trigger autoplay mode — the game automatically places cards and dice while I hold down. When <code class="language-plaintext highlighter-rouge">autoplayFirstTwo</code> is on, the first two cards are placed automatically.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">initHandlers()</code> — attaches the main <code class="language-plaintext highlighter-rouge">document</code> click listener for tap-to-select/place; tap <code class="language-plaintext highlighter-rouge">[data-game-over-card]</code> when stuck → <code class="language-plaintext highlighter-rouge">finalizeFromStuck()</code>; when <code class="language-plaintext highlighter-rouge">peekUnconvertedLayout</code> is on, tap filled grid cards toggles pre-conversion layout peek</li>
+  <li><code class="language-plaintext highlighter-rouge">initAutoplay()</code> — attaches long-press listeners on <code class="language-plaintext highlighter-rouge">#action-bar</code></li>
+  <li><code class="language-plaintext highlighter-rouge">autoplayCardStep(onDone)</code> — places one action-bar card on a random empty grid slot</li>
+  <li><code class="language-plaintext highlighter-rouge">autoplayDiceStep(onDone)</code> — places all tray dice in random valid slots</li>
+  <li><code class="language-plaintext highlighter-rouge">autoplayStep(onDone)</code> — dispatches to card or dice autoplay based on current phase</li>
+</ul>
+
+<h2 id="long-press-flow">Long-press flow</h2>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">pointerdown</code> on action bar → start 600 ms timer</li>
+  <li>On fire: <code class="language-plaintext highlighter-rouge">_longPressActive = true</code> → <code class="language-plaintext highlighter-rouge">_autoplayLoop()</code> runs steps continuously</li>
+  <li><code class="language-plaintext highlighter-rouge">pointerup / pointercancel / pointermove &gt; 8px</code> → stops the loop</li>
+</ol>
+
+<h2 id="related">Related</h2>
+<p>[[state]] · [[settings]] · [[phase]] · [[drag-drop]] · [[render]] · [[sweep-anim]]</p>

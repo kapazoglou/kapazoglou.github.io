@@ -1,0 +1,21 @@
+<h1 id="timing--user-story">Timing — User Story</h1>
+
+<p>As an animator, I need a single source of truth for animation durations so that sweep, card, and preview animations stay visually consistent and can be adjusted in one place.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">BEAT_MS</code> (320) — pause before sweep animation starts</li>
+  <li><code class="language-plaintext highlighter-rouge">SWEEP_MS</code> (780) — duration of card sweep-out</li>
+  <li><code class="language-plaintext highlighter-rouge">PREVIEW_FADE_MS</code> (180) — upcoming-preview strip exit duration</li>
+  <li><code class="language-plaintext highlighter-rouge">CARD_PLACE_DELAY_MS</code> (220) — delay after card placement before fill pipeline</li>
+  <li><code class="language-plaintext highlighter-rouge">CONVERT_MS</code> (240) — card dice → filled animation duration</li>
+  <li><code class="language-plaintext highlighter-rouge">TRAY_STAGGER_MS</code> / <code class="language-plaintext highlighter-rouge">PREVIEW_STAGGER_MS</code> (60) — stagger between spawned elements</li>
+  <li><code class="language-plaintext highlighter-rouge">PIP_GAP_MS</code> (830) / <code class="language-plaintext highlighter-rouge">PIP_TAIL_MS</code> (990) — earn-coin pip animation spacing</li>
+  <li><code class="language-plaintext highlighter-rouge">BANK_PIP_*</code> — score → swept-points pip (2× earn duration); <code class="language-plaintext highlighter-rouge">BANK_PIP_GAP_MS</code> staggers at mid-travel</li>
+</ul>
+
+<h2 id="notes">Notes</h2>
+<p>All durations are in milliseconds at <code class="language-plaintext highlighter-rouge">--t: 1</code>. The <code class="language-plaintext highlighter-rouge">spd()</code> helper in <code class="language-plaintext highlighter-rouge">settings.js</code> applies the <code class="language-plaintext highlighter-rouge">fastAnimations</code> multiplier (0.5×) at call-time.</p>
+
+<h2 id="related">Related</h2>
+<p>[[sweep-anim]] · [[card-anim]] · [[preview-anim]] · [[settings]]</p>

@@ -1,19 +1,25 @@
 <h1 id="settings-panel--user-story">Settings Panel — User Story</h1>
 
-<p>As a player, I want to access a hidden settings panel (tap the card-count 4 times) with iOS-style toggles for all game options, and have changes take effect immediately. Changes to grid size or deck composition restart the game; other changes re-render in place.</p>
+<p>As a player, I want to access a hidden settings panel (triple-tap the HUD score) with iOS-style toggles for all game options, and have changes apply when I tap back — not after each toggle. Changes to counts or core rules restart the game; other changes re-render in place.</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
   <li><code class="language-plaintext highlighter-rouge">renderSettingsPanel()</code> — builds toggle rows from <code class="language-plaintext highlighter-rouge">SETTINGS_CONFIG</code> into <code class="language-plaintext highlighter-rouge">#settings-toggles</code></li>
-  <li><code class="language-plaintext highlighter-rouge">initSettingsPanel()</code> — attaches 4-tap listener on <code class="language-plaintext highlighter-rouge">#card-count</code> and back-button listener</li>
+  <li><code class="language-plaintext highlighter-rouge">initSettingsPanel()</code> — attaches 4-tap listener on <code class="language-plaintext highlighter-rouge">#swept-points</code> and back-button listener</li>
 </ul>
 
 <h2 id="toggle-behaviour">Toggle behaviour</h2>
 <ul>
-  <li><strong>fastAnimations</strong> → toggles <code class="language-plaintext highlighter-rouge">html.fast-anims</code> class immediately</li>
+  <li>Edits buffer in a draft while the panel is open; <strong>back</strong> applies all, saves, then <code class="language-plaintext highlighter-rouge">resetGame()</code> or <code class="language-plaintext highlighter-rouge">render()</code></li>
+  <li><strong>fastAnimations</strong> → toggles <code class="language-plaintext highlighter-rouge">html.fast-anims</code> on apply</li>
   <li><strong>peekUnconvertedLayout</strong> (off) → clears <code class="language-plaintext highlighter-rouge">state.peekUnconvertedCards</code></li>
-  <li><strong>extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / oneToOne / forbidThirdExtreme</strong> → closes panel + calls <code class="language-plaintext highlighter-rouge">resetGame()</code></li>
+  <li><strong>extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / chooseDice / fillDiscovery / oneToOne / forbidThirdExtreme / progressiveDicePlacement / progressiveSuitJoker</strong> → closes panel + calls <code class="language-plaintext highlighter-rouge">resetGame()</code></li>
   <li><strong>oneToOne</strong> — disabled when <code class="language-plaintext highlighter-rouge">fourSquare</code> is off</li>
+  <li><strong>fillDiscovery</strong> — disabled when <code class="language-plaintext highlighter-rouge">fourSquare</code> is off</li>
+  <li><strong>fillDiscoveryEnd</strong> — disabled when <code class="language-plaintext highlighter-rouge">fourSquare</code> is off; <code class="language-plaintext highlighter-rouge">render()</code> only (no reset)</li>
+  <li><strong>progressiveDicePlacement</strong> — disabled when <code class="language-plaintext highlighter-rouge">fourSquare</code> is off</li>
+  <li><strong>chooseDice</strong> — disabled when <code class="language-plaintext highlighter-rouge">diceDecks</code> is on; enabling forces <code class="language-plaintext highlighter-rouge">diceDecks</code> off</li>
+  <li><strong>partialUniqueIndex</strong> — disabled when <code class="language-plaintext highlighter-rouge">progressiveDicePlacement</code> is on (no effect while progressive is active)</li>
   <li><strong>forbidThirdExtreme</strong> — disabled when <code class="language-plaintext highlighter-rouge">fourSquare</code> is off or <code class="language-plaintext highlighter-rouge">oneToOne</code> is on</li>
   <li>All others → calls <code class="language-plaintext highlighter-rouge">render()</code></li>
 </ul>

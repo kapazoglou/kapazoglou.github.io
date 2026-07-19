@@ -1,6 +1,6 @@
 <h1 id="drag-drop--user-story">Drag-Drop — User Story</h1>
 
-<p>As a player, I want to drag dice from the tray into card slots and drag hand cards onto grid slots. While dragging a die, forbidden slots show a visual indicator. Dropping in a valid slot updates state and advances the game phase. I can drop a die back onto the action bar to return it to the tray. With <code class="language-plaintext highlighter-rouge">coinFlipDice</code> on, I can drag a coin from the HUD onto a tray die to flip it (costs 1 coin). Entering a valid drop target (die slot, empty grid cell, action-bar return zone, or flippable tray die) triggers device haptics once per target.</p>
+<p>As a player, I want to drag dice from the tray into card slots and drag hand cards onto grid slots. While dragging a die, forbidden slots show a visual indicator. Dropping in a valid slot updates state and advances the game phase. I can drop a die back onto the action bar to return it to the tray. With <code class="language-plaintext highlighter-rouge">coinFlipDice</code> on, I can drag a coin from the HUD onto a tray die to flip it (costs 1 coin). When <code class="language-plaintext highlighter-rouge">allowFirstExtreme</code> is off, I can drag a coin onto a tray 1 or 6 to reroll it to 2–5 (costs 1 coin; takes precedence over flip on extremes). Entering a valid drop target (die slot, empty grid cell, action-bar return zone, or flippable/rerollable tray die) triggers device haptics once per target.</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
@@ -12,8 +12,8 @@
 <h2 id="drag-types">Drag types</h2>
 <ul>
   <li><strong>card drag</strong> — from <code class="language-plaintext highlighter-rouge">.in-tray</code> or <code class="language-plaintext highlighter-rouge">.converter-card--grid-draggable</code>; drops onto empty <code class="language-plaintext highlighter-rouge">.grid-slot</code></li>
-  <li><strong>die drag</strong> — from <code class="language-plaintext highlighter-rouge">.die-wrapper</code>; drops onto <code class="language-plaintext highlighter-rouge">.holder-dice</code> slot, swaps tray order, or returns to tray via <code class="language-plaintext highlighter-rouge">#action-bar</code> drop (hover shows die in tray + post-dice hand card as ghost, selected on release)</li>
-  <li><strong>coin drag</strong> — from <code class="language-plaintext highlighter-rouge">#score-display.is-coin-draggable</code>; drops onto tray <code class="language-plaintext highlighter-rouge">.die-wrapper</code> (no slot) to flip die value (1↔6, 2↔5, 3↔4) for 1 coin</li>
+  <li><strong>die drag</strong> — from <code class="language-plaintext highlighter-rouge">.die--action</code> or returnable <code class="language-plaintext highlighter-rouge">.die--placed</code>; 8px movement starts drag; tap toggles selection (tray) or returns to bar (placed-this-turn); drops onto placement hints or action bar return zone</li>
+  <li><strong>coin drag</strong> — from <code class="language-plaintext highlighter-rouge">#score-display.is-coin-draggable</code>; drops onto tray <code class="language-plaintext highlighter-rouge">.die-wrapper</code> (no slot): flip die value when <code class="language-plaintext highlighter-rouge">coinFlipDice</code> on (1↔6, 2↔5, 3↔4), or reroll 1/6 → 2–5 when <code class="language-plaintext highlighter-rouge">allowFirstExtreme</code> off (1 coin each; reroll wins on extremes)</li>
 </ul>
 
 <h2 id="related">Related</h2>

@@ -1,130 +1,110 @@
-/* ─── ACTION BAR ─── */
 .action-bar {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  justify-content: flex-end;
-  overflow: hidden;
-  padding: 30px;
-  height: 176px; /* 80px content + 56px preview strip */
-  min-width: 0;
-  width: 100%;
   flex-shrink: 0;
+  height: 140px;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px 60px;
+  overflow: hidden;
 }
 
 .action-bar::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: #404040;
+  background: var(--overlay);
   mix-blend-mode: overlay;
   pointer-events: none;
 }
 
-/* When showing dice: column layout — dice row on top, card ghost below */
-.action-bar.mode-dice {
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-start;
+.action-bar-dice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   gap: 20px;
-  padding-bottom: 56px;
-}
-
-/* ─── DICE TRAY ─── */
-.dice-tray {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-  align-items: center;
-}
-
-/* ─── UPCOMING PREVIEW ─── */
-.upcoming-preview {
-  position: absolute;
-  top: 100px;
-  left: 30px;
-  height: 56px;
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* ─── ACTION BAR CARD GHOST ─── */
-.action-bar-card-ghost {
-  flex-shrink: 0;
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-.converter-card.in-tray.is-tray-return-hidden {
-  display: none;
-}
-
-/* Stuck: clickable game-over card replaces ghost (overrides pointer-events + opacity) */
-.action-bar-card-ghost--game-over {
-  pointer-events: auto;
-  opacity: 1;
-  cursor: pointer;
+  width: 100%;
   position: relative;
   z-index: 1;
-  isolation: isolate;
 }
 
-/* Endgame ghost: 116×116 SQUARE tile, accent face, black uppercase label */
-.converter-card.converter-card--square.converter-card--game-over {
-  width: 116px;
-  height: 116px;
-  padding: 0;
-  background: var(--accent);
-  display: block;
-  border-radius: 20px;
-  overflow: hidden;
-}
-
-html.square-cards .converter-card--game-over .square-wrapper--game-over,
-.converter-card--game-over .square-wrapper--game-over {
-  width: 116px;
-  height: 116px;
-  padding: 8px;
-  border-radius: 20px;
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.converter-card--game-over {
+.die--action {
+  width: var(--die-size);
+  height: var(--die-size);
   cursor: pointer;
-  touch-action: manipulation;
+  line-height: 0;
 }
 
-.converter-card--game-over-label {
-  font-family: 'Averia Libre', serif;
-  font-size: 15px;
-  font-weight: 700;
-  color: #000;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  text-align: center;
-  line-height: 1.15;
-  user-select: none;
+.die--action svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}
+
+.die--action-inactive {
+  opacity: 0.45;
+  cursor: default;
   pointer-events: none;
 }
 
-
-/* ─── REPLAY BUTTON ─── */
-#replay-btn {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  cursor: pointer;
-  padding: 8px 20px;
-  line-height: 1;
+.roll-btn-wrap {
+  position: absolute;
+  right: 0;
+  top: 24px;
+  z-index: 2;
+  width: 72px;
+  height: 72px;
+  background: var(--bg);
+  border-radius: 20px 0 0 20px;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 0;
+  margin-left: 0;
 }
-#replay-btn:hover { opacity: 0.8; }
+
+.roll-btn-face {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: var(--die-size);
+  height: var(--die-size);
+  pointer-events: none;
+  line-height: 0;
+}
+
+.roll-btn-face svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+  mix-blend-mode: overlay;
+}
+
+.roll-btn-wrap:has(.roll-btn:not(:disabled)) .roll-btn-face::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 var(--die-border) var(--accent);
+  pointer-events: none;
+}
+
+.roll-btn {
+  position: relative;
+  z-index: 1;
+  width: var(--die-size);
+  height: var(--die-size);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: 'Averia Libre', serif;
+  font-size: 24px;
+  line-height: 38px;
+  color: #fff;
+  text-align: center;
+  padding: 0;
+}
+
+.roll-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

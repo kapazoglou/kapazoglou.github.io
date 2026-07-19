@@ -1,0 +1,18 @@
+.placement-col--spreading {
+  will-change: transform;
+}
+
+.placement-die-flyer {
+  position: absolute;
+  width: var(--die-size);
+  height: var(--die-size);
+  z-index: 500;
+  pointer-events: none;
+  line-height: 0;
+}
+
+.placement-die-flyer svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}

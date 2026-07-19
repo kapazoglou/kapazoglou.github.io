@@ -1,0 +1,19 @@
+<h1 id="convert-anim">Convert Anim</h1>
+
+<p>Salvaged from Square <code class="language-plaintext highlighter-rouge">card-anim</code>: tray slide-in + stack→tile conversion sequence.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">processConverts(cols, index, onDone)</code> — sequential fly-back then mutate</li>
+  <li><code class="language-plaintext highlighter-rouge">animateConverts(onDone)</code> — queue all full stacks on the row</li>
+  <li><code class="language-plaintext highlighter-rouge">animateConvertFlyBack(col, onDone)</code> — (internal) top-first stagger to roll button</li>
+</ul>
+
+<h2 id="css">CSS</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.die--action.is-new</code> — action-bar slide-in</li>
+  <li><code class="language-plaintext highlighter-rouge">.placement-tile.is-new</code> — tile enter pop</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[convert]] · [[confirm-anim]] · [[render]] · [[placement-anim]]</p>

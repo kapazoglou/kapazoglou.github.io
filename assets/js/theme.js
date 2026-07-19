@@ -277,6 +277,10 @@ function loadSearch(){
   var pointerSkippedFx = false
 
   var EFFECT_MS = 200
+  var FX_SCROLL_DELTA_PX = 3
+  var FX_CANCEL_DY_PX = 10
+  var FX_CANCEL_DIST_PX = 20
+  var FX_CANCEL_DIST_SQ = FX_CANCEL_DIST_PX * FX_CANCEL_DIST_PX
   var effectLock = false
   var replaying = false
   var ignoreClicksUntil = 0
@@ -289,7 +293,37 @@ function loadSearch(){
   var activeFxPointerId = null
   var fxDownX = 0
   var fxDownY = 0
+  var fxDownScrollY = 0
+  var fxScrollListenerAttached = false
   var fxCancelledByScroll = false
+
+  function shouldCancelFxForScrollOrDrag(clientX, clientY) {
+    if (Math.abs(window.scrollY - fxDownScrollY) >= FX_SCROLL_DELTA_PX) return true
+    var dx = clientX - fxDownX
+    var dy = clientY - fxDownY
+    if (Math.abs(dy) >= FX_CANCEL_DY_PX) return true
+    if (dx * dx + dy * dy >= FX_CANCEL_DIST_SQ) return true
+    return false
+  }
+
+  function onFxScrollDuringSession() {
+    if (activeFxPointerId === null || fxCancelledByScroll) return
+    if (Math.abs(window.scrollY - fxDownScrollY) >= FX_SCROLL_DELTA_PX) {
+      cancelFxForScrollOrDrag()
+    }
+  }
+
+  function attachFxScrollListener() {
+    if (fxScrollListenerAttached) return
+    window.addEventListener('scroll', onFxScrollDuringSession, { capture: true, passive: true })
+    fxScrollListenerAttached = true
+  }
+
+  function detachFxScrollListener() {
+    if (!fxScrollListenerAttached) return
+    window.removeEventListener('scroll', onFxScrollDuringSession, { capture: true })
+    fxScrollListenerAttached = false
+  }
 
   function clearFxParticles() {
     var nodes = document.querySelectorAll('.click-rainbow-burst, .click-confetti-piece')
@@ -305,6 +339,7 @@ function loadSearch(){
     effectLock = false
     sessionTarget = null
     ignoreClicksUntil = Date.now() + 350
+    detachFxScrollListener()
   }
 
   /** Bootstrap collapse toggles on Deep Dive + Categories — open panel immediately; FX runs in parallel */
@@ -408,7 +443,9 @@ function loadSearch(){
       activeFxPointerId = e.pointerId
       fxDownX = e.clientX
       fxDownY = e.clientY
+      fxDownScrollY = window.scrollY
       fxCancelledByScroll = false
+      attachFxScrollListener()
       sessionX = e.clientX
       sessionY = e.clientY
       sessionTarget = findClickTarget(e.target)
@@ -429,10 +466,9 @@ function loadSearch(){
     function (e) {
       if (activeFxPointerId === null || e.pointerId !== activeFxPointerId) return
       if (fxCancelledByScroll) return
-      var dx = e.clientX - fxDownX
-      var dy = e.clientY - fxDownY
-      if (dx * dx + dy * dy < 144) return
-      cancelFxForScrollOrDrag()
+      if (shouldCancelFxForScrollOrDrag(e.clientX, e.clientY)) {
+        cancelFxForScrollOrDrag()
+      }
     },
     { capture: true, passive: true }
   )
@@ -442,11 +478,17 @@ function loadSearch(){
     if (activeFxPointerId === null) return
     if (e.pointerId !== activeFxPointerId) return
     activeFxPointerId = null
+    detachFxScrollListener()
     if (fxCancelledByScroll) {
       fxCancelledByScroll = false
       return
     }
     if (holdIntervalId === null) return
+    if (shouldCancelFxForScrollOrDrag(e.clientX, e.clientY)) {
+      cancelFxForScrollOrDrag()
+      fxCancelledByScroll = false
+      return
+    }
     e.preventDefault()
     e.stopImmediatePropagation()
     finishPointerSession()

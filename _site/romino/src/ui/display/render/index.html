@@ -4,7 +4,8 @@
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">render()</code> — calls <code class="language-plaintext highlighter-rouge">renderGrid()</code>, <code class="language-plaintext highlighter-rouge">renderActionBar()</code> (unless replay), <code class="language-plaintext highlighter-rouge">renderDiscards()</code>, <code class="language-plaintext highlighter-rouge">renderHUD()</code>, <code class="language-plaintext highlighter-rouge">renderDiscoveryGrid()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">render()</code> — calls <code class="language-plaintext highlighter-rouge">renderPlacementRow()</code>, <code class="language-plaintext highlighter-rouge">renderHUD()</code>, <code class="language-plaintext highlighter-rouge">renderActionBar()</code>; positions edge ghosts + hints in rAF</li>
+  <li><code class="language-plaintext highlighter-rouge">renderSelection()</code> — selection-only path: updates die selection classes, edge ghosts, hints, and action bar without rebuilding row columns/tiles</li>
 </ul>
 
 <h2 id="notes">Notes</h2>

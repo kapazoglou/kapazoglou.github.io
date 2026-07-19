@@ -1,19 +1,8 @@
 <h1 id="römino--verified-pattern-state">römino — Verified Pattern State</h1>
 
-<h2 id="agent-governance">Agent governance</h2>
-
-<ul>
-  <li><strong>2026-06-24:</strong> Noosphere <strong>ALWAYS explicit</strong> — <code class="language-plaintext highlighter-rouge">.cursor/rules/noosphere-steward.mdc</code> mandates STEWARD PASS every response; AGENT.md records user directive.</li>
-  <li><strong>2026-06-24:</strong> STEWARD PASS <strong>markdown table</strong> (replaces ASCII tree — chat soft-wrap broke trees).</li>
-</ul>
-
-<blockquote>
-  <p>Keep this file aligned with the codebase. Update after meaningful changes.</p>
-</blockquote>
-
 <h2 id="topology-phase">Topology phase</h2>
 
-<p><strong>floor</strong> — stable baseline; game loop, scoring, UI layers established.</p>
+<p><strong>row</strong> — v2 row-based dice game; Square v1 removed.</p>
 
 <h2 id="state-ownership">State ownership</h2>
 
@@ -29,112 +18,80 @@
     <tr>
       <td>Game state</td>
       <td><code class="language-plaintext highlighter-rouge">src/logic/state.js</code></td>
-      <td>Single source of truth</td>
+      <td>row map, pool, stars, points</td>
     </tr>
     <tr>
       <td>Settings</td>
       <td><code class="language-plaintext highlighter-rouge">src/logic/settings.js</code></td>
-      <td><code class="language-plaintext highlighter-rouge">SETTINGS_CONFIG</code>, <code class="language-plaintext highlighter-rouge">settings</code>, <code class="language-plaintext highlighter-rouge">spd()</code></td>
+      <td>nDice/nRoll/nPlace/nPlaces + toggles incl. <code class="language-plaintext highlighter-rouge">suitRestriction</code>, <code class="language-plaintext highlighter-rouge">consecutiveStars</code></td>
     </tr>
     <tr>
       <td>DOM</td>
       <td>Derived</td>
-      <td>Read/write via <code class="language-plaintext highlighter-rouge">render()</code> only — never authoritative</td>
-    </tr>
-    <tr>
-      <td>Persistence</td>
-      <td>localStorage</td>
-      <td>Settings panel</td>
-    </tr>
-  </tbody>
-</table>
-
-<h2 id="layer-invariants">Layer invariants</h2>
-
-<table>
-  <thead>
-    <tr>
-      <th>Layer</th>
-      <th>Owns</th>
-      <th>Must NOT</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">logic/</code></td>
-      <td>Rules, pure state mutations</td>
-      <td>Touch DOM</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">ui/display/</code></td>
-      <td>DOM, event listeners</td>
-      <td>Encode game rules</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">ui/transitions/</code></td>
-      <td>CSS classes, timed animations</td>
-      <td>Mutate game state (except anim flags)</td>
+      <td><code class="language-plaintext highlighter-rouge">render()</code> only</td>
     </tr>
   </tbody>
 </table>
 
 <h2 id="entry--render-path">Entry &amp; render path</h2>
 
-<p><code class="language-plaintext highlighter-rouge">index.html</code> → <code class="language-plaintext highlighter-rouge">src/main.js</code> → init handlers → <code class="language-plaintext highlighter-rouge">render()</code> dispatcher (<code class="language-plaintext highlighter-rouge">ui/display/render.js</code>)</p>
+<p><code class="language-plaintext highlighter-rouge">index.html</code> → <code class="language-plaintext highlighter-rouge">src/main.js</code> → init → <code class="language-plaintext highlighter-rouge">render()</code> → hud-v2, placement-row, action-bar</p>
 
-<h2 id="high-centrality-modules-blast-radius">High-centrality modules (blast radius)</h2>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">src/logic/cards.js</code> — card constants, spawn, slot helpers</li>
-  <li><code class="language-plaintext highlighter-rouge">src/logic/phase.js</code> — phase transitions, reset, replay</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/display/handlers.js</code> — input, autoplay</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/transitions/sweep-anim.js</code> — scoring exit animations</li>
-</ul>
-
-<p><strong>Intentional circular imports:</strong> <code class="language-plaintext highlighter-rouge">phase.js</code> ↔ <code class="language-plaintext highlighter-rouge">sweep-anim.js</code>, <code class="language-plaintext highlighter-rouge">phase.js</code> ↔ <code class="language-plaintext highlighter-rouge">handlers.js</code> (calls inside function bodies only).</p>
-
-<h2 id="feedback--observability">Feedback &amp; observability</h2>
+<h2 id="high-centrality-modules">High-centrality modules</h2>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">render()</code> re-syncs DOM from state</li>
-  <li><code class="language-plaintext highlighter-rouge">EVENTS.md</code> — phase/transition event reference</li>
-  <li>Score preview via <code class="language-plaintext highlighter-rouge">scoring.js</code> / <code class="language-plaintext highlighter-rouge">updateScorePreview</code></li>
-</ul>
-
-<h2 id="timing--async">Timing &amp; async</h2>
-
-<ul>
-  <li>All animation ms wrapped in <code class="language-plaintext highlighter-rouge">spd(ms)</code> from <code class="language-plaintext highlighter-rouge">settings.js</code></li>
-  <li>Score exit timers, sweep animations, card fill sequences — ordering-sensitive</li>
+  <li><code class="language-plaintext highlighter-rouge">src/logic/turn.js</code> — roll / confirm pipeline</li>
+  <li><code class="language-plaintext highlighter-rouge">src/logic/row.js</code> — placement rules</li>
+  <li><code class="language-plaintext highlighter-rouge">src/ui/display/handlers.js</code> — input</li>
 </ul>
 
 <h2 id="modified-this-session">Modified this session</h2>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">src/logic/phase.js</code> — <code class="language-plaintext highlighter-rouge">isEndgameAwaitingTap()</code>; hide tray when grid exhausted or stuck</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/display/action-bar.js</code> — no tray/preview when endgame awaits tap</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/display/grid.css</code> — 4-square domino bar <code class="language-plaintext highlighter-rouge">square-bar__sep</code> sizing</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/display/grid.md</code> v2.12</li>
-  <li><code class="language-plaintext highlighter-rouge">assets/Noosphere Steward/AGENT.md</code> — STEWARD PASS layout pointer</li>
-  <li><code class="language-plaintext highlighter-rouge">src/logic/settings.js</code> — <code class="language-plaintext highlighter-rouge">sweepThreeInRow</code> toggle</li>
-  <li><code class="language-plaintext highlighter-rouge">src/logic/sweeps.js</code> — <code class="language-plaintext highlighter-rouge">getThreeSweepSegments</code>, <code class="language-plaintext highlighter-rouge">collectScoringMatches</code></li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/transitions/sweep-anim.js</code> — discovery delegated to sweeps</li>
-  <li><code class="language-plaintext highlighter-rouge">src/ui/display/settings-panel.js</code> — reset on toggle change</li>
+  <li><strong>stars.js v1.3</strong> — <code class="language-plaintext highlighter-rouge">consecutiveStars</code> setting: ±1 / 1↔6 ace pairs vs same value</li>
+  <li><strong>settings.js v2.4</strong> — <code class="language-plaintext highlighter-rouge">consecutiveStars</code> toggle in Rules group</li>
+  <li><strong>stars.js v1.1</strong> — star matching skips tile columns (stack dice only)</li>
+  <li><strong>settings-panel.js v1.19</strong> — deferred apply on back (draft buffer)</li>
+  <li><strong>turn.js v1.4</strong> — roll uses spawn id directly (fixes empty tray after roll)</li>
+  <li><strong>pip-anim.js v1.2</strong> — star fly matches convert style; simultaneous launch; bulk HUD counter update</li>
+  <li><strong>placement-row, action-bar, hud-v2, handlers, drag-drop</strong> — animation classes + <code class="language-plaintext highlighter-rouge">animating</code> input guard</li>
+  <li><strong>drag-drop.js</strong> — tap vs drag threshold; tap selects tray dice / returns placed-this-turn die</li>
+  <li><strong>handlers.js</strong> — die tap delegated to drag-drop pointer-up; click keeps placement hints + deselect</li>
+  <li><strong>drag-drop.js</strong> — drop on action bar returns placed-this-turn die</li>
+  <li><strong>turn.js v1.1</strong> — confirm gated on <code class="language-plaintext highlighter-rouge">placedThisTurn &gt;= nPlace</code></li>
+  <li><strong>sweeps-row.js v1.5</strong> — consecutive rank runs (asc/desc + ace wrap); visual row adjacency (sparse col ids OK)</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>sweeps-row.js v1.4</strong> — ace dual rank (1</td>
+          <td>13) + wrap bridges for ascending sweep runs</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><strong>row.js v1.6, convert.js v1.3, sweeps-row.js v1.2, dice-visual.js v1.9</strong> — 1↔6 ace: bypass 1to1 on pair, convert to rank A (sum 1), sweep 2–A–12</li>
+  <li><strong>dice-visual.js v2.2, action-bar.js, placement-row.js, base.css</strong> — tray + this-turn dice brightened face border; settled row dice white; tiles keep <code class="language-plaintext highlighter-rouge">--tile-border</code></li>
+  <li><strong>base.css</strong> — <code class="language-plaintext highlighter-rouge">--design-size: 412px</code>; <code class="language-plaintext highlighter-rouge">.viewport</code> + <code class="language-plaintext highlighter-rouge">.viewport-inner</code> scale to <code class="language-plaintext highlighter-rouge">min(100vw, 100dvh)</code> with no upper cap; settings panel inside scaled frame</li>
+  <li><strong>placement-row.css</strong> — tile content-box outside border (48×92 outer); horizontal + vertical column border overlap; col padding removed</li>
+  <li><strong>base.css</strong> — <code class="language-plaintext highlighter-rouge">--die-stack-pair-height</code>; <code class="language-plaintext highlighter-rouge">--col-width</code> aliases <code class="language-plaintext highlighter-rouge">--die-size</code></li>
+  <li><strong>row.js v1.2</strong> — gap insert between dice/tiles (not tile↔tile); column shift on adjacency</li>
+  <li><strong>placement-row.css/js, hud-v2.js</strong> — horizontal overflow scroll (all columns visible); HUD chevrons scroll DOM; virtual <code class="language-plaintext highlighter-rouge">viewOffset</code> window removed</li>
+  <li><strong>row.js v1.3</strong> — dropped scroll-range helpers</li>
+  <li><strong>settings.js v2.2, row.js v1.7</strong> — <code class="language-plaintext highlighter-rouge">suitRestriction</code> blocks insert slots adjacent to same-value bottom die</li>
+  <li><strong>row.js v1.9, dice-visual.js v2.3, convert.js v1.4</strong> — block stack completion when convert would duplicate existing tile rank+suit</li>
+  <li><strong>placement-row.js, placement-row.css</strong> — edge ghosts absolute overlay; column layout invariant on die select</li>
+  <li><strong>placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js</strong> — pin viewport-centre content X; sweep upward + column collapse (<code class="language-plaintext highlighter-rouge">COL_COLLAPSE_MS</code>)</li>
+  <li><strong>placement-row.js, placement-row.css, render.js</strong> — star emoji gap markers + <code class="language-plaintext highlighter-rouge">getStarMatchRects</code> for collect pip</li>
+  <li><strong>hud-v2.js, hud-v2.css</strong> — SVG star → ⭐ emoji</li>
+  <li><strong>turn.js v1.9</strong> — <code class="language-plaintext highlighter-rouge">nPlaces</code> no longer triggers game over after sweeps (placement cap unchanged in row.js)</li>
+  <li><strong>settings.js v2.5, row.js v1.12</strong> — <code class="language-plaintext highlighter-rouge">nPlaces</code> column cap (stacks + tiles); block insert/new-column at cap</li>
+  <li><strong>game-over.js v1.4, turn.js v1.5+</strong> — game-over sheet; sweep history only (no discovery grid)</li>
+  <li><strong>action-bar.js v1.20, row.js v1.11</strong> — roll button label = <code class="language-plaintext highlighter-rouge">nDice − dice in row</code></li>
 </ul>
 
 <h2 id="next-topological-move">Next topological move</h2>
 
 <ul>
-  <li>(unset)</li>
-</ul>
-
-<hr />
-
-<h1 id="steward-routine-reference">Steward routine (reference)</h1>
-
-<ul>
-  <li><strong>Before coding:</strong> Update topology phase and verified intent; skim <code class="language-plaintext highlighter-rouge">git log --oneline -10</code> when relevant</li>
-  <li><strong>After file changes:</strong> Update blast radius and modified-files list above</li>
-  <li><strong>At session boundary:</strong> Sync STATE.md; propose commits/tags in prose — commit only when user explicitly asks</li>
-  <li><strong>Never:</strong> Update STATE.md without tracing invariants; commit without user approval and testing</li>
+  <li>Suit tally HUD polish</li>
 </ul>

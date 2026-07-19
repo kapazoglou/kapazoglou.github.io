@@ -1,0 +1,240 @@
+/* ─── GAME-OVER BOTTOM SHEET ─── */
+.game-over-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  background: rgba(7, 13, 26, 0);
+  transition: background calc(0.35s * var(--t)) ease;
+}
+
+.game-over-overlay.is-visible {
+  pointer-events: auto;
+  background: rgba(7, 13, 26, 0.55);
+}
+
+.game-over-overlay.is-minimized { background: rgba(7, 13, 26, 0); }
+
+.game-over-dialog {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 100%;
+  max-width: 500px;
+  transform: translateX(-50%) translateY(100%);
+  background: var(--bg);
+  border-radius: 36px 36px 0 0;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-height: 85vh;
+  transition: transform calc(0.4s * var(--t)) cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.game-over-overlay.is-visible .game-over-dialog {
+  transform: translateX(-50%) translateY(0);
+}
+
+.game-over-overlay.is-visible.is-minimized .game-over-dialog {
+  transform: translateX(-50%) translateY(calc(100% - 84px));
+}
+
+/* Handle bar */
+.go-handle {
+  width: 100%; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 12px 24px 40px;
+  cursor: pointer; user-select: none;
+}
+
+.go-handle-bar {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--text-dim); opacity: 0.4;
+}
+
+.go-handle-row {
+  width: 100%; display: flex;
+  align-items: center; justify-content: space-between; gap: 12px;
+}
+
+.go-handle-row .game-over-btn { pointer-events: auto; }
+
+.game-over-title  { font-size: 28px; color: var(--text-primary); line-height: 1; }
+.game-over-reason { font-size: 14px; color: var(--text-dim); text-align: left; line-height: 1.3; }
+
+.go-inner {
+  width: 100%; display: flex; flex-direction: column; align-items: center;
+  gap: 16px; padding: 16px 20px 10px; overflow-y: auto;
+}
+
+.game-over-btn {
+  background: var(--accent);
+  height: 36px; padding: 0 20px;
+  border-radius: 99px; border: none; cursor: pointer;
+  font-family: 'Averia Libre', serif;
+  font-size: 18px; color: #364254; white-space: nowrap; flex-shrink: 0;
+}
+.game-over-btn:active { transform: scale(0.95); }
+
+.go-body {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 2px;
+}
+
+.go-stat-row   { display: flex; align-items: baseline; gap: 10px; }
+.go-stat-value { font-size: 40px; color: var(--text-primary); line-height: 1; }
+.go-stat-label { font-size: 15px; color: var(--text-dim); }
+
+.go-cards-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.go-cards-grid--four-square {
+  display: grid;
+  grid-template-columns: repeat(13, 32px);
+  grid-template-rows: repeat(4, 32px);
+  gap: 2px;
+  margin-inline: auto;
+}
+
+.go-cards-grid--fill-discovery {
+  display: grid;
+  grid-template-columns: repeat(13, 24px);
+  grid-template-rows: repeat(4, 24px) 24px;
+  gap: 4px;
+  margin-inline: auto;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-cell {
+  width: 24px;
+  height: 24px;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-cell--empty {
+  visibility: hidden;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-tile {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-tile__suit {
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 21px;
+  line-height: 1;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  isolation: isolate;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #404040;
+  mix-blend-mode: overlay;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.go-cards-grid--fill-discovery .discovery-fill-header__label {
+  position: relative;
+  z-index: 1;
+  color: var(--text-primary);
+}
+
+html.square-cards .go-cards-grid--four-square .go-card-wrap--empty {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+html.square-cards .go-card-wrap {
+  width: 60px;
+  height: 60px;
+}
+
+html.square-cards .go-card-wrap .converter-card--square {
+  transform: scale(0.517);
+}
+
+html.square-cards .go-card-wrap:has(.converter-card--four-square) {
+  width: 32px;
+  height: 32px;
+}
+
+html.square-cards .go-card-wrap .converter-card--four-square {
+  transform: scale(calc(32 / 116));
+}
+
+.go-card-wrap .converter-card--domino .holder-dice {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.go-section-label {
+  font-size: 13px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  text-align: center;
+}
+
+.go-sweeps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.go-sweeps-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  --go-suit-tile: 32px;
+  column-gap: var(--go-suit-tile);
+  row-gap: var(--go-suit-tile);
+}
+.go-sweep-group { display: inline-flex; flex-wrap: nowrap; align-items: center; gap: 4px; }
+.go-sweep-row { display: flex; justify-content: space-between; align-items: center; font-size: 16px; color: var(--text-primary); }
+.go-sweep-label { color: var(--text-dim); }
+.go-sweep-count { font-size: 20px; color: var(--accent); }
+.go-sweep-empty { font-size: 15px; color: var(--text-dim); font-style: italic; }
+
+.go-hud {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 8px 0 4px;
+  font-family: 'Numbers Deuce', 'Averia Libre', serif;
+  font-size: 28px;
+  color: var(--text-primary);
+  flex-shrink: 0;
+}

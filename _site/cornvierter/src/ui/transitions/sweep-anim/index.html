@@ -1,0 +1,29 @@
+<h1 id="sweep-anim--user-story">Sweep Anim — User Story</h1>
+
+<p>As a player, I want filled cards that form a scoring line to visually pop and then fly off the board in their sweep direction (horizontal, vertical, diagonal) before the next round begins.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">startScoringExitAnimation(lineSlots, ruleId, cardIds)</code> — begins beat + sweep sequence</li>
+  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> — called when sweep animation finishes; drains all queued/cascade sweeps, then animates score → swept points once</li>
+  <li><code class="language-plaintext highlighter-rouge">resolveOneScoringSet()</code> — calls <code class="language-plaintext highlighter-rouge">collectScoringMatches()</code> in sweeps.js; starts first sweep, queues rest</li>
+  <li><code class="language-plaintext highlighter-rouge">resolveAllScoringSets()</code> — entry point; delegates to <code class="language-plaintext highlighter-rouge">resolveOneScoringSet</code></li>
+</ul>
+
+<h2 id="animation-sequence">Animation sequence</h2>
+<ol>
+  <li><strong>Beat phase</strong> (<code class="language-plaintext highlighter-rouge">BEAT_MS</code>): cards pop to 108% scale</li>
+  <li><strong>Run phase</strong> (<code class="language-plaintext highlighter-rouge">SWEEP_MS</code>): cards translate along sweep axis and fade out</li>
+  <li><code class="language-plaintext highlighter-rouge">commitScoringExit()</code> clears slots, fires next queued sweep (cross-line), calls <code class="language-plaintext highlighter-rouge">tryOfferCapacityCard()</code> when done, then <code class="language-plaintext highlighter-rouge">checkPhaseTransition()</code> if no card was dealt</li>
+</ol>
+
+<h2 id="css-classes">CSS classes</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">grid-slot--score-pending</code> → beat scale animation</li>
+  <li><code class="language-plaintext highlighter-rouge">grid-slot--score-sweep--h/v/d1/d2</code> → directional sweep keyframes</li>
+  <li><code class="language-plaintext highlighter-rouge">#app.is-scoring-exit</code> → pointer-events: none during animation</li>
+  <li><code class="language-plaintext highlighter-rouge">html.square-cards</code> → alternate sweep keyframes tuned for 110×110 grid cells</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[sweeps]] · [[phase]] · [[render]] · [[card-anim]]</p>

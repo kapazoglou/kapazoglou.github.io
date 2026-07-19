@@ -1,19 +1,16 @@
-<h1 id="game-over--user-story">Game Over — User Story</h1>
+<h1 id="game-over">Game Over</h1>
 
-<p>As a player, when the game ends I want to see a bottom sheet slide up showing my final score, the cards I discovered, and a breakdown of sweeps by type. I can minimize the sheet or tap “play again” to restart.</p>
+<p>Bottom sheet when the dice pool cannot fill a full roll (<code class="language-plaintext highlighter-rouge">dicePool &lt; nRoll</code>), tile cap exceeded, or tray is stuck. Rendered inside <code class="language-plaintext highlighter-rouge">.viewport-inner</code> (412×412 design frame).</p>
 
 <h2 id="exports">Exports</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">initGameOver()</code> — attaches click listeners to <code class="language-plaintext highlighter-rouge">#go-handle</code> (minimize toggle) and <code class="language-plaintext highlighter-rouge">#game-over-restart</code> (calls <code class="language-plaintext highlighter-rouge">resetGame()</code>)</li>
+  <li><code class="language-plaintext highlighter-rouge">initGameOver()</code> — handle minimize + PLAY AGAIN → <code class="language-plaintext highlighter-rouge">resetGame()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">showGameOver(reason?)</code> — populate swept points, sweeps; reveal overlay</li>
+  <li><code class="language-plaintext highlighter-rouge">sweepListHTML()</code> — sweep row markup</li>
 </ul>
 
-<h2 id="dom-populated-by-showreplay-in-phasejs">DOM populated by <code class="language-plaintext highlighter-rouge">showReplay()</code> in phase.js</h2>
+<h2 id="dom">DOM</h2>
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">#game-over-reason</code> — reason string (e.g. “no legal moves remaining”)</li>
-  <li><code class="language-plaintext highlighter-rouge">#go-cards-count</code> — unique discovered cards (count matches grid)</li>
-  <li><code class="language-plaintext highlighter-rouge">#go-cards-grid</code> — one mini thumbnail per unique identity; 2-slot shows domino dice at game over; <code class="language-plaintext highlighter-rouge">fourSquare</code> ON → fixed 4×13 grid (rows Z/X/Y/W, cols suit-only/2–12/A)</li>
-  <li><code class="language-plaintext highlighter-rouge">#go-sweeps</code> — sweep breakdown; <code class="language-plaintext highlighter-rouge">fourSquare</code> ON → one row per sweep, comma-separated mini cards; otherwise type counts</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-score-value</code> — final <code class="language-plaintext highlighter-rouge">state.points</code> (swept points only)</li>
+  <li><code class="language-plaintext highlighter-rouge">#go-sweeps</code> — wrapped sweep groups within sheet width</li>
 </ul>
-
-<h2 id="related">Related</h2>
-<p>[[phase]] · [[grid]] · [[sweeps]] · [[state]]</p>

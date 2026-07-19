@@ -1,0 +1,17 @@
+<h1 id="placement-anim">Placement Anim</h1>
+
+<p>Two-phase bar placement: gap inserts spread the row; fly-in starts at 25% of spread and overlaps through landing. Stack / new-column fly only (no spread). Row reposition stays instant.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">placeDieWithAnim(dieId, slot)</code> — validates, sets <code class="language-plaintext highlighter-rouge">phase: animating</code>, restores <code class="language-plaintext highlighter-rouge">phase: rolled</code> + <code class="language-plaintext highlighter-rouge">render()</code> on done</li>
+</ul>
+
+<h2 id="css">CSS</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.placement-col--spreading</code> — transform spread on columns shifting right</li>
+  <li><code class="language-plaintext highlighter-rouge">.placement-die-flyer</code> — straight <code class="language-plaintext highlighter-rouge">transform</code> tray → final slot (precomputed landing, not mid-spread rects)</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[row]] · [[handlers]] · [[drag-drop]] · [[render]]</p>

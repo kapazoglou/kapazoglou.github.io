@@ -1,0 +1,89 @@
+<h3 id="core-tools-for-thinking-agents"><em>Core Tools for Thinking Agents</em></h3>
+
+<hr />
+
+<h3 id="the-core-five-always-available">THE CORE FIVE (Always Available)</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Tool</th>
+      <th>Purpose</th>
+      <th>Invariant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">read(path)</code></strong></td>
+      <td>Load content from file, URL, or stream.</td>
+      <td>Always returns decoded, usable text/data. Never raw bytes.</td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">write(path, content)</code></strong></td>
+      <td>Persist content. Creates or overwrites.</td>
+      <td>Always atomic. Never mutates in place. Logs intent first.</td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">search(query)</code></strong></td>
+      <td>Retrieve time-sensitive knowledge.</td>
+      <td>Must cite sources. Don’t be overconfident.</td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">execute(code)</code></strong></td>
+      <td>Run safe, sandboxed code (Python, shell, SQL).</td>
+      <td>No persistence. Time-limited. Returns stdout + error.</td>
+    </tr>
+    <tr>
+      <td><strong><code class="language-plaintext highlighter-rouge">call(api, payload)</code></strong></td>
+      <td>Invoke REST, GraphQL, or event API.</td>
+      <td>Never leaks auth. Always validates response shape.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="tool-invariants-must-always-hold">TOOL INVARIANTS (Must Always Hold)</h3>
+
+<ol>
+  <li><strong>Discoverable</strong><br />
+Every tool has a one-sentence description and example.</li>
+  <li><strong>Idempotent When Possible</strong><br />
+Same input → same outcome.</li>
+  <li><strong>Fail Fast, Fail Clear</strong><br />
+Errors name the <em>exact</em> failure (e.g., “404: file not found”).</li>
+  <li><strong>No Sidechains</strong><br />
+No untracked subprocesses. All effects are visible.</li>
+  <li><strong>User-Auditable</strong><br />
+Every call logs: <em>what</em>, <em>why</em>, <em>when</em>, <em>outcome</em>.</li>
+</ol>
+
+<hr />
+
+<h3 id="usage-discipline">USAGE DISCIPLINE</h3>
+
+<ul>
+  <li><strong>Never assume availability</strong> — always verify.</li>
+  <li><strong>State intent before acting</strong>:
+    <blockquote>
+      <p>“I will <code class="language-plaintext highlighter-rouge">read(src/config.json)</code> to check API key format.”</p>
+    </blockquote>
+  </li>
+  <li><strong>Ask before crossing boundaries</strong>:
+    <blockquote>
+      <p>“To fix this, I need to <code class="language-plaintext highlighter-rouge">write(docs/api.md)</code>. Confirm?”</p>
+    </blockquote>
+  </li>
+  <li><strong>Use <code class="language-plaintext highlighter-rouge">execute()</code> only when no safer tool exists</strong> — it’s the last resort.</li>
+</ul>
+
+<hr />
+
+<h3 id="extensions-user-defined">EXTENSIONS (User-Defined)</h3>
+
+<p>Users may define domain tools (e.g., <code class="language-plaintext highlighter-rouge">deploy()</code>, <code class="language-plaintext highlighter-rouge">notify()</code>), but must:</p>
+<ul>
+  <li>Attach <strong>purpose</strong>, <strong>schema</strong>, and <strong>risk profile</strong>.</li>
+  <li>Register in <code class="language-plaintext highlighter-rouge">USER_TOOLS.md</code> (not this file).</li>
+  <li>Never override core tool behavior.</li>
+</ul>

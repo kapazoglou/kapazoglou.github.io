@@ -1,0 +1,21 @@
+/* ─── Action-bar slide-in (salvaged from Square card-anim) ─── */
+@keyframes action-bar-slide-in {
+  0%   { transform: translateY(44px) scale(0.88); opacity: 0; }
+  65%  { transform: translateY(-5px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+.die--action.is-new {
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+/* ─── Stack → tile conversion ─── */
+@keyframes placement-tile-enter {
+  0%   { opacity: 0; transform: scale(0.88); }
+  65%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.placement-tile.is-new {
+  animation: placement-tile-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}

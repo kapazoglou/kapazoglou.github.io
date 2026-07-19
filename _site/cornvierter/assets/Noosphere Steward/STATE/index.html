@@ -1,0 +1,134 @@
+<h1 id="römino--verified-pattern-state">römino — Verified Pattern State</h1>
+
+<h2 id="agent-governance">Agent governance</h2>
+
+<ul>
+  <li><strong>2026-06-24:</strong> Noosphere <strong>ALWAYS explicit</strong> — <code class="language-plaintext highlighter-rouge">.cursor/rules/noosphere-steward.mdc</code> mandates STEWARD PASS every response; AGENT.md records user directive.</li>
+  <li><strong>2026-06-24:</strong> STEWARD PASS <strong>markdown table</strong> (replaces ASCII tree — chat soft-wrap broke trees).</li>
+</ul>
+
+<blockquote>
+  <p>Keep this file aligned with the codebase. Update after meaningful changes.</p>
+</blockquote>
+
+<h2 id="topology-phase">Topology phase</h2>
+
+<p><strong>floor</strong> — stable baseline; game loop, scoring, UI layers established.</p>
+
+<h2 id="state-ownership">State ownership</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Domain</th>
+      <th>Home</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Game state</td>
+      <td><code class="language-plaintext highlighter-rouge">src/logic/state.js</code></td>
+      <td>Single source of truth</td>
+    </tr>
+    <tr>
+      <td>Settings</td>
+      <td><code class="language-plaintext highlighter-rouge">src/logic/settings.js</code></td>
+      <td><code class="language-plaintext highlighter-rouge">SETTINGS_CONFIG</code>, <code class="language-plaintext highlighter-rouge">settings</code>, <code class="language-plaintext highlighter-rouge">spd()</code></td>
+    </tr>
+    <tr>
+      <td>DOM</td>
+      <td>Derived</td>
+      <td>Read/write via <code class="language-plaintext highlighter-rouge">render()</code> only — never authoritative</td>
+    </tr>
+    <tr>
+      <td>Persistence</td>
+      <td>localStorage</td>
+      <td>Settings panel</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="layer-invariants">Layer invariants</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Layer</th>
+      <th>Owns</th>
+      <th>Must NOT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">logic/</code></td>
+      <td>Rules, pure state mutations</td>
+      <td>Touch DOM</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ui/display/</code></td>
+      <td>DOM, event listeners</td>
+      <td>Encode game rules</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ui/transitions/</code></td>
+      <td>CSS classes, timed animations</td>
+      <td>Mutate game state (except anim flags)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="entry--render-path">Entry &amp; render path</h2>
+
+<p><code class="language-plaintext highlighter-rouge">index.html</code> → <code class="language-plaintext highlighter-rouge">src/main.js</code> → init handlers → <code class="language-plaintext highlighter-rouge">render()</code> dispatcher (<code class="language-plaintext highlighter-rouge">ui/display/render.js</code>)</p>
+
+<h2 id="high-centrality-modules-blast-radius">High-centrality modules (blast radius)</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">src/logic/cards.js</code> — card constants, spawn, slot helpers</li>
+  <li><code class="language-plaintext highlighter-rouge">src/logic/phase.js</code> — phase transitions, reset, replay</li>
+  <li><code class="language-plaintext highlighter-rouge">src/ui/display/handlers.js</code> — input, autoplay</li>
+  <li><code class="language-plaintext highlighter-rouge">src/ui/transitions/sweep-anim.js</code> — scoring exit animations</li>
+</ul>
+
+<p><strong>Intentional circular imports:</strong> <code class="language-plaintext highlighter-rouge">phase.js</code> ↔ <code class="language-plaintext highlighter-rouge">sweep-anim.js</code>, <code class="language-plaintext highlighter-rouge">phase.js</code> ↔ <code class="language-plaintext highlighter-rouge">handlers.js</code> (calls inside function bodies only).</p>
+
+<h2 id="feedback--observability">Feedback &amp; observability</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">render()</code> re-syncs DOM from state</li>
+  <li><code class="language-plaintext highlighter-rouge">EVENTS.md</code> — phase/transition event reference</li>
+  <li>Score preview via <code class="language-plaintext highlighter-rouge">scoring.js</code> / <code class="language-plaintext highlighter-rouge">updateScorePreview</code></li>
+</ul>
+
+<h2 id="timing--async">Timing &amp; async</h2>
+
+<ul>
+  <li>All animation ms wrapped in <code class="language-plaintext highlighter-rouge">spd(ms)</code> from <code class="language-plaintext highlighter-rouge">settings.js</code></li>
+  <li>Score exit timers, sweep animations, card fill sequences — ordering-sensitive</li>
+</ul>
+
+<h2 id="modified-this-session">Modified this session</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">src/logic/dice.js</code> — <code class="language-plaintext highlighter-rouge">rerollExtremeDieValue</code> for coin reroll on tray 1/6</li>
+  <li><code class="language-plaintext highlighter-rouge">src/ui/display/hud.js</code> — coin draggable when <code class="language-plaintext highlighter-rouge">allowFirstExtreme</code> OFF</li>
+  <li><code class="language-plaintext highlighter-rouge">src/ui/display/drag-drop.js</code> — coin drop reroll on tray 1/6 (precedence over flip)</li>
+</ul>
+
+<h2 id="next-topological-move">Next topological move</h2>
+
+<ul>
+  <li>(unset)</li>
+</ul>
+
+<hr />
+
+<h1 id="steward-routine-reference">Steward routine (reference)</h1>
+
+<ul>
+  <li><strong>Before coding:</strong> Update topology phase and verified intent; skim <code class="language-plaintext highlighter-rouge">git log --oneline -10</code> when relevant</li>
+  <li><strong>After file changes:</strong> Update blast radius and modified-files list above</li>
+  <li><strong>At session boundary:</strong> Sync STATE.md; propose commits/tags in prose — commit only when user explicitly asks</li>
+  <li><strong>Never:</strong> Update STATE.md without tracing invariants; commit without user approval and testing</li>
+</ul>

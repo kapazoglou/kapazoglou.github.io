@@ -1,11 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Averia+Libre&display=swap');
-@import url('src/ui/display/hud.css');
-@import url('src/ui/display/grid.css');
+@import url('src/ui/display/hud-v2.css');
+@import url('src/ui/display/placement-row.css');
 @import url('src/ui/display/action-bar.css');
 @import url('src/ui/display/settings-panel.css');
 @import url('src/ui/display/game-over.css');
-@import url('src/ui/transitions/card-anim.css');
-@import url('src/ui/transitions/preview-anim.css');
+@import url('src/ui/transitions/convert-anim.css');
+@import url('src/ui/transitions/placement-anim.css');
+@import url('src/ui/transitions/pip-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
 
 @font-face {
@@ -23,20 +24,45 @@
 
 :root {
   --bg:           #334466;
-  --die-face:     #070d1a;
   --accent:       #ffe500;
-  --card-bg:      #ffffff;
-  --card-border:  #d3d6e5;
-  --holder:       #d3d6e5;
-  --tile-border:  #5c5e66;
+  --tile-border:  #DEE2E6;
+  --overlay:      #545454;
   --text-primary: #ffffff;
-  --text-dim:     rgba(255, 255, 255, 0.66);
-  --die-size:     40px;
-  /* Animation speed multiplier: 1 = normal, 0.5 = 2× faster */
+  --text-dim:     rgba(255, 255, 255, 0.55);
+  --design-size:  412px;
+  --frame-size:   min(100vw, 100dvh);
+  --viewport-scale: calc(var(--frame-size) / var(--design-size));
+  --die-size:     48px;
+  --die-border:   4px;
+  --die-face:     calc(var(--die-size) - 2 * var(--die-border));
+  --die-stack-pair-height: calc(2 * var(--die-size) - var(--die-border));
+  --tile-face-h:  calc(var(--die-stack-pair-height) - 2 * var(--die-border));
+  --die-gap-h:    6px;
+  --col-width:    var(--die-size);
   --t: 1;
 }
 
 html.fast-anims { --t: 0.5; }
+
+/* Die SVG outer ring — tray + this-turn row use brightened face via --die-border-fill; settled row dice white */
+.die-border-ring {
+  fill: #ffffff;
+}
+
+.die--action:not(.die--action-selected) .die-border-ring,
+.die--placed.die--returnable:not(.die--placed-selected) .die-border-ring {
+  fill: var(--die-border-fill, #ffffff);
+}
+
+.die--placed:not(.die--returnable):not(.die--placed-selected) .die-border-ring {
+  fill: #ffffff;
+}
+
+.die--placed-selected .die-border-ring,
+.die--action-selected .die-border-ring,
+#drag-ghost .die-border-ring {
+  fill: var(--accent);
+}
 
 html, body {
   height: 100%;
@@ -62,33 +88,57 @@ body {
   align-items: center;
 }
 
-/* ─── TEMPLATE ─── */
-.template {
+.viewport {
+  width: var(--frame-size);
+  height: var(--frame-size);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.viewport-inner {
+  width: var(--design-size);
+  height: var(--design-size);
+  transform: scale(var(--viewport-scale));
+  transform-origin: top left;
   position: relative;
-  width: 100vw;
-  max-width: 500px;
-  height: 100dvh;
+}
+
+.template {
+  width: var(--design-size);
+  height: var(--design-size);
   min-height: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: stretch;
   overflow: hidden;
   background: var(--bg);
 }
 
-.template.template--score-sweep {
-  overflow: visible;
-  z-index: 3;
+.separator {
+  border: none;
+  height: 1px;
+  background: var(--bg);
+  flex-shrink: 0;
+  width: 100%;
 }
 
-/* ─── PANEL INITIAL POSITIONS ─────────────────────────────────────────────────
-   Set the off-screen transform before module CSS (with transitions) is injected,
-   so the browser never animates from the default position on first paint. */
-#settings-panel  { transform: translateY(100%); }
-.game-over-dialog { transform: translateX(-50%) translateY(100%); }
-
-/* ─── DISCARDS (hidden in new UI, kept for game logic) ─── */
-.discards {
+#drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.85;
   display: none;
+  line-height: 0;
+}
+
+#drag-ghost svg {
+  display: block;
+  width: calc(var(--die-size) * var(--viewport-scale));
+  height: calc(var(--die-size) * var(--viewport-scale));
+}
+
+.star-pip .star-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
 }

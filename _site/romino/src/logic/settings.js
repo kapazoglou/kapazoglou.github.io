@@ -1,91 +1,25 @@
-// Edit SETTINGS_CONFIG to add/reorder/group toggles.
-// Each group has a label and an items array; each item needs key, label, default.
+// v2 settings — steppers + toggles wired through SETTINGS_CONFIG
 export const SETTINGS_CONFIG = [
   {
-    group: 'square',
-    label: 'Square v1',
+    group: 'counts',
+    label: 'Counts',
     items: [
-      { key: 'deckDice',         label: 'Dice decks/Random',                         default: false  },
-      { key: 'coinFlipDice',   label: 'Flip dice for coin',                          default: false },
-      { key: 'extendedGrid',      label: 'Extended grid (4 × 4)',                    default: false },
-      { key: 'extraStartCards',   label: 'Extra start cards',                        default: false },
-      { key: 'square',            label: 'SQUARE — square card layout',              default: true },
-      { key: 'fourSquare',        label: '4-square — 4 slot card',                   default: true },
-      { key: 'oneToOne',          label: 'One-to-one — combo fixes card identity',   default: false },
-      { key: 'forbidThirdExtreme', label: 'Forbid 1/6 as third die',                default: false },
-      { key: 'coolOff',           label: 'Sweep cool-off ',                          default: false },
-      { key: 'uniqueIndex',      label: 'Unique index',                              default: true  },
-      { key: 'partialUniqueIndex', label: 'Partial unique index',                    default: false },
-      { key: 'peekUnconvertedLayout', label: 'Peek unconverted',                     default: true },
-      { key: 'placementRestrictions', label: 'Placement restrictions',               default: false },
-      { key: 'forbiddenSlots', label: 'Forbidden slots',                             default: true  },
-      { key: 'scoring',          label: 'Earn coins',                                default: true  },
-      { key: 'gridCoinsExcludeConverted', label: 'Coins exclude converted',          default: true  },
-      { key: 'gridCoinsSum7',           label: 'Coins diff/same numbers',            default: true },
-      { key: 'set',        label: 'Set same number',                                 default: true  },
-      { key: 'runFlush',   label: 'Run flush — consecutive numbers, same suit',      default: true  },
-      { key: 'runDiff',    label: 'Run diff — consecutive numbers, all diff suits',  default: true  },
-      { key: 'runAny',     label: 'Run any — consecutive numbers, any suits',        default: true },
-      { key: 'flush',      label: 'Flush — same suit',                               default: true },
+      { key: 'nPlaces', label: 'N-places',       default: 12, type: 'stepper', min: 1, max: 99 },
+      { key: 'nDice',  label: 'N-dice (pool)',  default: 12, type: 'stepper', min: 1, max: 99 },
+      { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 20 },
+      { key: 'nPlace', label: 'N-place',        default: 3,  type: 'stepper', min: 1, max: 20 },
     ],
   },
   {
-    group: 'card-deck',
-    label: 'Card Deck',
+    group: 'rules',
+    label: 'Rules',
     items: [
-      { key: 'diceDecks',        label: 'Dice Decks — variable slot cards',              default: false },
-      { key: 'extendedCardDeck', label: 'Extended card deck (78)',                         default: true },
-      { key: 'vSuitDominoFill',  label: 'Domino fill — 2-slot V keeps dice visible',     default: true  },
-      { key: 'tricolor',         label: 'Tricolor sevens — rankless when rank dice sum to 7', default: true },
-    ],
-  },
-  {
-    group: 'grid',
-    label: 'Grid',
-    items: [
-      { key: 'colorRestriction', label: 'Color restriction — treat 1 and 6 as equivalent (SQUARE)', default: false },
-      { key: 'emptyCards',        label: 'Empty cards (diagonal blockers)',               default: false },
-      { key: 'sweepThreeInRow',   label: '3-in-a-row sweeps (4×4)',                       default: false },
-      { key: 'fastAnimations',    label: 'Fast animations (2×)',                         default: true  },
-      { key: 'autoplayLongPress', label: 'Autoplay on long press',                       default: true  },
-      { key: 'autoplayFirstTwo',  label: 'Autoplay first two cards',                     default: false  },
-    ],
-  },
-  {
-    group: 'dice-deck',
-    label: 'Dice Deck',
-    items: [
-      { key: 'blankDie',        label: 'Blank die (no pips → V suit)',                   default: false },
-      { key: 'blanksInRank',    label: 'Allow blank in rank (both slots must match)',     default: true  },
-      { key: 'filterExtremes',  label: 'Remove all-1s/6s dice combos',                   default: true  },
-      { key: 'sortDice',        label: 'Sort dice in action bar',                         default: false  },
-    ],
-  },
-  {
-    group: 'constraints',
-    label: 'Constraints',
-    items: [
-      { key: 'paidSlots',      label: 'Paid slots — forbidden costs a coin',             default: false },
-      { key: 'refundOnMove',   label: 'Refund coin when moving from paid slot',           default: false },
-      { key: 'swapDice',       label: 'Swap placed dice by tapping one then the other',  default: false },
-    ],
-  },
-  {
-    group: 'scoring',
-    label: 'Scoring',
-    items: [
-      { key: 'scoreSuitRepeat',  label: 'Suit die scores when it matches an outer die',  default: true  },
-      { key: 'scoreSuitExtreme', label: 'Suit die scores when extreme and card has 1 or 6', default: true },
-      { key: 'scoreRankSum7',    label: 'Score when the two rank dice sum to 7',          default: true  },
-    ],
-  },
-  {
-    group: 'sweeps',
-    label: 'Sweeps',
-    items: [
-      { key: 'wildTarok',  label: 'Wild tarok — V counts as any suit in runs',            default: true  },
-      { key: 'tarokFlush', label: 'Tarok flush — V suit sweep',                           default: false },
-      { key: 'domino',     label: 'Domino — V suit horizontal chain (outer dice match)',  default: false  },
+      { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
+      { key: 'adjacentColumnsOnly', label: 'Adjacent columns only', default: true,  type: 'toggle' },
+      { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
+      { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
+      { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
+      { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: true,  type: 'toggle' },
     ],
   },
 ];
@@ -99,7 +33,8 @@ export function spd(ms) {
   return settings && settings.fastAnimations ? ms * 0.5 : ms;
 }
 
-/** Cards dealt into the action bar at reset (1, or 2/3 with extraStartCards). */
-export function getInitialStartCardCount() {
-  return 1 + (settings.extraStartCards ? (settings.extendedGrid ? 2 : 1) : 0);
+export function clampSettings() {
+  if (settings.nPlaces > settings.nDice) settings.nPlaces = settings.nDice;
+  if (settings.nPlace > settings.nRoll) settings.nPlace = settings.nRoll;
+  if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
 }

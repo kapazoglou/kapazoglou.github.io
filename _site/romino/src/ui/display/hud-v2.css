@@ -1,0 +1,97 @@
+.hud {
+  position: relative;
+  flex-shrink: 0;
+  height: 64px;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0;
+}
+
+.hud-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 64px;
+  gap: 2px;
+  padding-top: 4px;
+}
+
+.hud-scroll-btn {
+  position: absolute;
+  top: 8px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hud-scroll-btn--left { left: 16px; }
+.hud-scroll-btn--right { right: 16px; }
+
+.hud-scroll-btn:disabled {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.hud-scroll-btn svg {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+.hud-score {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  height: 30px;
+  font-family: 'Averia Libre', serif;
+  font-size: 32px;
+  line-height: 1;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.hud-stars { text-align: right; }
+
+.hud-score .star-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.hud-divider { text-align: right; }
+
+.hud-suit-row {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  margin-top: 2px;
+}
+
+.hud-suit-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  padding: 4px;
+  box-sizing: border-box;
+  font-family: 'Numbers Deuce', serif;
+  font-size: 21px;
+  line-height: 22px;
+  color: rgba(255, 255, 255, 0.33);
+  text-align: center;
+}

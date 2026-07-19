@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Averia+Libre&display=swap');
+@import url('src/ui/display/hud.css');
+@import url('src/ui/display/grid.css');
+@import url('src/ui/display/action-bar.css');
+@import url('src/ui/display/settings-panel.css');
+@import url('src/ui/display/game-over.css');
+@import url('src/ui/transitions/card-anim.css');
+@import url('src/ui/transitions/preview-anim.css');
+@import url('src/ui/transitions/sweep-anim.css');
+
+@font-face {
+  font-family: 'Numbers Deuce';
+  src: url('assets/NumbersDeuce/NumbersDeuce.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:           #334466;
+  --die-face:     #070d1a;
+  --accent:       #ffe500;
+  --card-bg:      #ffffff;
+  --card-border:  #d3d6e5;
+  --holder:       #d3d6e5;
+  --tile-border:  #5c5e66;
+  --text-primary: #ffffff;
+  --text-dim:     rgba(255, 255, 255, 0.66);
+  --die-size:     40px;
+  /* Animation speed multiplier: 1 = normal, 0.5 = 2× faster */
+  --t: 1;
+}
+
+html.fast-anims { --t: 0.5; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  touch-action: none;
+}
+
+body {
+  font-family: 'Averia Libre', serif;
+  color: #fff;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  background: #000;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ─── TEMPLATE ─── */
+.template {
+  position: relative;
+  width: 100vw;
+  max-width: 500px;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.template.template--score-sweep {
+  overflow: visible;
+  z-index: 3;
+}
+
+/* ─── PANEL INITIAL POSITIONS ─────────────────────────────────────────────────
+   Set the off-screen transform before module CSS (with transitions) is injected,
+   so the browser never animates from the default position on first paint. */
+#settings-panel  { transform: translateY(100%); }
+.game-over-dialog { transform: translateX(-50%) translateY(100%); }
+
+/* ─── DISCARDS (hidden in new UI, kept for game logic) ─── */
+.discards {
+  display: none;
+}

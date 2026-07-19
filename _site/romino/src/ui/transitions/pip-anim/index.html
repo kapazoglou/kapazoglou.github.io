@@ -1,0 +1,17 @@
+<h1 id="pip-anim">Pip Anim</h1>
+
+<p>Row gap → HUD and HUD stars → swept points. Uses convert-style fly (<code class="language-plaintext highlighter-rouge">CONVERT_FLY_MS</code>, scale + fade); all stars launch together; counter jumps by full total on arrival.</p>
+
+<h2 id="exports">Exports</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">bankStarsToPoints(count, onDone)</code> — visual-only after state already updated</li>
+  <li><code class="language-plaintext highlighter-rouge">collectStarsToHUD(count, fromRects, onDone)</code> — row gap → <code class="language-plaintext highlighter-rouge">#hud-stars</code> after confirm</li>
+</ul>
+
+<h2 id="css">CSS</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">.star-flyer</code> — in-viewport star pip (see <code class="language-plaintext highlighter-rouge">pip-anim.css</code>)</li>
+</ul>
+
+<h2 id="related">Related</h2>
+<p>[[timing]] · [[hud-v2]] · [[sweep-anim]] · [[convert-anim]]</p>
