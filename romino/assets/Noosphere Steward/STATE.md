@@ -53,8 +53,8 @@ lastVerified: 2026-07-19
 - **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
 - **placement-row.js, placement-row.css, render.js** — star emoji gap markers + `getStarMatchRects` for collect pip
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
-- **stars.js v1.2, row.js, turn.js, confirm-anim.js v1.2** — star pairs require ≥1 die from `placedDieIds`; snapshot before confirm clear
+- **game-over.js v1.0, discovery.js v1.0, turn.js v1.5** — game-over sheet when pool < nRoll; discovery grid + sweep history
 
 ## Next topological move
 
-- Suit tally HUD, game-over when pool empty
+- Suit tally HUD polish

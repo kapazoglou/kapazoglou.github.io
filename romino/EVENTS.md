@@ -5,11 +5,9 @@
 ```
 idle  ──►  rolled  ──►  animating  ──►  idle  ──► ...
                 │           │
-           pool == 0    stars → convert → sweep → bank pips
-           after confirm
+                │           └── stars → convert → sweep → bank pips
                 │
-                ▼
-            (end TBD)
+           pool < nRoll (idle) ──► replay / game-over sheet
 ```
 
 ---
@@ -19,8 +17,9 @@ idle  ──►  rolled  ──►  animating  ──►  idle  ──► ...
 ```
 handleRollButton()
 │
-├── phase === 'idle'  →  rollDice()
-│   ├── dicePool -= min(nRoll, dicePool)
+├── phase === 'idle'  →  rollDice() if dicePool >= nRoll
+│   │                    else game-over sheet (pool < nRoll)
+│   ├── dicePool -= nRoll
 │   ├── actionBar = n random dice
 │   └── phase = 'rolled'
 │

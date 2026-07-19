@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>römino</title>
-  <script type="module" crossorigin src="/assets/index-C_0teVlz.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-fTbL02a4.css">
+  <script type="module" crossorigin src="/assets/index-DO8NNTdx.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-DRFNTzo4.css">
 </head>
 <body>
 <div id="app">
@@ -22,6 +22,29 @@
           <button id="settings-back" aria-label="Back">←</button>
           <h2 id="settings-title">SETTINGS</h2>
           <div id="settings-toggles"></div>
+        </div>
+      </div>
+      <div id="game-over-overlay" class="game-over-overlay" aria-hidden="true">
+        <div class="game-over-dialog" role="alertdialog" aria-modal="true" aria-labelledby="game-over-title">
+          <div class="go-handle" id="go-handle">
+            <div class="go-handle-bar"></div>
+            <div class="go-handle-row">
+              <div class="game-over-title" id="game-over-title">GAME OVER</div>
+              <button type="button" class="game-over-btn" id="game-over-restart">PLAY AGAIN</button>
+            </div>
+          </div>
+          <div class="go-inner">
+            <div class="go-body">
+              <div class="game-over-reason" id="game-over-reason"></div>
+              <div class="go-stat-row">
+                <span class="go-stat-value" id="go-score-value">0</span>
+                <span class="go-stat-label">swept points</span>
+              </div>
+              <div class="go-cards-grid go-cards-grid--four-square" id="go-cards-grid"></div>
+              <div class="go-section-label">sweeps</div>
+              <div class="go-sweeps" id="go-sweeps"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@
 @import url('src/ui/display/placement-row.css');
 @import url('src/ui/display/action-bar.css');
 @import url('src/ui/display/settings-panel.css');
+@import url('src/ui/display/game-over.css');
 @import url('src/ui/transitions/convert-anim.css');
 @import url('src/ui/transitions/placement-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
@@ -26,6 +27,7 @@
   --tile-border:  #DEE2E6;
   --overlay:      #545454;
   --text-primary: #ffffff;
+  --text-dim:     rgba(255, 255, 255, 0.55);
   --design-size:  412px;
   --frame-size:   min(100vw, 100dvh);
   --viewport-scale: calc(var(--frame-size) / var(--design-size));

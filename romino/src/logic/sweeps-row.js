@@ -111,6 +111,9 @@ export function findSweepRuns() {
 }
 
 export function applySweepRun(run) {
+  state.sweepHistory.push(
+    run.map(([, tile]) => ({ suit: tile.suit, rank: tile.rank, rankSum: tile.rankSum })),
+  );
   for (const [, tile] of run) {
     const suit = tile.suit;
     if (state.suitTally[suit] != null) state.suitTally[suit]++;

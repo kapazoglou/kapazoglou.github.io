@@ -23,6 +23,12 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#settings-content::-webkit-scrollbar {
+  display: none;
 }
 
 #settings-back {

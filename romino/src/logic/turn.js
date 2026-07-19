@@ -10,7 +10,11 @@ export function resetGame() {
 }
 
 export function canRoll() {
-  return state.phase === 'idle' && state.dicePool > 0;
+  return state.phase === 'idle' && state.dicePool >= settings.nRoll;
+}
+
+export function canEndGame() {
+  return state.phase === 'idle' && state.dicePool < settings.nRoll;
 }
 
 export function canConfirm() {
@@ -20,8 +24,7 @@ export function canConfirm() {
 export function rollDice() {
   if (!canRoll()) return false;
   clampSettings();
-  const count = Math.min(settings.nRoll, state.dicePool);
-  if (count <= 0) return false;
+  const count = settings.nRoll;
 
   state.dicePool -= count;
   state.actionBar = [];
@@ -60,13 +63,25 @@ export function confirmTurn(onDone) {
   return true;
 }
 
-export function handleRollButton() {
-  if (state.phase === 'animating') return false;
+export function handleRollButton(onGameOver) {
+  if (state.phase === 'animating' || state.phase === 'replay') return false;
   if (state.phase === 'rolled') {
-    if (!confirmTurn(() => rollDice())) return false;
+    if (!confirmTurn(() => {
+      if (!rollDice()) {
+        state.phase = 'replay';
+        onGameOver?.();
+      }
+    })) return false;
     return true;
   }
-  if (state.phase === 'idle') return rollDice();
+  if (state.phase === 'idle') {
+    if (canRoll()) return rollDice();
+    if (canEndGame()) {
+      state.phase = 'replay';
+      onGameOver?.();
+      return true;
+    }
+  }
   return false;
 }
 

@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor } from '../../logic/dice-visual.js';
-import { canRoll, canConfirm } from '../../logic/turn.js';
+import { canRoll, canConfirm, canEndGame } from '../../logic/turn.js';
 import { isBarDieInactive } from '../../logic/row.js';
 
 export function renderActionBar() {
@@ -21,7 +21,7 @@ export function renderActionBar() {
   state.newTrayDieIds?.clear();
 
   const confirm = canConfirm();
-  const rollDisabled = !canRoll() && !confirm;
+  const rollDisabled = !canRoll() && !confirm && !canEndGame();
 
   bar.innerHTML = `
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>

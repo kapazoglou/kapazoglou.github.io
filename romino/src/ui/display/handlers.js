@@ -1,16 +1,17 @@
 import { state } from '../../logic/state.js';
 import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset } from '../../logic/row.js';
 import { handleRollButton } from '../../logic/turn.js';
+import { showGameOver } from './game-over.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
 
 export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
-    if (state.phase === 'animating') return;
+    if (state.phase === 'animating' || state.phase === 'replay') return;
 
     const rollBtn = e.target.closest('#roll-btn');
     if (rollBtn && !rollBtn.disabled) {
-      if (handleRollButton()) render();
+      if (handleRollButton(() => { showGameOver(); render(); })) render();
       return;
     }
 

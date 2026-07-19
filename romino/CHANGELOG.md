@@ -5,6 +5,15 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Fixed
+- **settings-panel.css, game-over.css** — hide scrollbars on settings + game-over scroll areas; touch scroll unchanged
+- **game-over.css, index.html** — game-over sheet lives inside `.viewport-inner` (412 design frame), not full-screen fixed
+
+### Added
+- **discovery.js v1.0** — 4×13 discovery grid layout + tile discovery tracking
+- **game-over.js v1.0** — bottom sheet: swept points, discovery grid, sweeps, PLAY AGAIN
+- **turn.js v1.5** — pool `< nRoll` opens game over instead of partial roll; roll button stays enabled
+
+### Fixed
 - **placement-row.js** — star markers use logic row index for vertical centre on each die; tiles align to bottom die band
 - **drag-drop.js v2.9** — return-to-bar uses full `render()` so removed dice don't linger in the row (`renderSelection` only toggled chrome)
 - **placement-row.js, placement-anim.js v1.9, sweep-anim.js v1.1, render.js** — pin viewport-centre content X across row renders so scroll stays put after gap insert / sweep exit (not just raw `scrollLeft`)

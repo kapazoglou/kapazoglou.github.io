@@ -43,7 +43,7 @@ export function initDragDrop() {
 }
 
 function onPointerDown(e) {
-  if (state.phase === 'animating') return;
+  if (state.phase === 'animating' || state.phase === 'replay') return;
   const dieEl = e.target.closest('.die--action, .die--placed.die--returnable');
   if (!dieEl || e.button !== 0) return;
   const dieId = Number(dieEl.dataset.dieId);
