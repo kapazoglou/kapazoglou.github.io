@@ -1,7 +1,7 @@
 ---
 module: timing
 layer: ui/transitions
-v: 1.3
+v: 1.4
 date: 2026-07-19
 deps: []
 ---
@@ -15,12 +15,14 @@ As an animator, I need a single source of truth for animation durations so that 
 - `COL_COLLAPSE_MS` (100) — remaining columns slide together after sweep
 - `PREVIEW_FADE_MS` (180) — upcoming-preview strip exit duration
 - `CARD_PLACE_DELAY_MS` (220) — delay after card placement before fill pipeline
-- `CONVERT_MS` (240) — card dice → filled animation duration
+- `CONVERT_MS` (240) — tile enter pop after convert
+- `CONVERT_FLY_MS` (320) — stack dice fly to roll button
+- `CONVERT_FLY_STAGGER_MS` (80) — stagger between convert fly-backs (top first)
 - `COL_SPREAD_MS` (110) — columns slide aside before gap insert
 - `COL_DIE_IN_MS` (95) — die flies tray → gap (fast start, ease-out landing)
 - `TRAY_STAGGER_MS` / `PREVIEW_STAGGER_MS` (60) — stagger between spawned elements
-- `PIP_GAP_MS` (830) / `PIP_TAIL_MS` (990) — earn-coin pip animation spacing
-- `BANK_PIP_*` — score → swept-points pip (2× earn duration); `BANK_PIP_GAP_MS` staggers at mid-travel
+- `PIP_GAP_MS` (830) / `PIP_TAIL_MS` (990) — legacy earn-coin pip spacing (unused in row v2)
+- `BANK_PIP_*` / `STAR_COLLECT_*` — legacy pop-travel pip timings; row v2 pips use `CONVERT_FLY_MS` via [[pip-anim]]
 
 ## Notes
 All durations are in milliseconds at `--t: 1`. The `spd()` helper in `settings.js` applies the `fastAnimations` multiplier (0.5×) at call-time.

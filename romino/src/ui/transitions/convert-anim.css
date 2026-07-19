@@ -10,15 +10,6 @@
 }
 
 /* ─── Stack → tile conversion ─── */
-@keyframes stack-dice-fadeout {
-  from { opacity: 1; transform: none; }
-  to   { opacity: 0; transform: scale(0.85); }
-}
-
-.placement-col--stack.is-converting .die--placed {
-  animation: stack-dice-fadeout calc(0.16s * var(--t)) ease forwards;
-}
-
 @keyframes placement-tile-enter {
   0%   { opacity: 0; transform: scale(0.88); }
   65%  { opacity: 1; transform: scale(1.04); }

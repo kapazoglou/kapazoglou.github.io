@@ -16,6 +16,12 @@ export const CARD_PLACE_DELAY_MS = 220;
 /** Duration of the card conversion (dice → filled) animation. */
 export const CONVERT_MS = 240;
 
+/** Stack dice fly back to the roll button on convert. */
+export const CONVERT_FLY_MS = 320;
+
+/** Stagger between each convert fly-back (top die first). */
+export const CONVERT_FLY_STAGGER_MS = 80;
+
 /** Columns slide aside before a gap insert. */
 export const COL_SPREAD_MS = 110;
 

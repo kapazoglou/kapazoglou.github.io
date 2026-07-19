@@ -2,100 +2,112 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { renderHUD } from '../display/hud-v2.js';
-import {
-  BANK_PIP_POP_UP_MS,
-  BANK_PIP_POP_DOWN_MS,
-  BANK_PIP_TRAVEL_MS,
-  BANK_PIP_FADE_DONE_MS,
-  BANK_PIP_FADE_MS,
-  BANK_PIP_FADE_DELAY_MS,
-  BANK_PIP_GAP_MS,
-  STAR_COLLECT_POP_UP_MS,
-  STAR_COLLECT_POP_DOWN_MS,
-  STAR_COLLECT_TRAVEL_MS,
-  STAR_COLLECT_FADE_DONE_MS,
-  STAR_COLLECT_FADE_MS,
-  STAR_COLLECT_FADE_DELAY_MS,
-  STAR_COLLECT_GAP_MS,
-} from './timing.js';
+import { CONVERT_FLY_MS } from './timing.js';
 
-function launchPipWithTimings(fromRect, toRect, onArrival, onDone, starSizePx, {
-  popUp, popDown, travel, fadeDone, fade, fadeDelay,
-}) {
-  const POP_UP_MS = spd(popUp);
-  const POP_DOWN_MS = spd(popDown);
-  const POP_TOTAL_MS = POP_UP_MS + POP_DOWN_MS;
-  const TRAVEL_MS = spd(travel);
-  const FADE_DONE_MS = spd(fadeDone);
+const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
+const HUD_STAR_PX = 32;
 
-  const pip = document.createElement('div');
-  pip.className = 'star-pip';
-  pip.innerHTML = starSVG(starSizePx);
-  Object.assign(pip.style, {
-    position: 'fixed',
-    left: `${fromRect.left + fromRect.width / 2}px`,
-    top: `${fromRect.top + fromRect.height / 2}px`,
-    width: `${starSizePx}px`,
-    height: `${starSizePx}px`,
-    transform: 'translate(-50%, -50%) scale(1)',
-    lineHeight: '0',
-    pointerEvents: 'none',
-    zIndex: '9998',
-    transition: 'none',
+function viewportScale() {
+  const root = document.querySelector('.viewport-inner');
+  if (!root?.offsetWidth) return 1;
+  return root.getBoundingClientRect().width / root.offsetWidth;
+}
+
+function toDesignPx(screenPx, scale) {
+  return screenPx / scale;
+}
+
+function flyLayer() {
+  return document.querySelector('.viewport-inner');
+}
+
+/** Rect centre in viewport-inner design px. */
+function rectCenterInLayer(rect, layerRect, scale) {
+  return {
+    left: toDesignPx(rect.left + rect.width / 2 - layerRect.left, scale),
+    top: toDesignPx(rect.top + rect.height / 2 - layerRect.top, scale),
+  };
+}
+
+/** Convert-style star fly (no pop/stagger). */
+function launchStarFlyer(start, end, layer, flyMs) {
+  const half = HUD_STAR_PX / 2;
+  const dx = end.left - start.left;
+  const dy = end.top - start.top;
+  const fadeMs = Math.round(flyMs * 0.55);
+  const fadeDelay = Math.round(flyMs * 0.45);
+
+  const flyer = document.createElement('div');
+  flyer.className = 'star-flyer';
+  flyer.innerHTML = starSVG(HUD_STAR_PX);
+  Object.assign(flyer.style, {
+    left: `${start.left - half}px`,
+    top: `${start.top - half}px`,
+    width: `${HUD_STAR_PX}px`,
+    height: `${HUD_STAR_PX}px`,
+    transform: 'translate(0, 0)',
   });
-  document.body.appendChild(pip);
-  pip.getBoundingClientRect();
+  layer.appendChild(flyer);
 
-  pip.style.transition = `transform ${POP_UP_MS}ms cubic-bezier(0.2, 0, 0.4, 1)`;
-  pip.style.transform = 'translate(-50%, -50%) scale(1.33)';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flyer.style.transition =
+        `transform ${flyMs}ms ${FLY_EASING}, opacity ${fadeMs}ms ease ${fadeDelay}ms`;
+      flyer.style.transform = `translate(${dx}px, ${dy}px) scale(0.88)`;
+      flyer.style.opacity = '0';
+    });
+  });
+
+  setTimeout(() => flyer.remove(), flyMs);
+}
+
+function launchStarFlyers(fromCenters, end, layer, flyMs) {
+  for (const start of fromCenters) {
+    launchStarFlyer(start, end, layer, flyMs);
+  }
+}
+
+/** Visual-only row → HUD after state.stars was already updated. All stars fly together. */
+export function collectStarsToHUD(count, fromRects, onDone) {
+  if (count <= 0) {
+    onDone?.();
+    return;
+  }
+
+  const starsEl = document.getElementById('hud-stars');
+  const layer = flyLayer();
+  if (!starsEl || !layer) {
+    onDone?.();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const end = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
+  const fromCenters = fromRects
+    .filter(Boolean)
+    .map(rect => rectCenterInLayer(rect, layerRect, scale));
+
+  starsEl.textContent = String(state.stars - count);
+
+  if (!fromCenters.length) {
+    starsEl.textContent = String(state.stars);
+    renderHUD();
+    onDone?.();
+    return;
+  }
+
+  launchStarFlyers(fromCenters, end, layer, flyMs);
 
   setTimeout(() => {
-    pip.style.transition = `transform ${POP_DOWN_MS}ms ease`;
-    pip.style.transform = 'translate(-50%, -50%) scale(1)';
-  }, POP_UP_MS);
-
-  const tx = (toRect.left + toRect.width / 2) - (fromRect.left + fromRect.width / 2);
-  const ty = (toRect.top + toRect.height / 2) - (fromRect.top + fromRect.height / 2);
-  setTimeout(() => {
-    pip.style.transition = `transform ${TRAVEL_MS}ms cubic-bezier(0.2,0.8,0.3,1), opacity ${spd(fade)}ms ease ${spd(fadeDelay)}ms`;
-    pip.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
-    pip.style.opacity = '0';
-    pip.addEventListener('transitionend', e => { if (e.propertyName === 'opacity') pip.remove(); });
-  }, POP_TOTAL_MS);
-
-  setTimeout(onArrival, POP_TOTAL_MS + TRAVEL_MS);
-  setTimeout(onDone, POP_TOTAL_MS + FADE_DONE_MS);
+    starsEl.textContent = String(state.stars);
+    renderHUD();
+    onDone?.();
+  }, flyMs);
 }
 
-const BANK_PIP_TIMINGS = {
-  popUp: BANK_PIP_POP_UP_MS,
-  popDown: BANK_PIP_POP_DOWN_MS,
-  travel: BANK_PIP_TRAVEL_MS,
-  fadeDone: BANK_PIP_FADE_DONE_MS,
-  fade: BANK_PIP_FADE_MS,
-  fadeDelay: BANK_PIP_FADE_DELAY_MS,
-};
-
-const STAR_COLLECT_TIMINGS = {
-  popUp: STAR_COLLECT_POP_UP_MS,
-  popDown: STAR_COLLECT_POP_DOWN_MS,
-  travel: STAR_COLLECT_TRAVEL_MS,
-  fadeDone: STAR_COLLECT_FADE_DONE_MS,
-  fade: STAR_COLLECT_FADE_MS,
-  fadeDelay: STAR_COLLECT_FADE_DELAY_MS,
-};
-
-const HUD_STAR_FONT_PX = 32;
-
-function launchStarCollectPip(fromRect, toRect, onArrival, onDone) {
-  launchPipWithTimings(fromRect, toRect, onArrival, onDone, HUD_STAR_FONT_PX, STAR_COLLECT_TIMINGS);
-}
-
-function launchBankStarPip(fromRect, toRect, onArrival, onDone) {
-  launchPipWithTimings(fromRect, toRect, onArrival, onDone, HUD_STAR_FONT_PX, BANK_PIP_TIMINGS);
-}
-
-/** Visual-only star pips after state.points / state.stars were already updated. */
+/** Visual-only HUD stars → points after state was already updated. All stars fly together. */
 export function bankStarsToPoints(count, onDone) {
   if (count <= 0) {
     onDone?.();
@@ -104,87 +116,28 @@ export function bankStarsToPoints(count, onDone) {
 
   const starsEl = document.getElementById('hud-stars');
   const pointsEl = document.getElementById('hud-points');
-  if (!starsEl || !pointsEl) {
+  const layer = flyLayer();
+  if (!starsEl || !pointsEl || !layer) {
     onDone?.();
     return;
   }
 
-  let displayStars = state.stars + count;
-  let displayPoints = state.points - count;
-  renderHUD();
-  const starsNode = document.getElementById('hud-stars');
-  const pointsNode = document.getElementById('hud-points');
-  if (starsNode) starsNode.textContent = String(displayStars);
-  if (pointsNode) pointsNode.textContent = String(displayPoints);
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
 
-  let completed = 0;
-  for (let p = 0; p < count; p++) {
-    setTimeout(() => {
-      const fromRect = starsNode.getBoundingClientRect();
-      const toRect = pointsNode.getBoundingClientRect();
-      launchBankStarPip(fromRect, toRect,
-        () => {
-          displayStars = Math.max(0, displayStars - 1);
-          displayPoints += 1;
-          if (starsNode) starsNode.textContent = String(displayStars);
-          if (pointsNode) pointsNode.textContent = String(displayPoints);
-        },
-        () => {
-          completed++;
-          if (completed >= count) {
-            renderHUD();
-            onDone?.();
-          }
-        },
-      );
-    }, p * spd(BANK_PIP_GAP_MS));
-  }
-}
+  starsEl.textContent = String(count);
+  pointsEl.textContent = String(state.points - count);
 
-/** Visual-only row → HUD star pips after state.stars was already updated. */
-export function collectStarsToHUD(count, fromRects, onDone) {
-  if (count <= 0) {
+  const fromCenters = Array.from({ length: count }, () => start);
+  launchStarFlyers(fromCenters, end, layer, flyMs);
+
+  setTimeout(() => {
+    starsEl.textContent = String(state.stars);
+    pointsEl.textContent = String(state.points);
+    renderHUD();
     onDone?.();
-    return;
-  }
-
-  const starsEl = document.getElementById('hud-stars');
-  if (!starsEl) {
-    onDone?.();
-    return;
-  }
-
-  let displayStars = state.stars - count;
-  starsEl.textContent = String(displayStars);
-
-  let completed = 0;
-  for (let p = 0; p < count; p++) {
-    setTimeout(() => {
-      const fromRect = fromRects[p];
-      const toRect = starsEl.getBoundingClientRect();
-      if (!fromRect) {
-        displayStars += 1;
-        starsEl.textContent = String(displayStars);
-        completed++;
-        if (completed >= count) {
-          renderHUD();
-          onDone?.();
-        }
-        return;
-      }
-      launchStarCollectPip(fromRect, toRect,
-        () => {
-          displayStars += 1;
-          starsEl.textContent = String(displayStars);
-        },
-        () => {
-          completed++;
-          if (completed >= count) {
-            renderHUD();
-            onDone?.();
-          }
-        },
-      );
-    }, p * spd(STAR_COLLECT_GAP_MS));
-  }
+  }, flyMs);
 }

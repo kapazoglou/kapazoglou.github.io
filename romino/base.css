@@ -6,6 +6,7 @@
 @import url('src/ui/display/game-over.css');
 @import url('src/ui/transitions/convert-anim.css');
 @import url('src/ui/transitions/placement-anim.css');
+@import url('src/ui/transitions/pip-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
 
 @font-face {

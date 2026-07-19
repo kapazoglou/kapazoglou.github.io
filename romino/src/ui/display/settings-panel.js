@@ -7,13 +7,16 @@ const STORAGE_KEY = 'romino-v2-settings';
 /** Pending edits while the panel is open; applied on back. */
 let draftSettings = null;
 
-const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'nTiles', 'adjacentColumnsOnly', 'oneToOne', 'suitRestriction', 'consecutiveStars'];
+const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'nPlaces', 'adjacentColumnsOnly', 'oneToOne', 'suitRestriction', 'consecutiveStars'];
 
 function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
+    if (saved.nTiles != null && saved.nPlaces == null) {
+      settings.nPlaces = saved.nTiles;
+    }
     for (const [k, v] of Object.entries(saved)) {
       if (k in settings) settings[k] = v;
     }
@@ -28,6 +31,7 @@ function saveSettings() {
 }
 
 function clampDraft() {
+  if (draftSettings.nPlaces > draftSettings.nDice) draftSettings.nPlaces = draftSettings.nDice;
   if (draftSettings.nPlace > draftSettings.nRoll) draftSettings.nPlace = draftSettings.nRoll;
   if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
 }
@@ -108,7 +112,8 @@ function buildStepperRow(item) {
 
   const update = delta => {
     const min = item.min ?? 1;
-    const max = item.max ?? 99;
+    let max = item.max ?? 99;
+    if (item.key === 'nPlaces') max = Math.min(max, draftSettings.nDice);
     draftSettings[item.key] = Math.min(max, Math.max(min, draftSettings[item.key] + delta));
     clampDraft();
     value.textContent = String(draftSettings[item.key]);

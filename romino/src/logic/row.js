@@ -191,6 +191,15 @@ export function countTilesInRow() {
   return Object.values(state.row).filter(column => column.kind === 'tile').length;
 }
 
+/** Occupied columns — dice stacks and tiles both count. */
+export function countPlacesInRow() {
+  return getOccupiedCols().length;
+}
+
+function atPlaceCap() {
+  return countPlacesInRow() >= settings.nPlaces;
+}
+
 export function countDiceInRow() {
   return Object.values(state.row).reduce(
     (n, column) => n + (column.kind === 'stack' ? column.dice.length : 0),
@@ -289,6 +298,10 @@ export function getValidSlotsForDie(dieId) {
 
   if (settings.adjacentColumnsOnly && fromBar) {
     slots = slots.filter(slot => passesAdjacentColumnsOnly(slot, true));
+  }
+
+  if (atPlaceCap()) {
+    slots = slots.filter(slot => slot.kind === 'stack');
   }
 
   return slots;

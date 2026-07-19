@@ -1,7 +1,7 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
-import { countTilesInRow, hasAnyLegalPlacementForTray } from './row.js';
+import { hasAnyLegalPlacementForTray } from './row.js';
 
 export function resetGame() {
   resetStateObject();
@@ -41,9 +41,6 @@ export function evaluateGameOver(context) {
   if (context === 'idle-roll' && state.dicePool < settings.nRoll) {
     return 'dice pool exhausted';
   }
-  if (context === 'post-sweeps' && countTilesInRow() > settings.nTiles) {
-    return 'too many tiles on row';
-  }
   if (context === 'post-roll' && state.actionBar.length > 0 && !hasAnyLegalPlacementForTray()) {
     return 'no legal placements';
   }
@@ -55,13 +52,8 @@ function enterGameOver(reason, onGameOver) {
   onGameOver?.(reason ?? '');
 }
 
-/** After confirm animations: tile cap, then auto-roll or pool/stuck game over. */
+/** After confirm animations: auto-roll or pool/stuck game over. */
 export function tryContinueAfterConfirm(onGameOver) {
-  const tileReason = evaluateGameOver('post-sweeps');
-  if (tileReason) {
-    enterGameOver(tileReason, onGameOver);
-    return;
-  }
   state.phase = 'idle';
   if (!rollDice()) {
     enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted', onGameOver);

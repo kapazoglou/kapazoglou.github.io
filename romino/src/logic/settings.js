@@ -4,7 +4,7 @@ export const SETTINGS_CONFIG = [
     group: 'counts',
     label: 'Counts',
     items: [
-      { key: 'nTiles', label: 'N-tiles',        default: 12, type: 'stepper', min: 1, max: 99 },
+      { key: 'nPlaces', label: 'N-places',       default: 12, type: 'stepper', min: 1, max: 99 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 12, type: 'stepper', min: 1, max: 99 },
       { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 20 },
       { key: 'nPlace', label: 'N-place',        default: 3,  type: 'stepper', min: 1, max: 20 },
@@ -34,6 +34,7 @@ export function spd(ms) {
 }
 
 export function clampSettings() {
+  if (settings.nPlaces > settings.nDice) settings.nPlaces = settings.nDice;
   if (settings.nPlace > settings.nRoll) settings.nPlace = settings.nRoll;
   if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
 }

@@ -14,7 +14,7 @@ lastVerified: 2026-07-19
 | Domain | Home | Notes |
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nTiles + toggles incl. `suitRestriction`, `consecutiveStars` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `suitRestriction`, `consecutiveStars` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -34,7 +34,7 @@ lastVerified: 2026-07-19
 - **stars.js v1.1** — star matching skips tile columns (stack dice only)
 - **settings-panel.js v1.19** — deferred apply on back (draft buffer)
 - **turn.js v1.4** — roll uses spawn id directly (fixes empty tray after roll)
-- **convert.js v1.2** — converted stack dice return to dicePool
+- **pip-anim.js v1.2** — star fly matches convert style; simultaneous launch; bulk HUD counter update
 - **placement-row, action-bar, hud-v2, handlers, drag-drop** — animation classes + `animating` input guard
 - **drag-drop.js** — tap vs drag threshold; tap selects tray dice / returns placed-this-turn die
 - **handlers.js** — die tap delegated to drag-drop pointer-up; click keeps placement hints + deselect
@@ -56,7 +56,8 @@ lastVerified: 2026-07-19
 - **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
 - **placement-row.js, placement-row.css, render.js** — star emoji gap markers + `getStarMatchRects` for collect pip
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
-- **turn.js v1.6, row.js v1.10, settings.js v2.3** — `nTiles` cap + stuck-tray game over
+- **turn.js v1.9** — `nPlaces` no longer triggers game over after sweeps (placement cap unchanged in row.js)
+- **settings.js v2.5, row.js v1.12** — `nPlaces` column cap (stacks + tiles); block insert/new-column at cap
 - **game-over.js v1.4, turn.js v1.5+** — game-over sheet; sweep history only (no discovery grid)
 - **action-bar.js v1.20, row.js v1.11** — roll button label = `nDice − dice in row`
 

@@ -5,10 +5,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
-- **action-bar.js v1.20, row.js v1.11** — roll button shows `nDice − dice in row` (not unrolled pool only)
+- **turn.js v1.9** — removed post-sweep game over when occupied columns exceed `nPlaces`; column cap still blocks placement during play
+- **pip-anim.js v1.2, pip-anim.css** — star collect + bank use convert-style fly; all stars together; HUD jumps by full total
+- **timing.js v1.4** — convert fly-back slowed (320ms fly, 80ms stagger)
+- **settings.js v2.6, settings-panel.js v1.24** — `nPlaces` clamped to `nDice`
+- **settings.js v2.5, row.js v1.12, turn.js v1.8, settings-panel.js v1.23** — `nPlaces` replaces `nTiles`; cap counts all occupied columns; new columns blocked at cap until sweeps free slots
 
 ### Added
-- **settings.js v2.4, stars.js v1.3** — `consecutiveStars` toggle (adjacent ±1 / 1↔6 ace vs same value)
+- **convert-anim.js v1.1, timing.js** — convert fly-back: stack dice fly to roll button, staggered top-first
 - **settings-panel.js v1.22** — `consecutiveStars` in game-reset keys
 - **navigation-guard.js v1.0** — `beforeunload` confirm when session has progress
 - **turn.js v1.7** — `shouldWarnOnLeave()` (skip fresh reset + game-over replay)
