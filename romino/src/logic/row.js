@@ -28,6 +28,13 @@ export function dieValueAt(col, row) {
   return id != null ? state.dice[id]?.value ?? null : null;
 }
 
+/** Stack die id at row index; tiles have no die ids. */
+export function dieIdAt(col, row) {
+  const c = getColumn(col);
+  if (!c || c.kind === 'tile') return null;
+  return c.dice[row] ?? null;
+}
+
 function colIsEmpty(col) {
   return !state.row[col];
 }

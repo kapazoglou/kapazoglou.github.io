@@ -1,5 +1,6 @@
 import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
+import { starSVG } from '../../logic/dice-visual.js';
 import { renderHUD } from '../display/hud-v2.js';
 import {
   BANK_PIP_POP_UP_MS,
@@ -9,9 +10,16 @@ import {
   BANK_PIP_FADE_MS,
   BANK_PIP_FADE_DELAY_MS,
   BANK_PIP_GAP_MS,
+  STAR_COLLECT_POP_UP_MS,
+  STAR_COLLECT_POP_DOWN_MS,
+  STAR_COLLECT_TRAVEL_MS,
+  STAR_COLLECT_FADE_DONE_MS,
+  STAR_COLLECT_FADE_MS,
+  STAR_COLLECT_FADE_DELAY_MS,
+  STAR_COLLECT_GAP_MS,
 } from './timing.js';
 
-function launchPipWithTimings(fromRect, toRect, onArrival, onDone, fontSizePx, {
+function launchPipWithTimings(fromRect, toRect, onArrival, onDone, starSizePx, {
   popUp, popDown, travel, fadeDone, fade, fadeDelay,
 }) {
   const POP_UP_MS = spd(popUp);
@@ -21,14 +29,16 @@ function launchPipWithTimings(fromRect, toRect, onArrival, onDone, fontSizePx, {
   const FADE_DONE_MS = spd(fadeDone);
 
   const pip = document.createElement('div');
-  pip.textContent = '⭐';
+  pip.className = 'star-pip';
+  pip.innerHTML = starSVG(starSizePx);
   Object.assign(pip.style, {
     position: 'fixed',
     left: `${fromRect.left + fromRect.width / 2}px`,
     top: `${fromRect.top + fromRect.height / 2}px`,
+    width: `${starSizePx}px`,
+    height: `${starSizePx}px`,
     transform: 'translate(-50%, -50%) scale(1)',
-    fontSize: `${fontSizePx}px`,
-    lineHeight: '1',
+    lineHeight: '0',
     pointerEvents: 'none',
     zIndex: '9998',
     transition: 'none',
@@ -66,7 +76,20 @@ const BANK_PIP_TIMINGS = {
   fadeDelay: BANK_PIP_FADE_DELAY_MS,
 };
 
+const STAR_COLLECT_TIMINGS = {
+  popUp: STAR_COLLECT_POP_UP_MS,
+  popDown: STAR_COLLECT_POP_DOWN_MS,
+  travel: STAR_COLLECT_TRAVEL_MS,
+  fadeDone: STAR_COLLECT_FADE_DONE_MS,
+  fade: STAR_COLLECT_FADE_MS,
+  fadeDelay: STAR_COLLECT_FADE_DELAY_MS,
+};
+
 const HUD_STAR_FONT_PX = 32;
+
+function launchStarCollectPip(fromRect, toRect, onArrival, onDone) {
+  launchPipWithTimings(fromRect, toRect, onArrival, onDone, HUD_STAR_FONT_PX, STAR_COLLECT_TIMINGS);
+}
 
 function launchBankStarPip(fromRect, toRect, onArrival, onDone) {
   launchPipWithTimings(fromRect, toRect, onArrival, onDone, HUD_STAR_FONT_PX, BANK_PIP_TIMINGS);
@@ -115,5 +138,53 @@ export function bankStarsToPoints(count, onDone) {
         },
       );
     }, p * spd(BANK_PIP_GAP_MS));
+  }
+}
+
+/** Visual-only row → HUD star pips after state.stars was already updated. */
+export function collectStarsToHUD(count, fromRects, onDone) {
+  if (count <= 0) {
+    onDone?.();
+    return;
+  }
+
+  const starsEl = document.getElementById('hud-stars');
+  if (!starsEl) {
+    onDone?.();
+    return;
+  }
+
+  let displayStars = state.stars - count;
+  starsEl.textContent = String(displayStars);
+
+  let completed = 0;
+  for (let p = 0; p < count; p++) {
+    setTimeout(() => {
+      const fromRect = fromRects[p];
+      const toRect = starsEl.getBoundingClientRect();
+      if (!fromRect) {
+        displayStars += 1;
+        starsEl.textContent = String(displayStars);
+        completed++;
+        if (completed >= count) {
+          renderHUD();
+          onDone?.();
+        }
+        return;
+      }
+      launchStarCollectPip(fromRect, toRect,
+        () => {
+          displayStars += 1;
+          starsEl.textContent = String(displayStars);
+        },
+        () => {
+          completed++;
+          if (completed >= count) {
+            renderHUD();
+            onDone?.();
+          }
+        },
+      );
+    }, p * spd(STAR_COLLECT_GAP_MS));
   }
 }

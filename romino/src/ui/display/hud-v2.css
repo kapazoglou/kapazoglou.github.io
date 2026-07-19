@@ -64,7 +64,7 @@
 
 .hud-stars { text-align: right; }
 
-.hud-star-icon {
+.hud-score .star-icon {
   width: 32px;
   height: 32px;
   flex-shrink: 0;

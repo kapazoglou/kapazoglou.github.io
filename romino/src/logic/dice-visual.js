@@ -141,10 +141,10 @@ export function dieSVG(value, size = DIE_OUTER, opts = {}) {
   </svg>`;
 }
 
-/** Five-point star (Figma star-count) */
+/** Five-point star (Figma 5671:16172 — assets/figma/star.svg) */
 export function starSVG(size = 32) {
-  return `<svg class="hud-star-icon" width="${size}" height="${size}" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <path fill="${COLOR_ACCENT}" stroke="${COLOR_ACCENT_DARK}" stroke-width="0.75" d="M16 3.2 19.2 11.2 27.8 11.8 21.4 17.2 23.6 25.6 16 21.2 8.4 25.6 10.6 17.2 4.2 11.8 12.8 11.2Z"/>
+  return `<svg class="star-icon" width="${size}" height="${size}" viewBox="0 0 30.1403 28.8611" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="${COLOR_ACCENT}" stroke-width="0" d="M14.1734 1.55743C14.5402 0.814187 15.6001 0.81419 15.9669 1.55744L19.5397 8.79687C19.6854 9.09202 19.967 9.29658 20.2927 9.34391L28.2819 10.5048C29.1021 10.624 29.4296 11.632 28.8361 12.2105L23.0551 17.8456C22.8194 18.0754 22.7118 18.4064 22.7675 18.7308L24.1322 26.6877C24.2723 27.5046 23.4148 28.1275 22.6812 27.7418L15.5355 23.9851C15.2441 23.8319 14.8961 23.8319 14.6048 23.9851L7.45904 27.7418C6.72541 28.1275 5.86798 27.5046 6.00809 26.6877L7.37281 18.7307C7.42844 18.4064 7.3209 18.0754 7.08521 17.8456L1.30417 12.2105C0.710657 11.632 1.03817 10.624 1.85839 10.5048L9.84758 9.34391C10.1733 9.29658 10.4549 9.09202 10.6005 8.79687L14.1734 1.55743Z"/>
   </svg>`;
 }
 

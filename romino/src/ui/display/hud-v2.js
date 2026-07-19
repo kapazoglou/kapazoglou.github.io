@@ -1,5 +1,5 @@
 import { state } from '../../logic/state.js';
-import { starSVG, SUIT_BADGE_ORDER, SUIT_COLOR } from '../../logic/dice-visual.js';
+import { SUIT_BADGE_ORDER, SUIT_COLOR, starSVG } from '../../logic/dice-visual.js';
 
 function suitBadgeHTML(letter) {
   const bg = SUIT_COLOR[letter] ?? '#404A59';

@@ -5,7 +5,7 @@
 ```
 idle  ──►  rolled  ──►  animating  ──►  idle  ──► ...
                 │           │
-           pool == 0    convert → stars → sweep → bank pips
+           pool == 0    stars → convert → sweep → bank pips
            after confirm
                 │
                 ▼
@@ -29,8 +29,8 @@ handleRollButton()
     ├── actionBar = []
     ├── phase = 'animating' (input frozen)
     ├── runConfirmAnimations()
+    │   ├── collectStarsToHUD() — row gap pips → score (pre-convert, dice still visible)
     │   ├── animateConverts() — stack → tile per column; dicePool += 3 per convert
-    │   ├── detectAndAddStars()
     │   ├── resolveSweepsAnimated() — beat + sweep each run; star pips → points
     │   └── phase = 'idle'
     └── rollDice() — fresh tray with slide-in if dicePool > 0

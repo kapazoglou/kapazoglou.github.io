@@ -44,3 +44,12 @@ export const BANK_PIP_FADE_DELAY_MS = 300;
 
 /** Launch next bank pip midway through the previous pip's travel phase. */
 export const BANK_PIP_GAP_MS = BANK_PIP_POP_UP_MS + BANK_PIP_POP_DOWN_MS + BANK_PIP_TRAVEL_MS / 2;
+
+/** Row gap → HUD star collect pip. */
+export const STAR_COLLECT_POP_UP_MS = 120;
+export const STAR_COLLECT_POP_DOWN_MS = 140;
+export const STAR_COLLECT_TRAVEL_MS = 600;
+export const STAR_COLLECT_FADE_DONE_MS = 850;
+export const STAR_COLLECT_FADE_MS = 680;
+export const STAR_COLLECT_FADE_DELAY_MS = 170;
+export const STAR_COLLECT_GAP_MS = STAR_COLLECT_POP_UP_MS + STAR_COLLECT_POP_DOWN_MS + STAR_COLLECT_TRAVEL_MS / 2;

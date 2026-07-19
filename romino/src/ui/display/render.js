@@ -1,7 +1,7 @@
 import { state } from '../../logic/state.js';
 import { isBarDieInactive } from '../../logic/row.js';
 import { renderHUD } from './hud-v2.js';
-import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, restorePinnedRowScroll } from './placement-row.js';
+import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, positionStarMarkers, restorePinnedRowScroll } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 
 export function render() {
@@ -15,6 +15,7 @@ export function render() {
     restorePinnedRowScroll();
     positionEdgeGhosts();
     positionHints();
+    positionStarMarkers();
   });
 }
 

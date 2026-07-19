@@ -5,11 +5,13 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Fixed
+- **placement-row.js** — star markers use logic row index for vertical centre on each die; tiles align to bottom die band
 - **drag-drop.js v2.9** — return-to-bar uses full `render()` so removed dice don't linger in the row (`renderSelection` only toggled chrome)
 - **placement-row.js, placement-anim.js v1.9, sweep-anim.js v1.1, render.js** — pin viewport-centre content X across row renders so scroll stays put after gap insert / sweep exit (not just raw `scrollLeft`)
 
 ### Changed
-- **placement-anim.js v1.8** — straight fly (single `transform`); final target from pre-spread layout, not mid-stretch rects
+- **dice-visual.js v2.4, hud-v2.js, placement-row.js, pip-anim.js** — all stars use Figma 5671:16172 SVG (`#FFE500` / `#E5B800`); emoji removed
+- **stars.js v1.2, row.js, turn.js, confirm-anim.js v1.2** — star matches require ≥1 die placed this turn; snapshot ids before confirm clears them; rects captured pre-convert
 - **placement-anim.js v1.7** — faster fly-in (`COL_DIE_IN_MS` 95) with strong ease-out deceleration at landing
 - **placement-anim.js v1.6** — fly-in starts at 25% of column spread (overlapping motion)
 - **placement-anim.js v1.5** — fly from action-bar die position into spread gap; `ease-out` on spread and fly

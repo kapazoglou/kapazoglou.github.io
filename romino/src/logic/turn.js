@@ -44,6 +44,7 @@ export function confirmTurn(onDone) {
 
   state.dicePool += state.actionBar.length;
   state.actionBar = [];
+  state.starNewDieIds = new Set(state.placedDieIds);
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
   state.placementOrderThisTurn = [];

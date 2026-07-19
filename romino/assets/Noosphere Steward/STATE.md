@@ -51,7 +51,9 @@ lastVerified: 2026-07-19
 - **row.js v1.9, dice-visual.js v2.3, convert.js v1.4** — block stack completion when convert would duplicate existing tile rank+suit
 - **placement-row.js, placement-row.css** — edge ghosts absolute overlay; column layout invariant on die select
 - **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
-- **placement-row.js, render.js, drag-drop.js, handlers.js, placement-row.css** — `renderSelection()` for die select/deselect; tiles not rebuilt when hint arrows appear
+- **placement-row.js, placement-row.css, render.js** — star emoji gap markers + `getStarMatchRects` for collect pip
+- **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
+- **stars.js v1.2, row.js, turn.js, confirm-anim.js v1.2** — star pairs require ≥1 die from `placedDieIds`; snapshot before confirm clear
 
 ## Next topological move
 

@@ -1,6 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { dieSVG, SUIT_COLOR, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor } from '../../logic/dice-visual.js';
+import { findStarMatches } from '../../logic/stars.js';
+import { dieSVG, SUIT_COLOR, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG } from '../../logic/dice-visual.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
   isPlacedThisTurn, getColumn, CENTER_COL,
@@ -81,6 +82,45 @@ const TIP_DOWN_Y = 42;
 
 const GAP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-gap-h')) || 6;
 const COL_W = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--col-width')) || 48;
+const STAR_MARKER_PX = 28;
+
+function cellElAtRow(colNode, row) {
+  if (colNode.classList.contains('placement-col--tile')) {
+    return row === 0 ? colNode.querySelector('.placement-tile') : null;
+  }
+  const dice = colNode.querySelectorAll('.die--placed');
+  return dice[row] ?? null;
+}
+
+/** Screen-space centre of the die band at `row` (tiles use bottom die-height strip). */
+function dieCenterAtRow(colNode, row, scale) {
+  if (colNode.classList.contains('placement-col--tile')) {
+    if (row !== 0) return null;
+    const colRect = colNode.getBoundingClientRect();
+    const diePx = DIE_OUTER * scale;
+    return {
+      x: (colRect.left + colRect.right) / 2,
+      y: colRect.bottom - diePx / 2,
+    };
+  }
+  const die = cellElAtRow(colNode, row);
+  if (!die) return null;
+  const rect = die.getBoundingClientRect();
+  return {
+    x: (rect.left + rect.right) / 2,
+    y: (rect.top + rect.bottom) / 2,
+  };
+}
+
+function starMarkerCenter(leftCol, rightCol, row, innerRect, scale) {
+  const leftCenter = dieCenterAtRow(leftCol, row, scale);
+  const rightCenter = dieCenterAtRow(rightCol, row, scale);
+  if (!leftCenter || !rightCenter) return null;
+  return {
+    x: toDesignPx((leftCenter.x + rightCenter.x) / 2 - innerRect.left, scale),
+    y: toDesignPx((leftCenter.y + rightCenter.y) / 2 - innerRect.top, scale),
+  };
+}
 
 /** Viewport-centre X in scroll content space — survives column insert/remove. */
 let pinnedContentX = null;
@@ -278,4 +318,73 @@ export function positionHints() {
     }
     hints.appendChild(btn);
   }
+}
+
+/** Live ⭐ preview between adjacent matching dice while placing. */
+export function positionStarMarkers() {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return;
+
+  const old = inner.querySelector('.placement-stars');
+  if (state.phase !== 'rolled') {
+    old?.remove();
+    return;
+  }
+
+  const matches = findStarMatches();
+  if (!matches.length) {
+    old?.remove();
+    return;
+  }
+
+  let layer = old;
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.className = 'placement-stars';
+    layer.setAttribute('aria-hidden', 'true');
+    inner.appendChild(layer);
+  }
+  layer.replaceChildren();
+
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+
+  for (const match of matches) {
+    const leftCol = colElement(inner, match.leftCol);
+    const rightCol = colElement(inner, match.rightCol);
+    if (!leftCol || !rightCol) continue;
+    const center = starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
+    if (!center) continue;
+
+    const el = document.createElement('span');
+    el.className = 'placement-star';
+    el.innerHTML = starSVG(STAR_MARKER_PX);
+    el.style.left = `${center.x}px`;
+    el.style.top = `${center.y}px`;
+    layer.appendChild(el);
+  }
+}
+
+/** Screen rects for star-collect pip launch (post-convert confirm). */
+export function getStarMatchRects(matches) {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner || !matches.length) return [];
+
+  const innerRect = inner.getBoundingClientRect();
+  const scale = viewportScale();
+  const rects = [];
+
+  for (const match of matches) {
+    const leftCol = colElement(inner, match.leftCol);
+    const rightCol = colElement(inner, match.rightCol);
+    if (!leftCol || !rightCol) continue;
+    const center = starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
+    if (!center) continue;
+
+    const cx = innerRect.left + center.x * scale;
+    const cy = innerRect.top + center.y * scale;
+    const size = STAR_MARKER_PX * scale;
+    rects.push(new DOMRect(cx - size / 2, cy - size / 2, size, size));
+  }
+  return rects;
 }
