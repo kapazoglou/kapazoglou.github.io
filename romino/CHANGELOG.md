@@ -14,6 +14,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps (any rank / step)
 
 ### Added
+- **settings.js v2.11, settings-panel.js v1.28, dice-visual.js v2.6, row.js v1.20, convert.js v1.7** — `tricolorSevens` toggle: with Tricolors on, joker requires three distinct inner dice where second + third = 7; suit from bottom die
 - **action-bar.js v1.23, action-bar.css** — roll button number turns warning red when below N-roll
 - **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice (2–5) convert to joker rank `*` with suit of missing inner die; one joker per row
 

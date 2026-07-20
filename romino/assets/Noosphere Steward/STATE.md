@@ -15,7 +15,7 @@ lastVerified: 2026-07-20
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `jokerFlushOnly` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -30,6 +30,7 @@ lastVerified: 2026-07-20
 
 ## Modified this session
 
+- **settings.js v2.11, settings-panel.js v1.28, dice-visual.js v2.6, row.js v1.20, convert.js v1.7** — `tricolorSevens` toggle: stricter tricolor joker (2nd+3rd=7, suit from bottom die)
 - **row.js v1.19** — one joker per row restored (with per-suit-per-game cap)
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — removed `adjacentColumnsOnly` toggle and `placementOrderThisTurn` state
 - **sweeps-row.js v1.8** — `jokerFlushOnly` ON: jokers hard-blocked from equal/consecutive rank sweeps; flush only

@@ -1,7 +1,7 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.27
+v: 1.28
 date: 2026-07-20
 deps: [state, settings, phase, render]
 ---

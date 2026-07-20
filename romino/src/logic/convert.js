@@ -15,7 +15,10 @@ export function convertColumn(col) {
   if (!column || column.kind !== 'stack' || column.dice.length !== 3) return;
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
-  const tile = tileIdentityFromStackValues(values, { tricolors: settings.tricolors });
+  const tile = tileIdentityFromStackValues(values, {
+    tricolors: settings.tricolors,
+    tricolorSevens: settings.tricolorSevens,
+  });
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
   state.row[col] = { kind: 'tile', ...tile };
 }

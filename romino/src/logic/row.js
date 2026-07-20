@@ -3,8 +3,20 @@ import { settings } from './settings.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues } from './dice-visual.js';
 
 function jokerSuitFromStackValues(v0, v1, v2) {
-  const { rank, suit } = tileIdentityFromStackValues([v0, v1, v2], { tricolors: true });
+  const { rank, suit } = tileIdentityFromStackValues([v0, v1, v2], {
+    tricolors: true,
+    tricolorSevens: settings.tricolorSevens,
+  });
   return rank === JOKER_RANK ? suit : null;
+}
+
+function twoInnerDiceCanBecomeTricolorJoker(v0, v1) {
+  if (!isInnerDie(v0) || !isInnerDie(v1) || v0 === v1) return false;
+  if (settings.tricolorSevens) {
+    const third = 7 - v1;
+    return isInnerDie(third) && third !== v0;
+  }
+  return true;
 }
 
 /** Another stack already committed or building toward a joker of this suit. */
@@ -31,9 +43,10 @@ function jokerSuitBlocked(suit, excludeCol = null) {
     }
 
     const [v0, v1] = values;
-    if (!isInnerDie(v0) || !isInnerDie(v1) || v0 === v1) continue;
+    if (!twoInnerDiceCanBecomeTricolorJoker(v0, v1)) continue;
     for (let third = 2; third <= 5; third++) {
       if (third === v0 || third === v1) continue;
+      if (settings.tricolorSevens && v1 + third !== 7) continue;
       if (jokerSuitFromStackValues(v0, v1, third) === suit) return true;
     }
   }
@@ -54,7 +67,7 @@ function rowHasJoker(excludeCol = null) {
     if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
     if (values.length === 2) {
       const [v0, v1] = values;
-      if (isInnerDie(v0) && isInnerDie(v1) && v0 !== v1) return true;
+      if (twoInnerDiceCanBecomeTricolorJoker(v0, v1)) return true;
     }
   }
   return false;
@@ -123,6 +136,7 @@ function passesTricolorThirdDie(first, second, third, excludeCol = null) {
   if (rowHasJoker(excludeCol)) return false;
   if (!isInnerDie(first) || !isInnerDie(second) || !isInnerDie(third)) return false;
   if (first === second || first === third || second === third) return false;
+  if (settings.tricolorSevens && second + third !== 7) return false;
   const suit = jokerSuitFromStackValues(first, second, third);
   if (suit == null || jokerSuitBlocked(suit, excludeCol)) return false;
   return true;
@@ -176,7 +190,10 @@ function rowHasTile(suit, rank) {
 /** Block completing a stack whose convert result duplicates an existing tile. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
-  const { suit, rank } = tileIdentityFromStackValues(values, { tricolors: settings.tricolors });
+  const { suit, rank } = tileIdentityFromStackValues(values, {
+    tricolors: settings.tricolors,
+    tricolorSevens: settings.tricolorSevens,
+  });
   if (rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol))) return false;
   return !rowHasTile(suit, rank);
 }

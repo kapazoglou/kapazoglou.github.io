@@ -58,6 +58,11 @@ export function isTricolorStack(values) {
   return new Set(values).size === 3;
 }
 
+/** Tricolor joker with second + third summing to 7 (stricter tricolors variant). */
+export function isTricolorSevensStack(values) {
+  return isTricolorStack(values) && values[1] + values[2] === 7;
+}
+
 /** Missing value from {2,3,4,5} when three distinct inner dice are present. */
 export function missingInnerDieFromTricolor(values) {
   for (let v = 2; v <= 5; v++) {
@@ -76,10 +81,24 @@ function jokerIdentityFromTricolor(values) {
   };
 }
 
+function jokerIdentityFromTricolorSevens(values) {
+  return {
+    suit: suitFromValue(values[0]),
+    rank: JOKER_RANK,
+    rankSum: 0,
+    bottomValue: values[0],
+  };
+}
+
 /** Rank/suit identity for a completed 3-dice stack [bottom, mid, top]. */
-export function tileIdentityFromStackValues(values, { tricolors = false } = {}) {
-  if (tricolors && isTricolorStack(values)) {
-    return jokerIdentityFromTricolor(values);
+export function tileIdentityFromStackValues(values, { tricolors = false, tricolorSevens = false } = {}) {
+  if (tricolors) {
+    if (tricolorSevens && isTricolorSevensStack(values)) {
+      return jokerIdentityFromTricolorSevens(values);
+    }
+    if (!tricolorSevens && isTricolorStack(values)) {
+      return jokerIdentityFromTricolor(values);
+    }
   }
   const bottomValue = values[0];
   const isAce = (values[1] === 1 && values[2] === 6) || (values[1] === 6 && values[2] === 1);
