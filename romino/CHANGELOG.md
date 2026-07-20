@@ -8,6 +8,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — `adjacentColumnsOnly` toggle and placement-order tracking removed; bar placements no longer restricted to adjacent columns
 
 ### Changed
+- **row.js v1.19** — restore one joker per row alongside one joker per suit per game
+- **state.js v2.4, row.js v1.18, convert.js v1.6** — one joker per suit per game (`jokerSuitsUsed`)
 - **settings.js v2.9, settings-panel.js v1.26, sweeps-row.js v1.7** — `jokerFlushOnly` toggle: jokers sweep only on same-suit flush runs (≥2 non-joker tiles of that suit)
 - **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps (any rank / step)
 

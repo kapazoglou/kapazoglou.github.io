@@ -13,9 +13,9 @@ lastVerified: 2026-07-20
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount |
+| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `jokerFlushOnly` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -30,9 +30,11 @@ lastVerified: 2026-07-20
 
 ## Modified this session
 
+- **row.js v1.19** — one joker per row restored (with per-suit-per-game cap)
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — removed `adjacentColumnsOnly` toggle and `placementOrderThisTurn` state
-- **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps
-- **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice → joker tile (rank `*`, suit = missing inner die); one joker per row
+- **sweeps-row.js v1.8** — `jokerFlushOnly` ON: jokers hard-blocked from equal/consecutive rank sweeps; flush only
+- **settings.js v2.9, settings-panel.js v1.26** — `jokerFlushOnly` toggle in Rules group
+- **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice → joker tile (rank `*`, suit = missing inner die)
 
 - **placement-row.js** — direct-placement stack hit-test: dropping onto a placed die resolves as stack (flyer overlap + elementsFromPoint through flyer)
 

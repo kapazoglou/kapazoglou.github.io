@@ -2,6 +2,64 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues } from './dice-visual.js';
 
+function jokerSuitFromStackValues(v0, v1, v2) {
+  const { rank, suit } = tileIdentityFromStackValues([v0, v1, v2], { tricolors: true });
+  return rank === JOKER_RANK ? suit : null;
+}
+
+/** Another stack already committed or building toward a joker of this suit. */
+function jokerSuitBlocked(suit, excludeCol = null) {
+  if (state.jokerSuitsUsed.has(suit)) return true;
+
+  for (const [colKey, column] of Object.entries(state.row)) {
+    const col = Number(colKey);
+    if (col === excludeCol) continue;
+
+    if (column.kind === 'tile' && column.rank === JOKER_RANK && column.suit === suit) {
+      return true;
+    }
+
+    if (column.kind !== 'stack') continue;
+    const n = column.dice.length;
+    if (n !== 2 && n !== 3) continue;
+
+    const values = column.dice.map(id => state.dice[id].value);
+    if (n === 3) {
+      const s = jokerSuitFromStackValues(...values);
+      if (s === suit) return true;
+      continue;
+    }
+
+    const [v0, v1] = values;
+    if (!isInnerDie(v0) || !isInnerDie(v1) || v0 === v1) continue;
+    for (let third = 2; third <= 5; third++) {
+      if (third === v0 || third === v1) continue;
+      if (jokerSuitFromStackValues(v0, v1, third) === suit) return true;
+    }
+  }
+
+  return false;
+}
+
+/** At most one joker (tile, committed stack, or tricolor-eligible stack) on the row. */
+function rowHasJoker(excludeCol = null) {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    const col = Number(colKey);
+    if (col === excludeCol) continue;
+
+    if (column.kind === 'tile' && column.rank === JOKER_RANK) return true;
+
+    if (column.kind !== 'stack') continue;
+    const values = column.dice.map(id => state.dice[id].value);
+    if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
+    if (values.length === 2) {
+      const [v0, v1] = values;
+      if (isInnerDie(v0) && isInnerDie(v1) && v0 !== v1) return true;
+    }
+  }
+  return false;
+}
+
 export function getOccupiedCols() {
   return Object.keys(state.row).map(Number).sort((a, b) => a - b);
 }
@@ -60,23 +118,18 @@ function isOneSixPair(a, b) {
   return (a === 1 && b === 6) || (a === 6 && b === 1);
 }
 
-function rowHasJoker() {
-  for (const column of Object.values(state.row)) {
-    if (column.kind === 'tile' && column.rank === JOKER_RANK) return true;
-  }
-  return false;
-}
-
-/** Tricolors ON: two non-matching inner dice + third inner die → joker stack. */
-function passesTricolorThirdDie(first, second, third) {
-  if (!settings.tricolors || rowHasJoker()) return false;
+function passesTricolorThirdDie(first, second, third, excludeCol = null) {
+  if (!settings.tricolors) return false;
+  if (rowHasJoker(excludeCol)) return false;
   if (!isInnerDie(first) || !isInnerDie(second) || !isInnerDie(third)) return false;
   if (first === second || first === third || second === third) return false;
+  const suit = jokerSuitFromStackValues(first, second, third);
+  if (suit == null || jokerSuitBlocked(suit, excludeCol)) return false;
   return true;
 }
 
-function passesOneToOneThirdDie(first, second, third) {
-  if (passesTricolorThirdDie(first, second, third)) return true;
+function passesOneToOneThirdDie(first, second, third, excludeCol = null) {
+  if (passesTricolorThirdDie(first, second, third, excludeCol)) return true;
   if (!settings.oneToOne) return true;
   if (isOneSixPair(second, third)) return true;
   if (second === first) return true;
@@ -121,10 +174,10 @@ function rowHasTile(suit, rank) {
 }
 
 /** Block completing a stack whose convert result duplicates an existing tile. */
-function passesNoDuplicateTile(bottomValue, midValue, topValue) {
+function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
   const { suit, rank } = tileIdentityFromStackValues(values, { tricolors: settings.tricolors });
-  if (rank === JOKER_RANK && rowHasJoker()) return false;
+  if (rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol))) return false;
   return !rowHasTile(suit, rank);
 }
 
@@ -233,8 +286,8 @@ function canPlaceValueAt(col, kind, value) {
     if (column.dice.length === 2) {
       const v0 = state.dice[column.dice[0]].value;
       const v1 = state.dice[column.dice[1]].value;
-      if (!passesOneToOneThirdDie(v0, v1, value)) return false;
-      return passesNoDuplicateTile(v0, v1, value);
+      if (!passesOneToOneThirdDie(v0, v1, value, col)) return false;
+      return passesNoDuplicateTile(v0, v1, value, col);
     }
     return true;
   }

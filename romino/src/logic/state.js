@@ -22,6 +22,8 @@ export function createInitialState() {
     sweepHistory: [],
     /** Successful rollDice() calls this session (game-over stat). */
     rollCount: 0,
+    /** Suits that already produced a joker tile this session (one joker per suit per game). */
+    jokerSuitsUsed: new Set(),
     phase: 'idle',
     selectedDieId: null,
     /** Set while a die is actively being dragged (UI only). */

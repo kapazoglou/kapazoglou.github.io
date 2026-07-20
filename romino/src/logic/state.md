@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.3
+v: 2.4
 date: 2026-07-20
 deps: []
 ---
@@ -14,6 +14,7 @@ Single source of truth for v2 row game.
 - `actionBar` — die IDs in tray this turn
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
+- `jokerSuitsUsed` — suits that already produced a joker this session (one per suit per game)
 - `sweepHistory` — game-over sweep summary
 - `rollCount` — successful rolls this session (game-over stat)
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`

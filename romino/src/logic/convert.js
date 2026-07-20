@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { tileIdentityFromStackValues } from './dice-visual.js';
+import { tileIdentityFromStackValues, JOKER_RANK } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
 
 export function getConvertibleCols() {
@@ -15,7 +15,9 @@ export function convertColumn(col) {
   if (!column || column.kind !== 'stack' || column.dice.length !== 3) return;
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
-  state.row[col] = { kind: 'tile', ...tileIdentityFromStackValues(values, { tricolors: settings.tricolors }) };
+  const tile = tileIdentityFromStackValues(values, { tricolors: settings.tricolors });
+  if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
+  state.row[col] = { kind: 'tile', ...tile };
 }
 
 export function convertFullStacks() {

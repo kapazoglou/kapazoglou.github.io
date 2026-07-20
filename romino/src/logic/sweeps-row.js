@@ -107,19 +107,21 @@ function canConsecutiveDesc(tiles) {
   return prevSet !== null && prevSet.size > 0;
 }
 
+function runHasJoker(tiles) {
+  return tiles.some(isJokerTile);
+}
+
 function isConsecutiveRun(tiles) {
+  if (settings.jokerFlushOnly && runHasJoker(tiles)) return false;
   return canConsecutiveAsc(tiles) || canConsecutiveDesc(tiles);
 }
 
 /** Jokers may match any rank; non-jokers must agree. */
 function isEqualRun(tiles) {
+  if (settings.jokerFlushOnly && runHasJoker(tiles)) return false;
   const fixed = tiles.filter(t => !isJokerTile(t)).map(t => t.rankSum);
   if (!fixed.length) return true;
   return fixed.every(s => s === fixed[0]);
-}
-
-function runHasJoker(tiles) {
-  return tiles.some(isJokerTile);
 }
 
 /** Joker flush: all non-jokers share one suit, with at least two of that suit. */
@@ -130,15 +132,13 @@ function isFlushRunWithJokers(tiles) {
   return nonJokers.every(t => t.suit === suit);
 }
 
-function isRankSweepRun(tiles) {
-  return isEqualRun(tiles) || isConsecutiveRun(tiles);
-}
-
 function qualifiesAsSweep(tiles) {
-  if (runHasJoker(tiles) && settings.jokerFlushOnly) {
-    return isFlushRunWithJokers(tiles);
+  if (runHasJoker(tiles)) {
+    return settings.jokerFlushOnly
+      ? isFlushRunWithJokers(tiles)
+      : (isEqualRun(tiles) || isConsecutiveRun(tiles));
   }
-  return isRankSweepRun(tiles);
+  return isEqualRun(tiles) || isConsecutiveRun(tiles);
 }
 
 /** No other occupied column (e.g. stack) may sit between run tiles on the row. */
