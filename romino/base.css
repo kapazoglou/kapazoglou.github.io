@@ -8,6 +8,7 @@
 @import url('src/ui/transitions/placement-anim.css');
 @import url('src/ui/transitions/pip-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
+@import url('src/ui/transitions/invalid-flash.css');
 
 @font-face {
   font-family: 'Numbers Deuce';
@@ -29,6 +30,8 @@
   --overlay:      #545454;
   --text-primary: #ffffff;
   --text-dim:     rgba(255, 255, 255, 0.55);
+  --warning-red-rgb: 255, 72, 72;
+  --warning-red: #ff6060;
   --design-size:  412px;
   --frame-size:   min(100vw, 100dvh);
   --viewport-scale: calc(var(--frame-size) / var(--design-size));
@@ -59,8 +62,7 @@ html.fast-anims { --t: 0.5; }
 }
 
 .die--placed-selected .die-border-ring,
-.die--action-selected .die-border-ring,
-#drag-ghost .die-border-ring {
+.die--action-selected .die-border-ring {
   fill: var(--accent);
 }
 
@@ -122,19 +124,8 @@ body {
   width: 100%;
 }
 
-#drag-ghost {
-  position: fixed;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0.85;
-  display: none;
-  line-height: 0;
-}
-
-#drag-ghost svg {
-  display: block;
-  width: calc(var(--die-size) * var(--viewport-scale));
-  height: calc(var(--die-size) * var(--viewport-scale));
+.die--drag-source {
+  visibility: hidden;
 }
 
 .star-pip .star-icon {

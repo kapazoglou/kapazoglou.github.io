@@ -1,5 +1,14 @@
-.placement-col--spreading {
+.placement-col--spreading,
+.placement-col--reposition-collapsing {
   will-change: transform;
+}
+
+.placement-col--reposition-vacated {
+  position: absolute !important;
+  bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .placement-die-flyer {

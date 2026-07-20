@@ -68,6 +68,7 @@ export function rollDice() {
   clampSettings();
   const count = settings.nRoll;
 
+  state.rollCount += 1;
   state.dicePool -= count;
   state.actionBar = [];
   state.newTrayDieIds = new Set();
@@ -78,7 +79,6 @@ export function rollDice() {
   }
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
-  state.placementOrderThisTurn = [];
   state.selectedDieId = null;
   state.phase = 'rolled';
   return true;
@@ -92,7 +92,6 @@ export function confirmTurn(onGameOver) {
   state.starNewDieIds = new Set(state.placedDieIds);
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
-  state.placementOrderThisTurn = [];
   state.selectedDieId = null;
   state.phase = 'animating';
 

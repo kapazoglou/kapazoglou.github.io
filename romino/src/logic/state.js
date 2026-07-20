@@ -15,15 +15,17 @@ export function createInitialState() {
     row: {},
     placedThisTurn: 0,
     placedDieIds: new Set(),
-    /** Die ids placed from the bar this turn, in order (adjacent-columns rule). */
-    placementOrderThisTurn: [],
     stars: 0,
     points: 0,
     suitTally: EMPTY_SUIT_TALLY(),
     /** Swept tile runs for game-over summary (each run = tile snapshots). */
     sweepHistory: [],
+    /** Successful rollDice() calls this session (game-over stat). */
+    rollCount: 0,
     phase: 'idle',
     selectedDieId: null,
+    /** Set while a die is actively being dragged (UI only). */
+    draggingDieId: null,
     nextDieId: 0,
     hasPlacedFirstDie: false,
     /** Animation flags (transitions layer) */

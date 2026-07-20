@@ -104,6 +104,10 @@
   padding: 0;
 }
 
+.roll-btn--low {
+  color: var(--warning-red);
+}
+
 .roll-btn:disabled {
   opacity: 0.45;
   cursor: default;

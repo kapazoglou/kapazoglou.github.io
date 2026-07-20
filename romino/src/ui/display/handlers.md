@@ -1,25 +1,16 @@
 ---
 module: handlers
 layer: ui/display
-v: 2.6
-date: 2026-07-19
-deps: [state, settings, cards, scoring, dice, sweeps, phase, sweep-anim, render, hud, card-anim, drag-drop]
+v: 2.7
+date: 2026-07-20
+deps: [state, settings, row, turn, game-over, placement-anim, render, placement-input]
 ---
 # Handlers — User Story
 
-As a player, I want to tap dice and cards to select and place them. I also want a long-press on the action bar to trigger autoplay mode — the game automatically places cards and dice while I hold down. When `autoplayFirstTwo` is on, the first two cards are placed automatically.
+As a player, I want to tap dice and cards to select and place them.
 
 ## Exports
-- `initHandlers()` — click listener for hint/ghost placement, roll/confirm, and deselect on empty row tap; die tap-to-select handled via drag-drop pointer-up (8px tap vs drag threshold)
-- `initAutoplay()` — attaches long-press listeners on `#action-bar`
-- `autoplayCardStep(onDone)` — places one action-bar card on a random empty grid slot
-- `autoplayDiceStep(onDone)` — places all tray dice in random valid slots
-- `autoplayStep(onDone)` — dispatches to card or dice autoplay based on current phase
-
-## Long-press flow
-1. `pointerdown` on action bar → start 600 ms timer
-2. On fire: `_longPressActive = true` → `_autoplayLoop()` runs steps continuously
-3. `pointerup / pointercancel / pointermove > 8px` → stops the loop
+- `initHandlers()` — click listener for roll/confirm; hint/ghost placement when `directPlacement` is off; coordinate placement via `attemptPlacementAtPoint` when on; deselect on empty row tap. Die tap-to-select handled via drag-drop pointer-up (8px tap vs drag threshold)
 
 ## Related
-[[state]] · [[settings]] · [[phase]] · [[drag-drop]] · [[render]] · [[sweep-anim]]
+[[state]] · [[settings]] · [[drag-drop]] · [[render]] · [[placement-input]]

@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { settings } from './settings.js';
 import { tileIdentityFromStackValues } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
 
@@ -14,7 +15,7 @@ export function convertColumn(col) {
   if (!column || column.kind !== 'stack' || column.dice.length !== 3) return;
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
-  state.row[col] = { kind: 'tile', ...tileIdentityFromStackValues(values) };
+  state.row[col] = { kind: 'tile', ...tileIdentityFromStackValues(values, { tricolors: settings.tricolors }) };
 }
 
 export function convertFullStacks() {

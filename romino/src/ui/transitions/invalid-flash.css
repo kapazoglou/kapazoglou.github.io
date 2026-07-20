@@ -1,0 +1,18 @@
+.viewport {
+  position: relative;
+}
+
+.viewport.is-invalid-flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(var(--warning-red-rgb), 0.45);
+  pointer-events: none;
+  z-index: 100;
+  animation: invalid-flash-fade var(--invalid-flash-ms, 280ms) ease-out forwards;
+}
+
+@keyframes invalid-flash-fade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}

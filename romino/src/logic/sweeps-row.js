@@ -1,9 +1,22 @@
 import { state } from './state.js';
 import { getOccupiedCols } from './row.js';
+import { JOKER_RANK } from './dice-visual.js';
+import { settings } from './settings.js';
+
+/** Wheel values used for consecutive-run assignment (13 = ace-high). */
+const ALL_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+
+function isJokerTile(tile) {
+  return tile.rank === JOKER_RANK;
+}
 
 /** Ace tiles (rankSum 1) may read as 1 or 13 when checking run adjacency. */
 function rankValues(rankSum) {
   return rankSum === 1 ? [1, 13] : [rankSum];
+}
+
+function fixedRankCandidates(tile) {
+  return isJokerTile(tile) ? null : rankValues(tile.rankSum);
 }
 
 /** +1 step, or ace wrap bridges on the 2…12 wheel (e.g. 2–A–12, 12–A–2, 11–12–A). */
@@ -15,15 +28,6 @@ function isRankStep(prev, next) {
   return false;
 }
 
-function isConsecutivePair(prevSum, nextSum) {
-  for (const prev of rankValues(prevSum)) {
-    for (const next of rankValues(nextSum)) {
-      if (isRankStep(prev, next)) return true;
-    }
-  }
-  return false;
-}
-
 function isRankStepDesc(prev, next) {
   if (next === prev - 1) return true;
   if (prev === 12 && next === 1) return true;
@@ -32,35 +36,109 @@ function isRankStepDesc(prev, next) {
   return false;
 }
 
-function isConsecutivePairDesc(prevSum, nextSum) {
-  for (const prev of rankValues(prevSum)) {
-    for (const next of rankValues(nextSum)) {
-      if (isRankStepDesc(prev, next)) return true;
+function possibleNextAsc(prev) {
+  return ALL_RANKS.filter(v => isRankStep(prev, v));
+}
+
+function possibleNextDesc(prev) {
+  return ALL_RANKS.filter(v => isRankStepDesc(prev, v));
+}
+
+/** Jokers may assume any rank; propagate feasible values left→right. */
+function canConsecutiveAsc(tiles) {
+  let prevSet = null;
+  for (const tile of tiles) {
+    const fixed = fixedRankCandidates(tile);
+    if (fixed === null) {
+      if (prevSet === null) {
+        prevSet = new Set(ALL_RANKS);
+      } else {
+        const next = new Set();
+        for (const p of prevSet) {
+          for (const v of possibleNextAsc(p)) next.add(v);
+        }
+        if (!next.size) return false;
+        prevSet = next;
+      }
+    } else if (prevSet === null) {
+      prevSet = new Set(fixed);
+    } else {
+      const next = new Set();
+      for (const p of prevSet) {
+        for (const v of fixed) {
+          if (isRankStep(p, v)) next.add(v);
+        }
+      }
+      if (!next.size) return false;
+      prevSet = next;
     }
   }
-  return false;
+  return prevSet !== null && prevSet.size > 0;
 }
 
-function isConsecutiveAscending(sums) {
-  for (let i = 1; i < sums.length; i++) {
-    if (!isConsecutivePair(sums[i - 1], sums[i])) return false;
+function canConsecutiveDesc(tiles) {
+  let prevSet = null;
+  for (const tile of tiles) {
+    const fixed = fixedRankCandidates(tile);
+    if (fixed === null) {
+      if (prevSet === null) {
+        prevSet = new Set(ALL_RANKS);
+      } else {
+        const next = new Set();
+        for (const p of prevSet) {
+          for (const v of possibleNextDesc(p)) next.add(v);
+        }
+        if (!next.size) return false;
+        prevSet = next;
+      }
+    } else if (prevSet === null) {
+      prevSet = new Set(fixed);
+    } else {
+      const next = new Set();
+      for (const p of prevSet) {
+        for (const v of fixed) {
+          if (isRankStepDesc(p, v)) next.add(v);
+        }
+      }
+      if (!next.size) return false;
+      prevSet = next;
+    }
   }
-  return true;
+  return prevSet !== null && prevSet.size > 0;
 }
 
-function isConsecutiveDescending(sums) {
-  for (let i = 1; i < sums.length; i++) {
-    if (!isConsecutivePairDesc(sums[i - 1], sums[i])) return false;
+function isConsecutiveRun(tiles) {
+  return canConsecutiveAsc(tiles) || canConsecutiveDesc(tiles);
+}
+
+/** Jokers may match any rank; non-jokers must agree. */
+function isEqualRun(tiles) {
+  const fixed = tiles.filter(t => !isJokerTile(t)).map(t => t.rankSum);
+  if (!fixed.length) return true;
+  return fixed.every(s => s === fixed[0]);
+}
+
+function runHasJoker(tiles) {
+  return tiles.some(isJokerTile);
+}
+
+/** Joker flush: all non-jokers share one suit, with at least two of that suit. */
+function isFlushRunWithJokers(tiles) {
+  const nonJokers = tiles.filter(t => !isJokerTile(t));
+  if (nonJokers.length < 2) return false;
+  const suit = nonJokers[0].suit;
+  return nonJokers.every(t => t.suit === suit);
+}
+
+function isRankSweepRun(tiles) {
+  return isEqualRun(tiles) || isConsecutiveRun(tiles);
+}
+
+function qualifiesAsSweep(tiles) {
+  if (runHasJoker(tiles) && settings.jokerFlushOnly) {
+    return isFlushRunWithJokers(tiles);
   }
-  return true;
-}
-
-function isConsecutiveRun(sums) {
-  return isConsecutiveAscending(sums) || isConsecutiveDescending(sums);
-}
-
-function isEqualRun(sums) {
-  return sums.every(s => s === sums[0]);
+  return isRankSweepRun(tiles);
 }
 
 /** No other occupied column (e.g. stack) may sit between run tiles on the row. */
@@ -83,11 +161,8 @@ function findSweepRunsFromEntries(tileEntries) {
     let best = null;
     for (let len = tileEntries.length - i; len >= 3; len--) {
       const slice = tileEntries.slice(i, i + len);
-      const sums = slice.map(([, t]) => t.rankSum);
-      if (
-        isAdjacentTileRun(slice) &&
-        (isEqualRun(sums) || isConsecutiveRun(sums))
-      ) {
+      const tiles = slice.map(([, t]) => t);
+      if (isAdjacentTileRun(slice) && qualifiesAsSweep(tiles)) {
         best = slice;
         break;
       }

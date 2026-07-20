@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-19
+lastVerified: 2026-07-20
 ---
 
 # römino — Verified Pattern State
@@ -13,8 +13,9 @@ lastVerified: 2026-07-19
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, stars, points |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `suitRestriction`, `consecutiveStars` |
+| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount |
+| Highscores | `src/logic/highscores.js` | localStorage top-10 |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -28,6 +29,12 @@ lastVerified: 2026-07-19
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — removed `adjacentColumnsOnly` toggle and `placementOrderThisTurn` state
+- **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps
+- **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice → joker tile (rank `*`, suit = missing inner die); one joker per row
+
+- **placement-row.js** — direct-placement stack hit-test: dropping onto a placed die resolves as stack (flyer overlap + elementsFromPoint through flyer)
 
 - **stars.js v1.3** — `consecutiveStars` setting: ±1 / 1↔6 ace pairs vs same value
 - **settings.js v2.4** — `consecutiveStars` toggle in Rules group
@@ -56,6 +63,7 @@ lastVerified: 2026-07-19
 - **placement-anim.js v1.9, sweep-anim.js v1.2, placement-row.js, render.js** — pin viewport-centre content X; sweep upward + column collapse (`COL_COLLAPSE_MS`)
 - **placement-row.js, placement-row.css, render.js** — star emoji gap markers + `getStarMatchRects` for collect pip
 - **hud-v2.js, hud-v2.css** — SVG star → ⭐ emoji
+- **game-over.js v1.5, highscores.js v1.0, state.js v2.2, turn.js v2.0** — game-over rolls/sweeps stats; local top-10 highscore leaderboard (localStorage)
 - **turn.js v1.9** — `nPlaces` no longer triggers game over after sweeps (placement cap unchanged in row.js)
 - **settings.js v2.5, row.js v1.12** — `nPlaces` column cap (stacks + tiles); block insert/new-column at cap
 - **game-over.js v1.4, turn.js v1.5+** — game-over sheet; sweep history only (no discovery grid)

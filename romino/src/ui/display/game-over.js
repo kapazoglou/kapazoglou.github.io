@@ -1,7 +1,15 @@
 import { state } from '../../logic/state.js';
 import { SUIT_COLOR } from '../../logic/dice-visual.js';
+import { getHighscores, recordHighscore } from '../../logic/highscores.js';
 import { resetGame } from '../../logic/turn.js';
 import { render } from './render.js';
+
+const dateFormatter = new Intl.DateTimeFormat(undefined, {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+});
 
 function miniTileHTML(tile) {
   const color = SUIT_COLOR[tile.suit] ?? '#404A59';
@@ -24,15 +32,46 @@ export function sweepListHTML() {
   return `<div class="go-sweeps-inline">${groups.join('')}</div>`;
 }
 
+export function leaderboardHTML(currentId = null) {
+  const entries = getHighscores();
+  if (!entries.length) {
+    return '<div class="go-lb-empty">no scores yet</div>';
+  }
+  return entries.map(entry => {
+    const currentClass = entry.id === currentId ? ' go-lb-row--current' : '';
+    const date = dateFormatter.format(new Date(entry.at));
+    return `<div class="go-lb-row${currentClass}">
+      <span class="go-lb-date">${date}</span>
+      <span class="go-lb-num">${entry.rolls}</span>
+      <span class="go-lb-num">${entry.sweeps}</span>
+      <span class="go-lb-num go-lb-score">${entry.score}</span>
+    </div>`;
+  }).join('');
+}
+
 export function showGameOver(reason = '') {
   const reasonEl = document.getElementById('game-over-reason');
   if (reasonEl) reasonEl.textContent = reason;
 
+  const score = state.points;
+  const rolls = state.rollCount;
+  const sweeps = state.sweepHistory.length;
+
   const scoreEl = document.getElementById('go-score-value');
-  if (scoreEl) scoreEl.textContent = String(state.points);
+  if (scoreEl) scoreEl.textContent = String(score);
+
+  const rollsEl = document.getElementById('go-rolls-value');
+  if (rollsEl) rollsEl.textContent = String(rolls);
+
+  const sweepsCountEl = document.getElementById('go-sweeps-count-value');
+  if (sweepsCountEl) sweepsCountEl.textContent = String(sweeps);
 
   const sweepsEl = document.getElementById('go-sweeps');
   if (sweepsEl) sweepsEl.innerHTML = sweepListHTML();
+
+  const { entry } = recordHighscore({ score, rolls, sweeps });
+  const leaderboardEl = document.getElementById('go-leaderboard');
+  if (leaderboardEl) leaderboardEl.innerHTML = leaderboardHTML(entry.id);
 
   const overlay = document.getElementById('game-over-overlay');
   if (!overlay) return;

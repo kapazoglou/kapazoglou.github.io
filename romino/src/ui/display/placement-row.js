@@ -1,10 +1,11 @@
 import { state } from '../../logic/state.js';
-import { settings } from '../../logic/settings.js';
+import { settings, spd } from '../../logic/settings.js';
 import { findStarMatches } from '../../logic/stars.js';
 import { dieSVG, SUIT_COLOR, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG } from '../../logic/dice-visual.js';
+import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
-  isPlacedThisTurn, getColumn, CENTER_COL,
+  isPlacedThisTurn, getColumn, CENTER_COL, dieIdAt,
 } from '../../logic/row.js';
 
 function tileHTML(tile, col) {
@@ -19,13 +20,14 @@ function tileHTML(tile, col) {
 function stackHTML(col, column) {
   return column.dice.map((dieId, i) => {
     const die = state.dice[dieId];
-    const sel = state.selectedDieId === dieId;
+    const sel = state.selectedDieId === dieId && state.draggingDieId !== dieId;
     const ret = isPlacedThisTurn(dieId);
+    const dragging = state.draggingDieId === dieId;
     const z = i + 1;
     const style = ret
       ? `--stack-z:${z};--die-border-fill:${dieFaceBorderColor(die.value)}`
       : `--stack-z:${z}`;
-    return `<div class="die die--placed${sel ? ' die--placed-selected' : ''}${ret ? ' die--returnable' : ''}" data-die-id="${dieId}" data-col="${col}" style="${style}">${dieSVG(die.value, DIE_OUTER)}</div>`;
+    return `<div class="die die--placed${sel ? ' die--placed-selected' : ''}${ret ? ' die--returnable' : ''}${dragging ? ' die--drag-source' : ''}" data-die-id="${dieId}" data-col="${col}" style="${style}">${dieSVG(die.value, DIE_OUTER)}</div>`;
   }).join('');
 }
 
@@ -83,6 +85,19 @@ const TIP_DOWN_Y = 42;
 const GAP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-gap-h')) || 6;
 const COL_W = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--col-width')) || 48;
 const STAR_MARKER_PX = 28;
+
+function colSpreadDx(el) {
+  if (!el) return 0;
+  const m = el.style.transform.match(/translate3d\(([-\d.]+)px/);
+  return m ? parseFloat(m[1]) : 0;
+}
+
+/** Gap insert spread pushes the flanking pair in opposite directions — hide the star between them. */
+function starAtOpeningGap(leftEl, rightEl) {
+  const ldx = colSpreadDx(leftEl);
+  const rdx = colSpreadDx(rightEl);
+  return ldx < -0.5 && rdx > 0.5;
+}
 
 function cellElAtRow(colNode, row) {
   if (colNode.classList.contains('placement-col--tile')) {
@@ -154,7 +169,10 @@ export function renderPlacementRow() {
   const scrollLeft = el.scrollLeft;
   const usePin = pinnedContentX != null;
   const occupied = getOccupiedCols();
-  const showEdgeGhosts = occupied.length > 0 && state.selectedDieId != null && state.phase !== 'animating';
+  const showEdgeGhosts = !settings.directPlacement
+    && occupied.length > 0
+    && state.selectedDieId != null
+    && state.phase !== 'animating';
 
   let colsHTML = '';
   if (occupied.length === 0) {
@@ -234,7 +252,9 @@ export function updatePlacementSelection() {
 
   inner.querySelectorAll('.die--action, .die--placed').forEach(el => {
     const id = Number(el.dataset.dieId);
-    const sel = state.selectedDieId === id;
+    const dragging = state.draggingDieId === id;
+    const sel = state.selectedDieId === id && !dragging;
+    el.classList.toggle('die--drag-source', dragging);
     if (el.classList.contains('die--action')) {
       el.classList.toggle('die--action-selected', sel);
     }
@@ -244,7 +264,10 @@ export function updatePlacementSelection() {
   });
 
   const occupied = getOccupiedCols();
-  const showEdgeGhosts = occupied.length > 0 && state.selectedDieId != null && state.phase !== 'animating';
+  const showEdgeGhosts = !settings.directPlacement
+    && occupied.length > 0
+    && state.selectedDieId != null
+    && state.phase !== 'animating';
   const layer = inner.querySelector('.placement-edge-ghosts');
 
   if (!showEdgeGhosts) {
@@ -259,6 +282,11 @@ export function updatePlacementSelection() {
 export function positionHints() {
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) return;
+
+  if (settings.directPlacement) {
+    inner.querySelector('.placement-hints')?.remove();
+    return;
+  }
 
   const old = inner.querySelector('.placement-hints');
   if (state.selectedDieId == null || state.phase === 'animating') {
@@ -320,19 +348,43 @@ export function positionHints() {
   }
 }
 
+/** Hide stars involving the die being repositioned (still in state until drop). */
+function visibleStarMatches() {
+  const matches = findStarMatches();
+  const dragId = state.draggingDieId;
+  if (dragId == null || state.actionBar.includes(dragId)) return matches;
+
+  return matches.filter(m => {
+    const leftId = dieIdAt(m.leftCol, m.row);
+    const rightId = dieIdAt(m.rightCol, m.row);
+    return leftId !== dragId && rightId !== dragId;
+  });
+}
+
 /** Live ⭐ preview between adjacent matching dice while placing. */
 export function positionStarMarkers() {
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) return;
 
   const old = inner.querySelector('.placement-stars');
-  if (state.phase !== 'rolled') {
+  if (state.phase === 'replay') {
     old?.remove();
     return;
   }
 
-  const matches = findStarMatches();
-  if (!matches.length) {
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+  const visible = [];
+
+  for (const match of visibleStarMatches()) {
+    const leftCol = colElement(inner, match.leftCol);
+    const rightCol = colElement(inner, match.rightCol);
+    if (!leftCol || !rightCol) continue;
+    if (starAtOpeningGap(leftCol, rightCol)) continue;
+    visible.push({ match, leftCol, rightCol });
+  }
+
+  if (!visible.length) {
     old?.remove();
     return;
   }
@@ -344,25 +396,58 @@ export function positionStarMarkers() {
     layer.setAttribute('aria-hidden', 'true');
     inner.appendChild(layer);
   }
-  layer.replaceChildren();
 
-  const scale = viewportScale();
-  const innerRect = inner.getBoundingClientRect();
+  const starKey = m => `${m.leftCol}-${m.rightCol}-${m.row}`;
+  const existing = new Map();
+  for (const el of layer.querySelectorAll('.placement-star')) {
+    if (el.dataset.starKey) existing.set(el.dataset.starKey, el);
+  }
+  const keep = new Set();
 
-  for (const match of matches) {
-    const leftCol = colElement(inner, match.leftCol);
-    const rightCol = colElement(inner, match.rightCol);
-    if (!leftCol || !rightCol) continue;
+  for (const { match, leftCol, rightCol } of visible) {
+    const key = starKey(match);
+    keep.add(key);
     const center = starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
     if (!center) continue;
 
-    const el = document.createElement('span');
-    el.className = 'placement-star';
-    el.innerHTML = starSVG(STAR_MARKER_PX);
+    let el = existing.get(key);
+    if (!el) {
+      el = document.createElement('span');
+      el.className = 'placement-star';
+      el.dataset.starKey = key;
+      el.innerHTML = starSVG(STAR_MARKER_PX);
+      layer.appendChild(el);
+    }
+
     el.style.left = `${center.x}px`;
     el.style.top = `${center.y}px`;
-    layer.appendChild(el);
+    el.style.transition = '';
+    el.style.transform = 'translate(-50%, -50%)';
   }
+
+  for (const [key, el] of existing) {
+    if (!keep.has(key)) el.remove();
+  }
+}
+
+let starMotionRaf = 0;
+let starMotionDeadline = 0;
+
+/** rAF loop — stars track live die layout while columns transform-animate. */
+export function syncStarMarkersDuringMotion(extraMs = 0) {
+  starMotionDeadline = Math.max(starMotionDeadline, performance.now() + spd(COL_SPREAD_MS) + extraMs);
+  if (starMotionRaf) return;
+
+  const tick = now => {
+    positionStarMarkers();
+    if (now < starMotionDeadline) {
+      starMotionRaf = requestAnimationFrame(tick);
+    } else {
+      starMotionRaf = 0;
+      positionStarMarkers();
+    }
+  };
+  starMotionRaf = requestAnimationFrame(tick);
 }
 
 /** Screen rects for star-collect pip launch (post-convert confirm). */
@@ -387,4 +472,178 @@ export function getStarMatchRects(matches) {
     rects.push(new DOMRect(cx - size / 2, cy - size / 2, size, size));
   }
   return rects;
+}
+
+function columnCenterX(colNode) {
+  const r = colNode.getBoundingClientRect();
+  return (r.left + r.right) / 2;
+}
+
+/** Insert slot for x between two occupied columns (midpoint partition). */
+function insertSlotBetween(inner, occupied, clientX, clientY) {
+  if (occupied.length < 2) return null;
+
+  const firstCol = colElement(inner, occupied[0]);
+  const lastCol = colElement(inner, occupied[occupied.length - 1]);
+  if (!firstCol || !lastCol) return null;
+
+  const firstRect = firstCol.getBoundingClientRect();
+  const lastRect = lastCol.getBoundingClientRect();
+  if (clientX < firstRect.left || clientX > lastRect.right) return null;
+
+  const centers = occupied.map(col => columnCenterX(colElement(inner, col)));
+
+  for (let i = 0; i < occupied.length - 1; i++) {
+    const leftBound = i === 0 ? firstRect.left : (centers[i - 1] + centers[i]) / 2;
+    const rightBound = i === occupied.length - 2
+      ? lastRect.right
+      : (centers[i] + centers[i + 1]) / 2;
+    if (clientX < leftBound || clientX > rightBound) continue;
+
+    const leftNode = colElement(inner, occupied[i]);
+    const rightNode = colElement(inner, occupied[i + 1]);
+    const insertMinY = Math.max(columnInsertMinY(leftNode), columnInsertMinY(rightNode));
+    if (clientY < insertMinY) continue;
+
+    return { kind: 'insert', leftCol: occupied[i], rightCol: occupied[i + 1] };
+  }
+
+  return null;
+}
+
+/** Screen Y of the shared bottom die row — inserts only at or below this line. */
+function columnInsertMinY(colNode) {
+  if (!colNode) return Infinity;
+  const bottomDie = bottomDieInCol(colNode);
+  if (bottomDie) return bottomDie.getBoundingClientRect().top;
+  const tile = colNode.querySelector('.placement-tile');
+  if (tile) {
+    const r = tile.getBoundingClientRect();
+    return r.bottom - DIE_OUTER * viewportScale();
+  }
+  return colNode.getBoundingClientRect().bottom;
+}
+
+function stackableColumnAtCol(col) {
+  const column = getColumn(col);
+  return column?.kind === 'stack' && column.dice.length < 3 ? column : null;
+}
+
+/** Stack slot when pointer/flyer targets the stack band (incl. dropping onto a placed die). */
+function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY) {
+  const dieH = DIE_OUTER * viewportScale();
+
+  for (const col of occupied) {
+    if (!stackableColumnAtCol(col)) continue;
+    const colNode = colElement(inner, col);
+    if (!colNode) continue;
+    const colRect = colNode.getBoundingClientRect();
+    if (clientX < colRect.left || clientX > colRect.right) continue;
+
+    const topDie = topDieInCol(colNode);
+    const bottomDie = bottomDieInCol(colNode);
+    if (!topDie || !bottomDie) continue;
+
+    const topRect = topDie.getBoundingClientRect();
+    const bottomRect = bottomDie.getBoundingClientRect();
+    const pointerOnStack =
+      clientY >= topRect.top && clientY <= bottomRect.bottom;
+    const flyerAboveStack = stackY <= topRect.top + 2;
+    const slotAboveStack =
+      clientY >= topRect.top - dieH && clientY < topRect.top;
+
+    if (pointerOnStack || flyerAboveStack || slotAboveStack) {
+      return { kind: 'stack', col };
+    }
+  }
+  return null;
+}
+
+/** Drag flyer sits above the row — peek through it for a stack target die. */
+function stackSlotThroughFlyer(clientX, clientY, inner, occupied) {
+  for (const el of document.elementsFromPoint(clientX, clientY)) {
+    const die = el.closest?.('.die--placed');
+    if (!die || !inner.contains(die)) continue;
+    const col = Number(die.dataset.col);
+    if (!occupied.includes(col) || !stackableColumnAtCol(col)) continue;
+    return { kind: 'stack', col };
+  }
+  return null;
+}
+
+/** Insert slots only (gap + row edges) — for hover spread preview. */
+export function resolveInsertSlotFromPointer(clientX, clientY) {
+  const rowEl = document.getElementById('placement-row');
+  if (!rowEl) return null;
+
+  const rowRect = rowEl.getBoundingClientRect();
+  if (
+    clientX < rowRect.left || clientX > rowRect.right
+    || clientY < rowRect.top || clientY > rowRect.bottom
+  ) {
+    return null;
+  }
+
+  const occupied = getOccupiedCols();
+  if (occupied.length === 0) return null;
+
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return null;
+
+  const firstCol = colElement(inner, occupied[0]);
+  const lastCol = colElement(inner, occupied[occupied.length - 1]);
+  if (!firstCol || !lastCol) return null;
+
+  const firstRect = firstCol.getBoundingClientRect();
+  const lastRect = lastCol.getBoundingClientRect();
+
+  if (clientX < firstRect.left) {
+    if (clientY >= columnInsertMinY(firstCol)) {
+      return { kind: 'insert', leftCol: null, rightCol: occupied[0] };
+    }
+    return null;
+  }
+  if (clientX > lastRect.right) {
+    if (clientY >= columnInsertMinY(lastCol)) {
+      return { kind: 'insert', leftCol: occupied[occupied.length - 1], rightCol: null };
+    }
+    return null;
+  }
+
+  return insertSlotBetween(inner, occupied, clientX, clientY);
+}
+
+/** Map pointer coordinates to an intended placement slot (direct-placement mode). */
+export function isPointerOnPlacementRow(clientX, clientY) {
+  const rowEl = document.getElementById('placement-row');
+  if (!rowEl) return false;
+  const rowRect = rowEl.getBoundingClientRect();
+  return clientX >= rowRect.left && clientX <= rowRect.right
+    && clientY >= rowRect.top && clientY <= rowRect.bottom;
+}
+
+/** Map pointer coordinates to an intended placement slot (direct-placement mode). */
+export function resolveSlotFromPointer(clientX, clientY, stackY = clientY) {
+  if (!isPointerOnPlacementRow(clientX, clientY)) return null;
+
+  const occupied = getOccupiedCols();
+  if (occupied.length === 0) {
+    return { kind: 'new-column', col: CENTER_COL };
+  }
+
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return null;
+
+  const firstCol = colElement(inner, occupied[0]);
+  const lastCol = colElement(inner, occupied[occupied.length - 1]);
+  if (!firstCol || !lastCol) return null;
+
+  const insert = resolveInsertSlotFromPointer(clientX, clientY);
+  if (insert) return insert;
+
+  const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY)
+    ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied);
+  if (stack) return stack;
+
+  return null;
 }

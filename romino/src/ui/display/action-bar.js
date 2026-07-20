@@ -8,7 +8,9 @@ export function renderActionBar() {
   const bar = document.getElementById('action-bar');
   if (!bar) return;
 
-  const diceHTML = state.actionBar.map((id, idx) => {
+  const diceHTML = state.actionBar
+    .filter(id => id !== state.draggingDieId)
+    .map((id, idx) => {
     const die = state.dice[id];
     const inactive = isBarDieInactive(id);
     const sel = !inactive && state.selectedDieId === id;
@@ -24,12 +26,13 @@ export function renderActionBar() {
   const confirm = canConfirm();
   const rollDisabled = !canRoll() && !confirm && !canEndGame();
   const rollLabel = settings.nDice - countDiceInRow();
+  const rollLow = rollLabel < settings.nRoll;
 
   bar.innerHTML = `
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
     <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}">
       <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
-      <button type="button" class="roll-btn" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${confirm ? 'Confirm placement' : 'Roll dice'}">${rollLabel}</button>
+      <button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${confirm ? 'Confirm placement' : 'Roll dice'}">${rollLabel}</button>
     </div>
   `;
 }

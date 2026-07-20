@@ -1,8 +1,8 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.24
-date: 2026-07-19
+v: 1.27
+date: 2026-07-20
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story

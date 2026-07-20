@@ -1,16 +1,17 @@
 ---
 module: placement-anim
 layer: ui/transitions
-v: 1.9
-date: 2026-07-19
+v: 1.16
+date: 2026-07-20
 deps: [state, settings, row, render, timing, dice-visual]
 ---
 # Placement Anim
 
-Two-phase bar placement: gap inserts spread the row; fly-in starts at 25% of spread and overlaps through landing. Stack / new-column fly only (no spread). Row reposition stays instant.
+Gap inserts spread the row when `gapInsertAnimationsAllowed()`; fly-in starts at 25% of spread and overlaps through landing. Commit anim handoffs from hover spread (no collapse-then-re-spread). Row-edge inserts: fly-in only — columns stay put until `render()` (no full-row spread/collapse jitter). Stack / new-column fly only (no spread). Row reposition stays instant. Flyer stays visible until after `render()`.
 
 ## Exports
-- `placeDieWithAnim(dieId, slot)` — validates, sets `phase: animating`, restores `phase: rolled` + `render()` on done
+- `placeDieWithAnim(dieId, slot, existingFlyer?)` — validates, sets `phase: animating`, restores `phase: rolled` + `render()` on done; optional flyer handoff from drag (starts fly from current position)
+- `computeSpreadOffsets(slot, dieId?)` — gap spread; sole-die reposition excludes vanishing source column and remaps the insert slot
 
 ## CSS
 - `.placement-col--spreading` — transform spread on columns shifting right

@@ -15,10 +15,12 @@ export const SETTINGS_CONFIG = [
     label: 'Rules',
     items: [
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
-      { key: 'adjacentColumnsOnly', label: 'Adjacent columns only', default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
+      { key: 'tricolors',           label: 'Tricolors',               default: false, type: 'toggle' },
+      { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: false, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
+      { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: true,  type: 'toggle' },
     ],
   },

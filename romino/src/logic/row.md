@@ -1,10 +1,10 @@
 ---
 module: row
 layer: logic
-v: 1.12
-date: 2026-07-19
+v: 1.17
+date: 2026-07-20
 deps: [state, settings]
 ---
 # Row
 
-Column placement, validity, return-to-bar. `countPlacesInRow()`, `countTilesInRow()`, `countDiceInRow()`, `hasAnyLegalPlacementForTray()` for cap + game-over checks.
+Column placement, validity, return-to-bar. `tricolors`: third inner die on two non-matching inner dice → joker stack (one joker per row). `countPlacesInRow()`, `countTilesInRow()`, `countDiceInRow()`, `hasAnyLegalPlacementForTray()`, `gapInsertAnimationsAllowed()` for cap + game-over checks.

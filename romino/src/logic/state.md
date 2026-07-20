@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.1
-date: 2026-07-19
+v: 2.3
+date: 2026-07-20
 deps: []
 ---
 # State
@@ -15,5 +15,6 @@ Single source of truth for v2 row game.
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
 - `sweepHistory` — game-over sweep summary
+- `rollCount` — successful rolls this session (game-over stat)
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`
 - `placedDieIds` — unconfirmed placements this turn

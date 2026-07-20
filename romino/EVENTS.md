@@ -46,7 +46,7 @@ tap triangle / drag-drop  →  placeDie(col, kind)
 tap placed die (this turn)  →  returnDieToBar()
 ```
 
-Constraints: center-first column, nPlace cap, adjacentColumnsOnly, oneToOne rules.
+Constraints: center-first column, nPlace cap, oneToOne rules.
 
 ---
 

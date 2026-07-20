@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { tileIdentityFromStackValues } from './dice-visual.js';
+import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues } from './dice-visual.js';
 
 export function getOccupiedCols() {
   return Object.keys(state.row).map(Number).sort((a, b) => a - b);
@@ -60,7 +60,23 @@ function isOneSixPair(a, b) {
   return (a === 1 && b === 6) || (a === 6 && b === 1);
 }
 
+function rowHasJoker() {
+  for (const column of Object.values(state.row)) {
+    if (column.kind === 'tile' && column.rank === JOKER_RANK) return true;
+  }
+  return false;
+}
+
+/** Tricolors ON: two non-matching inner dice + third inner die → joker stack. */
+function passesTricolorThirdDie(first, second, third) {
+  if (!settings.tricolors || rowHasJoker()) return false;
+  if (!isInnerDie(first) || !isInnerDie(second) || !isInnerDie(third)) return false;
+  if (first === second || first === third || second === third) return false;
+  return true;
+}
+
 function passesOneToOneThirdDie(first, second, third) {
+  if (passesTricolorThirdDie(first, second, third)) return true;
   if (!settings.oneToOne) return true;
   if (isOneSixPair(second, third)) return true;
   if (second === first) return true;
@@ -106,7 +122,9 @@ function rowHasTile(suit, rank) {
 
 /** Block completing a stack whose convert result duplicates an existing tile. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue) {
-  const { suit, rank } = tileIdentityFromStackValues([bottomValue, midValue, topValue]);
+  const values = [bottomValue, midValue, topValue];
+  const { suit, rank } = tileIdentityFromStackValues(values, { tricolors: settings.tricolors });
+  if (rank === JOKER_RANK && rowHasJoker()) return false;
   return !rowHasTile(suit, rank);
 }
 
@@ -149,33 +167,6 @@ function canInsertAt(leftCol, rightCol, value, excludeDieId = null) {
   return passesSuitRestriction(leftCol, rightCol, value, excludeDieId);
 }
 
-/** Read-only column index for an insert slot (resolveInsertCol mutates the row). */
-function previewInsertCol(leftCol, rightCol) {
-  if (leftCol == null) return rightCol - 1;
-  if (rightCol == null) return leftCol + 1;
-  const target = leftCol + 1;
-  if (target >= rightCol) return rightCol;
-  return target;
-}
-
-function slotTargetCol(slot) {
-  if (slot.kind === 'insert') return previewInsertCol(slot.leftCol, slot.rightCol);
-  return slot.col;
-}
-
-function anchorColForAdjacentRule() {
-  const order = state.placementOrderThisTurn;
-  if (!order.length) return null;
-  return findDieColumn(order[order.length - 1])?.col ?? null;
-}
-
-function passesAdjacentColumnsOnly(slot, fromBar) {
-  if (!settings.adjacentColumnsOnly || !fromBar) return true;
-  const anchorCol = anchorColForAdjacentRule();
-  if (anchorCol == null) return true;
-  return Math.abs(slotTargetCol(slot) - anchorCol) <= 1;
-}
-
 export function slotFromHintDataset(ds) {
   if (ds.kind === 'insert') {
     return {
@@ -198,6 +189,11 @@ export function countPlacesInRow() {
 
 function atPlaceCap() {
   return countPlacesInRow() >= settings.nPlaces;
+}
+
+/** Gap-insert spread / fly spread phase — off when per-turn N-place or row N-places cap is hit. */
+export function gapInsertAnimationsAllowed() {
+  return state.placedThisTurn < settings.nPlace && !atPlaceCap();
 }
 
 export function countDiceInRow() {
@@ -247,13 +243,14 @@ function canPlaceValueAt(col, kind, value) {
 }
 
 export function getValidSlotsForDie(dieId) {
-  if (!canPlaceMoreThisTurn()) return [];
   const die = state.dice[dieId];
   if (!die) return [];
-  if (!state.actionBar.includes(dieId) && !state.placedDieIds.has(dieId)) return [];
+  const fromBar = state.actionBar.includes(dieId);
+  const fromRow = state.placedDieIds.has(dieId);
+  if (!fromBar && !fromRow) return [];
+  if (fromBar && !canPlaceMoreThisTurn()) return [];
 
   const value = die.value;
-  const fromBar = state.actionBar.includes(dieId);
   const excludeDieId = fromBar ? null : dieId;
   let slots = [];
 
@@ -294,10 +291,6 @@ export function getValidSlotsForDie(dieId) {
 
   if (canInsertAt(maxCol, null, value, excludeDieId)) {
     slots.push({ kind: 'insert', leftCol: maxCol, rightCol: null });
-  }
-
-  if (settings.adjacentColumnsOnly && fromBar) {
-    slots = slots.filter(slot => passesAdjacentColumnsOnly(slot, true));
   }
 
   if (atPlaceCap()) {
@@ -350,22 +343,20 @@ export function placeDie(dieId, slot) {
   if (fromBar) {
     state.placedThisTurn++;
     state.placedDieIds.add(dieId);
-    state.placementOrderThisTurn.push(dieId);
   }
 
   state.selectedDieId = null;
   return true;
 }
 
-export function returnDieToBar(dieId) {
+export function returnDieToBar(dieId, keepSelected = false) {
   if (!state.placedDieIds.has(dieId)) return false;
   if (!removeDieFromRow(dieId)) return false;
 
   state.actionBar.push(dieId);
   state.placedThisTurn--;
   state.placedDieIds.delete(dieId);
-  state.placementOrderThisTurn = state.placementOrderThisTurn.filter(id => id !== dieId);
-  state.selectedDieId = null;
+  if (!keepSelected) state.selectedDieId = null;
   return true;
 }
 

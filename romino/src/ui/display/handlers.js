@@ -1,9 +1,12 @@
 import { state } from '../../logic/state.js';
+import { settings } from '../../logic/settings.js';
 import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset } from '../../logic/row.js';
 import { handleRollButton } from '../../logic/turn.js';
 import { showGameOver } from './game-over.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
+import { attemptPlacementAtPoint } from './placement-input.js';
+import { consumeRowClickBlock } from './drag-drop.js';
 
 export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
@@ -12,6 +15,21 @@ export function initHandlers() {
     const rollBtn = e.target.closest('#roll-btn');
     if (rollBtn && !rollBtn.disabled) {
       if (handleRollButton(() => { showGameOver(); render(); })) render();
+      return;
+    }
+
+    if (settings.directPlacement) {
+      if (consumeRowClickBlock()) return;
+
+      if (e.target.closest('#placement-row') && !e.target.closest('.die--placed')) {
+        if (state.selectedDieId != null) {
+          const result = attemptPlacementAtPoint(state.selectedDieId, e.clientX, e.clientY);
+          if (result === 'placed' || result === 'invalid') return;
+        }
+        state.selectedDieId = null;
+        renderSelection();
+        return;
+      }
       return;
     }
 

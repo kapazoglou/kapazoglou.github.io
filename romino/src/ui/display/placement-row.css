@@ -181,6 +181,20 @@
 
 .die--returnable {
   cursor: pointer;
+  touch-action: none;
+}
+
+.die--action {
+  touch-action: none;
+}
+
+/* Stack overlap: while dragging, siblings must not steal the pointer. */
+#app.is-die-drag-pending .die--placed:not(.die--drag-pending),
+#app.is-die-drag-pending .die--action:not(.die--drag-pending),
+#app.is-die-dragging .placement-row .die--placed,
+#app.is-die-dragging .placement-row .placement-tile,
+#app.is-die-dragging .placement-row .placement-hint {
+  pointer-events: none;
 }
 
 .die--placed-selected,

@@ -4,7 +4,55 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+### Removed
+- **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — `adjacentColumnsOnly` toggle and placement-order tracking removed; bar placements no longer restricted to adjacent columns
+
 ### Changed
+- **settings.js v2.9, settings-panel.js v1.26, sweeps-row.js v1.7** — `jokerFlushOnly` toggle: jokers sweep only on same-suit flush runs (≥2 non-joker tiles of that suit)
+- **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps (any rank / step)
+
+### Added
+- **action-bar.js v1.23, action-bar.css** — roll button number turns warning red when below N-roll
+- **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice (2–5) convert to joker rank `*` with suit of missing inner die; one joker per row
+
+### Fixed
+- **placement-row.js** — direct-placement stack hit-test: dropping a 1 or 6 onto a placed inner die (or any stack die) resolves as stack, not invalid; flyer overlap no longer blocks the target
+- **row.js v1.15, placement-hover.js v1.6, placement-anim.js v1.16** — no gap spread/preview when N-place or N-places cap reached (fly-in only if gap insert still legal)
+- **placement-anim.js v1.15** — row-edge drop: fly-in only (no full-row spread + collapse jitter); columns move once on render
+- **drag-drop.js v2.20** — gap spread preview only while dragging a die (not on selected-die hover)
+- **placement-row.js, placement-row.css, placement-hover.js, placement-anim.js, reposition-collapse.js** — gap-insert spread hides the opening-pair star immediately; stars rAF-track live die layout during column motion (no separate left/top transition)
+- **drag-drop.js v2.19, handlers.js** — return-to-bar tap no longer re-places die (click-after-pointerup guard)
+- **placement-hover.js v1.5, placement-anim.js v1.14** — placement commit handoffs hover spread (no reverse-then-re-spread jitter); commit spread animates from current transform; animating phase clears hover state only
+- **placement-anim.js v1.13** — keep drag/fly flyer until after render on edge drops (no die flash during edge-insert collapse)
+
+### Added
+- **row.js v1.14, drag-drop.js v2.18** — tap returnable (unsettled) placed die returns to action bar and keeps selection
+
+### Changed
+- **placement-anim.js, placement-hover.js, reposition-collapse.js, render.js, drag-drop.js** — successful reposition: no spread/collapse DOM restore before render (fixes post-drop column snap)
+- **game-over.js v1.5, game-over.css, index.html** — session rolls/sweeps on game-over sheet; local top-10 highscore leaderboard (date, rolls, sweeps, score)
+- **highscores.js v1.0** — localStorage top-10 persistence with score/rolls/sweeps tie-break sort
+- **state.js v2.2, turn.js v2.0** — `rollCount` incremented on each successful `rollDice()`
+- **drag-drop.js v2.17, placement-row.css** — stack drag: body capture from pointerdown, touch-action none on dice, sibling pointer-events off; no select on drag start
+- **drag-drop.js v2.16** — placed die tap selects (not return-to-bar); return via drag to action bar only
+- **reposition-collapse.js** — instant gap close on drag start (no FLIP anim while dragging)
+- **drag-drop.js, placement-hover.js, placement-anim.js, render.js** — instant spread/collapse teardown on drag end (no reverse anim vs renderSelection); defer selection refresh one frame
+- **placement-row.js** — star markers hide during row reposition drag when they involve the dragged die
+- **reposition-collapse.js v1.0** — sole-die row reposition closes source gap on drag; gap hover spread composes on top
+- **placement-anim.js v1.12** — reposition gap spread excludes vanishing source column; clear `draggingDieId` before row reposition render (fixes hidden die)
+- **placement-anim.js v1.11** — row-edge insert: columns past an index gap on the far side of the new die animate back after fly-in
+- **drag-drop.js, placement-anim.js, placement-input.js, base.css, index.html** — drag uses `.placement-die-flyer` in viewport at source die position; same element hands off to commit fly; removed `#drag-ghost`
+- **placement-hover.js** — gap hover spread only between columns, not row edges
+- **placement-row.js** — `resolveInsertSlotFromPointer` for insert-only hit tests
+- **placement-row.js** — `resolveSlotFromPointer`; hints/ghosts gated when direct placement ON
+- **placement-input.js v1.0** — `attemptPlacementAtPoint` validates slot + places or flashes
+- **invalid-flash.js v1.0, invalid-flash.css** — full-viewport red flash on illegal direct placement
+- **row.js v1.13** — `getValidSlotsForDie` allows repositioning placed-this-turn dice when placement quota is full
+- **placement-row.js, placement-input.js, drag-drop.js** — fix insert drops: inserts use finger Y, stacks use ghost top; inserts checked before stack
+
+### Changed
+- **placement-row.js** — gap/edge inserts only at or below the bottom die row; stack still wins above columns
+- **placement-row.js** — direct-placement row edges: any tap/drag left of first column or right of last column (full row height) resolves to edge insert
 - **turn.js v1.9** — removed post-sweep game over when occupied columns exceed `nPlaces`; column cap still blocks placement during play
 - **pip-anim.js v1.2, pip-anim.css** — star collect + bank use convert-style fly; all stars together; HUD jumps by full total
 - **timing.js v1.4** — convert fly-back slowed (320ms fly, 80ms stagger)
