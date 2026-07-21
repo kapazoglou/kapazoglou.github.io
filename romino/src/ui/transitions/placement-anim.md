@@ -1,8 +1,8 @@
 ---
 module: placement-anim
 layer: ui/transitions
-v: 1.16
-date: 2026-07-20
+v: 1.22
+date: 2026-07-21
 deps: [state, settings, row, render, timing, dice-visual]
 ---
 # Placement Anim
@@ -11,6 +11,7 @@ Gap inserts spread the row when `gapInsertAnimationsAllowed()`; fly-in starts at
 
 ## Exports
 - `placeDieWithAnim(dieId, slot, existingFlyer?)` — validates, sets `phase: animating`, restores `phase: rolled` + `render()` on done; optional flyer handoff from drag (starts fly from current position)
+- `placeDealtTileWithAnim(slot, existingFlyer?)` — bar placement or placed-this-turn row reposition (lifts column, flyer from row rect)
 - `computeSpreadOffsets(slot, dieId?)` — gap spread; sole-die reposition excludes vanishing source column and remaps the insert slot
 
 ## CSS

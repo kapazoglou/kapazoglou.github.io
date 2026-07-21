@@ -1,4 +1,5 @@
 import { spd } from '../../logic/settings.js';
+import { state } from '../../logic/state.js';
 
 const FLASH_MS = 280;
 
@@ -18,4 +19,18 @@ export function flashInvalidPlacement() {
     viewport.classList.remove('is-invalid-flash');
     flashing = false;
   }, ms);
+}
+
+function flashHudStarsWarning(ms) {
+  const starsEl = document.getElementById('hud-stars');
+  if (!starsEl) return;
+  starsEl.classList.add('is-star-warning');
+  setTimeout(() => starsEl.classList.remove('is-star-warning'), ms);
+}
+
+/** Red viewport flash plus warning-red star count when ace/joker blocked with zero stars. */
+export function flashStarShortagePlacement() {
+  flashInvalidPlacement();
+  if (state.stars !== 0) return;
+  flashHudStarsWarning(spd(FLASH_MS));
 }

@@ -25,3 +25,12 @@
   width: var(--die-size);
   height: var(--die-size);
 }
+
+.placement-die-flyer--tile {
+  width: auto;
+  height: auto;
+}
+
+.placement-die-flyer--tile .placement-tile {
+  pointer-events: none;
+}

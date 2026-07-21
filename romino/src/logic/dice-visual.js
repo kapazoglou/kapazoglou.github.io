@@ -31,6 +31,16 @@ export const SUIT_COLOR = {
   V: '#E5B800', Z: '#906BFF', X: '#E56700', Y: '#71BD00', W: '#00B6D6',
 };
 
+/** Shared tile face markup — converted row tiles and dealt action-bar tiles. */
+export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '' } = {}) {
+  const color = SUIT_COLOR[tile.suit] ?? '#404A59';
+  const classes = ['placement-tile', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
+  return `<div class="${classes}"${attrs} style="color:${color}">
+    <span class="placement-tile-rank">${tile.rank}</span>
+    <span class="placement-tile-suit">${tile.suit}</span>
+  </div>`;
+}
+
 export const SUIT_BADGE_ORDER = ['W', 'Y', 'Z', 'X'];
 
 export const DISCARD_RANKS = ['★', 'A', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'aj', 'aa', 'ab', 'ac'];
@@ -90,15 +100,18 @@ function jokerIdentityFromTricolorSevens(values) {
   };
 }
 
+/** Ace (A) and joker (*) tiles cost one star to convert from a full stack. */
+export function tileIdentityRequiresStar(tile) {
+  return tile.rank === JOKER_RANK || tile.rankSum === 1;
+}
+
 /** Rank/suit identity for a completed 3-dice stack [bottom, mid, top]. */
 export function tileIdentityFromStackValues(values, { tricolors = false, tricolorSevens = false } = {}) {
-  if (tricolors) {
-    if (tricolorSevens && isTricolorSevensStack(values)) {
-      return jokerIdentityFromTricolorSevens(values);
-    }
-    if (!tricolorSevens && isTricolorStack(values)) {
-      return jokerIdentityFromTricolor(values);
-    }
+  if (tricolorSevens && isTricolorSevensStack(values)) {
+    return jokerIdentityFromTricolorSevens(values);
+  }
+  if (tricolors && !tricolorSevens && isTricolorStack(values)) {
+    return jokerIdentityFromTricolor(values);
   }
   const bottomValue = values[0];
   const isAce = (values[1] === 1 && values[2] === 6) || (values[1] === 6 && values[2] === 1);
@@ -170,6 +183,10 @@ export function dieFaceBorderColor(value) {
 export const DIE_FACE = 40;
 export const DIE_BORDER = 4;
 export const DIE_OUTER = DIE_FACE + DIE_BORDER * 2;
+
+/** Tile outer box — mirrors base.css `--die-face` / `--tile-face-h` + border. */
+export const TILE_OUTER_W = DIE_OUTER;
+export const TILE_OUTER_H = 2 * DIE_OUTER - DIE_BORDER;
 
 /**
  * Colored face, white pips, 4px outside border ring (fill via CSS — see base.css).

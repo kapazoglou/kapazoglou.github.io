@@ -1,21 +1,12 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { findStarMatches } from '../../logic/stars.js';
-import { dieSVG, SUIT_COLOR, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG } from '../../logic/dice-visual.js';
+import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML } from '../../logic/dice-visual.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
-  getOccupiedCols, getValidSlotsForDie,
-  isPlacedThisTurn, getColumn, CENTER_COL, dieIdAt,
+  getOccupiedCols, getValidSlotsForDie, getValidSlotsForDealtTile,
+  isPlacedThisTurn, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
 } from '../../logic/row.js';
-
-function tileHTML(tile, col) {
-  const color = SUIT_COLOR[tile.suit] ?? '#404A59';
-  const isNew = state.newTileCols?.has(col);
-  return `<div class="placement-tile${isNew ? ' is-new' : ''}" style="color:${color}">
-    <span class="placement-tile-rank">${tile.rank}</span>
-    <span class="placement-tile-suit">${tile.suit}</span>
-  </div>`;
-}
 
 function stackHTML(col, column) {
   return column.dice.map((dieId, i) => {
@@ -171,7 +162,7 @@ export function renderPlacementRow() {
   const occupied = getOccupiedCols();
   const showEdgeGhosts = !settings.directPlacement
     && occupied.length > 0
-    && state.selectedDieId != null
+    && (state.selectedDieId != null || state.selectedDealtTile)
     && state.phase !== 'animating';
 
   let colsHTML = '';
@@ -192,7 +183,13 @@ export function renderPlacementRow() {
       }
 
       if (column.kind === 'tile') {
-        colsHTML += `<div class="${colClass} placement-col--tile" data-col="${col}"${colStyle}>${tileHTML(column, col)}</div>`;
+        const returnable = isPlacedDealtTileCol(col);
+        const selected = returnable && state.selectedDealtTile;
+        const classExtra = [
+          returnable ? 'placement-tile--returnable' : '',
+          selected ? 'placement-tile--selected' : '',
+        ].filter(Boolean).join(' ');
+        colsHTML += `<div class="${colClass} placement-col--tile" data-col="${col}"${colStyle}>${tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) })}</div>`;
       } else {
         const converting = state.convertingCol === col;
         const pairClass = column.dice.length === 2 ? ' placement-col--stack-pair' : '';
@@ -263,10 +260,17 @@ export function updatePlacementSelection() {
     }
   });
 
+  inner.querySelectorAll('.placement-col--tile .placement-tile--returnable').forEach(el => {
+    const col = Number(el.closest('.placement-col')?.dataset.col);
+    const sel = state.selectedDealtTile && isPlacedDealtTileCol(col);
+    el.classList.toggle('placement-tile--selected', sel);
+  });
+
   const occupied = getOccupiedCols();
+  const hasSelection = state.selectedDieId != null || state.selectedDealtTile;
   const showEdgeGhosts = !settings.directPlacement
     && occupied.length > 0
-    && state.selectedDieId != null
+    && hasSelection
     && state.phase !== 'animating';
   const layer = inner.querySelector('.placement-edge-ghosts');
 
@@ -289,12 +293,15 @@ export function positionHints() {
   }
 
   const old = inner.querySelector('.placement-hints');
-  if (state.selectedDieId == null || state.phase === 'animating') {
+  const noSelection = state.selectedDieId == null && !state.selectedDealtTile;
+  if (noSelection || state.phase === 'animating') {
     old?.remove();
     return;
   }
 
-  const slots = getValidSlotsForDie(state.selectedDieId);
+  const slots = state.selectedDealtTile
+    ? getValidSlotsForDealtTile()
+    : getValidSlotsForDie(state.selectedDieId);
   if (old) old.remove();
   if (!slots.length) return;
 
@@ -623,7 +630,7 @@ export function isPointerOnPlacementRow(clientX, clientY) {
 }
 
 /** Map pointer coordinates to an intended placement slot (direct-placement mode). */
-export function resolveSlotFromPointer(clientX, clientY, stackY = clientY) {
+export function resolveSlotFromPointer(clientX, clientY, stackY = clientY, { allowStack = true } = {}) {
   if (!isPointerOnPlacementRow(clientX, clientY)) return null;
 
   const occupied = getOccupiedCols();
@@ -634,12 +641,10 @@ export function resolveSlotFromPointer(clientX, clientY, stackY = clientY) {
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) return null;
 
-  const firstCol = colElement(inner, occupied[0]);
-  const lastCol = colElement(inner, occupied[occupied.length - 1]);
-  if (!firstCol || !lastCol) return null;
-
   const insert = resolveInsertSlotFromPointer(clientX, clientY);
   if (insert) return insert;
+
+  if (!allowStack) return null;
 
   const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY)
     ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied);

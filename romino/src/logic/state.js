@@ -28,12 +28,24 @@ export function createInitialState() {
     selectedDieId: null,
     /** Set while a die is actively being dragged (UI only). */
     draggingDieId: null,
+    /** Set while the dealt tile is actively being dragged (UI only). */
+    draggingDealtTile: false,
     nextDieId: 0,
     hasPlacedFirstDie: false,
     /** Animation flags (transitions layer) */
     convertingCol: null,
     newTileCols: new Set(),
     newTrayDieIds: new Set(),
+    /** Dealt tile in action bar awaiting placement (tile-deck feature). */
+    dealtTile: null,
+    /** Row column of dealt tile placed this turn — repositionable until confirm. */
+    placedDealtTileCol: null,
+    tileDeckRemaining: [],
+    selectedDealtTile: false,
+    newDealtTile: false,
+    pendingDealtTile: null,
+    dealingDiscardQueue: [],
+    dealingDiscardTile: null,
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

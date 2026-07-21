@@ -1,8 +1,8 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.28
-date: 2026-07-20
+v: 1.32
+date: 2026-07-21
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story
@@ -14,18 +14,8 @@ As a player, I want to access a hidden settings panel (triple-tap the HUD score)
 - `initSettingsPanel()` — attaches 4-tap listener on `#swept-points` and back-button listener
 
 ## Toggle behaviour
-- Edits buffer in a draft while the panel is open; **back** applies all, saves, then `resetGame()` or `render()`
-- **fastAnimations** → toggles `html.fast-anims` on apply
-- **peekUnconvertedLayout** (off) → clears `state.peekUnconvertedCards`
-- **extendedGrid / extraStartCards / emptyCards / sweepThreeInRow / blankDie / filterExtremes / chooseDice / fillDiscovery / oneToOne / forbidThirdExtreme / progressiveDicePlacement / progressiveSuitJoker** → closes panel + calls `resetGame()`
-- **oneToOne** — disabled when `fourSquare` is off
-- **fillDiscovery** — disabled when `fourSquare` is off
-- **fillDiscoveryEnd** — disabled when `fourSquare` is off; `render()` only (no reset)
-- **progressiveDicePlacement** — disabled when `fourSquare` is off
-- **chooseDice** — disabled when `diceDecks` is on; enabling forces `diceDecks` off
-- **partialUniqueIndex** — disabled when `progressiveDicePlacement` is on (no effect while progressive is active)
-- **forbidThirdExtreme** — disabled when `fourSquare` is off or `oneToOne` is on
-- All others → calls `render()`
+- Edits buffer in a draft while the panel is open; **back** applies all, saves to localStorage, then reloads the page when anything changed
+- If nothing changed, back closes the panel without reload
 
 ## Related
 [[settings]] · [[phase]] · [[render]] · [[hud]]

@@ -1,21 +1,20 @@
 import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
-import { resetGame } from '../../logic/turn.js';
-import { render } from './render.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
 
 /** Pending edits while the panel is open; applied on back. */
 let draftSettings = null;
 
-const RESET_KEYS = ['nDice', 'nRoll', 'nPlace', 'nPlaces', 'oneToOne', 'suitRestriction', 'consecutiveStars', 'tricolors', 'tricolorSevens', 'jokerFlushOnly'];
-
 function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const saved = JSON.parse(raw);
-    if (saved.nTiles != null && saved.nPlaces == null) {
-      settings.nPlaces = saved.nTiles;
+    if (saved.nTiles != null && saved.nSpots == null && saved.nPlaces == null) {
+      settings.nSpots = saved.nTiles;
+    }
+    if (saved.nPlaces != null && saved.nSpots == null) {
+      settings.nSpots = saved.nPlaces;
     }
     for (const [k, v] of Object.entries(saved)) {
       if (k in settings) settings[k] = v;
@@ -31,19 +30,14 @@ function saveSettings() {
 }
 
 function clampDraft() {
-  if (draftSettings.nPlaces > draftSettings.nDice) draftSettings.nPlaces = draftSettings.nDice;
   if (draftSettings.nPlace > draftSettings.nRoll) draftSettings.nPlace = draftSettings.nRoll;
   if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
 }
 
-function needsGameReset(before, after) {
-  return RESET_KEYS.some(key => before[key] !== after[key]);
-}
-
+/** @returns {boolean} true when settings changed and the page is reloading */
 function applyDraftSettings() {
-  if (!draftSettings) return;
+  if (!draftSettings) return false;
 
-  const previous = { ...settings };
   const changed = Object.keys(settings).some(key => draftSettings[key] !== settings[key]);
 
   for (const [key, value] of Object.entries(draftSettings)) {
@@ -51,16 +45,12 @@ function applyDraftSettings() {
   }
   clampSettings();
   saveSettings();
-  document.documentElement.classList.toggle('fast-anims', settings.fastAnimations);
   draftSettings = null;
 
-  if (!changed) return;
+  if (!changed) return false;
 
-  if (needsGameReset(previous, settings)) {
-    resetGame();
-  } else {
-    render();
-  }
+  location.reload();
+  return true;
 }
 
 export function renderSettingsPanel() {
@@ -112,8 +102,7 @@ function buildStepperRow(item) {
 
   const update = delta => {
     const min = item.min ?? 1;
-    let max = item.max ?? 99;
-    if (item.key === 'nPlaces') max = Math.min(max, draftSettings.nDice);
+    const max = item.max ?? 99;
     draftSettings[item.key] = Math.min(max, Math.max(min, draftSettings[item.key] + delta));
     clampDraft();
     value.textContent = String(draftSettings[item.key]);
@@ -174,7 +163,9 @@ export function initSettingsPanel() {
   });
 
   document.getElementById('settings-back').addEventListener('click', () => {
-    applyDraftSettings();
-    document.getElementById('settings-panel').classList.remove('is-open');
+    const reloading = applyDraftSettings();
+    if (!reloading) {
+      document.getElementById('settings-panel').classList.remove('is-open');
+    }
   });
 }

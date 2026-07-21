@@ -1,8 +1,10 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { getConvertibleCols, convertColumn } from '../../logic/convert.js';
+import { getConvertibleCols, convertColumn, convertRequiresStar } from '../../logic/convert.js';
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
+import { renderHUD } from '../display/hud-v2.js';
+import { payStarForConvert } from './pip-anim.js';
 import { CONVERT_MS, CONVERT_FLY_MS, CONVERT_FLY_STAGGER_MS } from './timing.js';
 
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
@@ -119,16 +121,25 @@ export function processConverts(cols, index, onDone) {
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      animateConvertFlyBack(col, () => {
-        convertColumn(col);
-        state.convertingCol = null;
-        state.newTileCols.add(col);
-        render();
-        setTimeout(() => {
-          state.newTileCols.delete(col);
-          processConverts(cols, index + 1, onDone);
-        }, spd(CONVERT_MS));
-      });
+      const runFlyBack = () => {
+        animateConvertFlyBack(col, () => {
+          convertColumn(col);
+          state.convertingCol = null;
+          state.newTileCols.add(col);
+          render();
+          setTimeout(() => {
+            state.newTileCols.delete(col);
+            renderHUD();
+            processConverts(cols, index + 1, onDone);
+          }, spd(CONVERT_MS));
+        });
+      };
+
+      if (convertRequiresStar(col)) {
+        payStarForConvert(col, runFlyBack);
+      } else {
+        runFlyBack();
+      }
     });
   });
 }

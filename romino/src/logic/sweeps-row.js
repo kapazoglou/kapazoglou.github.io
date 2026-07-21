@@ -19,7 +19,7 @@ function fixedRankCandidates(tile) {
   return isJokerTile(tile) ? null : rankValues(tile.rankSum);
 }
 
-/** +1 step, or ace wrap bridges on the 2…12 wheel (e.g. 2–A–12, 12–A–2, 11–12–A). */
+/** +1 step, or ace wrap bridges on the 2…12 wheel (e.g. 2–A–12, 12–A–2, A–2–3, 11–12–A). */
 function isRankStep(prev, next) {
   if (next === prev + 1) return true;
   if (prev === 2 && next === 1) return true;
@@ -111,9 +111,23 @@ function runHasJoker(tiles) {
   return tiles.some(isJokerTile);
 }
 
+/** Ace wrap is only for bridging wheel ends (e.g. 12–A–2), not same rank both sides (2–A–2). */
+function hasAceBetweenSameRanks(tiles) {
+  for (let i = 1; i < tiles.length - 1; i++) {
+    const mid = tiles[i];
+    if (mid.rankSum !== 1 || isJokerTile(mid)) continue;
+    const left = tiles[i - 1];
+    const right = tiles[i + 1];
+    if (isJokerTile(left) || isJokerTile(right)) continue;
+    if (left.rankSum === right.rankSum) return true;
+  }
+  return false;
+}
+
 function isConsecutiveRun(tiles) {
   if (settings.jokerFlushOnly && runHasJoker(tiles)) return false;
-  return canConsecutiveAsc(tiles) || canConsecutiveDesc(tiles);
+  const ok = canConsecutiveAsc(tiles) || canConsecutiveDesc(tiles);
+  return ok && !hasAceBetweenSameRanks(tiles);
 }
 
 /** Jokers may match any rank; non-jokers must agree. */

@@ -1,8 +1,8 @@
 import { state } from '../../logic/state.js';
-import { isBarDieInactive } from '../../logic/row.js';
+import { isBarDieInactive, isDealtTileInactive } from '../../logic/row.js';
 import { renderHUD } from './hud-v2.js';
 import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, positionStarMarkers, restorePinnedRowScroll } from './placement-row.js';
-import { renderActionBar } from './action-bar.js';
+import { renderActionBar, updateActionBarSelection } from './action-bar.js';
 import { clearInsertHoverSpread, resetInsertHoverSpread } from '../transitions/placement-hover.js';
 import { resetRepositionCollapse } from '../transitions/reposition-collapse.js';
 
@@ -11,6 +11,9 @@ export function render() {
   resetRepositionCollapse();
   if (state.selectedDieId != null && isBarDieInactive(state.selectedDieId)) {
     state.selectedDieId = null;
+  }
+  if (state.selectedDealtTile && isDealtTileInactive()) {
+    state.selectedDealtTile = false;
   }
   renderPlacementRow();
   renderHUD();
@@ -29,8 +32,11 @@ export function renderSelection() {
   if (state.selectedDieId != null && isBarDieInactive(state.selectedDieId)) {
     state.selectedDieId = null;
   }
+  if (state.selectedDealtTile && isDealtTileInactive()) {
+    state.selectedDealtTile = false;
+  }
   updatePlacementSelection();
-  renderActionBar();
+  updateActionBarSelection();
   requestAnimationFrame(() => {
     positionEdgeGhosts();
     positionHints();

@@ -1,8 +1,8 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.23
-date: 2026-07-20
+v: 1.30
+date: 2026-07-21
 deps: [state, cards, dice, grid]
 ---
 # Action Bar — User Story

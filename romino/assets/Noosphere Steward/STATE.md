@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-20
+lastVerified: 2026-07-21
 ---
 
 # römino — Verified Pattern State
@@ -15,7 +15,7 @@ lastVerified: 2026-07-20
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nPlaces + toggles incl. `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -30,9 +30,30 @@ lastVerified: 2026-07-20
 
 ## Modified this session
 
-- **settings.js v2.11, settings-panel.js v1.28, dice-visual.js v2.6, row.js v1.20, convert.js v1.7** — `tricolorSevens` toggle: stricter tricolor joker (2nd+3rd=7, suit from bottom die)
+- **row.js v1.30, convert.js v1.7, dice-visual.js v2.10, pip-anim.js v1.3, convert-anim.js v1.2, invalid-flash.js v1.1, placement-input.js v1.2, hud-v2.css** — ace/joker convert costs one star; placement blocked when balance too low; reverse star fly before convert; star-shortage flash on `#hud-stars`
+
+- **handlers.js v2.8, drag-drop.js v2.25, placement-row.js** — row dealt tile tap-select survives row click handler; edge ghosts when dealt tile selected
+
+- **row.js v1.29, placement-row.js, drag-drop.js v2.24, placement-anim.js v1.22** — placed dealt tile reposition before confirm: slot calc from row column, selection chrome, hint placement anim from row rect
+
+- **drag-drop.js v2.22** — cancelled bar drag restores tray/dealt-tile slot after illegal drop (no overlap with siblings)
+
+- **drag-drop.js v2.23, row.js v1.28** — dice gap spread restored (`getValidSlotsForDie` import); gate = original dice rule OR dealt tile row room
+
+- **row.js v1.27, placement-hover.js v1.9, placement-anim.js v1.21, drag-drop.js** — unified gap spread gate for dice + dealt tile (fixes dice regression from split gate)
+
+- **row.js v1.26, placement-hover.js v1.8, placement-anim.js v1.20, drag-drop.js** — dealt tile gap spread uses N-spots-only gate (fixes missing column anim after N-place)
+
+- **action-bar.js v1.28, action-bar.css, placement-row.css, render.js** — dealt tile select shows accent border; selection-only refresh toggles bar chrome via `updateActionBarSelection()`
+
+- **row.js v1.28, action-bar.js v1.30, action-bar.css, convert-anim.css** — dealt tile disabled-on-deal until N-place; inactive entrance anim; tray inactive sync on selection refresh
+
+- **settings.js v2.14, settings-panel.js v1.32** — N-spots no longer capped to N-dice
+
+- **dice-visual.js v2.7, row.js v1.21** — `tricolorSevens` standalone; joker suit/placement gates use live settings
 - **row.js v1.19** — one joker per row restored (with per-suit-per-game cap)
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — removed `adjacentColumnsOnly` toggle and `placementOrderThisTurn` state
+- **sweeps-row.js v1.9** — ace wrap rejects same-rank both sides (2–A–2); 12–A–2, 2–A–12, A–2–3, 11–12–A still valid
 - **sweeps-row.js v1.8** — `jokerFlushOnly` ON: jokers hard-blocked from equal/consecutive rank sweeps; flush only
 - **settings.js v2.9, settings-panel.js v1.26** — `jokerFlushOnly` toggle in Rules group
 - **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice → joker tile (rank `*`, suit = missing inner die)

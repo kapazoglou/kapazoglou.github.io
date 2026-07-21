@@ -95,10 +95,13 @@ export function isRepositionCollapseActive() {
 
 /** Remove sole source column from flex flow; pin scroll so the row stays centred. */
 export function beginRepositionCollapse(dieId) {
-  clearRepositionCollapse(false);
-
   const sourceCol = soleSourceCol(dieId);
-  if (sourceCol == null) return;
+  if (sourceCol != null) beginColumnRepositionCollapse(sourceCol);
+}
+
+/** Remove a sole stack or dealt-tile column from flex flow; pin scroll so the row stays centred. */
+export function beginColumnRepositionCollapse(sourceCol) {
+  clearRepositionCollapse(false);
 
   const inner = document.querySelector('.placement-row-inner');
   const src = colEl(inner, sourceCol);

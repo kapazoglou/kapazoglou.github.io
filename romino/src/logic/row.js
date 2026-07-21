@@ -1,22 +1,36 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues } from './dice-visual.js';
+import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
+
+function tricolorJokersEnabled() {
+  return settings.tricolors || settings.tricolorSevens;
+}
+
+function jokerTileOptions() {
+  return {
+    tricolors: settings.tricolors,
+    tricolorSevens: settings.tricolorSevens,
+  };
+}
 
 function jokerSuitFromStackValues(v0, v1, v2) {
-  const { rank, suit } = tileIdentityFromStackValues([v0, v1, v2], {
-    tricolors: true,
-    tricolorSevens: settings.tricolorSevens,
-  });
+  const { rank, suit } = tileIdentityFromStackValues([v0, v1, v2], jokerTileOptions());
   return rank === JOKER_RANK ? suit : null;
 }
 
+function stackValuesRequireStar(values) {
+  const tile = tileIdentityFromStackValues(values, jokerTileOptions());
+  return tileIdentityRequiresStar(tile);
+}
+
 function twoInnerDiceCanBecomeTricolorJoker(v0, v1) {
+  if (!tricolorJokersEnabled()) return false;
   if (!isInnerDie(v0) || !isInnerDie(v1) || v0 === v1) return false;
   if (settings.tricolorSevens) {
     const third = 7 - v1;
     return isInnerDie(third) && third !== v0;
   }
-  return true;
+  return settings.tricolors;
 }
 
 /** Another stack already committed or building toward a joker of this suit. */
@@ -117,9 +131,76 @@ export function canPlaceMoreThisTurn() {
   return state.placedThisTurn < settings.nPlace;
 }
 
-/** Tray die left in the bar after this turn's placement quota is filled. */
+/** Tray die inactive when per-turn N-place quota is filled. */
 export function isBarDieInactive(dieId) {
-  return state.actionBar.includes(dieId) && !canPlaceMoreThisTurn();
+  return state.actionBar.includes(dieId)
+    && state.placedThisTurn >= settings.nPlace;
+}
+
+/** Per-turn dice placement quota satisfied — dealt tile may activate. */
+export function isDicePlacementComplete() {
+  return state.placedThisTurn >= settings.nPlace;
+}
+
+/** Dealt tile in the action bar — muted and non-interactive until N-place dice are placed. */
+export function isDealtTileInactive() {
+  return !!state.dealtTile && !isDicePlacementComplete();
+}
+
+/** Tile in the bar or placed on the row this turn (before confirm). */
+export function getDealtTileForPlacement() {
+  if (state.dealtTile) return state.dealtTile;
+  if (state.placedDealtTileCol == null) return null;
+  const column = getColumn(state.placedDealtTileCol);
+  if (!column || column.kind !== 'tile') return null;
+  return {
+    suit: column.suit,
+    rank: column.rank,
+    rankSum: column.rankSum,
+    bottomValue: column.bottomValue,
+  };
+}
+
+export function canPlaceDealtTile() {
+  if (!isDicePlacementComplete()) return false;
+  if (state.placedDealtTileCol != null && !state.dealtTile) return true;
+  return !!state.dealtTile && (isRowEmpty() || canAddDealtTileColumn());
+}
+
+export function isPlacedDealtTileCol(col) {
+  return state.placedDealtTileCol === col;
+}
+
+/** Lift a placed-this-turn dealt tile back to the bar for reposition drag. */
+export function liftDealtTileForReposition(col) {
+  if (!isPlacedDealtTileCol(col)) return false;
+  const column = getColumn(col);
+  if (!column || column.kind !== 'tile') return false;
+  const tile = {
+    suit: column.suit,
+    rank: column.rank,
+    rankSum: column.rankSum,
+    bottomValue: column.bottomValue,
+  };
+  delete state.row[col];
+  if (isRowEmpty()) state.hasPlacedFirstDie = false;
+  state.dealtTile = tile;
+  state.placedDealtTileCol = null;
+  state.selectedDealtTile = false;
+  return true;
+}
+
+/** Restore dealt tile to its row column after a cancelled reposition drag. */
+export function cancelDealtTileReposition(restoreCol, tile) {
+  state.row[restoreCol] = { kind: 'tile', ...tile };
+  state.placedDealtTileCol = restoreCol;
+  state.dealtTile = null;
+  state.selectedDealtTile = false;
+  state.hasPlacedFirstDie = true;
+}
+
+function canPlaceMoreDiceFromBar() {
+  return state.placedThisTurn < settings.nPlace;
 }
 
 function passesOneToOneNewColumn(value) {
@@ -132,7 +213,7 @@ function isOneSixPair(a, b) {
 }
 
 function passesTricolorThirdDie(first, second, third, excludeCol = null) {
-  if (!settings.tricolors) return false;
+  if (!tricolorJokersEnabled()) return false;
   if (rowHasJoker(excludeCol)) return false;
   if (!isInnerDie(first) || !isInnerDie(second) || !isInnerDie(third)) return false;
   if (first === second || first === third || second === third) return false;
@@ -180,21 +261,41 @@ function columnBottomValue(col, excludeDieId = null) {
   return state.dice[ids[0]]?.value ?? null;
 }
 
-function rowHasTile(suit, rank) {
-  for (const column of Object.values(state.row)) {
+function rowHasTile(suit, rank, excludeCol = null) {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    const col = Number(colKey);
+    if (col === excludeCol) continue;
     if (column.kind === 'tile' && column.suit === suit && column.rank === rank) return true;
   }
   return false;
 }
 
+/** Ace/joker stacks already on the row that will cost a star on convert. */
+function countStarCostConvertsOnRow(excludeCol = null) {
+  let count = 0;
+  for (const col of getOccupiedCols()) {
+    if (col === excludeCol) continue;
+    const column = getColumn(col);
+    if (column?.kind !== 'stack' || column.dice.length !== 3) continue;
+    const values = column.dice.map(id => state.dice[id].value);
+    if (stackValuesRequireStar(values)) count++;
+  }
+  return count;
+}
+
+function passesStarCostForStackCompletion(bottomValue, midValue, topValue, col) {
+  const values = [bottomValue, midValue, topValue];
+  if (!stackValuesRequireStar(values)) return true;
+  const needed = countStarCostConvertsOnRow(col) + 1;
+  return state.stars >= needed;
+}
+
 /** Block completing a stack whose convert result duplicates an existing tile. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
-  const { suit, rank } = tileIdentityFromStackValues(values, {
-    tricolors: settings.tricolors,
-    tricolorSevens: settings.tricolorSevens,
-  });
+  const { suit, rank } = tileIdentityFromStackValues(values, jokerTileOptions());
   if (rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol))) return false;
+  if (state.dealtTile?.suit === suit && state.dealtTile?.rank === rank) return false;
   return !rowHasTile(suit, rank);
 }
 
@@ -252,18 +353,34 @@ export function countTilesInRow() {
   return Object.values(state.row).filter(column => column.kind === 'tile').length;
 }
 
-/** Occupied columns — dice stacks and tiles both count. */
-export function countPlacesInRow() {
+/** Occupied columns on the row — dice stacks and tiles both count. */
+export function countSpotsInRow() {
   return getOccupiedCols().length;
 }
 
-function atPlaceCap() {
-  return countPlacesInRow() >= settings.nPlaces;
+/** Row columns plus unplaced dealt tile in the action bar. */
+function countSpots() {
+  return countSpotsInRow() + (state.dealtTile ? 1 : 0);
 }
 
-/** Gap-insert spread / fly spread phase — off when per-turn N-place or row N-places cap is hit. */
+function atSpotCap() {
+  return countSpots() >= settings.nSpots;
+}
+
+/** Room to place dealt tile as a new row column (insert or center). */
+function canAddDealtTileColumn() {
+  return countSpotsInRow() < settings.nSpots;
+}
+
+/**
+ * Gap-insert spread / fly spread phase — shared by dice and dealt tiles.
+ * Dice: original gate (N-place + N-spots). Dealt tile: row room after N-place.
+ */
 export function gapInsertAnimationsAllowed() {
-  return state.placedThisTurn < settings.nPlace && !atPlaceCap();
+  if (state.placedThisTurn < settings.nPlace && !atSpotCap()) return true;
+  if (state.dealtTile && canAddDealtTileColumn()) return true;
+  if (state.placedDealtTileCol != null || state.draggingDealtTile) return true;
+  return false;
 }
 
 export function countDiceInRow() {
@@ -279,6 +396,20 @@ export function hasAnyLegalPlacementForTray() {
     if (getValidSlotsForDie(dieId).length > 0) return true;
   }
   return false;
+}
+
+/** True when slot completes an ace/joker stack but star balance is too low. */
+export function isStarBlockedPlacement(dieId, slot) {
+  if (slot.kind !== 'stack') return false;
+  const column = getColumn(slot.col);
+  if (!column || column.kind !== 'stack' || column.dice.length !== 2) return false;
+  const die = state.dice[dieId];
+  if (!die) return false;
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  const v2 = die.value;
+  if (!stackValuesRequireStar([v0, v1, v2])) return false;
+  return !passesStarCostForStackCompletion(v0, v1, v2, slot.col);
 }
 
 export function slotsEqual(a, b) {
@@ -304,6 +435,7 @@ function canPlaceValueAt(col, kind, value) {
       const v0 = state.dice[column.dice[0]].value;
       const v1 = state.dice[column.dice[1]].value;
       if (!passesOneToOneThirdDie(v0, v1, value, col)) return false;
+      if (!passesStarCostForStackCompletion(v0, v1, value, col)) return false;
       return passesNoDuplicateTile(v0, v1, value, col);
     }
     return true;
@@ -318,7 +450,7 @@ export function getValidSlotsForDie(dieId) {
   const fromBar = state.actionBar.includes(dieId);
   const fromRow = state.placedDieIds.has(dieId);
   if (!fromBar && !fromRow) return [];
-  if (fromBar && !canPlaceMoreThisTurn()) return [];
+  if (fromBar && !canPlaceMoreDiceFromBar()) return [];
 
   const value = die.value;
   const excludeDieId = fromBar ? null : dieId;
@@ -363,7 +495,7 @@ export function getValidSlotsForDie(dieId) {
     slots.push({ kind: 'insert', leftCol: maxCol, rightCol: null });
   }
 
-  if (atPlaceCap()) {
+  if (atSpotCap()) {
     slots = slots.filter(slot => slot.kind === 'stack');
   }
 
@@ -387,7 +519,7 @@ export function placeDie(dieId, slot) {
   const fromBar = state.actionBar.includes(dieId);
   const fromRow = state.placedDieIds.has(dieId);
   if (!fromBar && !fromRow) return false;
-  if (fromBar && !canPlaceMoreThisTurn()) return false;
+  if (fromBar && !canPlaceMoreDiceFromBar()) return false;
 
   const valid = getValidSlotsForDie(dieId);
   if (!valid.some(s => slotsEqual(s, slot))) return false;
@@ -441,5 +573,100 @@ export function findDieColumn(dieId) {
     }
   }
   return null;
+}
+
+function passesDealtTileIdentity(tile, excludeCol = null) {
+  if (tile.rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(tile.suit, excludeCol))) {
+    return false;
+  }
+  return !rowHasTile(tile.suit, tile.rank, excludeCol);
+}
+
+function canInsertTileAt(leftCol, rightCol, bottomValue) {
+  if (!gapAllowsInsert(leftCol, rightCol)) return false;
+  if (!passesTileAdjacencyRule(leftCol, rightCol)) return false;
+  return passesSuitRestriction(leftCol, rightCol, bottomValue);
+}
+
+export function hasAnyLegalPlacementForDealtTile() {
+  return getValidSlotsForDealtTile().length > 0;
+}
+
+export function getValidSlotsForDealtTile() {
+  const tile = getDealtTileForPlacement();
+  if (!tile || !canPlaceDealtTile()) return [];
+
+  const excludeCol = state.placedDealtTileCol;
+  const isReposition = excludeCol != null && !state.dealtTile;
+  if (!passesDealtTileIdentity(tile, excludeCol)) return [];
+
+  const bottomValue = tile.bottomValue;
+  let slots = [];
+
+  const occupied = isReposition
+    ? getOccupiedCols().filter(col => col !== excludeCol)
+    : getOccupiedCols();
+
+  if (occupied.length === 0) {
+    slots.push({ col: CENTER_COL, kind: 'new-column' });
+    return slots;
+  }
+
+  if (!isReposition && !canAddDealtTileColumn()) return [];
+
+  const minCol = occupied[0];
+  const maxCol = occupied[occupied.length - 1];
+
+  if (canInsertTileAt(null, minCol, bottomValue)) {
+    slots.push({ kind: 'insert', leftCol: null, rightCol: minCol });
+  }
+
+  for (let i = 0; i < occupied.length - 1; i++) {
+    const left = occupied[i];
+    const right = occupied[i + 1];
+    if (canInsertTileAt(left, right, bottomValue)) {
+      slots.push({ kind: 'insert', leftCol: left, rightCol: right });
+    }
+  }
+
+  if (canInsertTileAt(maxCol, null, bottomValue)) {
+    slots.push({ kind: 'insert', leftCol: maxCol, rightCol: null });
+  }
+
+  return slots;
+}
+
+export function placeDealtTile(slot) {
+  const repositionCol = state.placedDealtTileCol;
+  if (repositionCol != null && !state.dealtTile) {
+    if (!getValidSlotsForDealtTile().some(s => slotsEqual(s, slot))) return false;
+    liftDealtTileForReposition(repositionCol);
+  }
+
+  const tile = state.dealtTile;
+  if (!tile || !canPlaceDealtTile()) return false;
+
+  const valid = getValidSlotsForDealtTile();
+  if (!valid.some(s => slotsEqual(s, slot))) return false;
+
+  if (slot.kind === 'new-column') {
+    state.row[slot.col] = { kind: 'tile', ...tile };
+    state.hasPlacedFirstDie = true;
+  } else if (slot.kind === 'insert') {
+    const col = resolveInsertCol(slot.leftCol, slot.rightCol);
+    state.row[col] = { kind: 'tile', ...tile };
+    state.hasPlacedFirstDie = true;
+  } else {
+    return false;
+  }
+
+  if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
+  const placedCol = slot.kind === 'new-column'
+    ? slot.col
+    : resolveInsertCol(slot.leftCol, slot.rightCol);
+  state.placedDealtTileCol = placedCol;
+  state.dealtTile = null;
+  state.selectedDealtTile = false;
+  return true;
 }
 

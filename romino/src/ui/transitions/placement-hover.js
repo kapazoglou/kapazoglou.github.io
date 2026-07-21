@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { getValidSlotsForDie, slotsEqual, gapInsertAnimationsAllowed } from '../../logic/row.js';
+import { slotsEqual, gapInsertAnimationsAllowed } from '../../logic/row.js';
 import { resolveInsertSlotFromPointer, syncStarMarkersDuringMotion } from '../display/placement-row.js';
 import { computeSpreadOffsets } from './placement-anim.js';
 import { COL_SPREAD_MS } from './timing.js';
@@ -57,7 +57,7 @@ export function handoffInsertHoverSpread(keepCols) {
 }
 
 /** Preview gap insert — columns spread from gap midpoint while pointer hovers a valid insert. */
-export function updateInsertHoverSpread(dieId, clientX, clientY) {
+export function updateInsertHoverSpread(clientX, clientY, validSlots, dieId = null) {
   if (!settings.directPlacement || state.phase === 'animating') {
     if (activeHoverSlot !== null) resetInsertHoverSpread();
     return;
@@ -74,8 +74,7 @@ export function updateInsertHoverSpread(dieId, clientX, clientY) {
     return;
   }
 
-  const valid = getValidSlotsForDie(dieId);
-  if (!valid.some(s => slotsEqual(s, slot))) {
+  if (!validSlots.some(s => slotsEqual(s, slot))) {
     if (activeHoverSlot !== null) clearInsertHoverSpread();
     return;
   }

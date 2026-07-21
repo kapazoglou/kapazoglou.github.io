@@ -4,16 +4,18 @@ export const SETTINGS_CONFIG = [
     group: 'counts',
     label: 'Counts',
     items: [
-      { key: 'nPlaces', label: 'N-places',       default: 12, type: 'stepper', min: 1, max: 99 },
+      { key: 'nSpots', label: 'N-spots',        default: 12, type: 'stepper', min: 1, max: 99 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 12, type: 'stepper', min: 1, max: 99 },
       { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 20 },
       { key: 'nPlace', label: 'N-place',        default: 3,  type: 'stepper', min: 1, max: 20 },
+      { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 20 },
     ],
   },
   {
     group: 'rules',
     label: 'Rules',
     items: [
+      { key: 'tileDealtChainDraw', label: 'Tile dealt chain draw', default: false, type: 'toggle' },
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
@@ -37,7 +39,6 @@ export function spd(ms) {
 }
 
 export function clampSettings() {
-  if (settings.nPlaces > settings.nDice) settings.nPlaces = settings.nDice;
   if (settings.nPlace > settings.nRoll) settings.nPlace = settings.nRoll;
   if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
 }

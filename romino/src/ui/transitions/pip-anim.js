@@ -107,6 +107,42 @@ export function collectStarsToHUD(count, fromRects, onDone) {
   }, flyMs);
 }
 
+/** Column centre in viewport-inner design px — star payment target. */
+function convertColCenter(col, layerRect, scale) {
+  const inner = document.querySelector('.placement-row-inner');
+  const colNode = inner?.querySelector(`.placement-col[data-col="${col}"]`);
+  if (!colNode) return null;
+  return rectCenterInLayer(colNode.getBoundingClientRect(), layerRect, scale);
+}
+
+/** Visual-only HUD → ace/joker stack before convert (mirror of collectStarsToHUD). */
+export function payStarForConvert(col, onDone) {
+  const starsEl = document.getElementById('hud-stars');
+  const layer = flyLayer();
+  if (!starsEl || !layer || state.stars <= 0) {
+    onDone?.();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const end = convertColCenter(col, layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
+
+  if (!end) {
+    onDone?.();
+    return;
+  }
+
+  starsEl.textContent = String(state.stars - 1);
+  launchStarFlyer(start, end, layer, flyMs);
+
+  setTimeout(() => {
+    onDone?.();
+  }, flyMs);
+}
+
 /** Visual-only HUD stars → points after state was already updated. All stars fly together. */
 export function bankStarsToPoints(count, onDone) {
   if (count <= 0) {

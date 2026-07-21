@@ -1,11 +1,11 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { placeDie, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed } from '../../logic/row.js';
-import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
+import { placeDie, getDealtTileForPlacement, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed, liftDealtTileForReposition } from '../../logic/row.js';
+import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
-import { clearRepositionCollapse, resetRepositionCollapse } from './reposition-collapse.js';
+import { clearRepositionCollapse, resetRepositionCollapse, beginColumnRepositionCollapse } from './reposition-collapse.js';
 import { COL_SPREAD_MS, COL_DIE_IN_MS } from './timing.js';
 
 const SPREAD_EASING = 'ease-out';
@@ -239,6 +239,54 @@ function dieFinalTargetXY(slot, inner, innerRect, scale) {
   };
 }
 
+/** Tile landing in row-inner design px — bottom-aligned like a placed tile column. */
+function tileFinalTargetXY(slot, inner, innerRect, scale) {
+  const half = openWidth() / 2;
+  const open = openWidth();
+
+  if (slot.kind === 'new-column') {
+    const ghost = inner.querySelector('.placement-col--ghost-first');
+    if (!ghost) return null;
+    const box = colBoxInInner(ghost, innerRect, scale);
+    return {
+      left: box.left + (ghost.offsetWidth - TILE_OUTER_W) / 2,
+      top: box.bottom - TILE_OUTER_H,
+    };
+  }
+
+  if (slot.kind !== 'insert') return null;
+
+  let cx;
+  let bottom;
+
+  if (slot.leftCol == null) {
+    const el = colEl(inner, slot.rightCol);
+    if (!el) return null;
+    const box = colBoxInInner(el, innerRect, scale);
+    cx = box.left - open / 2;
+    bottom = box.bottom;
+  } else if (slot.rightCol == null) {
+    const el = colEl(inner, slot.leftCol);
+    if (!el) return null;
+    const box = colBoxInInner(el, innerRect, scale);
+    cx = box.right + open / 2;
+    bottom = box.bottom;
+  } else {
+    const leftEl = colEl(inner, slot.leftCol);
+    const rightEl = colEl(inner, slot.rightCol);
+    if (!leftEl || !rightEl) return null;
+    const l = colBoxInInner(leftEl, innerRect, scale);
+    const r = colBoxInInner(rightEl, innerRect, scale);
+    cx = (l.right - half + r.left + half) / 2;
+    bottom = Math.max(l.bottom, r.bottom);
+  }
+
+  return {
+    left: cx - TILE_OUTER_W / 2,
+    top: bottom - TILE_OUTER_H,
+  };
+}
+
 function clearSpreadStyles(entries) {
   for (const { el } of entries) {
     el.classList.remove('placement-col--spreading');
@@ -457,6 +505,234 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
   pinRowScroll();
   state.phase = 'animating';
   runSpreadThenFly(dieId, slot, () => {
+    state.phase = 'rolled';
+    render();
+    requestAnimationFrame(() => unpinRowScroll());
+  }, existingFlyer);
+  return true;
+}
+
+function tileFlyerHTML(tile) {
+  return tileHTML(tile, { classExtra: 'placement-tile-flyer' });
+}
+
+function flyStartFromActionBarTile(layerRect, scale) {
+  const el = document.querySelector('.action-bar-tile-slot .placement-tile[data-dealt-tile]:not(.placement-tile--discarding)');
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return {
+    left: toDesignPx(r.left - layerRect.left, scale),
+    top: toDesignPx(r.top - layerRect.top, scale),
+  };
+}
+
+function flyStartFromRowTile(col, layerRect, scale) {
+  const el = document.querySelector(`.placement-col[data-col="${col}"] .placement-tile`);
+  if (!el) return null;
+  const r = el.getBoundingClientRect();
+  return {
+    left: toDesignPx(r.left - layerRect.left, scale),
+    top: toDesignPx(r.top - layerRect.top, scale),
+  };
+}
+
+function createTileFlyerAt(tile, start, layer) {
+  const flyer = document.createElement('div');
+  flyer.className = 'placement-die-flyer placement-die-flyer--tile';
+  flyer.innerHTML = tileFlyerHTML(tile);
+  flyer.style.left = `${start.left}px`;
+  flyer.style.top = `${start.top}px`;
+  flyer.style.transform = 'translate(0, 0)';
+  flyer.style.transition = 'none';
+  layer.appendChild(flyer);
+  return flyer;
+}
+
+function animateTileFly(tile, finalTarget, duration, onDone, existingFlyer = null, retainFlyer = false) {
+  const layer = flyLayer();
+  const inner = document.querySelector('.placement-row-inner');
+  if (!layer || !inner || !finalTarget) {
+    existingFlyer?.remove();
+    onDone();
+    return null;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const innerRect = inner.getBoundingClientRect();
+  const end = pointInFlyLayer(finalTarget, innerRect, layerRect, scale);
+
+  let start;
+  let flyer = existingFlyer;
+
+  if (flyer) {
+    start = {
+      left: parseFloat(flyer.style.left) || 0,
+      top: parseFloat(flyer.style.top) || 0,
+    };
+    flyer.style.transition = 'none';
+    flyer.style.transform = 'translate(0, 0)';
+  } else {
+    start = flyStartFromActionBarTile(layerRect, scale);
+    if (!start) {
+      onDone();
+      return null;
+    }
+    flyer = document.createElement('div');
+    flyer.className = 'placement-die-flyer placement-die-flyer--tile';
+    flyer.innerHTML = tileFlyerHTML(tile);
+    flyer.style.left = `${start.left}px`;
+    flyer.style.top = `${start.top}px`;
+    flyer.style.transform = 'translate(0, 0)';
+    layer.appendChild(flyer);
+  }
+
+  const dx = end.left - start.left;
+  const dy = end.top - start.top;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      flyer.style.transition = `transform ${duration}ms ${FLY_EASING}`;
+      flyer.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+  });
+
+  setTimeout(() => {
+    onDone();
+    if (!retainFlyer) flyer.remove();
+  }, duration);
+
+  return flyer;
+}
+
+function runSpreadThenFlyTile(slot, onDone, existingFlyer = null) {
+  const tile = state.dealtTile;
+  if (!tile) {
+    onDone();
+    return;
+  }
+
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) {
+    if (placeDealtTile(slot)) render();
+    onDone();
+    return;
+  }
+
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+  const finalTarget = tileFinalTargetXY(slot, inner, innerRect, scale);
+
+  const offsets = computeSpreadOffsets(slot, null);
+  const spreadMs = spd(COL_SPREAD_MS);
+  const flyMs = spd(COL_DIE_IN_MS);
+  const spreadEls = [];
+
+  for (const [col, dx] of offsets) {
+    const el = colEl(inner, col);
+    if (el) spreadEls.push({ el, dx, col });
+  }
+
+  let commitFlyer = existingFlyer;
+
+  const finishPlacement = () => {
+    clearSpreadStyles(spreadEls);
+    onDone();
+    commitFlyer?.remove();
+    commitFlyer = null;
+  };
+
+  const flyIn = () => {
+    commitFlyer = animateTileFly(tile, finalTarget, flyMs, () => {
+      placeDealtTile(slot);
+      if (isRowEdgeInsert(slot)) {
+        finishPlacement();
+        return;
+      }
+      const collapseCols = edgeInsertCollapseCols(slot);
+      if (collapseCols.length) {
+        animateSpreadCollapse(spreadEls, collapseCols, finishPlacement);
+      } else {
+        finishPlacement();
+      }
+    }, commitFlyer, true) ?? commitFlyer;
+  };
+
+  if (isRowEdgeInsert(slot) || (isGapInsert(slot) && !gapInsertAnimationsAllowed())) {
+    handoffInsertHoverSpread(new Set());
+    syncStarMarkers();
+    flyIn();
+    return;
+  }
+
+  handoffInsertHoverSpread(new Set(offsets.keys()));
+
+  if (!spreadEls.length) {
+    syncStarMarkers();
+    flyIn();
+    return;
+  }
+
+  const needsSpread = spreadEls.some(({ el, dx }) => Math.abs(readColSpreadDx(el) - dx) > 0.5);
+
+  for (const { el } of spreadEls) {
+    el.classList.add('placement-col--spreading');
+  }
+
+  if (!needsSpread) {
+    for (const { el, dx } of spreadEls) {
+      el.style.transition = 'none';
+      el.style.transform = `translate3d(${dx}px, 0, 0)`;
+    }
+    syncStarMarkers();
+    flyIn();
+    return;
+  }
+
+  for (const { el } of spreadEls) {
+    const cur = readColSpreadDx(el);
+    el.style.transition = 'none';
+    el.style.transform = `translate3d(${cur}px, 0, 0)`;
+  }
+  inner.offsetHeight;
+
+  for (const { el, dx } of spreadEls) {
+    const cur = readColSpreadDx(el);
+    if (Math.abs(cur - dx) < 0.5) continue;
+    el.style.transition = `transform ${spreadMs}ms ${SPREAD_EASING}`;
+    el.style.transform = `translate3d(${dx}px, 0, 0)`;
+  }
+
+  syncStarMarkers();
+  setTimeout(flyIn, spreadMs / 4);
+}
+
+/** Place dealt tile from the bar or reposition a placed-this-turn tile: spread, then fly. */
+export function placeDealtTileWithAnim(slot, existingFlyer = null) {
+  if (!getDealtTileForPlacement()) return false;
+  if (!getValidSlotsForDealtTile().some(s => slotsEqual(s, slot))) return false;
+
+  pinRowScroll();
+
+  const repositionCol = state.placedDealtTileCol;
+  if (repositionCol != null && !state.dealtTile && !existingFlyer) {
+    const layer = flyLayer();
+    const scale = viewportScale();
+    const layerRect = layer?.getBoundingClientRect();
+    const start = layerRect ? flyStartFromRowTile(repositionCol, layerRect, scale) : null;
+    beginColumnRepositionCollapse(repositionCol);
+    liftDealtTileForReposition(repositionCol);
+    if (start && layer && state.dealtTile) {
+      existingFlyer = createTileFlyerAt(state.dealtTile, start, layer);
+    }
+    render();
+  }
+
+  if (!state.dealtTile) return false;
+
+  state.phase = 'animating';
+  state.selectedDealtTile = false;
+  runSpreadThenFlyTile(slot, () => {
     state.phase = 'rolled';
     render();
     requestAnimationFrame(() => unpinRowScroll());

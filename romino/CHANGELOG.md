@@ -8,17 +8,34 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — `adjacentColumnsOnly` toggle and placement-order tracking removed; bar placements no longer restricted to adjacent columns
 
 ### Changed
+- **row.js v1.28, action-bar.js v1.30, action-bar.css, convert-anim.css** — dealt tile dealt disabled (`isDealtTileInactive` gates on N-place only); inactive `is-new` entrance stays muted; selection refresh syncs tray inactive class
+- **action-bar.js v1.28, action-bar.css, placement-row.css, render.js** — dealt tile tap-select shows accent border (`.placement-tile--selected`); selection-only refresh toggles bar chrome without full rebuild
+- **settings.js v2.14, settings-panel.js v1.32** — N-spots no longer capped to N-dice; stepper max stays 99
+- **action-bar.css** — dealt tile slot offset −4px on Y axis
+- **state.js v2.7, row.js v1.24, turn.js v2.3, drag-drop.js, placement-row.js, placement-row.css, reposition-collapse.js** — dealt tile gated until N-place dice placed (inactive styling matches tray dice); placed dealt tile repositionable until confirm/roll
+- **dice-visual.js v2.9, drag-drop.js, placement-hover.js v1.7, placement-anim.js v1.19, placement-input.js, placement-row.js, placement-anim.css, action-bar.css, placement-row.css** — dealt tiles: same drag pending, gap hover spread, fly/collapse anim as dice; insert-only placement (no stack-on-dice)
+- **settings.js v2.13, settings-panel.js v1.31, row.js v1.23** — `nPlaces`/`N-places` renamed to `nSpots`/`N-spots`; unplaced dealt tile counts toward N-spots cap (not N-place); dealt tile placement no longer increments `placedThisTurn`
 - **row.js v1.19** — restore one joker per row alongside one joker per suit per game
 - **state.js v2.4, row.js v1.18, convert.js v1.6** — one joker per suit per game (`jokerSuitsUsed`)
 - **settings.js v2.9, settings-panel.js v1.26, sweeps-row.js v1.7** — `jokerFlushOnly` toggle: jokers sweep only on same-suit flush runs (≥2 non-joker tiles of that suit)
 - **sweeps-row.js v1.6** — jokers wildcard equal and consecutive rank sweeps (any rank / step)
 
 ### Added
-- **settings.js v2.11, settings-panel.js v1.28, dice-visual.js v2.6, row.js v1.20, convert.js v1.7** — `tricolorSevens` toggle: with Tricolors on, joker requires three distinct inner dice where second + third = 7; suit from bottom die
+- **row.js v1.30, convert.js v1.7, dice-visual.js v2.10, pip-anim.js v1.3, convert-anim.js v1.2, invalid-flash.js v1.1, placement-input.js v1.2, hud-v2.css** — ace/joker stack completion costs one star each; block placement when star balance too low (red flash + warning-red `#hud-stars`); reverse star fly HUD→column before ace/joker convert
+- **settings.js v2.12, settings-panel.js v1.29, tile-deck.js v1.0, state.js v2.5, turn.js v2.2, row.js v1.22, action-bar.js v1.24, deal-discard-anim.js v1.0, placement-anim.js v1.17, handlers.js, drag-drop.js, placement-row.js, placement-input.js** — `tileDealtEvery` stepper (0=off) deals random tiles from a 48/52 deck on roll cadence; `tileDealtChainDraw` toggle; duplicate-on-row sweep-discard; deck depletion game over; dealt tile leftmost in action bar counts toward N-place; block forming pending dealt identity via dice
 - **action-bar.js v1.23, action-bar.css** — roll button number turns warning red when below N-roll
 - **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice (2–5) convert to joker rank `*` with suit of missing inner die; one joker per row
 
 ### Fixed
+- **handlers.js v2.8, drag-drop.js v2.25, placement-row.js** — row dealt tile tap-select no longer cleared by the row click handler; edge ghosts show when dealt tile is selected
+- **sweeps-row.js v1.9** — reject consecutive ace-wrap runs where ace sits between two tiles of the same rank (e.g. 2–A–2); wheel-end wraps (12–A–2, 2–A–12) and A–2–3 / 11–12–A still valid
+- **row.js v1.29, placement-row.js, drag-drop.js v2.24, placement-anim.js v1.22** — placed dealt tile tap-select shows reposition hints before confirm/roll; valid slots exclude current column (N-spots cap bypass while repositioning); hint placement lifts column and flies from row rect
+- **drag-drop.js v2.23, row.js v1.28** — restore dice gap spread (missing `getValidSlotsForDie` import); unified gate keeps original dice rule + dealt tile branch
+- **row.js v1.27, placement-hover.js v1.9, placement-anim.js v1.21, drag-drop.js** — unified `gapInsertAnimationsAllowed()` for dice + dealt tile gap spread (single gate; no `forDealtTile` split)
+- **drag-drop.js v2.22** — cancelled tray/dealt-tile drag (illegal drop or drop back on bar) restores action bar layout so returned die no longer overlaps siblings
+- **row.js v1.26, placement-hover.js v1.8, placement-anim.js v1.20, drag-drop.js** — dealt tile gap spread/commit anim gated on N-spots room only (not N-place); tiles already insert-only (no stack-on-dice)
+- **action-bar.css, state.js v2.6, action-bar.js, drag-drop.js, placement-row.css** — revert dealt tile vertical centre; hide bar tile while dragging (`draggingDealtTile`) so re-render no longer breaks select/drag/drop
+- **dice-visual.js v2.7, row.js v1.21** — `tricolorSevens` works without Tricolors toggle; joker suit/placement gates use live settings (234/243/543/534 form correctly)
 - **placement-row.js** — direct-placement stack hit-test: dropping a 1 or 6 onto a placed inner die (or any stack die) resolves as stack, not invalid; flyer overlap no longer blocks the target
 - **row.js v1.15, placement-hover.js v1.6, placement-anim.js v1.16** — no gap spread/preview when N-place or N-places cap reached (fly-in only if gap insert still legal)
 - **placement-anim.js v1.15** — row-edge drop: fly-in only (no full-row spread + collapse jitter); columns move once on render

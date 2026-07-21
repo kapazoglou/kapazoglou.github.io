@@ -64,6 +64,16 @@
 
 .hud-stars { text-align: right; }
 
+.hud-stars.is-star-warning {
+  color: var(--warning-red);
+  animation: hud-star-warning-flash var(--invalid-flash-ms, 280ms) ease-out forwards;
+}
+
+@keyframes hud-star-warning-flash {
+  0% { color: var(--warning-red); }
+  100% { color: #fff; }
+}
+
 .hud-score .star-icon {
   width: 32px;
   height: 32px;
