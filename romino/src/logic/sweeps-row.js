@@ -138,12 +138,16 @@ function isEqualRun(tiles) {
   return fixed.every(s => s === fixed[0]);
 }
 
-/** Joker flush: all non-jokers share one suit, with at least two of that suit. */
+/**
+ * Joker flush: ≥2 non-jokers share one suit and every joker matches that suit.
+ * Joker suit is assigned at convert (tricolorSevens → bottom die; tricolors → missing inner die).
+ */
 function isFlushRunWithJokers(tiles) {
   const nonJokers = tiles.filter(t => !isJokerTile(t));
   if (nonJokers.length < 2) return false;
   const suit = nonJokers[0].suit;
-  return nonJokers.every(t => t.suit === suit);
+  if (!nonJokers.every(t => t.suit === suit)) return false;
+  return tiles.filter(isJokerTile).every(j => j.suit === suit);
 }
 
 function qualifiesAsSweep(tiles) {

@@ -120,6 +120,9 @@
 .placement-tile--returnable {
   cursor: pointer;
   touch-action: none;
+  pointer-events: auto;
+  position: relative;
+  z-index: 3;
 }
 
 .placement-tile--selected {

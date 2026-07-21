@@ -147,11 +147,32 @@ export function isDealtTileInactive() {
   return !!state.dealtTile && !isDicePlacementComplete();
 }
 
+/** Row column of the dealt tile placed this turn (survives column shifts). */
+export function getPlacedDealtTileCol() {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    if (column.kind === 'tile' && column.dealtThisTurn) return Number(colKey);
+  }
+  return null;
+}
+
+function syncPlacedDealtTileCol() {
+  state.placedDealtTileCol = getPlacedDealtTileCol();
+}
+
+/** Strip reposition flags when the turn is confirmed or rolled. */
+export function clearDealtThisTurnFlags() {
+  for (const column of Object.values(state.row)) {
+    if (column.kind === 'tile') delete column.dealtThisTurn;
+  }
+  state.placedDealtTileCol = null;
+}
+
 /** Tile in the bar or placed on the row this turn (before confirm). */
 export function getDealtTileForPlacement() {
   if (state.dealtTile) return state.dealtTile;
-  if (state.placedDealtTileCol == null) return null;
-  const column = getColumn(state.placedDealtTileCol);
+  const col = getPlacedDealtTileCol();
+  if (col == null) return null;
+  const column = getColumn(col);
   if (!column || column.kind !== 'tile') return null;
   return {
     suit: column.suit,
@@ -162,13 +183,14 @@ export function getDealtTileForPlacement() {
 }
 
 export function canPlaceDealtTile() {
+  if (getPlacedDealtTileCol() != null && !state.dealtTile) return true;
   if (!isDicePlacementComplete()) return false;
-  if (state.placedDealtTileCol != null && !state.dealtTile) return true;
   return !!state.dealtTile && (isRowEmpty() || canAddDealtTileColumn());
 }
 
 export function isPlacedDealtTileCol(col) {
-  return state.placedDealtTileCol === col;
+  const column = getColumn(col);
+  return column?.kind === 'tile' && column.dealtThisTurn === true;
 }
 
 /** Lift a placed-this-turn dealt tile back to the bar for reposition drag. */
@@ -185,18 +207,18 @@ export function liftDealtTileForReposition(col) {
   delete state.row[col];
   if (isRowEmpty()) state.hasPlacedFirstDie = false;
   state.dealtTile = tile;
-  state.placedDealtTileCol = null;
+  syncPlacedDealtTileCol();
   state.selectedDealtTile = false;
   return true;
 }
 
 /** Restore dealt tile to its row column after a cancelled reposition drag. */
 export function cancelDealtTileReposition(restoreCol, tile) {
-  state.row[restoreCol] = { kind: 'tile', ...tile };
-  state.placedDealtTileCol = restoreCol;
+  state.row[restoreCol] = { kind: 'tile', ...tile, dealtThisTurn: true };
   state.dealtTile = null;
   state.selectedDealtTile = false;
   state.hasPlacedFirstDie = true;
+  syncPlacedDealtTileCol();
 }
 
 function canPlaceMoreDiceFromBar() {
@@ -317,6 +339,7 @@ function shiftColumnsFrom(fromCol, delta) {
     state.row[k + delta] = state.row[k];
     delete state.row[k];
   }
+  syncPlacedDealtTileCol();
 }
 
 /** Column index for a die inserted in the gap between leftCol and rightCol (null = row edge). */
@@ -379,7 +402,7 @@ function canAddDealtTileColumn() {
 export function gapInsertAnimationsAllowed() {
   if (state.placedThisTurn < settings.nPlace && !atSpotCap()) return true;
   if (state.dealtTile && canAddDealtTileColumn()) return true;
-  if (state.placedDealtTileCol != null || state.draggingDealtTile) return true;
+  if (getPlacedDealtTileCol() != null || state.draggingDealtTile) return true;
   return false;
 }
 
@@ -596,7 +619,7 @@ export function getValidSlotsForDealtTile() {
   const tile = getDealtTileForPlacement();
   if (!tile || !canPlaceDealtTile()) return [];
 
-  const excludeCol = state.placedDealtTileCol;
+  const excludeCol = getPlacedDealtTileCol();
   const isReposition = excludeCol != null && !state.dealtTile;
   if (!passesDealtTileIdentity(tile, excludeCol)) return [];
 
@@ -636,8 +659,19 @@ export function getValidSlotsForDealtTile() {
   return slots;
 }
 
+function dealtTileColumn(tile) {
+  return {
+    kind: 'tile',
+    suit: tile.suit,
+    rank: tile.rank,
+    rankSum: tile.rankSum,
+    bottomValue: tile.bottomValue,
+    dealtThisTurn: true,
+  };
+}
+
 export function placeDealtTile(slot) {
-  const repositionCol = state.placedDealtTileCol;
+  const repositionCol = getPlacedDealtTileCol();
   if (repositionCol != null && !state.dealtTile) {
     if (!getValidSlotsForDealtTile().some(s => slotsEqual(s, slot))) return false;
     liftDealtTileForReposition(repositionCol);
@@ -650,21 +684,18 @@ export function placeDealtTile(slot) {
   if (!valid.some(s => slotsEqual(s, slot))) return false;
 
   if (slot.kind === 'new-column') {
-    state.row[slot.col] = { kind: 'tile', ...tile };
+    state.row[slot.col] = dealtTileColumn(tile);
     state.hasPlacedFirstDie = true;
   } else if (slot.kind === 'insert') {
     const col = resolveInsertCol(slot.leftCol, slot.rightCol);
-    state.row[col] = { kind: 'tile', ...tile };
+    state.row[col] = dealtTileColumn(tile);
     state.hasPlacedFirstDie = true;
   } else {
     return false;
   }
 
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
-  const placedCol = slot.kind === 'new-column'
-    ? slot.col
-    : resolveInsertCol(slot.leftCol, slot.rightCol);
-  state.placedDealtTileCol = placedCol;
+  syncPlacedDealtTileCol();
   state.dealtTile = null;
   state.selectedDealtTile = false;
   return true;

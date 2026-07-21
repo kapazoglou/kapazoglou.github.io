@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { placeDie, getDealtTileForPlacement, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed, liftDealtTileForReposition } from '../../logic/row.js';
+import { placeDie, getDealtTileForPlacement, getPlacedDealtTileCol, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed, liftDealtTileForReposition } from '../../logic/row.js';
 import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
@@ -714,7 +714,7 @@ export function placeDealtTileWithAnim(slot, existingFlyer = null) {
 
   pinRowScroll();
 
-  const repositionCol = state.placedDealtTileCol;
+  const repositionCol = getPlacedDealtTileCol();
   if (repositionCol != null && !state.dealtTile && !existingFlyer) {
     const layer = flyLayer();
     const scale = viewportScale();

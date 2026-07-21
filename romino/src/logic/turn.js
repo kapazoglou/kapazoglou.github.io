@@ -1,7 +1,7 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
-import { hasAnyLegalPlacementForTray, hasAnyLegalPlacementForDealtTile } from './row.js';
+import { hasAnyLegalPlacementForTray, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 
 export function resetGame() {
@@ -144,8 +144,8 @@ export function rollDice() {
   state.placedDieIds = new Set();
   state.selectedDieId = null;
   state.selectedDealtTile = false;
+  clearDealtThisTurnFlags();
   state.dealtTile = null;
-  state.placedDealtTileCol = null;
   state.pendingDealtTile = null;
   state.dealingDiscardQueue = [];
   state.dealingDiscardTile = null;
@@ -170,8 +170,8 @@ export function confirmTurn(onGameOver) {
   state.placedDieIds = new Set();
   state.selectedDieId = null;
   state.selectedDealtTile = false;
+  clearDealtThisTurnFlags();
   state.dealtTile = null;
-  state.placedDealtTileCol = null;
   state.phase = 'animating';
 
   import('../ui/transitions/confirm-anim.js').then(({ runConfirmAnimations }) => {

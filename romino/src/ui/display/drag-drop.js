@@ -178,7 +178,7 @@ export function initDragDrop() {
 function onPointerDown(e) {
   if (state.phase === 'animating' || state.phase === 'replay') return;
 
-  const rowTileEl = e.target.closest('.placement-col--tile .placement-tile--returnable');
+  const rowTileEl = e.target.closest('.placement-col--tile .placement-tile');
   if (rowTileEl && e.button === 0) {
     const colEl = rowTileEl.closest('.placement-col[data-col]');
     const col = Number(colEl?.dataset.col);
@@ -329,22 +329,12 @@ function onPointerUp(e) {
     let returnedToBar = false;
 
     if (dragDealtTile) {
-      if (settings.directPlacement) {
-        const flyerPt = flyerResolvePoint();
-        const stackY = flyerPt?.y ?? e.clientY;
-        const result = attemptDealtTilePlacementAtPoint(e.clientX, e.clientY, stackY, dragFlyer);
-        if (result === 'placed') {
-          dragFlyer = null;
-          animHandled = true;
-        }
-      } else {
-        const hint = target?.closest('.placement-hint');
-        if (hint) {
-          animHandled = placeDealtTileWithAnim(
-            slotFromHintDataset(hint.dataset), dragFlyer,
-          );
-          if (animHandled) dragFlyer = null;
-        }
+      const flyerPt = flyerResolvePoint();
+      const stackY = flyerPt?.y ?? e.clientY;
+      const result = attemptDealtTilePlacementAtPoint(e.clientX, e.clientY, stackY, dragFlyer);
+      if (result === 'placed') {
+        dragFlyer = null;
+        animHandled = true;
       }
     } else if (
       target?.closest('#action-bar, #action-bar-dice')

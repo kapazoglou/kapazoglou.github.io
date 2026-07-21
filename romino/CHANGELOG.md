@@ -27,6 +27,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice (2–5) convert to joker rank `*` with suit of missing inner die; one joker per row
 
 ### Fixed
+- **sweeps-row.js v1.10** — joker flush sweeps require joker assigned suit to match flush suit (tricolorSevens bottom die vs tricolors missing inner die)
+- **row.js v1.31, turn.js v2.4, drag-drop.js v2.26, placement-anim.js, placement-row.css** — dealt tile reposition: `dealtThisTurn` column flag survives column shifts (fixes stale `placedDealtTileCol` after dice moves); reposition allowed even when dice returned to bar; row drag uses coordinate drop in hint mode too
 - **handlers.js v2.8, drag-drop.js v2.25, placement-row.js** — row dealt tile tap-select no longer cleared by the row click handler; edge ghosts show when dealt tile is selected
 - **sweeps-row.js v1.9** — reject consecutive ace-wrap runs where ace sits between two tiles of the same rank (e.g. 2–A–2); wheel-end wraps (12–A–2, 2–A–12) and A–2–3 / 11–12–A still valid
 - **row.js v1.29, placement-row.js, drag-drop.js v2.24, placement-anim.js v1.22** — placed dealt tile tap-select shows reposition hints before confirm/roll; valid slots exclude current column (N-spots cap bypass while repositioning); hint placement lifts column and flies from row rect

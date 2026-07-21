@@ -1,7 +1,7 @@
 ---
 module: turn
 layer: logic
-v: 2.3
+v: 2.4
 date: 2026-07-21
 deps: [state, settings, dice, tile-deck, confirm-anim, deal-discard-anim]
 ---
