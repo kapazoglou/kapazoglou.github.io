@@ -128,6 +128,35 @@ function starMarkerCenter(leftCol, rightCol, row, innerRect, scale) {
   };
 }
 
+function verticalStarMarkerCenter(colNode, topRow, innerRect, scale) {
+  const topCenter = dieCenterAtRow(colNode, topRow, scale);
+  const bottomCenter = dieCenterAtRow(colNode, topRow + 1, scale);
+  if (!topCenter || !bottomCenter) return null;
+  return {
+    x: toDesignPx(topCenter.x - innerRect.left, scale),
+    y: toDesignPx((topCenter.y + bottomCenter.y) / 2 - innerRect.top, scale),
+  };
+}
+
+function starMatchKey(match) {
+  return match.axis === 'v'
+    ? `v-${match.col}-${match.row}`
+    : `h-${match.leftCol}-${match.rightCol}-${match.row}`;
+}
+
+function starMatchMarkerCenter(match, inner, innerRect, scale) {
+  if (match.axis === 'v') {
+    const colNode = colElement(inner, match.col);
+    if (!colNode) return null;
+    return verticalStarMarkerCenter(colNode, match.row, innerRect, scale);
+  }
+  const leftCol = colElement(inner, match.leftCol);
+  const rightCol = colElement(inner, match.rightCol);
+  if (!leftCol || !rightCol) return null;
+  if (starAtOpeningGap(leftCol, rightCol)) return null;
+  return starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
+}
+
 /** Viewport-centre X in scroll content space — survives column insert/remove. */
 let pinnedContentX = null;
 
@@ -362,6 +391,11 @@ function visibleStarMatches() {
   if (dragId == null || state.actionBar.includes(dragId)) return matches;
 
   return matches.filter(m => {
+    if (m.axis === 'v') {
+      const topId = dieIdAt(m.col, m.row);
+      const bottomId = dieIdAt(m.col, m.row + 1);
+      return topId !== dragId && bottomId !== dragId;
+    }
     const leftId = dieIdAt(m.leftCol, m.row);
     const rightId = dieIdAt(m.rightCol, m.row);
     return leftId !== dragId && rightId !== dragId;
@@ -381,15 +415,7 @@ export function positionStarMarkers() {
 
   const scale = viewportScale();
   const innerRect = inner.getBoundingClientRect();
-  const visible = [];
-
-  for (const match of visibleStarMatches()) {
-    const leftCol = colElement(inner, match.leftCol);
-    const rightCol = colElement(inner, match.rightCol);
-    if (!leftCol || !rightCol) continue;
-    if (starAtOpeningGap(leftCol, rightCol)) continue;
-    visible.push({ match, leftCol, rightCol });
-  }
+  const visible = visibleStarMatches();
 
   if (!visible.length) {
     old?.remove();
@@ -404,17 +430,16 @@ export function positionStarMarkers() {
     inner.appendChild(layer);
   }
 
-  const starKey = m => `${m.leftCol}-${m.rightCol}-${m.row}`;
   const existing = new Map();
   for (const el of layer.querySelectorAll('.placement-star')) {
     if (el.dataset.starKey) existing.set(el.dataset.starKey, el);
   }
   const keep = new Set();
 
-  for (const { match, leftCol, rightCol } of visible) {
-    const key = starKey(match);
+  for (const match of visible) {
+    const key = starMatchKey(match);
     keep.add(key);
-    const center = starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
+    const center = starMatchMarkerCenter(match, inner, innerRect, scale);
     if (!center) continue;
 
     let el = existing.get(key);
@@ -467,10 +492,7 @@ export function getStarMatchRects(matches) {
   const rects = [];
 
   for (const match of matches) {
-    const leftCol = colElement(inner, match.leftCol);
-    const rightCol = colElement(inner, match.rightCol);
-    if (!leftCol || !rightCol) continue;
-    const center = starMarkerCenter(leftCol, rightCol, match.row, innerRect, scale);
+    const center = starMatchMarkerCenter(match, inner, innerRect, scale);
     if (!center) continue;
 
     const cx = innerRect.left + center.x * scale;

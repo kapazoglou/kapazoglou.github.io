@@ -19,7 +19,14 @@ function matchIncludesNewDie(leftCol, rightCol, row, newDieIds) {
     || (rightId != null && newDieIds.has(rightId));
 }
 
-/** Adjacent same-row stack-die pairs (tiles excluded). Same or consecutive per setting. ≥1 die placed this turn. */
+function matchIncludesNewDieVertical(col, topRow, newDieIds) {
+  const topId = dieIdAt(col, topRow);
+  const bottomId = dieIdAt(col, topRow + 1);
+  return (topId != null && newDieIds.has(topId))
+    || (bottomId != null && newDieIds.has(bottomId));
+}
+
+/** Horizontal + optional vertical stack-die pairs (tiles excluded). Same or consecutive per setting. ≥1 die placed this turn. */
 export function findStarMatches(newDieIds = state.placedDieIds) {
   const matches = [];
   const cols = getOccupiedCols();
@@ -33,10 +40,26 @@ export function findStarMatches(newDieIds = state.placedDieIds) {
       const vb = dieValueAt(rightCol, row);
       if (isStarValuePair(va, vb)
         && matchIncludesNewDie(leftCol, rightCol, row, newDieIds)) {
-        matches.push({ leftCol, rightCol, row });
+        matches.push({ axis: 'h', leftCol, rightCol, row });
       }
     }
   }
+
+  if (settings.verticalStars) {
+    for (const col of cols) {
+      if (getColumn(col)?.kind === 'tile') continue;
+      const height = stackHeight(col);
+      for (let row = 0; row < height - 1; row++) {
+        const va = dieValueAt(col, row);
+        const vb = dieValueAt(col, row + 1);
+        if (isStarValuePair(va, vb)
+          && matchIncludesNewDieVertical(col, row, newDieIds)) {
+          matches.push({ axis: 'v', col, row });
+        }
+      }
+    }
+  }
+
   return matches;
 }
 

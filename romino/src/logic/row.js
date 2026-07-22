@@ -19,6 +19,7 @@ function jokerSuitFromStackValues(v0, v1, v2) {
 }
 
 function stackValuesRequireStar(values) {
+  if (!settings.aceJokerStarCost) return false;
   const tile = tileIdentityFromStackValues(values, jokerTileOptions());
   return tileIdentityRequiresStar(tile);
 }
@@ -31,6 +32,18 @@ function twoInnerDiceCanBecomeTricolorJoker(v0, v1) {
     return isInnerDie(third) && third !== v0;
   }
   return settings.tricolors;
+}
+
+/** 2-dice stack still has a joker completion whose suit is not already spent. */
+function partialStackHasViableJokerCompletion(v0, v1) {
+  if (!twoInnerDiceCanBecomeTricolorJoker(v0, v1)) return false;
+  for (let third = 2; third <= 5; third++) {
+    if (third === v0 || third === v1) continue;
+    if (settings.tricolorSevens && v1 + third !== 7) continue;
+    const suit = jokerSuitFromStackValues(v0, v1, third);
+    if (suit != null && !state.jokerSuitsUsed.has(suit)) return true;
+  }
+  return false;
 }
 
 /** Another stack already committed or building toward a joker of this suit. */
@@ -81,7 +94,7 @@ function rowHasJoker(excludeCol = null) {
     if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
     if (values.length === 2) {
       const [v0, v1] = values;
-      if (twoInnerDiceCanBecomeTricolorJoker(v0, v1)) return true;
+      if (partialStackHasViableJokerCompletion(v0, v1)) return true;
     }
   }
   return false;

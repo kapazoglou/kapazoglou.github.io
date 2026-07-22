@@ -19,6 +19,8 @@ export const SETTINGS_CONFIG = [
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
+      { key: 'verticalStars',       label: 'Vertical Stars',            default: false, type: 'toggle' },
+      { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
       { key: 'tricolors',           label: 'Tricolors',               default: false, type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: false, type: 'toggle' },

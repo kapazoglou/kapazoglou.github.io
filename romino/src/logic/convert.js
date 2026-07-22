@@ -11,6 +11,7 @@ function convertOptions() {
 }
 
 export function stackValuesRequireStar(values) {
+  if (!settings.aceJokerStarCost) return false;
   const tile = tileIdentityFromStackValues(values, convertOptions());
   return tileIdentityRequiresStar(tile);
 }
@@ -35,7 +36,7 @@ export function convertColumn(col) {
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
   const tile = tileIdentityFromStackValues(values, convertOptions());
-  if (tileIdentityRequiresStar(tile) && state.stars > 0) state.stars -= 1;
+  if (stackValuesRequireStar(values) && state.stars > 0) state.stars -= 1;
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
   state.row[col] = { kind: 'tile', ...tile };
 }

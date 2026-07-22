@@ -15,7 +15,7 @@ lastVerified: 2026-07-21
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -29,6 +29,12 @@ lastVerified: 2026-07-21
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **row.js v1.33** — tricolor: dead 2-dice stacks (joker suit already spent) no longer block another column's tricolor completion
+
+- **settings.js v2.16, convert.js v1.8, row.js v1.32** — `aceJokerStarCost` toggle (default ON); OFF skips star deduction, placement block, and convert star-fly anim
+
+- **settings.js v2.15, stars.js v1.4, placement-row.js** — `verticalStars` toggle extends star detection to vertically adjacent stack dice
 
 - **row.js v1.30, convert.js v1.7, dice-visual.js v2.10, pip-anim.js v1.3, convert-anim.js v1.2, invalid-flash.js v1.1, placement-input.js v1.2, hud-v2.css** — ace/joker convert costs one star; placement blocked when balance too low; reverse star fly before convert; star-shortage flash on `#hud-stars`
 
