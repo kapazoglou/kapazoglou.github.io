@@ -113,7 +113,7 @@ function updateStarDropHover(clientX, clientY) {
 function onStarPointerDown(e) {
   if (state.phase === 'animating' || state.phase === 'replay') return;
   if (e.button !== 0) return;
-  const starPayEl = e.target.closest('#hud-star-pay.is-star-draggable');
+  const starPayEl = e.target.closest('#hud-star-pay');
   if (!starPayEl || !isStarPayDraggable()) return;
 
   dragStarPay = true;

@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **reroll-outer-anim.js v1.2, render.js, star-reroll-input.js** — fix multi-star reroll: set `phase: rolled` before `render()` so HUD keeps `is-star-draggable`
 - **row.js v1.35, render.js v1.4, base.css** — separator fills warning red while row is at N-spots cap
 - **star-reroll-input.js v1.0, hud-v2.js, hud-v2.css, drag-drop.js v2.28, reroll-outer-anim.js v1.1, action-bar.js v1.32, main.js** — `rerollOuter` pay flow: select tray 1/6, tap or drag from `#hud-star-pay` (not direct die tap)
 - **turn.js v2.5** — `rerollOuter` ON: fresh game starts with `state.stars === nPlace`; `shouldWarnOnLeave` treats that as unmodified

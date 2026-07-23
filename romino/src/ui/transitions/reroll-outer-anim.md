@@ -1,7 +1,7 @@
 ---
 module: reroll-outer-anim
 layer: ui/transitions
-v: 1.1
+v: 1.2
 date: 2026-07-23
 deps: [state, settings, dice, turn, pip-anim, render, hud-v2]
 ---

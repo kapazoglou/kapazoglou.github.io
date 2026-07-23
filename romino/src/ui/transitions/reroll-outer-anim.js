@@ -4,7 +4,6 @@ import { isOuterDieValue, rerollDieValue } from '../../logic/dice.js';
 import { evaluateGameOver } from '../../logic/turn.js';
 import { payStarForTrayDie } from './pip-anim.js';
 import { render } from '../display/render.js';
-import { renderHUD } from '../display/hud-v2.js';
 
 function canRerollOuterDie(dieId) {
   if (!settings.rerollOuter || state.phase !== 'rolled' || state.stars <= 0) return false;
@@ -40,17 +39,17 @@ export function rerollOuterDieWithAnim(dieId, onGameOver) {
     rerollDieValue(dieId);
     if (state.selectedDieId === dieId) state.selectedDieId = null;
     state.newTrayDieIds.add(dieId);
-    renderHUD();
-    render();
 
     const stuckReason = evaluateGameOver('post-roll');
     if (stuckReason) {
       state.phase = 'replay';
+      render();
       onGameOver?.(stuckReason);
       return;
     }
 
     state.phase = 'rolled';
+    render();
   });
 
   return true;
