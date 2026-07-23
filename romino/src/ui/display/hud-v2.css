@@ -17,6 +17,7 @@
   height: 64px;
   gap: 2px;
   padding-top: 4px;
+  width: 100%;
 }
 
 .hud-scroll-btn {
@@ -48,10 +49,11 @@
 }
 
 .hud-score {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto 1fr;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  column-gap: 8px;
+  width: 100%;
   height: 30px;
   font-family: 'Averia Libre', serif;
   font-size: 32px;
@@ -62,12 +64,27 @@
   white-space: nowrap;
 }
 
-.hud-stars { text-align: right; }
+.hud-stars {
+  grid-column: 1;
+  justify-self: end;
+  text-align: right;
+  min-width: 0;
+}
 
 .hud-star-pay {
+  grid-column: 2;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hud-score-sep {
+  grid-column: 3;
+}
+
+.hud-points {
+  grid-column: 4;
+  justify-self: start;
 }
 
 .hud-star-pay.is-star-draggable {
@@ -98,8 +115,6 @@
   height: 32px;
   flex-shrink: 0;
 }
-
-.hud-divider { text-align: right; }
 
 .hud-suit-row {
   display: none;

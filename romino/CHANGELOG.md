@@ -5,7 +5,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
-- **sweeps-row.js v1.12, sweep-anim.js v1.4, pip-anim.js v1.5, hud-v2.css** — sweep star multiplier (×1 at 3 cards, +1 per extra card); bank once after all sweeps using max mult; HUD shows `stars×mult` → product in accent yellow before pip fly to score
+- **timing.js v1.5, pip-anim.js v1.6** — slower sweep bank reveal: dedicated holds for `stars×mult` and product before pip fly (780ms + 780ms + 880ms at `--t: 1`)
+- **hud-v2.js, hud-v2.css** — score HUD: star icon pinned beside vertical bar at centre; star count / sweep equation grows left in col 1 without shifting bar, star, or points anchor
+- **row.js v1.39** — tricolor joker placement: spent-suit full stacks no longer block; incidental 2-dice stacks no longer gate other columns (same-suit still blocked via `jokerSuitBlocked`)
+- **sweeps-row.js v1.12, sweep-anim.js v1.4, pip-anim.js v1.5, hud-v2.css** — sweep star multiplier (×1 at 3 cards, +1 per extra card); bank once after all sweeps using max mult; HUD shows `stars×mult` → product in accent yellow before pip fly to score; multiplier bank only when a sweep actually ran (stars persist if confirm had no sweep)
 - **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click opens game over (no auto game over on roll)
 - **row.js v1.37** — restore one-joker-per-row gate alongside per-suit-per-game cap (`jokerSuitsUsed`); different suits allowed once row is clear
 - **reroll-outer-anim.js v1.2, render.js, star-reroll-input.js** — fix multi-star reroll: set `phase: rolled` before `render()` so HUD keeps `is-star-draggable`

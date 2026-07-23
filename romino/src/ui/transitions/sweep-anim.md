@@ -11,7 +11,7 @@ Beat pop → upward tile sweep → remaining columns collapse inward.
 
 ## Exports
 - `startRowSweepAnimation(cols, onDone)` — beat then sweep run
-- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; track max `sweepStarMultiplier` across runs; bank `stars × maxMult` with pips
+- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; track max `sweepStarMultiplier` across runs; bank `stars × maxMult` with pips **only when at least one sweep ran** (no bank / no mult UI if confirm had stars but no sweep)
 
 ## CSS
 - `#app.is-sweep-exit` — input freeze

@@ -101,9 +101,10 @@ function commitRowSweepExit() {
 export function resolveSweepsAnimated(onDone) {
   const starsToBank = state.stars;
   let maxMult = 1;
+  let anySwept = false;
 
   const finish = () => {
-    if (starsToBank > 0) {
+    if (anySwept && starsToBank > 0) {
       state.points += starsToBank * maxMult;
       state.stars = 0;
       render();
@@ -123,6 +124,7 @@ export function resolveSweepsAnimated(onDone) {
     startRowSweepAnimation(run.map(([col]) => col), () => {
       const beforeLeft = captureColLeftPositions();
       applySweepRun(run);
+      anySwept = true;
       maxMult = Math.max(maxMult, sweepStarMultiplier(run.length));
       render();
       animateColumnCollapse(beforeLeft, () => {

@@ -34,6 +34,8 @@ lastVerified: 2026-07-23
 
 - **sweeps-row.js v1.11, sweep-anim.js v1.3** — sweep resolution re-scans after each apply; fixes missed chain sweeps (e.g. joker flush after middle tile swept)
 
+- **row.js v1.39** — tricolor joker: spent-suit full stacks + incidental 2-dice stacks no longer block new joker on another column; same-suit still via `jokerSuitBlocked`
+
 - **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click game over (no auto on roll)
 
 - **row.js v1.37** — one joker per row at a time + one joker per suit per game (`jokerSuitsUsed`); new suits OK after row clears

@@ -2,7 +2,7 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { renderHUD } from '../display/hud-v2.js';
-import { CONVERT_FLY_MS, BEAT_MS } from './timing.js';
+import { CONVERT_FLY_MS, SWEEP_MULT_EQ_HOLD_MS, SWEEP_MULT_PRODUCT_HOLD_MS, SWEEP_MULT_BANK_FLY_MS } from './timing.js';
 
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
 const HUD_STAR_PX = 32;
@@ -194,8 +194,9 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
   }
 
   const product = stars * multiplier;
-  const holdMs = spd(BEAT_MS);
-  const flyMs = spd(CONVERT_FLY_MS);
+  const eqHoldMs = spd(SWEEP_MULT_EQ_HOLD_MS);
+  const productHoldMs = spd(SWEEP_MULT_PRODUCT_HOLD_MS);
+  const flyMs = spd(SWEEP_MULT_BANK_FLY_MS);
 
   starsEl.textContent = `${stars}×${multiplier}`;
   starsEl.classList.add('is-sweep-mult');
@@ -222,6 +223,6 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
         renderHUD();
         onDone?.();
       }, flyMs);
-    }, holdMs);
-  }, holdMs);
+    }, productHoldMs);
+  }, eqHoldMs);
 }

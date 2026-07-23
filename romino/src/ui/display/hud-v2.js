@@ -19,11 +19,12 @@ export function renderHUD() {
   hud.innerHTML = `
     <div class="hud-center">
       <div class="hud-score" id="hud-score-tap">
+        <span class="hud-stars" id="hud-stars">${state.stars}</span>
         <span class="hud-star-pay${starDraggable ? ' is-star-draggable' : ''}" id="hud-star-pay">
-          <span class="hud-stars" id="hud-stars">${state.stars}</span>
           ${starSVG(32)}
         </span>
-        <span class="hud-divider">| <span id="hud-points">${state.points}</span></span>
+        <span class="hud-score-sep" aria-hidden="true">|</span>
+        <span class="hud-points" id="hud-points">${state.points}</span>
       </div>
       <div class="hud-suit-row" aria-hidden="true">${badges}</div>
     </div>

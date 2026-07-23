@@ -34,19 +34,7 @@ function twoInnerDiceCanBecomeTricolorJoker(v0, v1) {
   return settings.tricolors;
 }
 
-/** 2-dice stack still has a joker completion whose suit is not already spent. */
-function partialStackHasViableJokerCompletion(v0, v1) {
-  if (!twoInnerDiceCanBecomeTricolorJoker(v0, v1)) return false;
-  for (let third = 2; third <= 5; third++) {
-    if (third === v0 || third === v1) continue;
-    if (settings.tricolorSevens && v1 + third !== 7) continue;
-    const suit = jokerSuitFromStackValues(v0, v1, third);
-    if (suit != null && !state.jokerSuitsUsed.has(suit)) return true;
-  }
-  return false;
-}
-
-/** At most one joker (tile, full stack, or tricolor-eligible partial) on the row at a time. */
+/** At most one committed joker (tile or full tricolor stack) on the row at a time. */
 function rowHasJoker(excludeCol = null) {
   for (const [colKey, column] of Object.entries(state.row)) {
     const col = Number(colKey);
@@ -56,11 +44,9 @@ function rowHasJoker(excludeCol = null) {
 
     if (column.kind !== 'stack') continue;
     const values = column.dice.map(id => state.dice[id].value);
-    if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
-    if (values.length === 2) {
-      const [v0, v1] = values;
-      if (partialStackHasViableJokerCompletion(v0, v1)) return true;
-    }
+    if (values.length !== 3) continue;
+    const suit = jokerSuitFromStackValues(...values);
+    if (suit != null && !state.jokerSuitsUsed.has(suit)) return true;
   }
   return false;
 }
