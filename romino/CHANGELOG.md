@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **action-bar.js v1.34, action-bar.css** — roll button face border turns warning red when enabled and remaining dice count is below N-place
 - **timing.js v1.5, pip-anim.js v1.6** — slower sweep bank reveal: dedicated holds for `stars×mult` and product before pip fly (780ms + 780ms + 880ms at `--t: 1`)
 - **hud-v2.js, hud-v2.css** — score HUD: star icon pinned beside vertical bar at centre; star count / sweep equation grows left in col 1 without shifting bar, star, or points anchor
 - **row.js v1.39** — tricolor joker placement: spent-suit full stacks no longer block; incidental 2-dice stacks no longer gate other columns (same-suit still blocked via `jokerSuitBlocked`)
