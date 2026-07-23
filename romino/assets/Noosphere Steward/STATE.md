@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-21
+lastVerified: 2026-07-23
 ---
 
 # römino — Verified Pattern State
@@ -15,7 +15,7 @@ lastVerified: 2026-07-21
 |--------|------|-------|
 | Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -29,6 +29,8 @@ lastVerified: 2026-07-21
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **settings.js v2.17, dice.js v2.1, pip-anim.js v1.4, reroll-outer-anim.js v1.0, drag-drop.js v2.27, action-bar.js v1.31, action-bar.css** — `rerollOuter` toggle: tap tray 1/6 rerolls for 1 star (HUD→die fly + `is-new` pop); inactive outers stay tappable
 
 - **row.js v1.33** — tricolor: dead 2-dice stacks (joker suit already spent) no longer block another column's tricolor completion
 

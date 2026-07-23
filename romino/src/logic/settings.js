@@ -21,6 +21,7 @@ export const SETTINGS_CONFIG = [
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
       { key: 'verticalStars',       label: 'Vertical Stars',            default: false, type: 'toggle' },
       { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
+      { key: 'rerollOuter',         label: 'Reroll Outer',              default: false, type: 'toggle' },
       { key: 'tricolors',           label: 'Tricolors',               default: false, type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: false, type: 'toggle' },

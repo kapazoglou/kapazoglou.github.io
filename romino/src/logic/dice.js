@@ -13,3 +13,16 @@ export function rollValue() {
 export function spawnRandomDie() {
   return spawnDie(rollValue());
 }
+
+/** Tray extreme face — 1 or 6. */
+export function isOuterDieValue(value) {
+  return value === 1 || value === 6;
+}
+
+/** Assign a fresh random 1–6. Returns false when die missing. */
+export function rerollDieValue(dieId) {
+  const die = state.dice[dieId];
+  if (!die) return false;
+  die.value = rollValue();
+  return true;
+}

@@ -30,7 +30,8 @@
   pointer-events: none;
 }
 
-.action-bar-dice .die--action:not(.die--action-inactive) {
+.action-bar-dice .die--action:not(.die--action-inactive),
+.action-bar-dice .die--action-inactive.die--rerollable {
   pointer-events: auto;
 }
 
@@ -51,6 +52,10 @@
   opacity: 0.45;
   cursor: default;
   pointer-events: none;
+}
+
+.die--action-inactive.die--rerollable {
+  cursor: pointer;
 }
 
 .action-bar-tile-slot {

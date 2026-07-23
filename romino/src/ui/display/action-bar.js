@@ -3,6 +3,13 @@ import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } from '../../logic/dice-visual.js';
 import { canRoll, canConfirm, canEndGame } from '../../logic/turn.js';
 import { countDiceInRow, isBarDieInactive, isDealtTileInactive } from '../../logic/row.js';
+import { isOuterDieValue } from '../../logic/dice.js';
+
+function isTrayDieRerollable(dieId) {
+  if (!settings.rerollOuter || state.phase !== 'rolled') return false;
+  const die = state.dice[dieId];
+  return die != null && isOuterDieValue(die.value) && state.actionBar.includes(dieId);
+}
 
 function dealtTileHTML(tile, { discarding = false, selected = false, isNew = false, inactive = false } = {}) {
   const classExtra = [
@@ -22,7 +29,9 @@ export function updateActionBarSelection() {
   bar.querySelectorAll('.die--action').forEach(el => {
     const id = Number(el.dataset.dieId);
     const inactive = isBarDieInactive(id);
+    const rerollable = isTrayDieRerollable(id);
     el.classList.toggle('die--action-inactive', inactive);
+    el.classList.toggle('die--rerollable', rerollable);
     const sel = !inactive && state.selectedDieId === id && state.draggingDieId !== id;
     el.classList.toggle('die--action-selected', sel);
   });
@@ -57,12 +66,13 @@ export function renderActionBar() {
     .map((id, idx) => {
     const die = state.dice[id];
     const inactive = isBarDieInactive(id);
+    const rerollable = isTrayDieRerollable(id);
     const sel = !inactive && state.selectedDieId === id;
     const isNew = state.newTrayDieIds?.has(id);
     const styles = [`--die-border-fill:${dieFaceBorderColor(die.value)}`];
     if (isNew) styles.push(`animation-delay:${idx * 60}ms`);
     const styleAttr = ` style="${styles.join(';')}"`;
-    return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER)}</div>`;
+    return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${rerollable ? ' die--rerollable' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER)}</div>`;
   }).join('');
 
   state.newTrayDieIds?.clear();

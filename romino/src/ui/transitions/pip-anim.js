@@ -115,6 +115,13 @@ function convertColCenter(col, layerRect, scale) {
   return rectCenterInLayer(colNode.getBoundingClientRect(), layerRect, scale);
 }
 
+/** Action-bar tray die centre in viewport-inner design px — star payment target. */
+function trayDieCenter(dieId, layerRect, scale) {
+  const dieEl = document.querySelector(`.die--action[data-die-id="${dieId}"]`);
+  if (!dieEl) return null;
+  return rectCenterInLayer(dieEl.getBoundingClientRect(), layerRect, scale);
+}
+
 /** Visual-only HUD → ace/joker stack before convert (mirror of collectStarsToHUD). */
 export function payStarForConvert(col, onDone) {
   const starsEl = document.getElementById('hud-stars');
@@ -128,6 +135,34 @@ export function payStarForConvert(col, onDone) {
   const layerRect = layer.getBoundingClientRect();
   const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
   const end = convertColCenter(col, layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
+
+  if (!end) {
+    onDone?.();
+    return;
+  }
+
+  starsEl.textContent = String(state.stars - 1);
+  launchStarFlyer(start, end, layer, flyMs);
+
+  setTimeout(() => {
+    onDone?.();
+  }, flyMs);
+}
+
+/** Visual-only HUD → tray die before outer reroll (mirror of payStarForConvert). */
+export function payStarForTrayDie(dieId, onDone) {
+  const starsEl = document.getElementById('hud-stars');
+  const layer = flyLayer();
+  if (!starsEl || !layer || state.stars <= 0) {
+    onDone?.();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const end = trayDieCenter(dieId, layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
 
   if (!end) {
