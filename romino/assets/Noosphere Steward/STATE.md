@@ -30,11 +30,13 @@ lastVerified: 2026-07-23
 
 ## Modified this session
 
+- **row.js v1.35, render.js v1.4, base.css** — separator warning red at N-spots cap (`isAtSpotCap`)
+
 - **row.js v1.34, placement-row.js** — stack dice return/reposition gated to topmost die only (`isTopDieInStack`)
 
-- **turn.js v2.5** — `rerollOuter` ON seeds `state.stars` to `nPlace` on `resetGame`; `shouldWarnOnLeave` baseline updated
+- **star-reroll-input.js v1.0, hud-v2.js, hud-v2.css, drag-drop.js v2.28, reroll-outer-anim.js v1.1, action-bar.js v1.32, main.js** — reroll pay: select tray 1/6, tap/drag star from HUD (replaces direct die tap)
 
-- **settings.js v2.17, dice.js v2.1, pip-anim.js v1.4, reroll-outer-anim.js v1.0, drag-drop.js v2.27, action-bar.js v1.31, action-bar.css** — `rerollOuter` toggle: tap tray 1/6 rerolls for 1 star (HUD→die fly + `is-new` pop); inactive outers stay tappable
+- **turn.js v2.5** — `rerollOuter` ON seeds `state.stars` to `nPlace` on `resetGame`; `shouldWarnOnLeave` baseline updated
 
 - **row.js v1.33** — tricolor: dead 2-dice stacks (joker suit already spent) no longer block another column's tricolor completion
 

@@ -32,7 +32,7 @@ export function updateActionBarSelection() {
     const rerollable = isTrayDieRerollable(id);
     el.classList.toggle('die--action-inactive', inactive);
     el.classList.toggle('die--rerollable', rerollable);
-    const sel = !inactive && state.selectedDieId === id && state.draggingDieId !== id;
+    const sel = (!inactive || rerollable) && state.selectedDieId === id && state.draggingDieId !== id;
     el.classList.toggle('die--action-selected', sel);
   });
 
@@ -67,7 +67,7 @@ export function renderActionBar() {
     const die = state.dice[id];
     const inactive = isBarDieInactive(id);
     const rerollable = isTrayDieRerollable(id);
-    const sel = !inactive && state.selectedDieId === id;
+    const sel = (!inactive || rerollable) && state.selectedDieId === id;
     const isNew = state.newTrayDieIds?.has(id);
     const styles = [`--die-border-fill:${dieFaceBorderColor(die.value)}`];
     if (isNew) styles.push(`animation-delay:${idx * 60}ms`);

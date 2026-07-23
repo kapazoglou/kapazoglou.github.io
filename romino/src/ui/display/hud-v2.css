@@ -64,6 +64,21 @@
 
 .hud-stars { text-align: right; }
 
+.hud-star-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-star-pay.is-star-draggable {
+  cursor: grab;
+  touch-action: none;
+}
+
+.hud-star-pay.is-star-draggable:active {
+  cursor: grabbing;
+}
+
 .hud-stars.is-star-warning {
   color: var(--warning-red);
   animation: hud-star-warning-flash var(--invalid-flash-ms, 280ms) ease-out forwards;

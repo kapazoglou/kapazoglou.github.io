@@ -1,13 +1,9 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { isOuterDieValue } from '../../logic/dice.js';
 import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, getValidSlotsForDealtTile, isDealtTileInactive, isPlacedDealtTileCol, liftDealtTileForReposition, cancelDealtTileReposition } from '../../logic/row.js';
 import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
-import { rerollOuterDieWithAnim } from '../transitions/reroll-outer-anim.js';
-import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
 import { render, renderSelection } from './render.js';
-import { showGameOver } from './game-over.js';
 import { syncStarMarkersDuringMotion } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
@@ -164,23 +160,6 @@ function handleDieTap(dieEl) {
   if (dieEl.classList.contains('die--action')) {
     const dieId = Number(dieEl.dataset.dieId);
     if (isBarDieInactive(dieId) && !dieEl.classList.contains('die--rerollable')) return null;
-
-    if (settings.rerollOuter && state.phase === 'rolled') {
-      const die = state.dice[dieId];
-      if (die && isOuterDieValue(die.value)) {
-        if (state.stars <= 0) {
-          flashStarShortagePlacement();
-          return null;
-        }
-        rerollOuterDieWithAnim(dieId, reason => {
-          showGameOver(reason);
-          render();
-        });
-        return 'reroll';
-      }
-    }
-
-    if (isBarDieInactive(dieId)) return null;
     state.selectedDealtTile = false;
     state.selectedDieId = state.selectedDieId === dieId ? null : dieId;
     return 'selection';
@@ -242,7 +221,9 @@ function onPointerDown(e) {
 
   if (dieEl.classList.contains('die--placed')) {
     if (!state.placedDieIds.has(dieId)) return;
-  } else if (!state.actionBar.includes(dieId) || isBarDieInactive(dieId)) {
+  } else if (!state.actionBar.includes(dieId)) {
+    return;
+  } else if (isBarDieInactive(dieId) && !dieEl.classList.contains('die--rerollable')) {
     return;
   }
 
@@ -260,6 +241,7 @@ function onPointerDown(e) {
 
 function beginDrag(e) {
   if (!dragDieEl) return;
+  if (dragDieId != null && state.actionBar.includes(dragDieId) && isBarDieInactive(dragDieId)) return;
 
   isDragging = true;
   skipNextFlyerMove = true;
@@ -310,6 +292,7 @@ function onPointerMove(e) {
     const dx = e.clientX - dragStartX;
     const dy = e.clientY - dragStartY;
     if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    if (dragDieId != null && state.actionBar.includes(dragDieId) && isBarDieInactive(dragDieId)) return;
     beginDrag(e);
   }
 
@@ -419,8 +402,6 @@ function onPointerUp(e) {
       if (tapResult === 'return') {
         blockNextRowClick = true;
         render();
-      } else if (tapResult === 'reroll') {
-        /* render handled inside rerollOuterDieWithAnim */
       } else if (tapResult === 'selection') renderSelection();
     }
   }

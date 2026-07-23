@@ -399,7 +399,7 @@ function countSpots() {
   return countSpotsInRow() + (state.dealtTile ? 1 : 0);
 }
 
-function atSpotCap() {
+export function isAtSpotCap() {
   return countSpots() >= settings.nSpots;
 }
 
@@ -413,7 +413,7 @@ function canAddDealtTileColumn() {
  * Dice: original gate (N-place + N-spots). Dealt tile: row room after N-place.
  */
 export function gapInsertAnimationsAllowed() {
-  if (state.placedThisTurn < settings.nPlace && !atSpotCap()) return true;
+  if (state.placedThisTurn < settings.nPlace && !isAtSpotCap()) return true;
   if (state.dealtTile && canAddDealtTileColumn()) return true;
   if (getPlacedDealtTileCol() != null || state.draggingDealtTile) return true;
   return false;
@@ -531,7 +531,7 @@ export function getValidSlotsForDie(dieId) {
     slots.push({ kind: 'insert', leftCol: maxCol, rightCol: null });
   }
 
-  if (atSpotCap()) {
+  if (isAtSpotCap()) {
     slots = slots.filter(slot => slot.kind === 'stack');
   }
 

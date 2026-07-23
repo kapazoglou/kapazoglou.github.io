@@ -1,4 +1,5 @@
 import { state } from '../../logic/state.js';
+import { settings } from '../../logic/settings.js';
 import { SUIT_BADGE_ORDER, SUIT_COLOR, starSVG } from '../../logic/dice-visual.js';
 
 function suitBadgeHTML(letter) {
@@ -13,12 +14,15 @@ export function renderHUD() {
   if (!hud) return;
 
   const badges = SUIT_BADGE_ORDER.map(letter => suitBadgeHTML(letter)).join('');
+  const starDraggable = settings.rerollOuter && state.phase === 'rolled' && state.stars > 0;
 
   hud.innerHTML = `
     <div class="hud-center">
       <div class="hud-score" id="hud-score-tap">
-        <span class="hud-stars" id="hud-stars">${state.stars}</span>
-        ${starSVG(32)}
+        <span class="hud-star-pay${starDraggable ? ' is-star-draggable' : ''}" id="hud-star-pay">
+          <span class="hud-stars" id="hud-stars">${state.stars}</span>
+          ${starSVG(32)}
+        </span>
         <span class="hud-divider">| <span id="hud-points">${state.points}</span></span>
       </div>
       <div class="hud-suit-row" aria-hidden="true">${badges}</div>

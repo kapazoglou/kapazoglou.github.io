@@ -124,6 +124,10 @@ body {
   width: 100%;
 }
 
+.separator.is-spots-full {
+  background: var(--warning-red);
+}
+
 .die--drag-source {
   visibility: hidden;
 }

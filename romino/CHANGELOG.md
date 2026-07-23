@@ -4,7 +4,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
-### Added
+### Changed
+- **row.js v1.35, render.js v1.4, base.css** — separator fills warning red while row is at N-spots cap
+- **star-reroll-input.js v1.0, hud-v2.js, hud-v2.css, drag-drop.js v2.28, reroll-outer-anim.js v1.1, action-bar.js v1.32, main.js** — `rerollOuter` pay flow: select tray 1/6, tap or drag from `#hud-star-pay` (not direct die tap)
 - **turn.js v2.5** — `rerollOuter` ON: fresh game starts with `state.stars === nPlace`; `shouldWarnOnLeave` treats that as unmodified
 - **settings.js v2.17, dice.js v2.1, pip-anim.js v1.4, reroll-outer-anim.js v1.0, drag-drop.js v2.27, action-bar.js v1.31, action-bar.css** — `rerollOuter` toggle: tap tray 1/6 to reroll for 1 star (HUD→die fly + `is-new` pop); inactive outers stay tappable
 - **settings.js v2.16, convert.js v1.8, row.js v1.32** — `aceJokerStarCost` toggle (default ON): when OFF, ace/joker converts cost no stars; placement no longer blocked by star balance

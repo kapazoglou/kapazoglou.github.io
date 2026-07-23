@@ -13,6 +13,22 @@ function canRerollOuterDie(dieId) {
   return die != null && isOuterDieValue(die.value);
 }
 
+/** Selected tray die that can be paid for an outer reroll. */
+export function selectedOuterTrayDieId() {
+  if (state.selectedDieId == null) return null;
+  if (!settings.rerollOuter || state.phase !== 'rolled') return null;
+  const die = state.dice[state.selectedDieId];
+  if (!die || !isOuterDieValue(die.value)) return null;
+  if (!state.actionBar.includes(state.selectedDieId)) return null;
+  return state.selectedDieId;
+}
+
+/** @returns {boolean} true when reroll animation started */
+export function tryRerollOuterPay(dieId, onGameOver) {
+  if (dieId == null || !canRerollOuterDie(dieId)) return false;
+  return rerollOuterDieWithAnim(dieId, onGameOver);
+}
+
 /** Star pay fly → deduct → reroll → is-new tray pop. */
 export function rerollOuterDieWithAnim(dieId, onGameOver) {
   if (!canRerollOuterDie(dieId)) return false;

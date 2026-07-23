@@ -1,9 +1,9 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.27
+v: 2.28
 date: 2026-07-23
-deps: [state, settings, row, dice, dice-visual, placement-anim, reroll-outer-anim, invalid-flash, render, placement-input, game-over]
+deps: [state, settings, row, dice-visual, placement-anim, render, placement-input]
 ---
 # Drag-Drop — User Story
 
@@ -14,8 +14,8 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 - `consumeRowClickBlock()` — one-shot guard so return-to-bar tap is not followed by a row click re-place
 
 ## Die drag
-- Tap on returnable (this-turn, top-of-stack) placed die returns it to the tray and keeps it selected; tray die tap toggles selection (unless `rerollOuter` ON and die is 1/6 — tap rerolls for 1 star)
-- **`rerollOuter` ON** — tap tray 1/6 spends star (`payStarForTrayDie` + `is-new` pop); zero stars → `flashStarShortagePlacement`; drag placement unchanged
+- Tap on returnable (this-turn, top-of-stack) placed die returns it to the tray and keeps it selected; tray die tap toggles selection (inactive tray 1/6 remain selectable when `rerollOuter` ON)
+- **`rerollOuter` ON** — reroll via `#hud-star-pay` tap (selected outer) or star drag onto tray 1/6; see [[star-reroll-input]]
 - Drag to action bar still clears selection
 - Drag uses the same `.placement-die-flyer` as commit placement — spawns at the source die's exact position in `.viewport-inner`, then follows the pointer; hands off on drop (no separate `#drag-ghost`)
 - Tray die removed from action bar on drag start; cancelled / illegal drop restores bar via `renderActionBar()`
