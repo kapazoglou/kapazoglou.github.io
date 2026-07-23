@@ -1,8 +1,8 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.2
-date: 2026-07-19
+v: 1.4
+date: 2026-07-23
 deps: [state, settings, sweeps-row, render, timing, pip-anim]
 ---
 # Sweep Anim
@@ -11,7 +11,7 @@ Beat pop → upward tile sweep → remaining columns collapse inward.
 
 ## Exports
 - `startRowSweepAnimation(cols, onDone)` — beat then sweep run
-- `resolveSweepsAnimated(onDone)` — drain all runs, then bank stars with pips
+- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; track max `sweepStarMultiplier` across runs; bank `stars × maxMult` with pips
 
 ## CSS
 - `#app.is-sweep-exit` — input freeze

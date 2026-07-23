@@ -2,7 +2,7 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { renderHUD } from '../display/hud-v2.js';
-import { CONVERT_FLY_MS } from './timing.js';
+import { CONVERT_FLY_MS, BEAT_MS } from './timing.js';
 
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
 const HUD_STAR_PX = 32;
@@ -179,8 +179,8 @@ export function payStarForTrayDie(dieId, onDone) {
 }
 
 /** Visual-only HUD stars → points after state was already updated. All stars fly together. */
-export function bankStarsToPoints(count, onDone) {
-  if (count <= 0) {
+export function bankStarsToPoints(stars, multiplier, onDone) {
+  if (stars <= 0) {
     onDone?.();
     return;
   }
@@ -193,22 +193,35 @@ export function bankStarsToPoints(count, onDone) {
     return;
   }
 
-  const scale = viewportScale();
-  const layerRect = layer.getBoundingClientRect();
-  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
-  const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
+  const product = stars * multiplier;
+  const holdMs = spd(BEAT_MS);
   const flyMs = spd(CONVERT_FLY_MS);
 
-  starsEl.textContent = String(count);
-  pointsEl.textContent = String(state.points - count);
-
-  const fromCenters = Array.from({ length: count }, () => start);
-  launchStarFlyers(fromCenters, end, layer, flyMs);
+  starsEl.textContent = `${stars}×${multiplier}`;
+  starsEl.classList.add('is-sweep-mult');
 
   setTimeout(() => {
-    starsEl.textContent = String(state.stars);
-    pointsEl.textContent = String(state.points);
-    renderHUD();
-    onDone?.();
-  }, flyMs);
+    starsEl.textContent = String(product);
+
+    setTimeout(() => {
+      const scale = viewportScale();
+      const layerRect = layer.getBoundingClientRect();
+      const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+      const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
+
+      starsEl.textContent = String(stars);
+      pointsEl.textContent = String(state.points - product);
+
+      const fromCenters = Array.from({ length: stars }, () => start);
+      launchStarFlyers(fromCenters, end, layer, flyMs);
+
+      setTimeout(() => {
+        starsEl.classList.remove('is-sweep-mult');
+        starsEl.textContent = String(state.stars);
+        pointsEl.textContent = String(state.points);
+        renderHUD();
+        onDone?.();
+      }, flyMs);
+    }, holdMs);
+  }, holdMs);
 }

@@ -84,6 +84,10 @@
   animation: hud-star-warning-flash var(--invalid-flash-ms, 280ms) ease-out forwards;
 }
 
+.hud-stars.is-sweep-mult {
+  color: var(--accent);
+}
+
 @keyframes hud-star-warning-flash {
   0% { color: var(--warning-red); }
   100% { color: #fff; }

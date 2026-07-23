@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **sweeps-row.js v1.12, sweep-anim.js v1.4, pip-anim.js v1.5, hud-v2.css** — sweep star multiplier (×1 at 3 cards, +1 per extra card); bank once after all sweeps using max mult; HUD shows `stars×mult` → product in accent yellow before pip fly to score
 - **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click opens game over (no auto game over on roll)
 - **row.js v1.37** — restore one-joker-per-row gate alongside per-suit-per-game cap (`jokerSuitsUsed`); different suits allowed once row is clear
 - **reroll-outer-anim.js v1.2, render.js, star-reroll-input.js** — fix multi-star reroll: set `phase: rolled` before `render()` so HUD keeps `is-star-draggable`
@@ -39,6 +40,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **settings.js v2.8, row.js v1.16, dice-visual.js v2.5, convert.js v1.5, settings-panel.js v1.25** — `tricolors` toggle: three distinct inner dice (2–5) convert to joker rank `*` with suit of missing inner die; one joker per row
 
 ### Fixed
+- **sweeps-row.js v1.11, sweep-anim.js v1.3** — re-scan for sweep runs after each apply so chain sweeps (e.g. joker flush split by a middle tile swept first) are not missed
 - **row.js v1.33** — tricolor placement: dead 2-dice stacks (all joker suits already spent) no longer block completing a tricolor on another column; Tricolor Sevens + Tricolors paths unchanged
 - **sweeps-row.js v1.10** — joker flush sweeps require joker assigned suit to match flush suit (tricolorSevens bottom die vs tricolors missing inner die)
 - **row.js v1.31, turn.js v2.4, drag-drop.js v2.26, placement-anim.js, placement-row.css** — dealt tile reposition: `dealtThisTurn` column flag survives column shifts (fixes stale `placedDealtTileCol` after dice moves); reposition allowed even when dice returned to bar; row drag uses coordinate drop in hint mode too

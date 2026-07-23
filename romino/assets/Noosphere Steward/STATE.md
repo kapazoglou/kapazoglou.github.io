@@ -30,6 +30,10 @@ lastVerified: 2026-07-23
 
 ## Modified this session
 
+- **sweeps-row.js v1.12, sweep-anim.js v1.4, pip-anim.js v1.5, hud-v2.css** — sweep star multiplier: ×1 at 3 cards, +1 per extra; max mult across chain sweeps; HUD `stars×mult` → product in accent before pip bank
+
+- **sweeps-row.js v1.11, sweep-anim.js v1.3** — sweep resolution re-scans after each apply; fixes missed chain sweeps (e.g. joker flush after middle tile swept)
+
 - **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click game over (no auto on roll)
 
 - **row.js v1.37** — one joker per row at a time + one joker per suit per game (`jokerSuitsUsed`); new suits OK after row clears

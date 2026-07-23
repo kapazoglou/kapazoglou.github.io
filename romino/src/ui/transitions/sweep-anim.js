@@ -1,6 +1,6 @@
 import { state, clearSweepExitTimers } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
-import { findSweepRuns, applySweepRun } from '../../logic/sweeps-row.js';
+import { findSweepRuns, applySweepRun, sweepStarMultiplier } from '../../logic/sweeps-row.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll } from '../display/placement-row.js';
 import { bankStarsToPoints } from './pip-anim.js';
@@ -97,37 +97,33 @@ function commitRowSweepExit() {
   done?.();
 }
 
-/** Beat → sweep each run; bank stars → points once at the end. */
+/** Beat → sweep each run; re-scan after every apply so chain sweeps are not missed. */
 export function resolveSweepsAnimated(onDone) {
-  const runs = findSweepRuns();
-  if (!runs.length) {
-    onDone?.();
-    return;
-  }
-
   const starsToBank = state.stars;
-  let runIndex = 0;
+  let maxMult = 1;
 
   const finish = () => {
     if (starsToBank > 0) {
-      state.points += starsToBank;
+      state.points += starsToBank * maxMult;
       state.stars = 0;
       render();
-      bankStarsToPoints(starsToBank, onDone);
+      bankStarsToPoints(starsToBank, maxMult, onDone);
     } else {
       onDone?.();
     }
   };
 
   const next = () => {
-    if (runIndex >= runs.length) {
+    const runs = findSweepRuns();
+    if (!runs.length) {
       finish();
       return;
     }
-    const run = runs[runIndex++];
+    const run = runs[0];
     startRowSweepAnimation(run.map(([col]) => col), () => {
       const beforeLeft = captureColLeftPositions();
       applySweepRun(run);
+      maxMult = Math.max(maxMult, sweepStarMultiplier(run.length));
       render();
       animateColumnCollapse(beforeLeft, () => {
         requestAnimationFrame(() => unpinRowScroll());

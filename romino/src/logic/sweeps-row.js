@@ -203,6 +203,11 @@ export function findSweepRuns() {
   return findSweepRunsFromEntries(tileEntries);
 }
 
+/** ×1 at 3 cards; +1 per card above 3. */
+export function sweepStarMultiplier(cardCount) {
+  return 1 + Math.max(0, cardCount - 3);
+}
+
 export function applySweepRun(run) {
   state.sweepHistory.push(
     run.map(([, tile]) => ({ suit: tile.suit, rank: tile.rank, rankSum: tile.rankSum })),
@@ -218,15 +223,25 @@ export function applySweepRun(run) {
 
 /** Remove swept tiles, tally suits, bank stars → points. Returns swept col indices. */
 export function resolveSweeps() {
-  const runs = findSweepRuns();
-  const sweptCols = new Set(runs.flatMap(run => run.map(([col]) => col)));
+  const sweptCols = new Set();
+  let anySwept = false;
+  let maxMult = 1;
 
-  if (sweptCols.size > 0) {
-    state.points += state.stars;
-    state.stars = 0;
+  while (true) {
+    const runs = findSweepRuns();
+    if (!runs.length) break;
+    anySwept = true;
+    for (const run of runs) {
+      maxMult = Math.max(maxMult, sweepStarMultiplier(run.length));
+      applySweepRun(run);
+      for (const [col] of run) sweptCols.add(col);
+    }
   }
 
-  for (const run of runs) applySweepRun(run);
+  if (anySwept) {
+    state.points += state.stars * maxMult;
+    state.stars = 0;
+  }
 
   return [...sweptCols];
 }
