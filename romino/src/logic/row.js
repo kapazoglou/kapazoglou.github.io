@@ -46,6 +46,25 @@ function partialStackHasViableJokerCompletion(v0, v1) {
   return false;
 }
 
+/** At most one joker (tile, full stack, or tricolor-eligible partial) on the row at a time. */
+function rowHasJoker(excludeCol = null) {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    const col = Number(colKey);
+    if (col === excludeCol) continue;
+
+    if (column.kind === 'tile' && column.rank === JOKER_RANK) return true;
+
+    if (column.kind !== 'stack') continue;
+    const values = column.dice.map(id => state.dice[id].value);
+    if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
+    if (values.length === 2) {
+      const [v0, v1] = values;
+      if (partialStackHasViableJokerCompletion(v0, v1)) return true;
+    }
+  }
+  return false;
+}
+
 /** Another stack already committed or building toward a joker of this suit. */
 function jokerSuitBlocked(suit, excludeCol = null) {
   if (state.jokerSuitsUsed.has(suit)) return true;
@@ -78,25 +97,6 @@ function jokerSuitBlocked(suit, excludeCol = null) {
     }
   }
 
-  return false;
-}
-
-/** At most one joker (tile, committed stack, or tricolor-eligible stack) on the row. */
-function rowHasJoker(excludeCol = null) {
-  for (const [colKey, column] of Object.entries(state.row)) {
-    const col = Number(colKey);
-    if (col === excludeCol) continue;
-
-    if (column.kind === 'tile' && column.rank === JOKER_RANK) return true;
-
-    if (column.kind !== 'stack') continue;
-    const values = column.dice.map(id => state.dice[id].value);
-    if (values.length === 3 && jokerSuitFromStackValues(...values) != null) return true;
-    if (values.length === 2) {
-      const [v0, v1] = values;
-      if (partialStackHasViableJokerCompletion(v0, v1)) return true;
-    }
-  }
   return false;
 }
 
@@ -432,6 +432,17 @@ export function hasAnyLegalPlacementForTray() {
     if (getValidSlotsForDie(dieId).length > 0) return true;
   }
   return false;
+}
+
+/** Active tray dice remain but none have a legal slot (confirm-ready leftovers excluded). */
+export function isTrayStuck() {
+  let hasActive = false;
+  for (const dieId of state.actionBar) {
+    if (isBarDieInactive(dieId)) continue;
+    hasActive = true;
+    if (getValidSlotsForDie(dieId).length > 0) return false;
+  }
+  return hasActive;
 }
 
 /** True when slot completes an ace/joker stack but star balance is too low. */

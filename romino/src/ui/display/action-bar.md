@@ -1,7 +1,7 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.32
+v: 1.33
 date: 2026-07-23
 deps: [state, cards, dice, grid]
 ---
@@ -12,7 +12,7 @@ As a player, I need the action bar to show my hand cards during the place-card p
 ## Exports
 - `renderActionBar()` — rebuilds `#action-bar` innerHTML from state
 - `ghostCardHTML(slotCount)` — skeleton card HTML for the action-bar ghost indicator
-- `gameOverCardHTML()` — clickable square black "GAME / OVER" tray card when stuck (yellow Averia Libre label)
+- Roll button: `.roll-btn--low` when remaining dice below N-roll; `.roll-btn-wrap--stuck` warning-red face border when active tray dice have no legal slots (tap opens game over)
 
 ## Modes
 - **place-card**: renders hand cards (`.in-tray`) with `is-new` slide-in if flagged

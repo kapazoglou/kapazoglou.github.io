@@ -1,7 +1,7 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
-import { hasAnyLegalPlacementForTray, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
+import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 
 /** Starting star balance for a fresh game (rerollOuter seeds N-place). */
@@ -53,9 +53,6 @@ export function evaluateGameOver(context) {
     return 'dice pool exhausted';
   }
   if (context === 'post-roll') {
-    if (state.actionBar.length > 0 && !hasAnyLegalPlacementForTray()) {
-      return 'no legal placements';
-    }
     if (state.dealtTile && state.placedThisTurn >= settings.nPlace && !hasAnyLegalPlacementForDealtTile()) {
       return 'no legal placements';
     }
@@ -189,6 +186,10 @@ export function confirmTurn(onGameOver) {
 export function handleRollButton(onGameOver) {
   if (state.phase === 'animating' || state.phase === 'replay') return false;
   if (state.phase === 'rolled') {
+    if (isTrayStuck()) {
+      enterGameOver('no legal placements', onGameOver);
+      return true;
+    }
     if (!confirmTurn(onGameOver)) return false;
     return true;
   }

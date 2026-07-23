@@ -5,6 +5,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click opens game over (no auto game over on roll)
+- **row.js v1.37** — restore one-joker-per-row gate alongside per-suit-per-game cap (`jokerSuitsUsed`); different suits allowed once row is clear
 - **reroll-outer-anim.js v1.2, render.js, star-reroll-input.js** — fix multi-star reroll: set `phase: rolled` before `render()` so HUD keeps `is-star-draggable`
 - **row.js v1.35, render.js v1.4, base.css** — separator fills warning red while row is at N-spots cap
 - **star-reroll-input.js v1.0, hud-v2.js, hud-v2.css, drag-drop.js v2.28, reroll-outer-anim.js v1.1, action-bar.js v1.32, main.js** — `rerollOuter` pay flow: select tray 1/6, tap or drag from `#hud-star-pay` (not direct die tap)

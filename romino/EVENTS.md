@@ -33,7 +33,7 @@ handleRollButton()
     │   ├── resolveSweepsAnimated() — beat + sweep each run; star pips → points
     │   └── phase = 'idle'
     └── rollDice() if dicePool >= nRoll
-        └── post-roll: no legal tray slots → game over
+        └── post-roll: no legal tray slots → roll button warning red; tap → game over
 ```
 
 ---

@@ -30,6 +30,12 @@ lastVerified: 2026-07-23
 
 ## Modified this session
 
+- **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click game over (no auto on roll)
+
+- **row.js v1.37** — one joker per row at a time + one joker per suit per game (`jokerSuitsUsed`); new suits OK after row clears
+
+- **row.js v1.36** — joker cap is one per suit per game only; removed one-joker-per-row gate (`rowHasJoker`)
+
 - **row.js v1.35, render.js v1.4, base.css** — separator warning red at N-spots cap (`isAtSpotCap`)
 
 - **row.js v1.34, placement-row.js** — stack dice return/reposition gated to topmost die only (`isTopDieInStack`)
@@ -65,7 +71,7 @@ lastVerified: 2026-07-23
 - **settings.js v2.14, settings-panel.js v1.32** — N-spots no longer capped to N-dice
 
 - **dice-visual.js v2.7, row.js v1.21** — `tricolorSevens` standalone; joker suit/placement gates use live settings
-- **row.js v1.19** — one joker per row restored (with per-suit-per-game cap)
+- **row.js v1.19** — one joker per suit per game via `jokerSuitsUsed` (superseded v1.36: removed one-joker-per-row gate)
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — removed `adjacentColumnsOnly` toggle and `placementOrderThisTurn` state
 - **sweeps-row.js v1.10** — joker flush sweeps: joker assigned suit must match flush suit (respects tricolorSevens vs tricolors convert rules)
 - **sweeps-row.js v1.9** — ace wrap rejects same-rank both sides (2–A–2); 12–A–2, 2–A–12, A–2–3, 11–12–A still valid

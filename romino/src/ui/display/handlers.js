@@ -14,7 +14,7 @@ export function initHandlers() {
 
     const rollBtn = e.target.closest('#roll-btn');
     if (rollBtn && !rollBtn.disabled) {
-      if (handleRollButton(() => { showGameOver(); render(); })) render();
+      if (handleRollButton(reason => { showGameOver(reason); render(); })) render();
       return;
     }
 
