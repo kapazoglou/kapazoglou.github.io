@@ -4,10 +4,16 @@ import { spawnRandomDie } from './dice.js';
 import { hasAnyLegalPlacementForTray, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 
+/** Starting star balance for a fresh game (rerollOuter seeds N-place). */
+export function initialStarCount() {
+  return settings.rerollOuter ? settings.nPlace : 0;
+}
+
 export function resetGame() {
   resetStateObject();
   clampSettings();
   state.dicePool = settings.nDice;
+  state.stars = initialStarCount();
   state.phase = 'idle';
   initTileDeck();
 }
@@ -34,7 +40,7 @@ export function shouldWarnOnLeave() {
     state.dicePool === settings.nDice &&
     Object.keys(state.row).length === 0 &&
     state.points === 0 &&
-    state.stars === 0 &&
+    state.stars === initialStarCount() &&
     state.actionBar.length === 0 &&
     !state.dealtTile
   );

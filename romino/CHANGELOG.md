@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Added
+- **turn.js v2.5** — `rerollOuter` ON: fresh game starts with `state.stars === nPlace`; `shouldWarnOnLeave` treats that as unmodified
 - **settings.js v2.17, dice.js v2.1, pip-anim.js v1.4, reroll-outer-anim.js v1.0, drag-drop.js v2.27, action-bar.js v1.31, action-bar.css** — `rerollOuter` toggle: tap tray 1/6 to reroll for 1 star (HUD→die fly + `is-new` pop); inactive outers stay tappable
 - **settings.js v2.16, convert.js v1.8, row.js v1.32** — `aceJokerStarCost` toggle (default ON): when OFF, ace/joker converts cost no stars; placement no longer blocked by star balance
 - **settings.js v2.15, stars.js v1.4, placement-row.js** — `verticalStars` toggle: stack-adjacent same-value pairs (or consecutive when `consecutiveStars` ON) earn stars; live ⭐ markers and collect pip support vertical matches
