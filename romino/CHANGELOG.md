@@ -13,6 +13,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **settings.js v2.10, settings-panel.js v1.27, row.js v1.17, state.js v2.3, turn.js v2.1** — `adjacentColumnsOnly` toggle and placement-order tracking removed; bar placements no longer restricted to adjacent columns
 
 ### Changed
+- **row.js v1.34, placement-row.js** — stack dice return/reposition only from the topmost die (LIFO; respects `stackBottomUp`)
 - **row.js v1.28, action-bar.js v1.30, action-bar.css, convert-anim.css** — dealt tile dealt disabled (`isDealtTileInactive` gates on N-place only); inactive `is-new` entrance stays muted; selection refresh syncs tray inactive class
 - **action-bar.js v1.28, action-bar.css, placement-row.css, render.js** — dealt tile tap-select shows accent border (`.placement-tile--selected`); selection-only refresh toggles bar chrome without full rebuild
 - **settings.js v2.14, settings-panel.js v1.32** — N-spots no longer capped to N-dice; stepper max stays 99

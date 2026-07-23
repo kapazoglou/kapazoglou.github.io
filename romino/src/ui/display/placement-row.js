@@ -5,14 +5,14 @@ import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHT
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
   getOccupiedCols, getValidSlotsForDie, getValidSlotsForDealtTile,
-  isPlacedThisTurn, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
+  isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
 } from '../../logic/row.js';
 
 function stackHTML(col, column) {
   return column.dice.map((dieId, i) => {
     const die = state.dice[dieId];
     const sel = state.selectedDieId === dieId && state.draggingDieId !== dieId;
-    const ret = isPlacedThisTurn(dieId);
+    const ret = isPlacedThisTurn(dieId) && isTopDieInStack(dieId);
     const dragging = state.draggingDieId === dieId;
     const z = i + 1;
     const style = ret

@@ -538,6 +538,23 @@ export function getValidSlotsForDie(dieId) {
   return slots;
 }
 
+/** Top die id in a stack column (respects stackBottomUp). */
+function topDieIdAtCol(col) {
+  const column = getColumn(col);
+  if (!column || column.kind !== 'stack' || !column.dice.length) return null;
+  const { dice } = column;
+  return settings.stackBottomUp ? dice[dice.length - 1] : dice[0];
+}
+
+/** Only the visually topmost stack die may leave its column (return or reposition). */
+export function isTopDieInStack(dieId) {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    if (column.kind !== 'stack' || !column.dice.includes(dieId)) continue;
+    return topDieIdAtCol(Number(colKey)) === dieId;
+  }
+  return false;
+}
+
 function removeDieFromRow(dieId) {
   for (const [colKey, column] of Object.entries(state.row)) {
     if (column.kind !== 'stack') continue;
@@ -563,6 +580,7 @@ export function placeDie(dieId, slot) {
   if (fromBar) {
     state.actionBar = state.actionBar.filter(id => id !== dieId);
   } else {
+    if (!isTopDieInStack(dieId)) return false;
     removeDieFromRow(dieId);
   }
 
@@ -589,6 +607,7 @@ export function placeDie(dieId, slot) {
 
 export function returnDieToBar(dieId, keepSelected = false) {
   if (!state.placedDieIds.has(dieId)) return false;
+  if (!isTopDieInStack(dieId)) return false;
   if (!removeDieFromRow(dieId)) return false;
 
   state.actionBar.push(dieId);
