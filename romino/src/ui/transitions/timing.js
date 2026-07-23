@@ -52,13 +52,13 @@ export const BANK_PIP_FADE_DELAY_MS = 300;
 export const BANK_PIP_GAP_MS = BANK_PIP_POP_UP_MS + BANK_PIP_POP_DOWN_MS + BANK_PIP_TRAVEL_MS / 2;
 
 /** HUD sweep bank: hold on `stars×mult` before showing product. */
-export const SWEEP_MULT_EQ_HOLD_MS = 780;
+export const SWEEP_MULT_EQ_HOLD_MS = 520;
 
 /** HUD sweep bank: hold on product before pip fly to score. */
-export const SWEEP_MULT_PRODUCT_HOLD_MS = 780;
+export const SWEEP_MULT_PRODUCT_HOLD_MS = 520;
 
 /** HUD sweep bank: star pip fly after calculation reveal. */
-export const SWEEP_MULT_BANK_FLY_MS = 880;
+export const SWEEP_MULT_BANK_FLY_MS = 587;
 
 /** Row gap → HUD star collect pip. */
 export const STAR_COLLECT_POP_UP_MS = 120;

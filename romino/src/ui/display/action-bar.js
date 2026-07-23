@@ -2,7 +2,7 @@ import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } from '../../logic/dice-visual.js';
 import { canRoll, canConfirm, canEndGame } from '../../logic/turn.js';
-import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck } from '../../logic/row.js';
+import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
 
 function isTrayDieRerollable(dieId) {
@@ -83,11 +83,12 @@ export function renderActionBar() {
   const rollLabel = settings.nDice - countDiceInRow();
   const rollLow = rollLabel < settings.nRoll;
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
+  const hasFullStack = rowHasThreeDiceStack();
 
   bar.innerHTML = `
     ${dealtTileSlot ? `<div class="action-bar-tile-slot">${dealtTileSlot}</div>` : ''}
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
-    <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}${trayStuck ? ' roll-btn-wrap--stuck' : ''}">
+    <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}${trayStuck ? ' roll-btn-wrap--stuck' : ''}${hasFullStack ? ' roll-btn-wrap--has-full-stack' : ''}">
       <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
       <button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollAria}">${rollLabel}</button>
     </div>

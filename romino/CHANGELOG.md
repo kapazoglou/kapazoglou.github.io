@@ -5,6 +5,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **sweep-anim.js v1.5, pip-anim.js v1.7** — sweep bank: score stays at pre-bank total until left-side calculation finishes, then updates on pip arrival (no early `render()` flash)
+- **timing.js v1.6** — sweep bank calculation reveal ⅓ faster (520ms + 520ms + 587ms at `--t: 1`)
+- **row.js v1.40, action-bar.js v1.35, action-bar.css** — roll button keeps accent border when any 3-dice stack is on the row (number may still be warning red)
 - **action-bar.js v1.34, action-bar.css** — roll button face border matches warning-red number when active and remaining dice below N-roll
 - **timing.js v1.5, pip-anim.js v1.6** — slower sweep bank reveal: dedicated holds for `stars×mult` and product before pip fly (780ms + 780ms + 880ms at `--t: 1`)
 - **hud-v2.js, hud-v2.css** — score HUD: star icon pinned beside vertical bar at centre; star count / sweep equation grows left in col 1 without shifting bar, star, or points anchor

@@ -1,7 +1,7 @@
 ---
 module: timing
 layer: ui/transitions
-v: 1.5
+v: 1.6
 date: 2026-07-23
 deps: []
 ---
@@ -23,7 +23,7 @@ As an animator, I need a single source of truth for animation durations so that 
 - `TRAY_STAGGER_MS` / `PREVIEW_STAGGER_MS` (60) — stagger between spawned elements
 - `PIP_GAP_MS` (830) / `PIP_TAIL_MS` (990) — legacy earn-coin pip spacing (unused in row v2)
 - `BANK_PIP_*` / `STAR_COLLECT_*` — legacy pop-travel pip timings; row v2 collect/convert pips use `CONVERT_FLY_MS` via [[pip-anim]]
-- `SWEEP_MULT_EQ_HOLD_MS` (780) / `SWEEP_MULT_PRODUCT_HOLD_MS` (780) / `SWEEP_MULT_BANK_FLY_MS` (880) — sweep bank calculation reveal on HUD
+- `SWEEP_MULT_EQ_HOLD_MS` (520) / `SWEEP_MULT_PRODUCT_HOLD_MS` (520) / `SWEEP_MULT_BANK_FLY_MS` (587) — sweep bank calculation reveal on HUD
 
 ## Notes
 All durations are in milliseconds at `--t: 1`. The `spd()` helper in `settings.js` applies the `fastAnimations` multiplier (0.5×) at call-time.

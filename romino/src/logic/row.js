@@ -412,6 +412,13 @@ export function countDiceInRow() {
   );
 }
 
+/** Any column with a full 3-dice stack (convert-ready). */
+export function rowHasThreeDiceStack() {
+  return Object.values(state.row).some(
+    column => column.kind === 'stack' && column.dice.length === 3,
+  );
+}
+
 /** Any freshly rolled tray die with at least one valid slot? */
 export function hasAnyLegalPlacementForTray() {
   for (const dieId of state.actionBar) {

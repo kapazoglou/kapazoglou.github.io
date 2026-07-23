@@ -194,15 +194,18 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
   }
 
   const product = stars * multiplier;
+  const oldPoints = state.points - product;
   const eqHoldMs = spd(SWEEP_MULT_EQ_HOLD_MS);
   const productHoldMs = spd(SWEEP_MULT_PRODUCT_HOLD_MS);
   const flyMs = spd(SWEEP_MULT_BANK_FLY_MS);
 
+  pointsEl.textContent = String(oldPoints);
   starsEl.textContent = `${stars}×${multiplier}`;
   starsEl.classList.add('is-sweep-mult');
 
   setTimeout(() => {
     starsEl.textContent = String(product);
+    pointsEl.textContent = String(oldPoints);
 
     setTimeout(() => {
       const scale = viewportScale();
@@ -211,7 +214,7 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
       const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
 
       starsEl.textContent = String(stars);
-      pointsEl.textContent = String(state.points - product);
+      pointsEl.textContent = String(oldPoints);
 
       const fromCenters = Array.from({ length: stars }, () => start);
       launchStarFlyers(fromCenters, end, layer, flyMs);

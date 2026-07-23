@@ -1,7 +1,7 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.4
+v: 1.5
 date: 2026-07-23
 deps: [state, settings, sweeps-row, render, timing, pip-anim]
 ---

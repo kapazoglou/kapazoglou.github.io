@@ -107,7 +107,6 @@ export function resolveSweepsAnimated(onDone) {
     if (anySwept && starsToBank > 0) {
       state.points += starsToBank * maxMult;
       state.stars = 0;
-      render();
       bankStarsToPoints(starsToBank, maxMult, onDone);
     } else {
       onDone?.();
