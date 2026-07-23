@@ -36,7 +36,7 @@ lastVerified: 2026-07-23
 
 - **row.js v1.39** — tricolor joker: spent-suit full stacks + incidental 2-dice stacks no longer block new joker on another column; same-suit still via `jokerSuitBlocked`
 
-- **action-bar.js v1.34, action-bar.css** — roll button warning-red border when enabled and remaining dice below N-place
+- **action-bar.js v1.34, action-bar.css** — roll button warning-red border when active and number below N-roll (matches `.roll-btn--low` text)
 
 - **row.js v1.38, turn.js v2.6, action-bar.js v1.33, action-bar.css, handlers.js, reroll-outer-anim.js v1.3** — tray stuck: roll button warning-red border + click game over (no auto on roll)
 

@@ -82,13 +82,12 @@ export function renderActionBar() {
   const rollDisabled = !canRoll() && !confirm && !canEndGame() && !trayStuck;
   const rollLabel = settings.nDice - countDiceInRow();
   const rollLow = rollLabel < settings.nRoll;
-  const rollBorderLow = !rollDisabled && rollLabel < settings.nPlace;
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
 
   bar.innerHTML = `
     ${dealtTileSlot ? `<div class="action-bar-tile-slot">${dealtTileSlot}</div>` : ''}
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
-    <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}${trayStuck ? ' roll-btn-wrap--stuck' : ''}${rollBorderLow ? ' roll-btn-wrap--low-place' : ''}">
+    <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}${trayStuck ? ' roll-btn-wrap--stuck' : ''}">
       <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
       <button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollAria}">${rollLabel}</button>
     </div>
