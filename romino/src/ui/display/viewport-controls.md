@@ -1,8 +1,8 @@
 ---
 module: viewport-controls
 layer: ui/display
-v: 1.1
-date: 2026-07-28
+v: 1.2
+date: 2026-07-29
 deps: []
 ---
 # Viewport Controls

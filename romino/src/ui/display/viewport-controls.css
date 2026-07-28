@@ -16,14 +16,12 @@
   height: 44px;
   padding: 0 10px;
   border: none;
-  border-radius: 12px;
-  background: rgba(36, 40, 53, 0.92);
-  color: var(--text-primary);
+  background: none;
+  color: #fff;
   font-family: 'Averia Libre', serif;
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -32,8 +30,4 @@
     top: max(12px, env(safe-area-inset-top, 0px));
     bottom: auto;
   }
-}
-
-.viewport-controls-btn:active {
-  background: rgba(84, 84, 84, 0.95);
 }

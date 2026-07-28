@@ -107,6 +107,18 @@ function enterGameOver(reason) {
   triggerGameOver(reason);
 }
 
+/** Reason string for warning-red roll tap (eligibility unchanged — UI defers commit). */
+export function getRollButtonEndGameReason() {
+  return state.phase === 'rolled'
+    ? 'no legal placements'
+    : (evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
+}
+
+/** Confirm KO tap — only roll-button paths use this; auto paths call enterGameOver directly. */
+export function commitRollButtonGameOver(reason) {
+  enterGameOver(reason);
+}
+
 function applyCadenceDealResult(deal) {
   state.pendingDealtTile = null;
   state.dealingDiscardQueue = [];
@@ -235,16 +247,11 @@ export function confirmTurn() {
   return true;
 }
 
+/**
+ * @returns {false | true | { pendingEndGame: string }}
+ */
 export function handleRollButton() {
   if (state.phase === 'animating' || state.phase === 'replay') return false;
-
-  if (isRollButtonEndGameTap()) {
-    const reason = state.phase === 'rolled'
-      ? 'no legal placements'
-      : (evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
-    enterGameOver(reason);
-    return true;
-  }
 
   if (state.phase === 'rolled') {
     if (!confirmTurn()) return false;
@@ -254,8 +261,7 @@ export function handleRollButton() {
     if (canRoll()) {
       const rollResult = rollDice();
       if (rollResult === 'deck-depleted') {
-        enterGameOver('deck depleted');
-        return true;
+        return { pendingEndGame: 'deck depleted' };
       }
       if (rollResult === 'discard-anim') {
         import('../ui/transitions/deal-discard-anim.js').then(({ runDealDiscardAnimations }) => {
@@ -268,8 +274,7 @@ export function handleRollButton() {
       }
       const stuckReason = evaluateGameOver('post-roll');
       if (stuckReason) {
-        enterGameOver(stuckReason);
-        return true;
+        return { pendingEndGame: stuckReason };
       }
       return true;
     }

@@ -1,7 +1,13 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { returnDieToBar, getValidSlotsForDie, getValidSlotsForDealtTile, slotFromHintDataset } from '../../logic/row.js';
-import { handleRollButton, scheduleRender } from '../../logic/turn.js';
+import { handleRollButton, scheduleRender, isRollButtonEndGameTap, getRollButtonEndGameReason, commitRollButtonGameOver } from '../../logic/turn.js';
+import {
+  armEndGamePrompt,
+  disarmEndGamePrompt,
+  getPendingEndGameReason,
+  isEndGamePromptArmed,
+} from './end-game-prompt.js';
 import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
 import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
@@ -13,9 +19,31 @@ export function initHandlers() {
 
     const rollWrap = e.target.closest('.roll-btn-wrap');
     if (rollWrap) {
+      const koBtn = e.target.closest('#roll-btn-endgame-confirm');
+      if (koBtn && isEndGamePromptArmed()) {
+        const reason = getPendingEndGameReason();
+        disarmEndGamePrompt();
+        commitRollButtonGameOver(reason);
+        return;
+      }
+
       const rollBtn = rollWrap.querySelector('#roll-btn');
       if (rollBtn && !rollBtn.disabled) {
-        if (handleRollButton()) {
+        if (isEndGamePromptArmed()) {
+          disarmEndGamePrompt();
+          scheduleRender(render);
+          return;
+        }
+        if (isRollButtonEndGameTap()) {
+          armEndGamePrompt(getRollButtonEndGameReason());
+          scheduleRender(render);
+          return;
+        }
+        const result = handleRollButton();
+        if (result && typeof result === 'object' && result.pendingEndGame) {
+          armEndGamePrompt(result.pendingEndGame);
+        }
+        if (result && (result === true || (typeof result === 'object' && result.pendingEndGame))) {
           if (state.phase !== 'replay') scheduleRender(render);
         }
         return;

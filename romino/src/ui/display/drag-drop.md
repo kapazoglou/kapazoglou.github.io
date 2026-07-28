@@ -1,7 +1,7 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.29
+v: 2.31
 date: 2026-07-28
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input]
 ---
@@ -21,7 +21,7 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 - Tray die removed from action bar on drag start; cancelled / illegal drop restores bar via `renderActionBar()`
 - Sole-die row reposition: source gap closes on drag via `reposition-collapse`
 - **`directPlacement` ON** — gap spread preview **during drag only**; drop resolves slot from pointer coordinates via `attemptPlacementAtPoint` (uses flyer top edge, not finger Y)
-- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; gap spread follows snap target; drop commits via `placeDieWithAnim` at last snap slot
+- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; gap spread follows snap target; drop commits via `placeDieWithAnim` at last snap slot; `state.snapGhostSlot` drives star-marker suppression beside the ghost
 - **`directPlacement` OFF** — drop onto `.placement-hint` buttons
 - Dealt tile row drag drop uses coordinate placement in all modes (not hint hit-test); pointerdown matches any this-turn row tile via `isPlacedDealtTileCol`
 

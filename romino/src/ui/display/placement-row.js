@@ -7,7 +7,7 @@ import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
   getOccupiedCols, getValidSlotsForDie, getValidSlotsForDealtTile,
   isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
-  slotsEqual,
+  slotsEqual, stackHeight, spreadContextForDie,
 } from '../../logic/row.js';
 
 function stackHTML(col, column) {
@@ -388,22 +388,62 @@ export function positionHints() {
   }
 }
 
+/** Hide stars adjacent to the snapping ghost preview die. */
+function starAdjacentToSnapGhost(match, slot) {
+  if (!slot) return false;
+
+  if (slot.kind === 'insert') {
+    if (match.axis !== 'h' || match.row !== 0) return false;
+    if (slot.leftCol != null && slot.rightCol != null) {
+      return match.leftCol === slot.leftCol && match.rightCol === slot.rightCol;
+    }
+    if (slot.leftCol == null && slot.rightCol != null) {
+      return match.rightCol === slot.rightCol;
+    }
+    if (slot.rightCol == null && slot.leftCol != null) {
+      return match.leftCol === slot.leftCol;
+    }
+    return false;
+  }
+
+  if (slot.kind === 'stack') {
+    const row = stackHeight(slot.col);
+    if (match.axis === 'h') {
+      return match.row === row && (match.leftCol === slot.col || match.rightCol === slot.col);
+    }
+    if (match.axis === 'v') {
+      return match.col === slot.col && match.row === row - 1;
+    }
+  }
+
+  return false;
+}
+
 /** Hide stars involving the die being repositioned (still in state until drop). */
 function visibleStarMatches() {
   const matches = findStarMatches();
   const dragId = state.draggingDieId;
-  if (dragId == null || state.actionBar.includes(dragId)) return matches;
+  const snapSlot = state.snapGhostSlot;
 
-  return matches.filter(m => {
-    if (m.axis === 'v') {
-      const topId = dieIdAt(m.col, m.row);
-      const bottomId = dieIdAt(m.col, m.row + 1);
-      return topId !== dragId && bottomId !== dragId;
-    }
-    const leftId = dieIdAt(m.leftCol, m.row);
-    const rightId = dieIdAt(m.rightCol, m.row);
-    return leftId !== dragId && rightId !== dragId;
-  });
+  let visible = matches;
+  if (dragId != null && !state.actionBar.includes(dragId)) {
+    visible = matches.filter(m => {
+      if (m.axis === 'v') {
+        const topId = dieIdAt(m.col, m.row);
+        const bottomId = dieIdAt(m.col, m.row + 1);
+        return topId !== dragId && bottomId !== dragId;
+      }
+      const leftId = dieIdAt(m.leftCol, m.row);
+      const rightId = dieIdAt(m.rightCol, m.row);
+      return leftId !== dragId && rightId !== dragId;
+    });
+  }
+
+  if (snapSlot) {
+    visible = visible.filter(m => !starAdjacentToSnapGhost(m, snapSlot));
+  }
+
+  return visible;
 }
 
 /** Live ⭐ preview between adjacent matching dice while placing. */
@@ -705,7 +745,11 @@ function colBoxFromRect(el, innerRect, scale) {
 }
 
 /** Die landing in placement-row-inner design px (live layout incl. gap spread). */
-export function slotAnchorRowXY(slot) {
+export function slotAnchorRowXY(slot, dieId = null) {
+  if (dieId != null && slot.kind === 'insert') {
+    slot = spreadContextForDie(slot, dieId).slot;
+  }
+
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) return null;
 
@@ -785,8 +829,8 @@ export function slotAnchorRowXY(slot) {
 }
 
 /** Die landing in viewport-inner design px — for drag flyer and snap ghost. */
-export function slotAnchorXY(slot) {
-  const rowPoint = slotAnchorRowXY(slot);
+export function slotAnchorXY(slot, dieId = null) {
+  const rowPoint = slotAnchorRowXY(slot, dieId);
   if (!rowPoint) return null;
 
   const inner = document.querySelector('.placement-row-inner');
@@ -804,8 +848,8 @@ export function slotAnchorXY(slot) {
 }
 
 /** Screen-space top-left of die anchor (for nearest-slot distance). */
-function slotAnchorScreenTopLeft(slot) {
-  const rowPoint = slotAnchorRowXY(slot);
+function slotAnchorScreenTopLeft(slot, dieId = null) {
+  const rowPoint = slotAnchorRowXY(slot, dieId);
   if (!rowPoint) return null;
 
   const inner = document.querySelector('.placement-row-inner');
@@ -821,7 +865,7 @@ function slotAnchorScreenTopLeft(slot) {
 }
 
 /** Nearest valid slot for snap ghost — pointer hit first, else minimum screen distance. */
-export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots) {
+export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, dieId = null) {
   if (!validSlots.length) return null;
 
   const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY);
@@ -836,7 +880,7 @@ export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots) {
   const refY = stackY ?? clientY;
 
   for (const slot of validSlots) {
-    const anchor = slotAnchorScreenTopLeft(slot);
+    const anchor = slotAnchorScreenTopLeft(slot, dieId);
     if (!anchor) continue;
     const dx = clientX - (anchor.x + (DIE_OUTER * viewportScale()) / 2);
     const dy = refY - anchor.y;

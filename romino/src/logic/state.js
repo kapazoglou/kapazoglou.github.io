@@ -29,6 +29,8 @@ export function createInitialState() {
     selectedDieId: null,
     /** Set while a die is actively being dragged (UI only). */
     draggingDieId: null,
+    /** Valid slot preview while snap ghost is visible (UI only). */
+    snapGhostSlot: null,
     /** Set while the dealt tile is actively being dragged (UI only). */
     draggingDealtTile: false,
     nextDieId: 0,

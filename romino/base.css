@@ -173,6 +173,17 @@ body {
   visibility: hidden;
 }
 
+.star-icon {
+  overflow: visible;
+}
+
+.star-icon path {
+  stroke: var(--bg);
+  stroke-width: 6px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+}
+
 .star-pip .star-icon {
   display: block;
   width: 100%;

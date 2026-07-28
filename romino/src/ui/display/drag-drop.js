@@ -135,12 +135,13 @@ function createSnapGhost(dieId) {
 }
 
 function updateSnapGhost(slot) {
+  state.snapGhostSlot = slot ?? null;
   if (!snapGhostEl) return;
   if (!slot) {
     snapGhostEl.style.display = 'none';
     return;
   }
-  const pos = slotAnchorXY(slot);
+  const pos = slotAnchorXY(slot, dragDieId);
   if (!pos) {
     snapGhostEl.style.display = 'none';
     return;
@@ -151,6 +152,7 @@ function updateSnapGhost(slot) {
 }
 
 function clearSnapGhost() {
+  state.snapGhostSlot = null;
   snapGhostEl?.remove();
   snapGhostEl = null;
   activeSnapSlot = null;
@@ -355,7 +357,7 @@ function onPointerMove(e) {
       if (snappingActive()) {
         const stackY = flyerResolvePoint()?.y ?? e.clientY;
         activeSnapSlot = resolveNearestValidSlot(
-          e.clientX, e.clientY, stackY, validSlots,
+          e.clientX, e.clientY, stackY, validSlots, dieId,
         );
         updateSnapGhost(activeSnapSlot);
         updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId, activeSnapSlot);

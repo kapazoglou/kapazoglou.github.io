@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-28
+lastVerified: 2026-07-29
 ---
 
 # römino — Verified Pattern State
@@ -18,6 +18,7 @@ lastVerified: 2026-07-28
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
 | Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `deckFlank`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
+| End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
@@ -31,6 +32,10 @@ lastVerified: 2026-07-28
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **end-game-prompt.js v1.0, handlers.js v2.9, action-bar.js v1.43, action-bar.css, turn.js v2.20, game-over.js v2.3** — KO confirm bar on roll-button game-over paths; eligibility logic unchanged
+
+- **row.js v1.51, placement-anim.js v1.26, placement-row.js, drag-drop.js v2.31** — fix snap ghost overlap when repositioning row dice: gap spread allowed during row drag; sole-die insert anchor remapped after source column vacates
 
 - **row.js v1.49** — fix: remove buried-flank from placement duplicate gate (was blocking nearly all stack completions)
 

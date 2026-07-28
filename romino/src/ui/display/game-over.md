@@ -1,16 +1,16 @@
 ---
 module: game-over
 layer: ui/display
-v: 2.2
-date: 2026-07-28
-deps: [dice-visual, highscores, game-log, turn, render, lifetime-stats-view]
+v: 2.3
+date: 2026-07-29
+deps: [dice-visual, highscores, game-log, turn, end-game-prompt, render, lifetime-stats-view]
 ---
 # Game Over
 
 Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), tile cap exceeded, or tray is stuck. Rendered inside `.viewport-inner` (variable width × 412px design height).
 
 ## Exports
-- `initGameOver()` — handle minimize + PLAY AGAIN → `resetGame()`; tile matrix segmented toggle
+- `initGameOver()` — handle minimize + PLAY AGAIN → `disarmEndGamePrompt()` + `resetGame()`; tile matrix segmented toggle
 - `showGameOver(reason?)` — persist game log + lifetime stats; populate session + lifetime blocks; record highscore; reveal overlay; title **WELL DONE** when `reason === 'well-done'`, else **GAME OVER**
 - `sweepListHTML()` — sweep row markup
 - `leaderboardHTML(currentId?)` — top-10 highscore rows

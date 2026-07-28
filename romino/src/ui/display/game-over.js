@@ -7,6 +7,7 @@ import {
   updateLifetimeStats,
 } from '../../logic/game-log.js';
 import { resetGame } from '../../logic/turn.js';
+import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 
@@ -138,6 +139,7 @@ export function initGameOver() {
 
   document.getElementById('game-over-restart')?.addEventListener('click', () => {
     hideGameOver();
+    disarmEndGamePrompt();
     resetGame();
     render();
   });

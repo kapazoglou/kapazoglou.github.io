@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { placeDie, getDealtTileForPlacement, getPlacedDealtTileCol, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed, liftDealtTileForReposition } from '../../logic/row.js';
+import { placeDie, getDealtTileForPlacement, getPlacedDealtTileCol, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, gapInsertAnimationsAllowed, liftDealtTileForReposition, spreadContextForDie } from '../../logic/row.js';
 import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion, slotAnchorRowXY } from '../display/placement-row.js';
@@ -53,55 +53,12 @@ function colBoxInInner(el, innerRect, scale) {
   };
 }
 
-/** Sole-die column being repositioned vanishes on commit — spread as if it is already gone. */
-function remapInsertSlotAfterColRemoval(slot, removedCol) {
-  if (slot.kind !== 'insert') return slot;
-
-  const remaining = getOccupiedCols().filter(c => c !== removedCol);
-  let { leftCol, rightCol } = slot;
-
-  if (leftCol === removedCol) {
-    const idx = remaining.indexOf(rightCol);
-    leftCol = idx > 0 ? remaining[idx - 1] : null;
-  }
-
-  if (rightCol === removedCol) {
-    const idx = remaining.indexOf(leftCol);
-    rightCol = idx >= 0 && idx < remaining.length - 1 ? remaining[idx + 1] : null;
-  }
-
-  return { kind: 'insert', leftCol, rightCol };
-}
-
-function effectiveSpreadContext(slot, dieId = null) {
-  const occupiedFull = getOccupiedCols();
-  if (!dieId || state.actionBar.includes(dieId)) {
-    return { slot, occupied: occupiedFull, excludeCols: new Set() };
-  }
-
-  const loc = findDieColumn(dieId);
-  if (!loc) return { slot, occupied: occupiedFull, excludeCols: new Set() };
-
-  const column = getColumn(loc.col);
-  const soleSource = column?.kind === 'stack' && column.dice.length === 1;
-  if (!soleSource) {
-    return { slot, occupied: occupiedFull, excludeCols: new Set() };
-  }
-
-  const removedCol = loc.col;
-  return {
-    slot: slot.kind === 'insert' ? remapInsertSlotAfterColRemoval(slot, removedCol) : slot,
-    occupied: occupiedFull.filter(c => c !== removedCol),
-    excludeCols: new Set([removedCol]),
-  };
-}
-
 /** Symmetric spread from gap centre — entire left block −half, entire right block +half. */
 export function computeSpreadOffsets(slot, dieId = null) {
   const offsets = new Map();
   if (slot.kind !== 'insert') return offsets;
 
-  const { slot: effSlot, occupied, excludeCols } = effectiveSpreadContext(slot, dieId);
+  const { slot: effSlot, occupied, excludeCols } = spreadContextForDie(slot, dieId);
   const half = openWidth() / 2;
   const { leftCol, rightCol } = effSlot;
 

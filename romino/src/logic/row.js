@@ -449,6 +449,7 @@ export function gapInsertAnimationsAllowed() {
   if (state.placedThisTurn < settings.nPlace && !isAtSpotCap()) return true;
   if (state.dealtTile && canAddDealtTileColumn()) return true;
   if (getPlacedDealtTileCol() != null || state.draggingDealtTile) return true;
+  if (state.draggingDieId != null && state.placedDieIds.has(state.draggingDieId)) return true;
   return false;
 }
 
@@ -679,6 +680,50 @@ export function findDieColumn(dieId) {
     }
   }
   return null;
+}
+
+/** Sole-die column being repositioned vanishes on commit — remap insert slot as if it is already gone. */
+function remapInsertSlotAfterColRemoval(slot, removedCol) {
+  if (slot.kind !== 'insert') return slot;
+
+  const remaining = getOccupiedCols().filter(c => c !== removedCol);
+  let { leftCol, rightCol } = slot;
+
+  if (leftCol === removedCol) {
+    const idx = remaining.indexOf(rightCol);
+    leftCol = idx > 0 ? remaining[idx - 1] : null;
+  }
+
+  if (rightCol === removedCol) {
+    const idx = remaining.indexOf(leftCol);
+    rightCol = idx >= 0 && idx < remaining.length - 1 ? remaining[idx + 1] : null;
+  }
+
+  return { kind: 'insert', leftCol, rightCol };
+}
+
+/** Spread + snap anchor context while dragging a row die (sole-source column excluded). */
+export function spreadContextForDie(slot, dieId = null) {
+  const occupiedFull = getOccupiedCols();
+  if (!dieId || state.actionBar.includes(dieId)) {
+    return { slot, occupied: occupiedFull, excludeCols: new Set() };
+  }
+
+  const loc = findDieColumn(dieId);
+  if (!loc) return { slot, occupied: occupiedFull, excludeCols: new Set() };
+
+  const column = getColumn(loc.col);
+  const soleSource = column?.kind === 'stack' && column.dice.length === 1;
+  if (!soleSource) {
+    return { slot, occupied: occupiedFull, excludeCols: new Set() };
+  }
+
+  const removedCol = loc.col;
+  return {
+    slot: slot.kind === 'insert' ? remapInsertSlotAfterColRemoval(slot, removedCol) : slot,
+    occupied: occupiedFull.filter(c => c !== removedCol),
+    excludeCols: new Set([removedCol]),
+  };
 }
 
 function passesDealtTileIdentity(tile, excludeCol = null) {

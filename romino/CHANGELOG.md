@@ -5,6 +5,11 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **end-game-prompt.js v1.0, handlers.js v2.9, action-bar.js v1.43, action-bar.css, turn.js v2.20, game-over.js v2.3** — KO confirm bar: warning-red roll tap or post-roll game-over paths arm inline expand (number + red KO); KO confirms overlay; number tap again cancels; eligibility logic unchanged
+- **viewport-controls.css v1.2** — full-screen button: no background/shadow/active fill; white icon only
+- **row.js v1.51, placement-anim.js v1.26, placement-row.js, drag-drop.js v2.31** — fix snap ghost overlap when repositioning row dice: gap spread allowed during row drag; sole-die insert anchor remapped after source column vacates
+- **drag-drop.js v2.30, placement-row.js, state.js v2.11** — hide row star markers adjacent to snapping ghost preview (stack + insert slots)
+- **dice-visual.js v2.11, base.css** — star SVG: 3px outside border in `--bg`; `overflow: visible` so stroke is not clipped by viewBox
 - **lifetime-stats-view.js v1.0, settings-panel.js v1.35, settings-panel.css, game-over.js v2.2, index.html** — lifetime stats block at top of settings panel; refreshes live as draft config changes; shared lifetime renderer extracted from game-over
 - **base.css** — landscape and viewports ≥825px fill browser (`100vw × 100dvh`); design width grows from 412px with no cap; phone portrait unchanged (square `min(100vw, 100dvh)`)
 - **turn.js v2.19, action-bar.md v1.42** — roll tap follows border colour: `isRollButtonWarningRedBorder` mirrors CSS (incl. full-stack accent override); accent → roll/confirm

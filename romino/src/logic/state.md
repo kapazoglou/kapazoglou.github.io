@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.10
+v: 2.11
 date: 2026-07-28
 deps: []
 ---
@@ -23,3 +23,4 @@ Single source of truth for v2 row game.
 - `rollCount` — successful rolls this session (game-over stat)
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`
 - `placedDieIds` — unconfirmed placements this turn
+- `draggingDieId`, `snapGhostSlot` — UI-only drag / snap-ghost preview flags

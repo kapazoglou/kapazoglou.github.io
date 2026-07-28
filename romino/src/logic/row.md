@@ -1,7 +1,7 @@
 ---
 module: row
 layer: logic
-v: 1.50
+v: 1.51
 date: 2026-07-28
 deps: [state, settings]
 ---

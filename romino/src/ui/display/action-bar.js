@@ -4,6 +4,7 @@ import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } fr
 import { canRoll, canConfirm, canEndGame, isRollPoolLow } from '../../logic/turn.js';
 import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
+import { isEndGamePromptArmed } from './end-game-prompt.js';
 
 function isTrayDieRerollable(dieId) {
   if (!settings.rerollOuter || state.phase !== 'rolled') return false;
@@ -84,13 +85,40 @@ export function renderActionBar() {
   const rollLow = isRollPoolLow();
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
   const hasFullStack = rowHasThreeDiceStack();
+  const endgameArmed = isEndGamePromptArmed();
+  const wrapClasses = [
+    'roll-btn-wrap',
+    confirm ? 'roll-btn-wrap--confirm' : '',
+    trayStuck ? 'roll-btn-wrap--stuck' : '',
+    hasFullStack ? 'roll-btn-wrap--has-full-stack' : '',
+    endgameArmed ? 'roll-btn-wrap--endgame-armed' : '',
+  ].filter(Boolean).join(' ');
+  const wrapExpanded = endgameArmed ? ' aria-expanded="true"' : '';
+
+  const rollBtnHTML = `<button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollAria}">${rollLabel}</button>`;
+  const koBtnHTML = endgameArmed
+    ? `<div class="roll-btn-slot roll-btn-slot--ko">
+        <div class="roll-btn-face roll-btn-face--ko" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
+        <button type="button" class="roll-btn roll-btn--ko" id="roll-btn-endgame-confirm" aria-label="Confirm end game">KO</button>
+      </div>`
+    : '';
+
+  const rollWrapHTML = endgameArmed
+    ? `<div class="${wrapClasses}"${wrapExpanded}>
+        <div class="roll-btn-slot roll-btn-slot--number">
+          <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
+          ${rollBtnHTML}
+        </div>
+        ${koBtnHTML}
+      </div>`
+    : `<div class="${wrapClasses}"${wrapExpanded}>
+        <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
+        ${rollBtnHTML}
+      </div>`;
 
   bar.innerHTML = `
     ${dealtTileSlot ? `<div class="action-bar-tile-slot">${dealtTileSlot}</div>` : ''}
     <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
-    <div class="roll-btn-wrap${confirm ? ' roll-btn-wrap--confirm' : ''}${trayStuck ? ' roll-btn-wrap--stuck' : ''}${hasFullStack ? ' roll-btn-wrap--has-full-stack' : ''}">
-      <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
-      <button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollAria}">${rollLabel}</button>
-    </div>
+    ${rollWrapHTML}
   `;
 }
