@@ -1,11 +1,9 @@
-/* ─── PHONE BROWSER: ZOOM + FULL SCREEN ─── */
+/* ─── PHONE BROWSER: FULL SCREEN ─── */
 .viewport-controls {
   position: fixed;
   z-index: 900;
   right: max(12px, env(safe-area-inset-right, 0px));
   bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  display: flex;
-  gap: 8px;
   pointer-events: auto;
 }
 
@@ -36,15 +34,6 @@
   }
 }
 
-.viewport-controls-btn:active:not(:disabled) {
+.viewport-controls-btn:active {
   background: rgba(84, 84, 84, 0.95);
-}
-
-.viewport-controls-btn:disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-.viewport-controls-btn--wide {
-  font-size: 20px;
 }

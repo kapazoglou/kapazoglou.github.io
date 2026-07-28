@@ -1,14 +1,7 @@
-const ZOOM_MIN = 0.75;
-const ZOOM_MAX = 1.5;
-const ZOOM_STEP = 0.05;
-
 const TOUCH_PHONE = '(hover: none) and (pointer: coarse)';
 
 let root = null;
-let zoomOutBtn = null;
-let zoomInBtn = null;
 let fullscreenBtn = null;
-let userZoom = 1;
 
 function isTouchPhone() {
   return window.matchMedia(TOUCH_PHONE).matches;
@@ -24,17 +17,6 @@ function isFullscreen() {
 
 function syncFullscreenClass() {
   document.documentElement.classList.toggle('is-browser-fullscreen', isFullscreen());
-}
-
-function applyZoom() {
-  document.documentElement.style.setProperty('--user-zoom', String(userZoom));
-  if (zoomOutBtn) zoomOutBtn.disabled = userZoom <= ZOOM_MIN + 0.001;
-  if (zoomInBtn) zoomInBtn.disabled = userZoom >= ZOOM_MAX - 0.001;
-}
-
-function setZoom(next) {
-  userZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, next));
-  applyZoom();
 }
 
 function syncVisibility() {
@@ -70,11 +52,7 @@ async function toggleFullscreen() {
   syncFullscreenButton();
 }
 
-function onMediaChange() {
-  syncVisibility();
-}
-
-/** Zoom +/- and full-screen for touch phones (hidden on desktop). */
+/** Full-screen toggle for touch phones (hidden on desktop). */
 export function initViewportControls() {
   const app = document.getElementById('app');
   if (!app || document.getElementById('viewport-controls')) return;
@@ -85,18 +63,11 @@ export function initViewportControls() {
   root.hidden = true;
   root.setAttribute('aria-hidden', 'true');
   root.innerHTML = `
-    <button type="button" class="viewport-controls-btn" id="viewport-zoom-out" aria-label="Zoom out">−</button>
-    <button type="button" class="viewport-controls-btn" id="viewport-zoom-in" aria-label="Zoom in">+</button>
-    <button type="button" class="viewport-controls-btn viewport-controls-btn--wide" id="viewport-fullscreen" aria-label="Enter full screen" aria-pressed="false">⛶</button>
+    <button type="button" class="viewport-controls-btn" id="viewport-fullscreen" aria-label="Enter full screen" aria-pressed="false">⛶</button>
   `;
   app.appendChild(root);
 
-  zoomOutBtn = root.querySelector('#viewport-zoom-out');
-  zoomInBtn = root.querySelector('#viewport-zoom-in');
   fullscreenBtn = root.querySelector('#viewport-fullscreen');
-
-  zoomOutBtn.addEventListener('click', () => setZoom(userZoom - ZOOM_STEP));
-  zoomInBtn.addEventListener('click', () => setZoom(userZoom + ZOOM_STEP));
   fullscreenBtn.addEventListener('click', () => { toggleFullscreen(); });
 
   document.addEventListener('fullscreenchange', () => {
@@ -108,11 +79,10 @@ export function initViewportControls() {
     syncFullscreenButton();
   });
 
-  window.matchMedia(TOUCH_PHONE).addEventListener('change', onMediaChange);
+  window.matchMedia(TOUCH_PHONE).addEventListener('change', syncVisibility);
   window.addEventListener('orientationchange', syncVisibility);
   window.addEventListener('resize', syncVisibility);
 
-  applyZoom();
   syncVisibility();
   syncFullscreenButton();
 }
