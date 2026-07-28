@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import { tileIdentityFromStackValues, tileIdentityRequiresStar, JOKER_RANK } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
+import { recordTileCreated, recordStarSpent } from './game-log.js';
 
 function convertOptions() {
   return {
@@ -36,9 +37,13 @@ export function convertColumn(col) {
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
   const tile = tileIdentityFromStackValues(values, convertOptions());
-  if (stackValuesRequireStar(values) && state.stars > 0) state.stars -= 1;
+  if (stackValuesRequireStar(values) && state.stars > 0) {
+    state.stars -= 1;
+    recordStarSpent('convert');
+  }
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
   state.row[col] = { kind: 'tile', ...tile };
+  recordTileCreated(tile, col);
 }
 
 export function convertFullStacks() {

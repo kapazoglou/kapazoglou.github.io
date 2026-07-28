@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
+import { flankEndgamePending, flankStackTop } from './deck-flank.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -36,6 +37,7 @@ function twoInnerDiceCanBecomeTricolorJoker(v0, v1) {
 
 /** At most one committed joker (tile or full tricolor stack) on the row at a time. */
 function rowHasJoker(excludeCol = null) {
+  if (!settings.tricolorRestriction) return false;
   for (const [colKey, column] of Object.entries(state.row)) {
     const col = Number(colKey);
     if (col === excludeCol) continue;
@@ -53,6 +55,7 @@ function rowHasJoker(excludeCol = null) {
 
 /** Another stack already committed or building toward a joker of this suit. */
 function jokerSuitBlocked(suit, excludeCol = null) {
+  if (!settings.tricolorRestriction) return false;
   if (state.jokerSuitsUsed.has(suit)) return true;
 
   for (const [colKey, column] of Object.entries(state.row)) {
@@ -253,6 +256,14 @@ function passesOneToOneThirdDie(first, second, third, excludeCol = null) {
   return third === 6;
 }
 
+function hasLeftFlankNeighbor() {
+  return settings.deckFlank && !!flankStackTop('left');
+}
+
+function hasRightFlankNeighbor() {
+  return settings.deckFlank && !!flankStackTop('right');
+}
+
 function gapAllowsInsert(leftCol, rightCol) {
   const left = leftCol != null ? getColumn(leftCol) : null;
   const right = rightCol != null ? getColumn(rightCol) : null;
@@ -260,13 +271,15 @@ function gapAllowsInsert(leftCol, rightCol) {
   return true;
 }
 
-/** New columns may touch a tile only when the other side of the gap is a dice stack. */
+/** New columns may touch a tile only when the other side of the gap is a dice stack (or flank stack). */
 function passesTileAdjacencyRule(leftCol, rightCol) {
   const leftTile = leftCol != null && getColumn(leftCol)?.kind === 'tile';
   const rightTile = rightCol != null && getColumn(rightCol)?.kind === 'tile';
   if (!leftTile && !rightTile) return true;
-  const leftStack = leftCol != null && getColumn(leftCol)?.kind === 'stack';
-  const rightStack = rightCol != null && getColumn(rightCol)?.kind === 'stack';
+  const leftStack = (leftCol != null && getColumn(leftCol)?.kind === 'stack')
+    || (leftCol == null && hasLeftFlankNeighbor());
+  const rightStack = (rightCol != null && getColumn(rightCol)?.kind === 'stack')
+    || (rightCol == null && hasRightFlankNeighbor());
   if (leftTile && !rightStack) return false;
   if (rightTile && !leftStack) return false;
   return true;
@@ -311,13 +324,47 @@ function passesStarCostForStackCompletion(bottomValue, midValue, topValue, col) 
   return state.stars >= needed;
 }
 
-/** Block completing a stack whose convert result duplicates an existing tile. */
+function diceTripleKey(bottomValue, midValue, topValue) {
+  return [bottomValue, midValue, topValue].sort((a, b) => a - b).join(',');
+}
+
+/** Another column already has the same three dice in any order (convert-ready stacks only). */
+function rowHasMatchingThreeDiceStack(bottomValue, midValue, topValue, excludeCol = null) {
+  const targetKey = diceTripleKey(bottomValue, midValue, topValue);
+  for (const col of getOccupiedCols()) {
+    if (col === excludeCol) continue;
+    const column = getColumn(col);
+    if (column?.kind !== 'stack' || column.dice.length !== 3) continue;
+    const existing = column.dice.map(id => state.dice[id].value);
+    if (diceTripleKey(existing[0], existing[1], existing[2]) === targetKey) return true;
+  }
+  return false;
+}
+
+/** Another convert-ready stack would produce the same tile identity. */
+function rowHasMatchingConvertIdentity(suit, rank, excludeCol = null) {
+  for (const col of getOccupiedCols()) {
+    if (col === excludeCol) continue;
+    const column = getColumn(col);
+    if (column?.kind !== 'stack' || column.dice.length !== 3) continue;
+    const values = column.dice.map(id => state.dice[id].value);
+    const identity = tileIdentityFromStackValues(values, jokerTileOptions());
+    if (identity.suit === suit && identity.rank === rank) return true;
+  }
+  return false;
+}
+
+/** Block completing a stack whose convert result duplicates an existing tile or another full stack. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
+  if (rowHasMatchingThreeDiceStack(bottomValue, midValue, topValue, excludeCol)) return false;
   const { suit, rank } = tileIdentityFromStackValues(values, jokerTileOptions());
-  if (rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol))) return false;
+  if (rank === JOKER_RANK && settings.tricolorRestriction) {
+    if (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol)) return false;
+  }
   if (state.dealtTile?.suit === suit && state.dealtTile?.rank === rank) return false;
-  return !rowHasTile(suit, rank);
+  if (rowHasMatchingConvertIdentity(suit, rank, excludeCol)) return false;
+  return !rowHasTile(suit, rank, excludeCol);
 }
 
 function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
@@ -375,7 +422,7 @@ export function countTilesInRow() {
   return Object.values(state.row).filter(column => column.kind === 'tile').length;
 }
 
-/** Occupied columns on the row — dice stacks and tiles both count. */
+/** Occupied columns on the row — dice stacks and tiles (flank stacks are virtual, not in row). */
 export function countSpotsInRow() {
   return getOccupiedCols().length;
 }
@@ -429,6 +476,7 @@ export function hasAnyLegalPlacementForTray() {
 
 /** Active tray dice remain but none have a legal slot (confirm-ready leftovers excluded). */
 export function isTrayStuck() {
+  if (flankEndgamePending()) return false;
   let hasActive = false;
   for (const dieId of state.actionBar) {
     if (isBarDieInactive(dieId)) continue;
@@ -635,8 +683,8 @@ export function findDieColumn(dieId) {
 }
 
 function passesDealtTileIdentity(tile, excludeCol = null) {
-  if (tile.rank === JOKER_RANK && (rowHasJoker(excludeCol) || jokerSuitBlocked(tile.suit, excludeCol))) {
-    return false;
+  if (tile.rank === JOKER_RANK && settings.tricolorRestriction) {
+    if (rowHasJoker(excludeCol) || jokerSuitBlocked(tile.suit, excludeCol)) return false;
   }
   return !rowHasTile(tile.suit, tile.rank, excludeCol);
 }

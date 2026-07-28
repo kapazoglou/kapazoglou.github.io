@@ -5,6 +5,7 @@ import { isBarDieInactive, isDealtTileInactive, isAtSpotCap } from '../../logic/
 import { renderHUD } from './hud-v2.js';
 import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, positionStarMarkers, restorePinnedRowScroll } from './placement-row.js';
 import { renderActionBar, updateActionBarSelection } from './action-bar.js';
+import { onRender as onTutorialRender } from './tutorial.js';
 import { clearInsertHoverSpread, resetInsertHoverSpread } from '../transitions/placement-hover.js';
 import { resetRepositionCollapse } from '../transitions/reposition-collapse.js';
 
@@ -38,6 +39,7 @@ export function render() {
     positionEdgeGhosts();
     positionHints();
     positionStarMarkers();
+    onTutorialRender();
   });
 }
 

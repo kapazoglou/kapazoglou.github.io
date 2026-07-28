@@ -3,6 +3,8 @@ import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
 import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
+import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
+import { resetGameLog } from './game-log.js';
 
 /** Starting star balance for a fresh game (rerollOuter seeds N-place). */
 export function initialStarCount() {
@@ -11,15 +13,19 @@ export function initialStarCount() {
 
 export function resetGame() {
   resetStateObject();
+  resetGameLog();
   clampSettings();
   state.dicePool = settings.nDice;
   state.stars = initialStarCount();
   state.phase = 'idle';
   initTileDeck();
+  initFlankStacks();
 }
 
 export function canRoll() {
-  return state.phase === 'idle' && state.dicePool >= settings.nRoll;
+  if (state.phase !== 'idle') return false;
+  if (state.dicePool >= settings.nRoll) return true;
+  return flankEndgamePending();
 }
 
 export function canEndGame() {
@@ -46,6 +52,12 @@ export function shouldWarnOnLeave() {
   );
 }
 
+/** Deck Flank ON: loss game overs blocked while flank stacks hold cards (stacks count as row tiles). */
+export function shouldBlockGameOver(reason) {
+  if (reason === 'well-done') return false;
+  return flankEndgamePending();
+}
+
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
@@ -53,7 +65,10 @@ export function evaluateGameOver(context) {
     return 'dice pool exhausted';
   }
   if (context === 'post-roll') {
-    if (state.dealtTile && state.placedThisTurn >= settings.nPlace && !hasAnyLegalPlacementForDealtTile()) {
+    if (!flankEndgamePending()
+      && state.dealtTile
+      && state.placedThisTurn >= settings.nPlace
+      && !hasAnyLegalPlacementForDealtTile()) {
       return 'no legal placements';
     }
   }
@@ -61,6 +76,7 @@ export function evaluateGameOver(context) {
 }
 
 function enterGameOver(reason, onGameOver) {
+  if (shouldBlockGameOver(reason)) return;
   state.phase = 'replay';
   onGameOver?.(reason ?? '');
 }
@@ -134,6 +150,10 @@ export function rollDice() {
   clampSettings();
   const count = settings.nRoll;
 
+  if (flankEndgamePending() && state.dicePool < count) {
+    state.dicePool = count;
+  }
+
   state.rollCount += 1;
   state.dicePool -= count;
   state.actionBar = [];
@@ -153,7 +173,7 @@ export function rollDice() {
   state.dealingDiscardQueue = [];
   state.dealingDiscardTile = null;
 
-  if (settings.tileDealtEvery > 0 && state.rollCount % settings.tileDealtEvery === 0) {
+  if (settings.tileDealtEvery > 0 && !settings.deckFlank && state.rollCount % settings.tileDealtEvery === 0) {
     const deal = resolveCadenceDeal({ chainDraw: settings.tileDealtChainDraw });
     const dealResult = applyCadenceDealResult(deal);
     if (dealResult !== 'ok') return dealResult;
@@ -178,7 +198,13 @@ export function confirmTurn(onGameOver) {
   state.phase = 'animating';
 
   import('../ui/transitions/confirm-anim.js').then(({ runConfirmAnimations }) => {
-    runConfirmAnimations(() => tryContinueAfterConfirm(onGameOver));
+    runConfirmAnimations(result => {
+      if (result === 'well-done') {
+        enterGameOver('well-done', onGameOver);
+        return;
+      }
+      tryContinueAfterConfirm(onGameOver);
+    });
   });
   return true;
 }

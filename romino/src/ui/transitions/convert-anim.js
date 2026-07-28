@@ -1,10 +1,12 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { getConvertibleCols, convertColumn, convertRequiresStar } from '../../logic/convert.js';
+import { findFlankSidesWithTopMatch } from '../../logic/deck-flank.js';
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { payStarForConvert } from './pip-anim.js';
+import { animateFlankStackSweep } from './sweep-anim.js';
 import { CONVERT_MS, CONVERT_FLY_MS, CONVERT_FLY_STAGGER_MS } from './timing.js';
 
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
@@ -108,10 +110,31 @@ function animateConvertFlyBack(col, onDone) {
   });
 }
 
+function mergeWellDone(a, b) {
+  return a === 'well-done' || b === 'well-done' ? 'well-done' : null;
+}
+
+function afterConvertTile(col, cols, index, onDone, wellDoneResult) {
+  const tile = state.row[col];
+  const flankSides = settings.deckFlank && tile?.kind === 'tile'
+    ? findFlankSidesWithTopMatch(tile.suit, tile.rank)
+    : [];
+
+  const advance = (flankResult) => {
+    processConverts(cols, index + 1, onDone, mergeWellDone(wellDoneResult, flankResult));
+  };
+
+  if (flankSides.length) {
+    animateFlankStackSweep(flankSides, advance);
+    return;
+  }
+  advance(null);
+}
+
 /** Sequentially animate full stacks → tiles; calls onDone when queue is empty. */
-export function processConverts(cols, index, onDone) {
+export function processConverts(cols, index, onDone, wellDoneResult = null) {
   if (index >= cols.length) {
-    setTimeout(() => onDone?.(), spd(120));
+    setTimeout(() => onDone?.(wellDoneResult), spd(120));
     return;
   }
 
@@ -130,7 +153,7 @@ export function processConverts(cols, index, onDone) {
           setTimeout(() => {
             state.newTileCols.delete(col);
             renderHUD();
-            processConverts(cols, index + 1, onDone);
+            afterConvertTile(col, cols, index, onDone, wellDoneResult);
           }, spd(CONVERT_MS));
         });
       };
@@ -148,8 +171,8 @@ export function processConverts(cols, index, onDone) {
 export function animateConverts(onDone) {
   const cols = getConvertibleCols();
   if (!cols.length) {
-    onDone?.();
+    onDone?.(null);
     return;
   }
-  processConverts(cols, 0, onDone);
+  processConverts(cols, 0, onDone, null);
 }

@@ -2,6 +2,12 @@ import { state } from './state.js';
 import { getOccupiedCols } from './row.js';
 import { JOKER_RANK } from './dice-visual.js';
 import { settings } from './settings.js';
+import {
+  sweepTileEntriesWithFlanks,
+  flankSideForSweepCol,
+  popFlankStack,
+  bothFlankStacksEmpty,
+} from './deck-flank.js';
 
 /** Wheel values used for consecutive-run assignment (13 = ace-high). */
 const ALL_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -196,16 +202,24 @@ function findSweepRunsFromEntries(tileEntries) {
 }
 
 export function findSweepRuns() {
-  const cols = getOccupiedCols();
-  const tileEntries = cols
-    .filter(col => state.row[col]?.kind === 'tile')
-    .map(col => [col, state.row[col]]);
+  const tileEntries = sweepTileEntriesWithFlanks();
   return findSweepRunsFromEntries(tileEntries);
 }
 
 /** ×1 at 3 cards; +1 per card above 3. */
 export function sweepStarMultiplier(cardCount) {
   return 1 + Math.max(0, cardCount - 3);
+}
+
+/** Joker-inclusive same-suit flush (tricolor joker tiles). */
+function isTricolorFlush(tiles) {
+  return runHasJoker(tiles) && isFlushRunWithJokers(tiles);
+}
+
+/** Run-length multiplier; tricolor flushes always ×1. */
+export function sweepStarMultiplierForRun(tiles) {
+  if (isTricolorFlush(tiles)) return 1;
+  return sweepStarMultiplier(tiles.length);
 }
 
 export function applySweepRun(run) {
@@ -216,9 +230,28 @@ export function applySweepRun(run) {
     const suit = tile.suit;
     if (state.suitTally[suit] != null) state.suitTally[suit]++;
   }
+
+  const flankSidesToPop = new Set();
+  const playerColsToDelete = [];
+
   for (const [col] of run) {
+    const flankSide = flankSideForSweepCol(col);
+    if (flankSide) flankSidesToPop.add(flankSide);
+    else playerColsToDelete.push(col);
+  }
+
+  for (const side of flankSidesToPop) {
+    popFlankStack(side);
+  }
+  for (const col of playerColsToDelete) {
     delete state.row[col];
   }
+}
+
+/** @returns {'well-done' | null} */
+export function checkFlankWellDone() {
+  if (settings.deckFlank && bothFlankStacksEmpty()) return 'well-done';
+  return null;
 }
 
 /** Remove swept tiles, tally suits, bank stars → points. Returns swept col indices. */
@@ -232,7 +265,7 @@ export function resolveSweeps() {
     if (!runs.length) break;
     anySwept = true;
     for (const run of runs) {
-      maxMult = Math.max(maxMult, sweepStarMultiplier(run.length));
+      maxMult = Math.max(maxMult, sweepStarMultiplierForRun(run.map(([, t]) => t)));
       applySweepRun(run);
       for (const [col] of run) sweptCols.add(col);
     }

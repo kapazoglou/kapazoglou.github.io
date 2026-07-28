@@ -1,8 +1,9 @@
 /** @typedef {{ id: number, value: number }} Die */
 
 /** @typedef {{ kind: 'stack', dice: number[] }} StackColumn */
-/** @typedef {{ kind: 'tile', suit: string, rank: string, rankSum: number, bottomValue: number }} TileColumn */
+/** @typedef {{ kind: 'tile', suit: string, rank: string, rankSum: number, bottomValue: number, dealtThisTurn?: boolean, flank?: boolean }} TileColumn */
 /** @typedef {StackColumn | TileColumn} Column */
+/** @typedef {{ remaining: string[], top: object|null }} FlankStack */
 
 export const EMPTY_SUIT_TALLY = () => ({ Z: 0, X: 0, Y: 0, W: 0, V: 0 });
 
@@ -35,6 +36,7 @@ export function createInitialState() {
     /** Animation flags (transitions layer) */
     convertingCol: null,
     newTileCols: new Set(),
+    newFlankSides: new Set(),
     newTrayDieIds: new Set(),
     /** Dealt tile in action bar awaiting placement (tile-deck feature). */
     dealtTile: null,
@@ -46,6 +48,9 @@ export function createInitialState() {
     pendingDealtTile: null,
     dealingDiscardQueue: [],
     dealingDiscardTile: null,
+    /** Deck Flank — virtual 26-card stacks on row edges. */
+    flankStackLeft: { remaining: [], top: null },
+    flankStackRight: { remaining: [], top: null },
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

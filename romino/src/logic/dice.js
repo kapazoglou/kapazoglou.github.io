@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { recordDiceOutcome } from './game-log.js';
 
 export function spawnDie(value) {
   const id = state.nextDieId++;
@@ -7,7 +8,9 @@ export function spawnDie(value) {
 }
 
 export function rollValue() {
-  return Math.floor(Math.random() * 6) + 1;
+  const value = Math.floor(Math.random() * 6) + 1;
+  recordDiceOutcome(value);
+  return value;
 }
 
 export function spawnRandomDie() {

@@ -1,0 +1,54 @@
+.placement-col--flank-stack {
+  width: var(--col-width);
+  gap: 4px;
+  pointer-events: none;
+}
+
+.placement-col--flank-stack .flank-stack-tile.placement-tile.is-new {
+  animation: placement-tile-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+.placement-col--flank-stack .flank-stack-count {
+  font-family: 'Averia Libre', serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--text-primary);
+  text-align: center;
+  min-width: 1.5ch;
+  flex-shrink: 0;
+}
+
+.placement-col--flank-stack .flank-stack-tile {
+  pointer-events: none;
+}
+
+.placement-col--flank-stack.placement-col--sweep-pending .flank-stack-tile,
+.placement-col--flank-stack .flank-stack-tile.placement-tile--sweep-pending {
+  animation: sweep-tile-pop calc(0.22s * var(--t)) ease both;
+}
+
+.placement-col--flank-stack.placement-col--sweep .flank-stack-tile,
+.placement-col--flank-stack .flank-stack-tile.placement-tile--sweep-exit {
+  animation: row-sweep-v calc(0.58s * var(--t)) cubic-bezier(0.33, 1, 0.45, 1) forwards;
+}
+
+.placement-col--flank-stack.placement-col--sweep {
+  overflow: visible;
+  z-index: 6;
+}
+
+.placement-row-inner > .placement-col--flank-stack + .placement-col {
+  margin-left: var(--die-gap-h);
+}
+
+.placement-row-inner > .placement-col + .placement-col--flank-stack {
+  margin-left: var(--die-gap-h);
+}
+
+.placement-row-inner > .placement-col--flank-stack + .placement-col--tile {
+  margin-left: calc(-1 * var(--die-border));
+}
+
+.placement-row-inner > .placement-col--tile + .placement-col--flank-stack {
+  margin-left: calc(-1 * var(--die-border));
+}

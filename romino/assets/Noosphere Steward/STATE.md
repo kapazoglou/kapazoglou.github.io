@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-23
+lastVerified: 2026-07-28
 ---
 
 # römino — Verified Pattern State
@@ -13,14 +13,16 @@ lastVerified: 2026-07-23
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed` |
+| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `directPlacement`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `tricolors`, `tricolorSevens`, `jokerFlushOnly` |
+| Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `deckFlank`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
+| Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | DOM | Derived | `render()` only |
 
 ## Entry & render path
 
-`index.html` → `src/main.js` → init → `render()` → hud-v2, placement-row, action-bar
+`index.html` → `src/main.js` → init → `render()` → hud-v2, flank-stacks, placement-row, action-bar
 
 ## High-centrality modules
 
@@ -29,6 +31,40 @@ lastVerified: 2026-07-23
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **row.js v1.49** — fix: remove buried-flank from placement duplicate gate (was blocking nearly all stack completions)
+
+- **deck-flank.js v2.3, row.js v1.48, convert-anim.js v1.3, sweep-anim.js v1.9, confirm-anim.js v1.6** — convert-match flank top sweep discard + buried-only placement duplicate gate
+
+- **deck-flank.js v2.2, row.js v1.47** — duplicate gate: full flank-stack scan + convert-identity match; joker duplicates always blocked vs row/flank tiles
+
+- **deck-flank.js v2.1, turn.js v2.9, action-bar.js v1.36, reroll-outer-anim.js v1.4** — Deck Flank: block loss game overs while flank stacks hold cards; roll tops up pool when low
+
+- **turn.js v2.11, row.js v1.46** — Deck Flank: parity — all blocked loss game overs incl. tray/dealt stuck while flank stacks hold cards
+- **turn.js v2.10, action-bar.js v1.37** — tray stuck game over with Deck Flank ON
+- **sweep-anim.js v1.8, state.js v2.10, flank-stacks.js** — flank stack pop + reveal after sweep
+- **placement-anim.js v1.23, placement-hover.js v1.11, placement-row.js, flank-stacks.js** — flank stacks join gap spread + snap anchoring at row edges
+- **deck-flank.js v2.0, state.js v2.9, row.js v1.45, sweeps-row.js v1.14, sweep-anim.js v1.7, flank-stacks.js, game-over.js v2.1, turn.js v2.8, confirm-anim.js v1.5, deck-flank.css, render.js** — Deck Flank virtual row stacks (26 each); sweep tops; duplicate gate; WELL DONE endgame
+
+- **settings.js v2.21, settings-panel.js v1.34, deck-flank.js v1.0, state.js v2.8, row.js v1.44, turn.js v2.7, confirm-anim.js v1.4, convert-anim.js, flank-anim.js, flank-preview.js, deck-flank.css, render.js, base.css** — `deckFlank` toggle: 52-card flank deck, corner preview ghosts, auto edge commit on confirm; mutually exclusive with Tile Dealt Every; flank tiles excluded from N-spots
+
+- **game-log.js v1.2, game-over.js v2.0, game-over.css, index.html** — sweep tile/pattern counts; lifetime matrix converted/swept segmented toggle
+
+- **game-log.js v1.1, game-over.js** — lifetime stats per settings config
+
+- **settings.js v2.20, settings-panel.js v1.33, tutorial.js v1.0, tutorial-steps.js v1.0, tutorial.css, main.js, render.js v1.5** — `tutoria` toggle: hybrid tooltip walkthrough; `romino-tutorial-done` localStorage; cleared on OFF→ON
+
+- **settings.js v2.19, placement-row.js, placement-hover.js, placement-anim.js, drag-drop.js v2.29, placement-anim.css** — `snapping` toggle: snap ghost at nearest valid slot during dice drag (Direct placement ON); drop commits to snap slot
+
+- **sweeps-row.js v1.13, sweep-anim.js v1.6** — tricolor flushes (joker + same-suit flush) always ×1 star multiplier regardless of run length
+
+- **settings.js v2.18, row.js v1.43** — `tricolorRestriction` toggle: OFF lifts joker row/suit caps; duplicate 3-dice permutation gate kept
+
+- **row.js v1.42** — duplicate 3-dice stack gate: permutations count as same triple
+
+- **row.js v1.41** — `passesNoDuplicateTile` also blocks completing a stack when another column has the same bottom→top triple
+
+- **main.js, index.html** — Numbers Deuce font preload + `document.fonts.load` at boot (fixes first-convert FOUT)
 
 - **sweeps-row.js v1.12, sweep-anim.js v1.4, pip-anim.js v1.5, hud-v2.css** — sweep star multiplier: ×1 at 3 cards, +1 per extra; max mult across chain sweeps; HUD `stars×mult` → product in accent before pip bank
 

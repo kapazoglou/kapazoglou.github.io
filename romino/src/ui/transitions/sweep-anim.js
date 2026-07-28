@@ -1,10 +1,17 @@
 import { state, clearSweepExitTimers } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
-import { findSweepRuns, applySweepRun, sweepStarMultiplier } from '../../logic/sweeps-row.js';
+import { findSweepRuns, applySweepRun, sweepStarMultiplierForRun, checkFlankWellDone } from '../../logic/sweeps-row.js';
+import { flankSideForSweepCol, popFlankStack } from '../../logic/deck-flank.js';
+import {
+  beginBankCycle,
+  recordSweepRun,
+  commitBankCycle,
+  cancelBankCycle,
+} from '../../logic/game-log.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll } from '../display/placement-row.js';
 import { bankStarsToPoints } from './pip-anim.js';
-import { BEAT_MS, SWEEP_MS, COL_COLLAPSE_MS } from './timing.js';
+import { BEAT_MS, SWEEP_MS, COL_COLLAPSE_MS, CONVERT_MS } from './timing.js';
 
 const COLLAPSE_EASING = 'ease-out';
 
@@ -69,7 +76,8 @@ function animateColumnCollapse(beforeLeft, onDone) {
 export function startRowSweepAnimation(cols, onDone) {
   pinRowScroll();
   clearSweepExitTimers();
-  state.sweepExit = { cols: [...cols], phase: 'wait', onDone };
+  const flankSides = cols.map(col => flankSideForSweepCol(col)).filter(Boolean);
+  state.sweepExit = { cols: [...cols], flankSides, phase: 'wait', onDone };
   document.getElementById('app')?.classList.add('is-sweep-exit');
   render();
 
@@ -93,8 +101,58 @@ function commitRowSweepExit() {
   const done = se.onDone;
   state.sweepExit = null;
   document.getElementById('app')?.classList.remove('is-sweep-exit');
-  render();
   done?.();
+}
+
+function finishFlankStackSweep() {
+  clearSweepExitTimers();
+  const se = state.sweepExit;
+  if (!se) return;
+
+  const done = se.onDone;
+  const flankSides = se.flankSides ?? [];
+  state.sweepExit = null;
+  document.getElementById('app')?.classList.remove('is-sweep-exit');
+
+  /** @type {'well-done' | null} */
+  let result = null;
+  for (const side of flankSides) {
+    if (popFlankStack(side) === 'well-done') result = 'well-done';
+  }
+  for (const side of flankSides) {
+    state.newFlankSides.add(side);
+  }
+  render();
+  setTimeout(() => {
+    for (const side of flankSides) state.newFlankSides.delete(side);
+    render();
+    requestAnimationFrame(() => unpinRowScroll());
+    done?.(result);
+  }, spd(CONVERT_MS));
+}
+
+/** Sweep-exit animation for flank stack tops (convert-match discard). */
+export function animateFlankStackSweep(flankSides, onDone) {
+  if (!flankSides.length) {
+    onDone?.(null);
+    return;
+  }
+  pinRowScroll();
+  clearSweepExitTimers();
+  state.sweepExit = { cols: [], flankSides: [...flankSides], phase: 'wait', onDone };
+  document.getElementById('app')?.classList.add('is-sweep-exit');
+  render();
+
+  state.sweepExitBeatTimer = setTimeout(() => {
+    state.sweepExitBeatTimer = null;
+    if (!state.sweepExit) return;
+    state.sweepExit.phase = 'run';
+    render();
+    state.sweepExitDoneTimer = setTimeout(() => {
+      state.sweepExitDoneTimer = null;
+      finishFlankStackSweep();
+    }, spd(SWEEP_MS));
+  }, spd(BEAT_MS));
 }
 
 /** Beat → sweep each run; re-scan after every apply so chain sweeps are not missed. */
@@ -102,32 +160,57 @@ export function resolveSweepsAnimated(onDone) {
   const starsToBank = state.stars;
   let maxMult = 1;
   let anySwept = false;
+  beginBankCycle(starsToBank);
 
-  const finish = () => {
-    if (anySwept && starsToBank > 0) {
-      state.points += starsToBank * maxMult;
-      state.stars = 0;
-      bankStarsToPoints(starsToBank, maxMult, onDone);
+  const finish = (result = null) => {
+    if (anySwept) {
+      commitBankCycle(maxMult, starsToBank);
+      if (starsToBank > 0) {
+        state.points += starsToBank * maxMult;
+        state.stars = 0;
+        bankStarsToPoints(starsToBank, maxMult, () => onDone?.(result));
+      } else {
+        onDone?.(result);
+      }
     } else {
-      onDone?.();
+      cancelBankCycle();
+      onDone?.(result);
     }
   };
 
   const next = () => {
     const runs = findSweepRuns();
     if (!runs.length) {
-      finish();
+      finish(checkFlankWellDone());
       return;
     }
     const run = runs[0];
     startRowSweepAnimation(run.map(([col]) => col), () => {
       const beforeLeft = captureColLeftPositions();
+      const flankRevealed = run.map(([col]) => flankSideForSweepCol(col)).filter(Boolean);
+      const tiles = run.map(([, t]) => t);
+      const mult = sweepStarMultiplierForRun(tiles);
       applySweepRun(run);
+      for (const side of flankRevealed) {
+        state.newFlankSides.add(side);
+      }
+      recordSweepRun(tiles, mult);
       anySwept = true;
-      maxMult = Math.max(maxMult, sweepStarMultiplier(run.length));
+      maxMult = Math.max(maxMult, mult);
+      const wellDone = checkFlankWellDone();
       render();
+      if (flankRevealed.length) {
+        setTimeout(() => {
+          for (const side of flankRevealed) state.newFlankSides.delete(side);
+          render();
+        }, spd(CONVERT_MS));
+      }
       animateColumnCollapse(beforeLeft, () => {
         requestAnimationFrame(() => unpinRowScroll());
+        if (wellDone) {
+          finish('well-done');
+          return;
+        }
         next();
       });
     });

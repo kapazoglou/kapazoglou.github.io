@@ -1,5 +1,6 @@
 import { findStarMatches } from '../../logic/stars.js';
 import { state } from '../../logic/state.js';
+import { recordStarsEarned } from '../../logic/game-log.js';
 import { render } from '../display/render.js';
 import { getStarMatchRects } from '../display/placement-row.js';
 import { animateConverts } from './convert-anim.js';
@@ -18,9 +19,12 @@ export function runConfirmAnimations(onDone) {
     const fromRects = getStarMatchRects(matches);
 
     const afterConvert = () => {
-      animateConverts(() => {
-        resolveSweepsAnimated(() => {
-          onDone?.();
+      animateConverts(convertResult => {
+        resolveSweepsAnimated(sweepResult => {
+          const result = convertResult === 'well-done' || sweepResult === 'well-done'
+            ? 'well-done'
+            : sweepResult;
+          onDone?.(result);
           render();
         });
       });
@@ -32,6 +36,7 @@ export function runConfirmAnimations(onDone) {
     }
 
     state.stars += count;
+    recordStarsEarned(count);
     collectStarsToHUD(count, fromRects, () => {
       render();
       afterConvert();

@@ -104,3 +104,8 @@
   text-align: center;
   font-size: 18px;
 }
+
+.settings-row--disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}

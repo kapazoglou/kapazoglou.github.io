@@ -4,11 +4,11 @@ export const SETTINGS_CONFIG = [
     group: 'counts',
     label: 'Counts',
     items: [
-      { key: 'nSpots', label: 'N-spots',        default: 12, type: 'stepper', min: 1, max: 99 },
-      { key: 'nDice',  label: 'N-dice (pool)',  default: 12, type: 'stepper', min: 1, max: 99 },
-      { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 20 },
-      { key: 'nPlace', label: 'N-place',        default: 3,  type: 'stepper', min: 1, max: 20 },
-      { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 20 },
+      { key: 'nSpots', label: 'N-spots',        default: 12, type: 'stepper', min: 1, max: 24 },
+      { key: 'nDice',  label: 'N-dice (pool)',  default: 12, type: 'stepper', min: 1, max: 24 },
+      { key: 'nRoll',  label: 'N-roll',         default: 3,  type: 'stepper', min: 1, max: 6 },
+      { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 1, max: 6 },
+      { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 6 },
     ],
   },
   {
@@ -16,18 +16,22 @@ export const SETTINGS_CONFIG = [
     label: 'Rules',
     items: [
       { key: 'tileDealtChainDraw', label: 'Tile dealt chain draw', default: false, type: 'toggle' },
+      { key: 'deckFlank',             label: 'Deck Flank',              default: false, type: 'toggle' },
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
       { key: 'verticalStars',       label: 'Vertical Stars',            default: false, type: 'toggle' },
-      { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
-      { key: 'rerollOuter',         label: 'Reroll Outer',              default: false, type: 'toggle' },
-      { key: 'tricolors',           label: 'Tricolors',               default: false, type: 'toggle' },
+      { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: false,  type: 'toggle' },
+      { key: 'rerollOuter',         label: 'Reroll Outer',              default: true, type: 'toggle' },
+      { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
+      { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: true,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
-      { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: false, type: 'toggle' },
+      { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
+      { key: 'snapping',            label: 'Snapping',              default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: true,  type: 'toggle' },
+      { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },
 ];
@@ -44,4 +48,6 @@ export function spd(ms) {
 export function clampSettings() {
   if (settings.nPlace > settings.nRoll) settings.nPlace = settings.nRoll;
   if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
+  if (settings.deckFlank) settings.tileDealtEvery = 0;
+  if (settings.tileDealtEvery > 0) settings.deckFlank = false;
 }

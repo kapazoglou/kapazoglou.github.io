@@ -1,16 +1,16 @@
 ---
 module: render
 layer: ui/display
-v: 1.4
-date: 2026-07-23
-deps: [state, cards, grid, action-bar, hud]
+v: 1.5
+date: 2026-07-28
+deps: [state, cards, grid, action-bar, hud, tutorial]
 ---
 # Render — User Story
 
 As the UI system, I need a single `render()` function that re-paints the entire game view from state, so that any module can trigger a full redraw with one call.
 
 ## Exports
-- `render()` — calls `renderPlacementRow()`, `renderHUD()`, `renderActionBar()`, toggles `.separator.is-spots-full`; positions edge ghosts + hints in rAF
+- `render()` — calls `renderPlacementRow()`, `renderHUD()`, `renderActionBar()`, toggles `.separator.is-spots-full`; positions edge ghosts + hints in rAF; `onTutorialRender()` when tutoria active
 - `renderSelection()` — selection-only path: updates die selection classes, edge ghosts, hints, and action bar without rebuilding row columns/tiles
 
 ## Notes

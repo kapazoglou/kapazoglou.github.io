@@ -3,7 +3,9 @@ import { settings, spd } from '../../logic/settings.js';
 import { placeDie, getDealtTileForPlacement, getPlacedDealtTileCol, getValidSlotsForDealtTile, placeDealtTile, getValidSlotsForDie, slotsEqual, getOccupiedCols, findDieColumn, getColumn, gapInsertAnimationsAllowed, liftDealtTileForReposition } from '../../logic/row.js';
 import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
-import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
+import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion, slotAnchorRowXY } from '../display/placement-row.js';
+import { spreadColumnElement, flankStackColElement, FLANK_SPREAD_LEFT, FLANK_SPREAD_RIGHT } from '../display/flank-stacks.js';
+import { flankStackTop } from '../../logic/deck-flank.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
 import { clearRepositionCollapse, resetRepositionCollapse, beginColumnRepositionCollapse } from './reposition-collapse.js';
 import { COL_SPREAD_MS, COL_DIE_IN_MS } from './timing.js';
@@ -28,18 +30,17 @@ function toDesignPx(screenPx, scale) {
 }
 
 function colEl(inner, col) {
-  return inner.querySelector(`.placement-col[data-col="${col}"]`);
+  return spreadColumnElement(inner, col);
 }
 
-function dieBorder() {
-  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-border')) || 4;
-}
-
-/** Top die in a stack — matches placement-row hint anchoring. */
-function topDieInCol(colNode) {
-  const dice = colNode.querySelectorAll('.die--placed');
-  if (!dice.length) return null;
-  return settings.stackBottomUp ? dice[dice.length - 1] : dice[0];
+/** Column box in placement-row-inner design px (live layout incl. spread transform). */
+function colBoxFromRect(el, innerRect, scale) {
+  const r = el.getBoundingClientRect();
+  return {
+    left: toDesignPx(r.left - innerRect.left, scale),
+    right: toDesignPx(r.right - innerRect.left, scale),
+    bottom: toDesignPx(r.bottom - innerRect.top, scale),
+  };
 }
 
 /** Column box in placement-row-inner design px (pre-spread layout). */
@@ -108,6 +109,7 @@ export function computeSpreadOffsets(slot, dieId = null) {
     for (const col of occupied) {
       if (!excludeCols.has(col)) offsets.set(col, half);
     }
+    addFlankPushOffsets(offsets, effSlot, occupied);
     return offsets;
   }
 
@@ -115,6 +117,7 @@ export function computeSpreadOffsets(slot, dieId = null) {
     for (const col of occupied) {
       if (!excludeCols.has(col)) offsets.set(col, -half);
     }
+    addFlankPushOffsets(offsets, effSlot, occupied);
     return offsets;
   }
 
@@ -123,12 +126,34 @@ export function computeSpreadOffsets(slot, dieId = null) {
     if (col <= leftCol) offsets.set(col, -half);
     else if (col >= rightCol) offsets.set(col, half);
   }
+
+  addFlankPushOffsets(offsets, effSlot, occupied);
   return offsets;
 }
 
-/** Row-edge insert — no full-row spread (columns stay put until render). */
+/** Adjacent flank stacks follow edge column spread; row-edge inserts use opposite dx to open the gap. */
+function addFlankPushOffsets(offsets, slot, occupied) {
+  if (!settings.deckFlank || !occupied.length) return;
+
+  const leftmost = occupied[0];
+  const rightmost = occupied[occupied.length - 1];
+
+  if (flankStackTop('left') && offsets.has(leftmost)) {
+    const dx = offsets.get(leftmost);
+    offsets.set(FLANK_SPREAD_LEFT, slot.leftCol == null ? -dx : dx);
+  }
+  if (flankStackTop('right') && offsets.has(rightmost)) {
+    const dx = offsets.get(rightmost);
+    offsets.set(FLANK_SPREAD_RIGHT, slot.rightCol == null ? -dx : dx);
+  }
+}
+
+/** Row-edge insert — no spread when deckFlank OFF (columns stay put until render). */
 function isRowEdgeInsert(slot) {
-  return slot.kind === 'insert' && (slot.leftCol == null || slot.rightCol == null);
+  if (slot.kind !== 'insert') return false;
+  if (slot.leftCol != null && slot.rightCol != null) return false;
+  if (settings.deckFlank) return false;
+  return true;
 }
 
 /** Between-column gap insert. */
@@ -178,67 +203,6 @@ function animateSpreadCollapse(spreadEls, collapseCols, onDone) {
   } else onDone();
 }
 
-/** Final die landing in row-inner design px — from rest layout + full spread, not mid-animation rects. */
-function dieFinalTargetXY(slot, inner, innerRect, scale) {
-  const half = openWidth() / 2;
-  const open = openWidth();
-
-  if (slot.kind === 'new-column') {
-    const ghost = inner.querySelector('.placement-col--ghost-first');
-    if (!ghost) return null;
-    const box = colBoxInInner(ghost, innerRect, scale);
-    return {
-      left: box.left + (ghost.offsetWidth - DIE_OUTER) / 2,
-      top: box.bottom - DIE_OUTER,
-    };
-  }
-
-  if (slot.kind === 'stack') {
-    const colNode = colEl(inner, slot.col);
-    if (!colNode) return null;
-    const topDie = topDieInCol(colNode);
-    if (!topDie) return null;
-    const tr = topDie.getBoundingClientRect();
-    const border = dieBorder();
-    return {
-      left: toDesignPx(tr.left - innerRect.left, scale),
-      top: toDesignPx(tr.top - innerRect.top, scale) - DIE_OUTER + border,
-    };
-  }
-
-  if (slot.kind !== 'insert') return null;
-
-  let cx;
-  let bottom;
-
-  if (slot.leftCol == null) {
-    const el = colEl(inner, slot.rightCol);
-    if (!el) return null;
-    const box = colBoxInInner(el, innerRect, scale);
-    cx = box.left - open / 2;
-    bottom = box.bottom;
-  } else if (slot.rightCol == null) {
-    const el = colEl(inner, slot.leftCol);
-    if (!el) return null;
-    const box = colBoxInInner(el, innerRect, scale);
-    cx = box.right + open / 2;
-    bottom = box.bottom;
-  } else {
-    const leftEl = colEl(inner, slot.leftCol);
-    const rightEl = colEl(inner, slot.rightCol);
-    if (!leftEl || !rightEl) return null;
-    const l = colBoxInInner(leftEl, innerRect, scale);
-    const r = colBoxInInner(rightEl, innerRect, scale);
-    cx = (l.right - half + r.left + half) / 2;
-    bottom = Math.max(l.bottom, r.bottom);
-  }
-
-  return {
-    left: cx - DIE_OUTER / 2,
-    top: bottom - DIE_OUTER,
-  };
-}
-
 /** Tile landing in row-inner design px — bottom-aligned like a placed tile column. */
 function tileFinalTargetXY(slot, inner, innerRect, scale) {
   const half = openWidth() / 2;
@@ -260,17 +224,31 @@ function tileFinalTargetXY(slot, inner, innerRect, scale) {
   let bottom;
 
   if (slot.leftCol == null) {
-    const el = colEl(inner, slot.rightCol);
-    if (!el) return null;
-    const box = colBoxInInner(el, innerRect, scale);
-    cx = box.left - open / 2;
-    bottom = box.bottom;
+    const rightEl = colEl(inner, slot.rightCol);
+    const leftFlankEl = settings.deckFlank ? flankStackColElement(inner, 'left') : null;
+    if (leftFlankEl && rightEl) {
+      const l = colBoxFromRect(leftFlankEl, innerRect, scale);
+      const r = colBoxFromRect(rightEl, innerRect, scale);
+      cx = (l.right + r.left) / 2;
+      bottom = Math.max(l.bottom, r.bottom);
+    } else if (rightEl) {
+      const box = colBoxInInner(rightEl, innerRect, scale);
+      cx = box.left - open / 2;
+      bottom = box.bottom;
+    } else return null;
   } else if (slot.rightCol == null) {
-    const el = colEl(inner, slot.leftCol);
-    if (!el) return null;
-    const box = colBoxInInner(el, innerRect, scale);
-    cx = box.right + open / 2;
-    bottom = box.bottom;
+    const leftEl = colEl(inner, slot.leftCol);
+    const rightFlankEl = settings.deckFlank ? flankStackColElement(inner, 'right') : null;
+    if (leftEl && rightFlankEl) {
+      const l = colBoxFromRect(leftEl, innerRect, scale);
+      const r = colBoxFromRect(rightFlankEl, innerRect, scale);
+      cx = (l.right + r.left) / 2;
+      bottom = Math.max(l.bottom, r.bottom);
+    } else if (leftEl) {
+      const box = colBoxInInner(leftEl, innerRect, scale);
+      cx = box.right + open / 2;
+      bottom = box.bottom;
+    } else return null;
   } else {
     const leftEl = colEl(inner, slot.leftCol);
     const rightEl = colEl(inner, slot.rightCol);
@@ -394,9 +372,7 @@ function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {
     return;
   }
 
-  const scale = viewportScale();
-  const innerRect = inner.getBoundingClientRect();
-  const finalTarget = dieFinalTargetXY(slot, inner, innerRect, scale);
+  const finalTarget = slotAnchorRowXY(slot);
 
   const offsets = computeSpreadOffsets(slot, dieId);
   const spreadMs = spd(COL_SPREAD_MS);

@@ -5,6 +5,29 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **row.js v1.49** — fix Deck Flank placement: drop buried-flank duplicate gate (52-card deck made almost every stack completion illegal); flank tops still swept on convert match
+- **deck-flank.js v2.3, row.js v1.48, convert-anim.js v1.3, sweep-anim.js v1.9, confirm-anim.js v1.6** — Deck Flank: on convert, matching flank stack top sweeps away (same anim as sweep), count decrements, next card revealed; placement duplicate gate blocks buried flank cards only (top resolved on convert)
+- **deck-flank.js v2.2, row.js v1.47** — restore duplicate gates after Deck Flank: block third die when convert identity matches row tile, convert-ready stack, or any card in flank stacks (incl. jokers when `tricolorRestriction` OFF)
+- **turn.js v2.11, row.js v1.46, action-bar.md v1.38** — Deck Flank ON: all loss game overs (incl. tray/dealt stuck) blocked while flank stacks hold cards; `isTrayStuck()` false when stacks remain (parity with pool/deck-depleted blocking)
+- **turn.js v2.10, action-bar.js v1.37** — Deck Flank ON: tray stuck still shows warning-red roll border and tap → game over (`no legal placements` not blocked by flank stacks)
+- **sweeps-row.js v1.15** — fix flank stack pop on sweep: resolve flank sides before deleting row tiles (right-flank virtual col invalid after player cols removed)
+- **deck-flank.js v2.1, turn.js v2.9, action-bar.js v1.36, reroll-outer-anim.js v1.4** — Deck Flank: block loss game overs while flank stacks hold cards; top up dice pool on roll so session continues until both stacks empty → WELL DONE
+- **sweep-anim.js v1.8, state.js v2.10, flank-stacks.js, deck-flank.css** — after flank stack tile swept: pop reveals next card, count decrements, new top enters with tile pop (fix premature re-render before pop)
+- **placement-anim.js v1.24, placement-hover.js v1.12** — flank stacks stay fixed on row-edge inserts; player columns still gap-spread left/right of leftmost/rightmost die
+- **placement-anim.js v1.23, placement-hover.js v1.11, placement-row.js, flank-stacks.js** — deck flank stacks join gap spread + snap anchoring at row edges (same preview/commit animation as dice columns)
+- **deck-flank.js v2.0, flank-stacks.js, placement-row.js, deck-flank.css, render.js** — flank stacks as flex columns inside placement row (adjacent to dice), not absolute viewport positioning
+- **settings.js v2.21, settings-panel.js v1.34, deck-flank.js v1.0, state.js v2.8, row.js v1.44, turn.js v2.7, confirm-anim.js v1.4, convert-anim.js, flank-anim.js, flank-preview.js, deck-flank.css, render.js, base.css** — `deckFlank` toggle: 52-card flank deck, corner preview ghosts, auto edge commit on confirm (after converts/sweeps), preview discard on convert match; mutually exclusive with Tile Dealt Every; flank tiles excluded from N-spots
+- **game-log.js v1.2, game-over.js v2.0, game-over.css, index.html** — cumulative sweep tile/pattern counts per config; lifetime 13×4 matrix segmented toggle (converted / swept)
+- **game-log.js v1.1, game-over.js** — lifetime stats keyed by settings configuration; bucket created on first game over per config
+- **game-over.js v1.9** — lifetime tile matrix suit column order: Z, X, Y, W
+- **game-over.js v1.8, game-over.css** — lifetime tile matrix transposed: 13 rank rows (A, 2–12, *) × 4 suit columns; drops unused `ac` glyph
+- **game-over.js v1.7, game-over.css, index.html** — lifetime block moved to end of game-over sheet; 4×13 suit×rank tile formation matrix
+- **game-log.js v1.0, dice.js, convert.js, turn.js, confirm-anim.js, sweep-anim.js, reroll-outer-anim.js, game-over.js, game-over.css, index.html** — per-game session log (`romino-v2-game-log`, cap 100) with dice frequency, tiles, bank events, settings snapshot; lifetime aggregates (`romino-v2-lifetime-stats`); lifetime stats block on game-over sheet
+- **sweeps-row.js v1.13, sweep-anim.js v1.6** — tricolor flushes (joker-inclusive same-suit runs) always use ×1 star multiplier regardless of sweep length
+- **settings.js v2.18, settings-panel.js, row.js v1.43** — `tricolorRestriction` toggle (default ON): OFF lifts one-joker-per-row, one-joker-per-suit, and duplicate joker-tile gates; duplicate 3-dice permutation gate unchanged
+- **row.js v1.42** — duplicate 3-dice stack gate treats permutations as the same triple (sorted value key)
+- **row.js v1.41** — block third die when another column already has the same three dice (bottom→top); extends `passesNoDuplicateTile` placement gate
+- **main.js, index.html** — preload and await Numbers Deuce font at boot so first converted tile renders with correct typeface
 - **sweep-anim.js v1.5, pip-anim.js v1.7** — sweep bank: score stays at pre-bank total until left-side calculation finishes, then updates on pip arrival (no early `render()` flash)
 - **timing.js v1.6** — sweep bank calculation reveal ⅓ faster (520ms + 520ms + 587ms at `--t: 1`)
 - **row.js v1.40, action-bar.js v1.35, action-bar.css** — roll button keeps accent border when any 3-dice stack is on the row (number may still be warning red)

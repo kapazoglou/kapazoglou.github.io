@@ -4,6 +4,7 @@
 @import url('src/ui/display/action-bar.css');
 @import url('src/ui/display/settings-panel.css');
 @import url('src/ui/display/game-over.css');
+@import url('src/ui/display/deck-flank.css');
 @import url('src/ui/transitions/convert-anim.css');
 @import url('src/ui/transitions/placement-anim.css');
 @import url('src/ui/transitions/pip-anim.css');
@@ -24,14 +25,14 @@
 }
 
 :root {
-  --bg:           #334466;
+  --bg:           #293833;
   --accent:       #ffe500;
   --tile-border:  #DEE2E6;
   --overlay:      #545454;
   --text-primary: #ffffff;
   --text-dim:     rgba(255, 255, 255, 0.55);
   --warning-red-rgb: 255, 72, 72;
-  --warning-red: #ff6060;
+  --warning-red: #ff2e51;
   --design-size:  412px;
   --frame-size:   min(100vw, 100dvh);
   --viewport-scale: calc(var(--frame-size) / var(--design-size));

@@ -2,10 +2,12 @@ import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { findStarMatches } from '../../logic/stars.js';
 import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML } from '../../logic/dice-visual.js';
+import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
   getOccupiedCols, getValidSlotsForDie, getValidSlotsForDealtTile,
   isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
+  slotsEqual,
 } from '../../logic/row.js';
 
 function stackHTML(col, column) {
@@ -229,8 +231,10 @@ export function renderPlacementRow() {
   }
 
   const edgeGhosts = showEdgeGhosts ? edgeGhostsMarkup() : '';
+  const leftFlank = flankStackColHTML('left');
+  const rightFlank = flankStackColHTML('right');
 
-  el.innerHTML = `<div class="placement-row-inner${sweepRun ? ' is-sweep-run' : ''}">${colsHTML}${edgeGhosts}</div>`;
+  el.innerHTML = `<div class="placement-row-inner${sweepRun ? ' is-sweep-run' : ''}">${leftFlank}${colsHTML}${rightFlank}${edgeGhosts}</div>`;
   if (usePin) {
     restorePinnedRowScroll();
   } else {
@@ -627,13 +631,21 @@ export function resolveInsertSlotFromPointer(clientX, clientY) {
   const lastRect = lastCol.getBoundingClientRect();
 
   if (clientX < firstRect.left) {
-    if (clientY >= columnInsertMinY(firstCol)) {
+    const leftFlank = settings.deckFlank ? flankStackColElement(inner, 'left') : null;
+    const insertMinY = leftFlank
+      ? Math.max(columnInsertMinY(firstCol), columnInsertMinY(leftFlank))
+      : columnInsertMinY(firstCol);
+    if (clientY >= insertMinY) {
       return { kind: 'insert', leftCol: null, rightCol: occupied[0] };
     }
     return null;
   }
   if (clientX > lastRect.right) {
-    if (clientY >= columnInsertMinY(lastCol)) {
+    const rightFlank = settings.deckFlank ? flankStackColElement(inner, 'right') : null;
+    const insertMinY = rightFlank
+      ? Math.max(columnInsertMinY(lastCol), columnInsertMinY(rightFlank))
+      : columnInsertMinY(lastCol);
+    if (clientY >= insertMinY) {
       return { kind: 'insert', leftCol: occupied[occupied.length - 1], rightCol: null };
     }
     return null;
@@ -673,4 +685,167 @@ export function resolveSlotFromPointer(clientX, clientY, stackY = clientY, { all
   if (stack) return stack;
 
   return null;
+}
+
+function openWidth() {
+  return COL_W() + GAP_H();
+}
+
+function dieBorder() {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-border')) || 4;
+}
+
+function colBoxFromRect(el, innerRect, scale) {
+  const r = el.getBoundingClientRect();
+  return {
+    left: toDesignPx(r.left - innerRect.left, scale),
+    right: toDesignPx(r.right - innerRect.left, scale),
+    bottom: toDesignPx(r.bottom - innerRect.top, scale),
+  };
+}
+
+/** Die landing in placement-row-inner design px (live layout incl. gap spread). */
+export function slotAnchorRowXY(slot) {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return null;
+
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+  const open = openWidth();
+
+  if (slot.kind === 'new-column') {
+    const ghost = inner.querySelector('.placement-col--ghost-first');
+    if (!ghost) return null;
+    const box = colBoxFromRect(ghost, innerRect, scale);
+    const ghostW = toDesignPx(ghost.getBoundingClientRect().width, scale);
+    return {
+      left: box.left + (ghostW - DIE_OUTER) / 2,
+      top: box.bottom - DIE_OUTER,
+    };
+  }
+
+  if (slot.kind === 'stack') {
+    const colNode = colElement(inner, slot.col);
+    if (!colNode) return null;
+    const topDie = topDieInCol(colNode);
+    if (!topDie) return null;
+    const tr = topDie.getBoundingClientRect();
+    const border = dieBorder();
+    return {
+      left: toDesignPx(tr.left - innerRect.left, scale),
+      top: toDesignPx(tr.top - innerRect.top, scale) - DIE_OUTER + border,
+    };
+  }
+
+  if (slot.kind !== 'insert') return null;
+
+  let cx;
+  let bottom;
+
+  if (slot.leftCol == null) {
+    const rightEl = colElement(inner, slot.rightCol);
+    const leftFlankEl = settings.deckFlank ? flankStackColElement(inner, 'left') : null;
+    if (leftFlankEl && rightEl) {
+      const l = colBoxFromRect(leftFlankEl, innerRect, scale);
+      const r = colBoxFromRect(rightEl, innerRect, scale);
+      cx = (l.right + r.left) / 2;
+      bottom = Math.max(l.bottom, r.bottom);
+    } else if (rightEl) {
+      const box = colBoxFromRect(rightEl, innerRect, scale);
+      cx = box.left - open / 2;
+      bottom = box.bottom;
+    } else return null;
+  } else if (slot.rightCol == null) {
+    const leftEl = colElement(inner, slot.leftCol);
+    const rightFlankEl = settings.deckFlank ? flankStackColElement(inner, 'right') : null;
+    if (leftEl && rightFlankEl) {
+      const l = colBoxFromRect(leftEl, innerRect, scale);
+      const r = colBoxFromRect(rightFlankEl, innerRect, scale);
+      cx = (l.right + r.left) / 2;
+      bottom = Math.max(l.bottom, r.bottom);
+    } else if (leftEl) {
+      const box = colBoxFromRect(leftEl, innerRect, scale);
+      cx = box.right + open / 2;
+      bottom = box.bottom;
+    } else return null;
+  } else {
+    const leftEl = colElement(inner, slot.leftCol);
+    const rightEl = colElement(inner, slot.rightCol);
+    if (!leftEl || !rightEl) return null;
+    const l = colBoxFromRect(leftEl, innerRect, scale);
+    const r = colBoxFromRect(rightEl, innerRect, scale);
+    cx = (l.right + r.left) / 2;
+    bottom = Math.max(l.bottom, r.bottom);
+  }
+
+  return {
+    left: cx - DIE_OUTER / 2,
+    top: bottom - DIE_OUTER,
+  };
+}
+
+/** Die landing in viewport-inner design px — for drag flyer and snap ghost. */
+export function slotAnchorXY(slot) {
+  const rowPoint = slotAnchorRowXY(slot);
+  if (!rowPoint) return null;
+
+  const inner = document.querySelector('.placement-row-inner');
+  const layer = document.querySelector('.viewport-inner');
+  if (!inner || !layer) return null;
+
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+  const layerRect = layer.getBoundingClientRect();
+
+  return {
+    left: rowPoint.left + toDesignPx(innerRect.left - layerRect.left, scale),
+    top: rowPoint.top + toDesignPx(innerRect.top - layerRect.top, scale),
+  };
+}
+
+/** Screen-space top-left of die anchor (for nearest-slot distance). */
+function slotAnchorScreenTopLeft(slot) {
+  const rowPoint = slotAnchorRowXY(slot);
+  if (!rowPoint) return null;
+
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return null;
+
+  const scale = viewportScale();
+  const innerRect = inner.getBoundingClientRect();
+
+  return {
+    x: innerRect.left + rowPoint.left * scale,
+    y: innerRect.top + rowPoint.top * scale,
+  };
+}
+
+/** Nearest valid slot for snap ghost — pointer hit first, else minimum screen distance. */
+export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots) {
+  if (!validSlots.length) return null;
+
+  const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY);
+  if (pointerSlot && validSlots.some(s => slotsEqual(s, pointerSlot))) {
+    return pointerSlot;
+  }
+
+  if (!isPointerOnPlacementRow(clientX, clientY)) return null;
+
+  let best = null;
+  let bestDist = Infinity;
+  const refY = stackY ?? clientY;
+
+  for (const slot of validSlots) {
+    const anchor = slotAnchorScreenTopLeft(slot);
+    if (!anchor) continue;
+    const dx = clientX - (anchor.x + (DIE_OUTER * viewportScale()) / 2);
+    const dy = refY - anchor.y;
+    const dist = dx * dx + dy * dy;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = slot;
+    }
+  }
+
+  return best;
 }

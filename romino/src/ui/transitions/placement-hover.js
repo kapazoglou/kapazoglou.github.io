@@ -2,14 +2,17 @@ import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { slotsEqual, gapInsertAnimationsAllowed } from '../../logic/row.js';
 import { resolveInsertSlotFromPointer, syncStarMarkersDuringMotion } from '../display/placement-row.js';
+import { spreadColumnElement } from '../display/flank-stacks.js';
 import { computeSpreadOffsets } from './placement-anim.js';
 import { COL_SPREAD_MS } from './timing.js';
 
 const SPREAD_EASING = 'ease-out';
 
-/** Between-column gaps only — not row-edge inserts. */
-function isGapInsert(slot) {
-  return slot.kind === 'insert' && slot.leftCol != null && slot.rightCol != null;
+/** Between-column gaps and deck-flank row edges — not plain row-edge inserts. */
+function isSpreadPreviewSlot(slot) {
+  if (slot.kind !== 'insert') return false;
+  if (slot.leftCol != null && slot.rightCol != null) return true;
+  return settings.deckFlank && (slot.leftCol == null || slot.rightCol == null);
 }
 
 /** @type {Map<number, number>} */
@@ -22,7 +25,7 @@ function spreadMs() {
 }
 
 function colEl(inner, col) {
-  return inner.querySelector(`.placement-col[data-col="${col}"]`);
+  return spreadColumnElement(inner, col);
 }
 
 function applySpreadCol(col, spreadDx, animate) {
@@ -57,7 +60,7 @@ export function handoffInsertHoverSpread(keepCols) {
 }
 
 /** Preview gap insert — columns spread from gap midpoint while pointer hovers a valid insert. */
-export function updateInsertHoverSpread(clientX, clientY, validSlots, dieId = null) {
+export function updateInsertHoverSpread(clientX, clientY, validSlots, dieId = null, forcedSlot = null) {
   if (!settings.directPlacement || state.phase === 'animating') {
     if (activeHoverSlot !== null) resetInsertHoverSpread();
     return;
@@ -68,8 +71,8 @@ export function updateInsertHoverSpread(clientX, clientY, validSlots, dieId = nu
     return;
   }
 
-  const slot = resolveInsertSlotFromPointer(clientX, clientY);
-  if (!slot || !isGapInsert(slot)) {
+  const slot = forcedSlot ?? resolveInsertSlotFromPointer(clientX, clientY);
+  if (!slot || !isSpreadPreviewSlot(slot)) {
     if (activeHoverSlot !== null) clearInsertHoverSpread();
     return;
   }

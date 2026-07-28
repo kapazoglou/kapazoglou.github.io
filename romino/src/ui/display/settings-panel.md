@@ -1,8 +1,8 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.32
-date: 2026-07-21
+v: 1.34
+date: 2026-07-28
 deps: [state, settings, phase, render]
 ---
 # Settings Panel — User Story
@@ -11,11 +11,14 @@ As a player, I want to access a hidden settings panel (triple-tap the HUD score)
 
 ## Exports
 - `renderSettingsPanel()` — builds toggle rows from `SETTINGS_CONFIG` into `#settings-toggles`
-- `initSettingsPanel()` — attaches 4-tap listener on `#swept-points` and back-button listener
+- `initSettingsPanel()` — attaches triple-tap listener on `#hud-score-tap` and back-button listener
+- `TUTORIAL_DONE_KEY` — localStorage key cleared when `tutoria` toggles OFF→ON on apply
 
 ## Toggle behaviour
 - Edits buffer in a draft while the panel is open; **back** applies all, saves to localStorage, then reloads the page when anything changed
 - If nothing changed, back closes the panel without reload
+- Tutoria OFF→ON clears `romino-tutorial-done` before reload so the walkthrough runs again
+- `deckFlank` and `tileDealtEvery` / `tileDealtChainDraw` are mutually exclusive in draft (disabled UI + `clampDraft`)
 
 ## Related
-[[settings]] · [[phase]] · [[render]] · [[hud]]
+[[settings]] · [[phase]] · [[render]] · [[hud]] · [[tutorial]]

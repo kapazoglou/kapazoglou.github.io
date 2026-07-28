@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>römino</title>
-  <script type="module" crossorigin src="/assets/index-ChtqPwnu.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-DDPvZ06P.css">
+  <link rel="preload" href="/assets/NumbersDeuce-INwwIkFU.ttf" as="font" type="font/ttf" crossorigin>
+  <script type="module" crossorigin src="/assets/index-PmC4EmMk.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B8IOfRxr.css">
 </head>
 <body>
 <div id="app">
@@ -49,6 +50,20 @@
               <div class="go-sweeps" id="go-sweeps"></div>
               <div class="go-section-label">high scores</div>
               <div class="go-leaderboard" id="go-leaderboard"></div>
+              <div class="go-section-label">lifetime</div>
+              <div class="go-lifetime" id="go-lifetime">
+                <div class="go-lifetime-summary" id="go-lifetime-summary"></div>
+                <div class="go-lifetime-stars" id="go-lifetime-stars"></div>
+                <div class="go-lifetime-compare" id="go-lifetime-compare"></div>
+                <div class="go-lifetime-dice" id="go-lifetime-dice" aria-label="Lifetime dice distribution"></div>
+                <div class="go-lifetime-tiles-wrap">
+                  <div class="go-tile-matrix-seg" role="tablist" aria-label="Tile count mode">
+                    <button type="button" class="go-tile-matrix-seg-btn is-active" role="tab" data-mode="converted" aria-selected="true">converted</button>
+                    <button type="button" class="go-tile-matrix-seg-btn" role="tab" data-mode="swept" aria-selected="false">swept</button>
+                  </div>
+                  <div class="go-lifetime-tiles" id="go-lifetime-tiles" aria-label="Lifetime tile counts by suit and rank"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

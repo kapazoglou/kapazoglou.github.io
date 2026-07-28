@@ -1,7 +1,8 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { isOuterDieValue, rerollDieValue } from '../../logic/dice.js';
-import { evaluateGameOver } from '../../logic/turn.js';
+import { evaluateGameOver, shouldBlockGameOver } from '../../logic/turn.js';
+import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForTrayDie } from './pip-anim.js';
 import { render } from '../display/render.js';
 
@@ -36,12 +37,13 @@ export function rerollOuterDieWithAnim(dieId, onGameOver) {
 
   payStarForTrayDie(dieId, () => {
     state.stars -= 1;
+    recordStarSpent('reroll');
     rerollDieValue(dieId);
     if (state.selectedDieId === dieId) state.selectedDieId = null;
     state.newTrayDieIds.add(dieId);
 
     const stuckReason = evaluateGameOver('post-roll');
-    if (stuckReason) {
+    if (stuckReason && !shouldBlockGameOver(stuckReason)) {
       state.phase = 'replay';
       render();
       onGameOver?.(stuckReason);

@@ -4,7 +4,7 @@ import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsFor
 import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
 import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { syncStarMarkersDuringMotion } from './placement-row.js';
+import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
@@ -28,6 +28,14 @@ let capturedPointerId = null;
 let skipNextFlyerMove = false;
 /** Swallow the click that follows a return-to-bar tap (would re-place on the row). */
 let blockNextRowClick = false;
+/** @type {import('../../logic/row.js').Slot | null} */
+let activeSnapSlot = null;
+/** @type {HTMLElement | null} */
+let snapGhostEl = null;
+
+function snappingActive() {
+  return settings.snapping && settings.directPlacement && !dragDealtTile;
+}
 
 export function consumeRowClickBlock() {
   const blocked = blockNextRowClick;
@@ -113,6 +121,39 @@ function createDragFlyer(dieId, sourceRect) {
   dragFlyer.style.transform = 'translate(0, 0)';
   dragFlyer.style.transition = 'none';
   layer.appendChild(dragFlyer);
+}
+
+function createSnapGhost(dieId) {
+  const layer = flyLayer();
+  if (!layer) return;
+  const die = state.dice[dieId];
+  snapGhostEl = document.createElement('div');
+  snapGhostEl.className = 'placement-snap-ghost';
+  snapGhostEl.innerHTML = dieSVG(die.value, DIE_OUTER);
+  snapGhostEl.style.display = 'none';
+  layer.appendChild(snapGhostEl);
+}
+
+function updateSnapGhost(slot) {
+  if (!snapGhostEl) return;
+  if (!slot) {
+    snapGhostEl.style.display = 'none';
+    return;
+  }
+  const pos = slotAnchorXY(slot);
+  if (!pos) {
+    snapGhostEl.style.display = 'none';
+    return;
+  }
+  snapGhostEl.style.display = '';
+  snapGhostEl.style.left = `${pos.left}px`;
+  snapGhostEl.style.top = `${pos.top}px`;
+}
+
+function clearSnapGhost() {
+  snapGhostEl?.remove();
+  snapGhostEl = null;
+  activeSnapSlot = null;
 }
 
 function moveFlyer(clientX, clientY) {
@@ -274,6 +315,10 @@ function beginDrag(e) {
 
   createDragFlyer(dragDieId, sourceRect);
 
+  if (snappingActive()) {
+    createSnapGhost(dragDieId);
+  }
+
   if (fromBar) {
     renderActionBar();
     dragDieEl = null;
@@ -307,7 +352,16 @@ function onPointerMove(e) {
         ? getValidSlotsForDealtTile()
         : getValidSlotsForDie(dragDieId);
       const dieId = dragDealtTile ? null : dragDieId;
-      updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId);
+      if (snappingActive()) {
+        const stackY = flyerResolvePoint()?.y ?? e.clientY;
+        activeSnapSlot = resolveNearestValidSlot(
+          e.clientX, e.clientY, stackY, validSlots,
+        );
+        updateSnapGhost(activeSnapSlot);
+        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId, activeSnapSlot);
+      } else {
+        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId);
+      }
     }
   }
 }
@@ -317,6 +371,7 @@ function clearDragVisuals() {
   state.draggingDealtTile = false;
   clearInsertHoverSpread(false);
   clearRepositionCollapse(false);
+  clearSnapGhost();
   dragFlyer?.remove();
   dragFlyer = null;
   dragDieEl?.classList.remove('die--drag-source', 'die--drag-pending', 'placement-tile--drag-pending');
@@ -346,14 +401,24 @@ function onPointerUp(e) {
     ) {
       returnedToBar = returnDieToBar(dragDieId);
     } else if (settings.directPlacement) {
-      const flyerPt = flyerResolvePoint();
-      const stackY = flyerPt?.y ?? e.clientY;
-      const result = attemptPlacementAtPoint(
-        dragDieId, e.clientX, e.clientY, stackY, dragFlyer,
-      );
-      if (result === 'placed') {
-        dragFlyer = null;
-        animHandled = true;
+      if (snappingActive()) {
+        if (activeSnapSlot) {
+          animHandled = placeDieWithAnim(dragDieId, activeSnapSlot, dragFlyer);
+          if (animHandled) {
+            dragFlyer = null;
+            clearSnapGhost();
+          }
+        }
+      } else {
+        const flyerPt = flyerResolvePoint();
+        const stackY = flyerPt?.y ?? e.clientY;
+        const result = attemptPlacementAtPoint(
+          dragDieId, e.clientX, e.clientY, stackY, dragFlyer,
+        );
+        if (result === 'placed') {
+          dragFlyer = null;
+          animHandled = true;
+        }
       }
     } else {
       const hint = target?.closest('.placement-hint');

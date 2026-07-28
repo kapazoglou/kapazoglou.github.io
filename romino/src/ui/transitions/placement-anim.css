@@ -34,3 +34,19 @@
 .placement-die-flyer--tile .placement-tile {
   pointer-events: none;
 }
+
+.placement-snap-ghost {
+  position: absolute;
+  width: var(--die-size);
+  height: var(--die-size);
+  z-index: 400;
+  pointer-events: none;
+  opacity: 0.45;
+  line-height: 0;
+}
+
+.placement-snap-ghost svg {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}

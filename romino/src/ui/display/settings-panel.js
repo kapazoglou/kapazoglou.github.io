@@ -1,6 +1,7 @@
 import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
+export const TUTORIAL_DONE_KEY = 'romino-tutorial-done';
 
 /** Pending edits while the panel is open; applied on back. */
 let draftSettings = null;
@@ -32,6 +33,39 @@ function saveSettings() {
 function clampDraft() {
   if (draftSettings.nPlace > draftSettings.nRoll) draftSettings.nPlace = draftSettings.nRoll;
   if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
+  if (draftSettings.deckFlank) draftSettings.tileDealtEvery = 0;
+  if (draftSettings.tileDealtEvery > 0) draftSettings.deckFlank = false;
+}
+
+function isDraftControlDisabled(item) {
+  if (item.key === 'deckFlank') return draftSettings.tileDealtEvery > 0;
+  if (item.key === 'tileDealtEvery') return draftSettings.deckFlank;
+  if (item.key === 'tileDealtChainDraw') return draftSettings.deckFlank;
+  return false;
+}
+
+function refreshSettingsPanelControls() {
+  const container = document.getElementById('settings-toggles');
+  if (!container || !draftSettings) return;
+  container.querySelectorAll('.settings-row').forEach(row => {
+    const key = row.dataset.key ?? row.querySelector('input[data-key]')?.dataset.key;
+    if (!key) return;
+    const item = SETTINGS_CONFIG.flatMap(g => g.items).find(i => i.key === key);
+    if (!item) return;
+    const disabled = isDraftControlDisabled(item);
+    row.classList.toggle('settings-row--disabled', disabled);
+    if (item.type === 'toggle') {
+      const input = row.querySelector('input[data-key]');
+      if (input) {
+        input.checked = draftSettings[item.key];
+        input.disabled = disabled;
+      }
+    } else if (item.type === 'stepper') {
+      const value = row.querySelector('.settings-stepper-value');
+      if (value) value.textContent = String(draftSettings[item.key]);
+      row.querySelectorAll('.settings-stepper-btn').forEach(btn => { btn.disabled = disabled; });
+    }
+  });
 }
 
 /** @returns {boolean} true when settings changed and the page is reloading */
@@ -39,6 +73,10 @@ function applyDraftSettings() {
   if (!draftSettings) return false;
 
   const changed = Object.keys(settings).some(key => draftSettings[key] !== settings[key]);
+
+  if (!settings.tutoria && draftSettings.tutoria) {
+    try { localStorage.removeItem(TUTORIAL_DONE_KEY); } catch { /* ignore */ }
+  }
 
   for (const [key, value] of Object.entries(draftSettings)) {
     settings[key] = value;
@@ -76,6 +114,7 @@ export function renderSettingsPanel() {
 function buildStepperRow(item) {
   const row = document.createElement('div');
   row.className = 'settings-row settings-row--stepper';
+  row.dataset.key = item.key;
 
   const label = document.createElement('span');
   label.className = 'settings-row-label';
@@ -101,11 +140,13 @@ function buildStepperRow(item) {
   plus.setAttribute('aria-label', `Increase ${item.label}`);
 
   const update = delta => {
+    if (isDraftControlDisabled(item)) return;
     const min = item.min ?? 1;
     const max = item.max ?? 99;
     draftSettings[item.key] = Math.min(max, Math.max(min, draftSettings[item.key] + delta));
     clampDraft();
     value.textContent = String(draftSettings[item.key]);
+    refreshSettingsPanelControls();
   };
 
   minus.addEventListener('click', () => update(-1));
@@ -113,12 +154,14 @@ function buildStepperRow(item) {
 
   controls.append(minus, value, plus);
   row.append(label, controls);
+  if (isDraftControlDisabled(item)) row.classList.add('settings-row--disabled');
   return row;
 }
 
 function buildToggleRow(item) {
   const row = document.createElement('label');
   row.className = 'settings-row';
+  row.dataset.key = item.key;
 
   const span = document.createElement('span');
   span.className = 'settings-row-label';
@@ -133,12 +176,23 @@ function buildToggleRow(item) {
   input.checked = draftSettings[item.key];
 
   input.addEventListener('change', () => {
+    if (isDraftControlDisabled(item)) {
+      input.checked = draftSettings[item.key];
+      return;
+    }
     draftSettings[item.key] = input.checked;
+    clampDraft();
+    if (item.key === 'deckFlank') input.checked = draftSettings.deckFlank;
+    refreshSettingsPanelControls();
   });
 
   track.appendChild(input);
   track.insertAdjacentHTML('beforeend', '<span class="settings-toggle-thumb"></span>');
   row.append(span, track);
+  if (isDraftControlDisabled(item)) {
+    row.classList.add('settings-row--disabled');
+    input.disabled = true;
+  }
   return row;
 }
 
