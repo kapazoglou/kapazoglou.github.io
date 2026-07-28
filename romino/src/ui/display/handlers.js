@@ -41,7 +41,7 @@ export function initHandlers() {
         }
         const result = handleRollButton();
         if (result && typeof result === 'object' && result.pendingEndGame) {
-          armEndGamePrompt(result.pendingEndGame);
+          armEndGamePrompt(result.pendingEndGame, 'pending-roll');
         }
         if (result && (result === true || (typeof result === 'object' && result.pendingEndGame))) {
           if (state.phase !== 'replay') scheduleRender(render);

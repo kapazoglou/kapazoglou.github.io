@@ -1,10 +1,10 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } from '../../logic/dice-visual.js';
-import { canRoll, canConfirm, canEndGame, isRollPoolLow } from '../../logic/turn.js';
+import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedBorder } from '../../logic/turn.js';
 import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
-import { isEndGamePromptArmed } from './end-game-prompt.js';
+import { isEndGamePromptArmed, syncEndGamePromptWithRollChrome } from './end-game-prompt.js';
 
 function isTrayDieRerollable(dieId) {
   if (!settings.rerollOuter || state.phase !== 'rolled') return false;
@@ -46,6 +46,8 @@ export function updateActionBarSelection() {
 }
 
 export function renderActionBar() {
+  syncEndGamePromptWithRollChrome(isRollButtonWarningRedBorder());
+
   const bar = document.getElementById('action-bar');
   if (!bar) return;
 

@@ -1,7 +1,7 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.43
+v: 1.44
 date: 2026-07-29
 deps: [state, cards, dice, grid, end-game-prompt]
 ---

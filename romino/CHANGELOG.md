@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **end-game-prompt.js v1.1, action-bar.js v1.44** — auto-collapse KO bar when warning-red roll chrome clears (e.g. full stack on row); pending-roll arms unchanged
 - **end-game-prompt.js v1.0, handlers.js v2.9, action-bar.js v1.43, action-bar.css, turn.js v2.20, game-over.js v2.3** — KO confirm bar: warning-red roll tap or post-roll game-over paths arm inline expand (number + red KO); KO confirms overlay; number tap again cancels; eligibility logic unchanged
 - **viewport-controls.css v1.2** — full-screen button: no background/shadow/active fill; white icon only
 - **row.js v1.51, placement-anim.js v1.26, placement-row.js, drag-drop.js v2.31** — fix snap ghost overlap when repositioning row dice: gap spread allowed during row drag; sole-die insert anchor remapped after source column vacates
