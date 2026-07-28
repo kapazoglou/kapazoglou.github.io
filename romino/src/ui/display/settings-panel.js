@@ -1,10 +1,25 @@
 import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
+import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
 export const TUTORIAL_DONE_KEY = 'romino-tutorial-done';
 
 /** Pending edits while the panel is open; applied on back. */
 let draftSettings = null;
+let settingsLifetimeMatrixMode = 'converted';
+
+function refreshSettingsLifetime() {
+  if (!draftSettings) return;
+  renderLifetimeStatsView({
+    settingsObj: draftSettings,
+    summaryId: 'settings-lifetime-summary',
+    starsId: 'settings-lifetime-stars',
+    diceId: 'settings-lifetime-dice',
+    tilesId: 'settings-lifetime-tiles',
+    matrixMode: settingsLifetimeMatrixMode,
+    matrixSegId: 'settings-tile-matrix-seg',
+  });
+}
 
 function loadSettings() {
   try {
@@ -66,6 +81,7 @@ function refreshSettingsPanelControls() {
       row.querySelectorAll('.settings-stepper-btn').forEach(btn => { btn.disabled = disabled; });
     }
   });
+  refreshSettingsLifetime();
 }
 
 /** @returns {boolean} true when settings changed and the page is reloading */
@@ -109,6 +125,7 @@ export function renderSettingsPanel() {
       }
     }
   }
+  refreshSettingsLifetime();
 }
 
 function buildStepperRow(item) {
@@ -211,9 +228,18 @@ export function initSettingsPanel() {
     if (tapCount >= 3) {
       tapCount = 0;
       draftSettings = { ...settings };
+      settingsLifetimeMatrixMode = 'converted';
       renderSettingsPanel();
       document.getElementById('settings-panel').classList.add('is-open');
     }
+  });
+
+  document.getElementById('settings-tile-matrix-seg')?.addEventListener('click', e => {
+    const btn = e.target.closest('.go-tile-matrix-seg-btn[data-mode]');
+    if (!btn || !draftSettings) return;
+    if (btn.dataset.mode !== 'converted' && btn.dataset.mode !== 'swept') return;
+    settingsLifetimeMatrixMode = btn.dataset.mode;
+    refreshSettingsLifetime();
   });
 
   document.getElementById('settings-back').addEventListener('click', () => {

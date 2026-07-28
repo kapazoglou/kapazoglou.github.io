@@ -1,9 +1,9 @@
 ---
 module: game-over
 layer: ui/display
-v: 2.1
+v: 2.2
 date: 2026-07-28
-deps: [dice-visual, highscores, game-log, turn, render]
+deps: [dice-visual, highscores, game-log, turn, render, lifetime-stats-view]
 ---
 # Game Over
 

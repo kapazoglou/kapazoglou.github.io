@@ -5,7 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
-- **viewport-controls.js v1.1, viewport-controls.css, base.css, index.html** — remove zoom controls; phone full-screen ⛶ only; restore `user-scalable=no`
+- **lifetime-stats-view.js v1.0, settings-panel.js v1.35, settings-panel.css, game-over.js v2.2, index.html** — lifetime stats block at top of settings panel; refreshes live as draft config changes; shared lifetime renderer extracted from game-over
 - **base.css** — landscape and viewports ≥825px fill browser (`100vw × 100dvh`); design width grows from 412px with no cap; phone portrait unchanged (square `min(100vw, 100dvh)`)
 - **turn.js v2.19, action-bar.md v1.42** — roll tap follows border colour: `isRollButtonWarningRedBorder` mirrors CSS (incl. full-stack accent override); accent → roll/confirm
 - **turn.js v2.18** — `.roll-btn--low` tap → game over in any phase (was idle-only); fixes confirm/auto-roll when warning-red number shows in rolled phase
