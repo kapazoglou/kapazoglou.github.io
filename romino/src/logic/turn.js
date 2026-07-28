@@ -52,10 +52,10 @@ export function shouldWarnOnLeave() {
   );
 }
 
-/** Deck Flank ON: loss game overs blocked while flank stacks hold cards (stacks count as row tiles). */
+/** Deck Flank ON: block pool-exhausted loss while flank stacks still hold tiles (same “row still playable” rule as top-up roll). */
 export function shouldBlockGameOver(reason) {
-  if (reason === 'well-done') return false;
-  return flankEndgamePending();
+  if (!settings.deckFlank || reason === 'well-done') return false;
+  return reason === 'dice pool exhausted' && flankEndgamePending();
 }
 
 /** @returns {string|null} reason string when a check fails */
@@ -65,10 +65,7 @@ export function evaluateGameOver(context) {
     return 'dice pool exhausted';
   }
   if (context === 'post-roll') {
-    if (!flankEndgamePending()
-      && state.dealtTile
-      && state.placedThisTurn >= settings.nPlace
-      && !hasAnyLegalPlacementForDealtTile()) {
+    if (state.dealtTile && state.placedThisTurn >= settings.nPlace && !hasAnyLegalPlacementForDealtTile()) {
       return 'no legal placements';
     }
   }

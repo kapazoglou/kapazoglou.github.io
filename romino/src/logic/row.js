@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
-import { flankEndgamePending, flankStackTop } from './deck-flank.js';
+import { flankStackTop } from './deck-flank.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -476,7 +476,6 @@ export function hasAnyLegalPlacementForTray() {
 
 /** Active tray dice remain but none have a legal slot (confirm-ready leftovers excluded). */
 export function isTrayStuck() {
-  if (flankEndgamePending()) return false;
   let hasActive = false;
   for (const dieId of state.actionBar) {
     if (isBarDieInactive(dieId)) continue;

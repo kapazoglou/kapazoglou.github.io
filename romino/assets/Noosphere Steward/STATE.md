@@ -40,6 +40,7 @@ lastVerified: 2026-07-28
 
 - **deck-flank.js v2.1, turn.js v2.9, action-bar.js v1.36, reroll-outer-anim.js v1.4** — Deck Flank: block loss game overs while flank stacks hold cards; roll tops up pool when low
 
+- **turn.js v2.12, row.js v1.50** — restore pre-Flank game-over rules; Flank ON only blocks pool-exhausted while stacks hold tiles
 - **turn.js v2.11, row.js v1.46** — Deck Flank: parity — all blocked loss game overs incl. tray/dealt stuck while flank stacks hold cards
 - **turn.js v2.10, action-bar.js v1.37** — tray stuck game over with Deck Flank ON
 - **sweep-anim.js v1.8, state.js v2.10, flank-stacks.js** — flank stack pop + reveal after sweep

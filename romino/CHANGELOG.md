@@ -5,6 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **turn.js v2.12, row.js v1.50, action-bar.md v1.39** — restore pre-Flank game-over rules; Deck Flank ON only suppresses pool-exhausted loss while stacks hold tiles (`shouldBlockGameOver`); tray/dealt stuck unchanged (flank tops as tile neighbors in row checks)
 - **row.js v1.49** — fix Deck Flank placement: drop buried-flank duplicate gate (52-card deck made almost every stack completion illegal); flank tops still swept on convert match
 - **deck-flank.js v2.3, row.js v1.48, convert-anim.js v1.3, sweep-anim.js v1.9, confirm-anim.js v1.6** — Deck Flank: on convert, matching flank stack top sweeps away (same anim as sweep), count decrements, next card revealed; placement duplicate gate blocks buried flank cards only (top resolved on convert)
 - **deck-flank.js v2.2, row.js v1.47** — restore duplicate gates after Deck Flank: block third die when convert identity matches row tile, convert-ready stack, or any card in flank stacks (incl. jokers when `tricolorRestriction` OFF)
