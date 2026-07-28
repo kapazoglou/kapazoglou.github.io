@@ -1,7 +1,7 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
-import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags, countDiceInRow } from './row.js';
+import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags, countDiceInRow, rowHasThreeDiceStack } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
 import { resetGameLog } from './game-log.js';
@@ -38,11 +38,16 @@ export function isRollPoolLow() {
   return settings.nDice - countDiceInRow() < settings.nRoll;
 }
 
-/** Warning-red tap → game over: matches `.roll-btn--low` and `.roll-btn-wrap--stuck` chrome. */
-export function isRollButtonEndGameTap() {
-  if (isRollPoolLow()) return true;
+/** Mirrors action-bar.css face inset ring — warning red when enabled. */
+export function isRollButtonWarningRedBorder() {
   if (state.phase === 'rolled' && isTrayStuck()) return true;
+  if (isRollPoolLow() && !rowHasThreeDiceStack()) return true;
   return false;
+}
+
+/** Warning-red border tap → game over. Accent border → roll or confirm in handleRollButton. */
+export function isRollButtonEndGameTap() {
+  return isRollButtonWarningRedBorder();
 }
 
 export function canConfirm() {

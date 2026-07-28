@@ -9,6 +9,7 @@
 @import url('src/ui/transitions/placement-anim.css');
 @import url('src/ui/transitions/pip-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
+@import url('src/ui/display/viewport-controls.css');
 @import url('src/ui/transitions/invalid-flash.css');
 
 @font-face {
@@ -46,6 +47,7 @@
   --tile-face-h:  calc(var(--die-stack-pair-height) - 2 * var(--die-border));
   --die-gap-h:    6px;
   --col-width:    var(--die-size);
+  --user-zoom:    1;
   --t: 1;
 }
 
@@ -66,6 +68,23 @@
     align-items: stretch;
     background: var(--bg);
   }
+}
+
+html.is-browser-fullscreen {
+  --frame-height:   100dvh;
+  --viewport-scale: calc(var(--frame-height) / var(--design-height));
+  --design-width:   max(
+    var(--design-width-min),
+    calc(100vw / var(--viewport-scale))
+  );
+  --frame-width:    100vw;
+  --frame-height:   100dvh;
+}
+
+html.is-browser-fullscreen #app {
+  justify-content: stretch;
+  align-items: stretch;
+  background: var(--bg);
 }
 
 html.fast-anims { --t: 0.5; }
@@ -118,6 +137,8 @@ body {
   height: var(--frame-height);
   flex-shrink: 0;
   overflow: hidden;
+  transform: scale(var(--user-zoom));
+  transform-origin: center center;
 }
 
 .viewport-inner {

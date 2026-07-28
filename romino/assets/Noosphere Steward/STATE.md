@@ -146,7 +146,8 @@ lastVerified: 2026-07-28
 - **sweeps-row.js v1.4** — ace dual rank (1|13) + wrap bridges for ascending sweep runs
 - **row.js v1.6, convert.js v1.3, sweeps-row.js v1.2, dice-visual.js v1.9** — 1↔6 ace: bypass 1to1 on pair, convert to rank A (sum 1), sweep 2–A–12
 - **dice-visual.js v2.2, action-bar.js, placement-row.js, base.css** — tray + this-turn dice brightened face border; settled row dice white; tiles keep `--tile-border`
-- **base.css** — design canvas 412px tall; width ≥412px, grows to fill viewport in landscape / browsers ≥825px (`100vw × 100dvh`); portrait phone square `min(100vw, 100dvh)`; settings panel inside scaled frame
+- **base.css** — design canvas 412px tall; width ≥412px, grows to fill viewport in landscape / browsers ≥825px / browser full-screen; phone portrait square unless `html.is-browser-fullscreen`; `--user-zoom` on `.viewport`
+- **viewport-controls.js v1.0** — touch-phone zoom −/+ and Fullscreen API on `#app`
 - **placement-row.css** — tile content-box outside border (48×92 outer); horizontal + vertical column border overlap; col padding removed
 - **base.css** — `--die-stack-pair-height`; `--col-width` aliases `--die-size`
 - **row.js v1.2** — gap insert between dice/tiles (not tile↔tile); column shift on adjacency

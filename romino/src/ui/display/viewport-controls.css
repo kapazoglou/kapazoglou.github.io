@@ -1,0 +1,50 @@
+/* ─── PHONE BROWSER: ZOOM + FULL SCREEN ─── */
+.viewport-controls {
+  position: fixed;
+  z-index: 900;
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.viewport-controls[hidden] {
+  display: none;
+}
+
+.viewport-controls-btn {
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(36, 40, 53, 0.92);
+  color: var(--text-primary);
+  font-family: 'Averia Libre', serif;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (orientation: landscape) {
+  .viewport-controls {
+    top: max(12px, env(safe-area-inset-top, 0px));
+    bottom: auto;
+  }
+}
+
+.viewport-controls-btn:active:not(:disabled) {
+  background: rgba(84, 84, 84, 0.95);
+}
+
+.viewport-controls-btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.viewport-controls-btn--wide {
+  font-size: 20px;
+}

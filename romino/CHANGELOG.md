@@ -5,7 +5,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **viewport-controls.js v1.0, viewport-controls.css, base.css, index.html, main.js** — phone browser bar: zoom −/+ (0.75–1.5×) and full-screen toggle; `html.is-browser-fullscreen` fills viewport; viewport meta allows pinch zoom up to 5×
 - **base.css** — landscape and viewports ≥825px fill browser (`100vw × 100dvh`); design width grows from 412px with no cap; phone portrait unchanged (square `min(100vw, 100dvh)`)
+- **turn.js v2.19, action-bar.md v1.42** — roll tap follows border colour: `isRollButtonWarningRedBorder` mirrors CSS (incl. full-stack accent override); accent → roll/confirm
 - **turn.js v2.18** — `.roll-btn--low` tap → game over in any phase (was idle-only); fixes confirm/auto-roll when warning-red number shows in rolled phase
 - **action-bar.js v1.41, turn.js v2.17** — restore pre-Flank warning-red roll chrome (`isRollPoolLow`, `isTrayStuck`); tap → game over via `isRollButtonEndGameTap` unchanged (incl. Deck Flank)
 - **turn.js v2.16, handlers.js, action-bar.js, main.js** — fix double-tap on warning-red roll: defer render until after click; skip duplicate render on game over
