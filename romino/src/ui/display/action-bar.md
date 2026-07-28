@@ -1,7 +1,7 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.44
+v: 1.45
 date: 2026-07-29
 deps: [state, cards, dice, grid, end-game-prompt]
 ---
@@ -12,7 +12,7 @@ As a player, I need the action bar to show my hand cards during the place-card p
 ## Exports
 - `renderActionBar()` — rebuilds `#action-bar` innerHTML from state
 - `ghostCardHTML(slotCount)` — skeleton card HTML for the action-bar ghost indicator
-- Roll button face border (`action-bar.css`): **accent** (`--accent`) when enabled and not warning red; **warning red** when enabled and (`isRollPoolLow()` without a 3-dice stack on the row, or rolled + `isTrayStuck()`). Number text (`.roll-btn--low`) follows `isRollPoolLow()` only — may stay red while border stays accent if a full stack is on the row. Tap: warning-red border → arm KO confirm bar (`isRollButtonEndGameTap` + `end-game-prompt`); armed wrap expands left with number + red **KO** button; accent border → idle roll or rolled confirm.
+- Roll button face border (`action-bar.css`): **accent** (`--accent`) when enabled and not warning red; **warning red** when enabled and (`isRollPoolLow()` without a 3-dice stack on the row, or rolled + `isTrayStuck()`). Number text (`.roll-btn--low`) follows `isRollPoolLow()` only — may stay red while border stays accent if a full stack is on the row. Tap: warning-red border → arm KO confirm bar (`isRollButtonEndGameTap` + `end-game-prompt`); armed wrap expands left with white **`&lt;`** back + red **KO** confirm; accent border → idle roll or rolled confirm.
 
 ## Modes
 - **place-card**: renders hand cards (`.in-tray`) with `is-new` slide-in if flagged

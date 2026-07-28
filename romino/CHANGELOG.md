@@ -5,6 +5,9 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **action-bar.css v1.47** — roll/KO/back button labels: unitless line-height + 2px bottom padding for optical vertical lift
+- **action-bar.css v1.46** — armed KO bar: fix die-face borders — back `&lt;` white, KO warning red (exclude armed wrap from global accent ring)
+- **action-bar.js v1.45, action-bar.css** — armed KO bar: number slot shows white `&lt;` with white die border; KO stays red
 - **end-game-prompt.js v1.1, action-bar.js v1.44** — auto-collapse KO bar when warning-red roll chrome clears (e.g. full stack on row); pending-roll arms unchanged
 - **end-game-prompt.js v1.0, handlers.js v2.9, action-bar.js v1.43, action-bar.css, turn.js v2.20, game-over.js v2.3** — KO confirm bar: warning-red roll tap or post-roll game-over paths arm inline expand (number + red KO); KO confirms overlay; number tap again cancels; eligibility logic unchanged
 - **viewport-controls.css v1.2** — full-screen button: no background/shadow/active fill; white icon only

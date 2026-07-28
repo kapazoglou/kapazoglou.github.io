@@ -88,6 +88,9 @@ export function renderActionBar() {
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
   const hasFullStack = rowHasThreeDiceStack();
   const endgameArmed = isEndGamePromptArmed();
+  const rollLabelDisplay = endgameArmed ? '&lt;' : String(rollLabel);
+  const rollBtnClass = endgameArmed ? 'roll-btn roll-btn--back' : `roll-btn${rollLow ? ' roll-btn--low' : ''}`;
+  const rollBtnAria = endgameArmed ? 'Cancel end game' : rollAria;
   const wrapClasses = [
     'roll-btn-wrap',
     confirm ? 'roll-btn-wrap--confirm' : '',
@@ -97,7 +100,7 @@ export function renderActionBar() {
   ].filter(Boolean).join(' ');
   const wrapExpanded = endgameArmed ? ' aria-expanded="true"' : '';
 
-  const rollBtnHTML = `<button type="button" class="roll-btn${rollLow ? ' roll-btn--low' : ''}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollAria}">${rollLabel}</button>`;
+  const rollBtnHTML = `<button type="button" class="${rollBtnClass}" id="roll-btn" ${rollDisabled ? 'disabled' : ''} aria-label="${rollBtnAria}">${rollLabelDisplay}</button>`;
   const koBtnHTML = endgameArmed
     ? `<div class="roll-btn-slot roll-btn-slot--ko">
         <div class="roll-btn-face roll-btn-face--ko" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
