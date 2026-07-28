@@ -5,7 +5,7 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
-- **base.css** — landscape viewport: full `100dvh` height; design width clamps 412–824px (2×412); portrait unchanged (square `min(100vw, 100dvh)`)
+- **base.css** — landscape and viewports ≥825px fill browser (`100vw × 100dvh`); design width grows from 412px with no cap; phone portrait unchanged (square `min(100vw, 100dvh)`)
 - **turn.js v2.18** — `.roll-btn--low` tap → game over in any phase (was idle-only); fixes confirm/auto-roll when warning-red number shows in rolled phase
 - **action-bar.js v1.41, turn.js v2.17** — restore pre-Flank warning-red roll chrome (`isRollPoolLow`, `isTrayStuck`); tap → game over via `isRollButtonEndGameTap` unchanged (incl. Deck Flank)
 - **turn.js v2.16, handlers.js, action-bar.js, main.js** — fix double-tap on warning-red roll: defer render until after click; skip duplicate render on game over

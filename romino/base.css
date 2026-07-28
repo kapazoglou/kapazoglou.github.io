@@ -34,7 +34,6 @@
   --warning-red-rgb: 255, 72, 72;
   --warning-red: #ff2e51;
   --design-width-min: 412px;
-  --design-width-max: 824px;
   --design-height:    412px;
   --frame-height:     min(100vw, 100dvh);
   --design-width:     var(--design-width-min);
@@ -50,16 +49,22 @@
   --t: 1;
 }
 
-@media (orientation: landscape) {
+@media (orientation: landscape), (min-width: 825px) {
   :root {
     --frame-height:   100dvh;
     --viewport-scale: calc(var(--frame-height) / var(--design-height));
-    --design-width:   clamp(
+    --design-width:   max(
       var(--design-width-min),
-      calc(100vw / var(--viewport-scale)),
-      var(--design-width-max)
+      calc(100vw / var(--viewport-scale))
     );
-    --frame-width:    calc(var(--design-width) * var(--viewport-scale));
+    --frame-width:    100vw;
+    --frame-height:   100dvh;
+  }
+
+  #app {
+    justify-content: stretch;
+    align-items: stretch;
+    background: var(--bg);
   }
 }
 
