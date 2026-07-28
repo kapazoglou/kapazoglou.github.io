@@ -1,7 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } from '../../logic/dice-visual.js';
-import { canRoll, canConfirm, canEndGame } from '../../logic/turn.js';
+import { canRoll, canConfirm, canEndGame, isRollPoolLow } from '../../logic/turn.js';
 import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
 
@@ -79,9 +79,9 @@ export function renderActionBar() {
 
   const confirm = canConfirm();
   const trayStuck = state.phase === 'rolled' && isTrayStuck();
-  const rollDisabled = !canRoll() && !confirm && !canEndGame() && !trayStuck;
+  const rollDisabled = state.phase === 'replay' || (!canRoll() && !confirm && !canEndGame() && !trayStuck);
   const rollLabel = settings.nDice - countDiceInRow();
-  const rollLow = rollLabel < settings.nRoll;
+  const rollLow = isRollPoolLow();
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
   const hasFullStack = rowHasThreeDiceStack();
 

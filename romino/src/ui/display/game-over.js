@@ -193,6 +193,13 @@ export function leaderboardHTML(currentId = null) {
 }
 
 export function showGameOver(reason = '') {
+  const overlay = document.getElementById('game-over-overlay');
+  if (overlay) {
+    overlay.classList.remove('is-minimized');
+    overlay.classList.add('is-visible');
+    overlay.setAttribute('aria-hidden', 'false');
+  }
+
   const titleEl = document.getElementById('game-over-title');
   if (titleEl) {
     titleEl.textContent = reason === 'well-done' ? 'WELL DONE' : 'GAME OVER';
@@ -226,12 +233,6 @@ export function showGameOver(reason = '') {
   const { entry } = recordHighscore({ score, rolls, sweeps });
   const leaderboardEl = document.getElementById('go-leaderboard');
   if (leaderboardEl) leaderboardEl.innerHTML = leaderboardHTML(entry.id);
-
-  const overlay = document.getElementById('game-over-overlay');
-  if (!overlay) return;
-  overlay.classList.remove('is-minimized');
-  overlay.classList.add('is-visible');
-  overlay.setAttribute('aria-hidden', 'false');
 }
 
 export function hideGameOver() {

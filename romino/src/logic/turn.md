@@ -1,15 +1,15 @@
 ---
 module: turn
 layer: logic
-v: 2.12
+v: 2.18
 date: 2026-07-28
 deps: [state, settings, dice, tile-deck, deck-flank, confirm-anim, deal-discard-anim]
 ---
 # Turn
 
-`rollDice`, `confirmTurn(onGameOver)`, `resetGame`, `initialStarCount()`, `handleRollButton(onGameOver)`, `evaluateGameOver(context)`, `shouldBlockGameOver(reason)`, `shouldWarnOnLeave()`, `finishRollAfterDiscard(onGameOver)`.
+`rollDice`, `confirmTurn()`, `resetGame`, `initialStarCount()`, `handleRollButton()`, `evaluateGameOver(context)`, `setGameOverHandler(fn)`, `triggerGameOver(reason)`, `isRollPoolLow()`, `isRollButtonEndGameTap()`, `shouldWarnOnLeave()`, `finishRollAfterDiscard()`, `tryContinueAfterConfirm()`.
 
-Game over when: `dicePool < nRoll` (idle roll click), deck depleted on cadence deal, no legal placements (tray stuck tap or dealt tile auto), or `well-done` when both deck-flank stacks are empty after sweeps. Pre-Flank rules unchanged when `deckFlank` OFF. **Deck Flank ON:** only pool-exhausted loss is suppressed while `flankEndgamePending()` (stacks treated as row tiles via `canRoll` top-up + `shouldBlockGameOver`); tray/dealt stuck use the same pre-Flank checks with flank tops as tile neighbors in `row.js`.
+Game over when: `dicePool < nRoll` (idle roll click), deck depleted on cadence deal, no legal placements (tray stuck tap or dealt tile auto), or `well-done` when both deck-flank stacks are empty after sweeps. **`setGameOverHandler`** (wired in `main.js`) shows the overlay for every `triggerGameOver` call — including async confirm/WELL DONE in Deck Flank. **Warning-red roll button**: one tap always opens game over (`isRollButtonEndGameTap` = `isRollPoolLow()` or rolled tray stuck, before roll/confirm). **Deck Flank ON:** `canRoll` + pool top-up extend play while stacks hold tiles; loss screens identical to Flank OFF.
 
 `resetGame()` sets `state.stars` to `nPlace` when `rerollOuter` ON, else 0; initializes flank stacks when `deckFlank` ON.
 

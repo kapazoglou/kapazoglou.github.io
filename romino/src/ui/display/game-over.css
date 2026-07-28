@@ -1,4 +1,4 @@
-/* ─── GAME-OVER BOTTOM SHEET (inside 412×412 viewport-inner) ─── */
+/* ─── GAME-OVER BOTTOM SHEET (inside viewport-inner; variable width × 412 height) ─── */
 .game-over-overlay {
   position: absolute;
   inset: 0;

@@ -14,7 +14,7 @@ deps: [state, settings, tile-deck, row, dice-visual]
 - `flankTopMatchesIdentity(suit, rank)` / `flankBuriedMatchesIdentity(suit, rank)` — identity lookup (not placement gates; buried cards stay in deck)
 - `findFlankSidesWithTopMatch(suit, rank)` — sides whose top matches a converted tile
 - `flankMatchesIdentity(suit, rank)` — top or buried (full stack)
-- `flankEndgamePending()` — ON and either stack still holds cards (blocks loss game overs except `no legal placements` and `well-done`)
+- `flankEndgamePending()` — ON and either stack still holds cards (`canRoll` top-up only; does not block game-over overlay)
 - `getFlankSweepCol(side)` — virtual col for sweep adjacency (player min−1 / max+1)
 - `popFlankStack(side)` — after sweep: discard top, reveal next from `remaining`, returns `'well-done'` when both stacks empty
 - `sweepTileEntriesWithFlanks()` — row tiles + flank tops for sweep detection

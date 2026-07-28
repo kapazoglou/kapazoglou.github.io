@@ -1,8 +1,8 @@
-import { resetGame } from './logic/turn.js';
+import { resetGame, setGameOverHandler, scheduleRender } from './logic/turn.js';
 import { initDragDrop } from './ui/display/drag-drop.js';
 import { initHandlers } from './ui/display/handlers.js';
 import { initSettingsPanel } from './ui/display/settings-panel.js';
-import { initGameOver } from './ui/display/game-over.js';
+import { initGameOver, showGameOver } from './ui/display/game-over.js';
 import { initNavigationGuard } from './ui/display/navigation-guard.js';
 import { initStarRerollInput } from './ui/display/star-reroll-input.js';
 import { initTutorial, shouldStartTutorial } from './ui/display/tutorial.js';
@@ -18,6 +18,10 @@ await initNumbersDeuceFont();
 
 initDragDrop();
 initStarRerollInput();
+setGameOverHandler(reason => {
+  showGameOver(reason);
+  scheduleRender(render);
+});
 initHandlers();
 initGameOver();
 initNavigationGuard();

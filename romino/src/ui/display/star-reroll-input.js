@@ -3,8 +3,6 @@ import { settings } from '../../logic/settings.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { selectedOuterTrayDieId, tryRerollOuterPay } from '../transitions/reroll-outer-anim.js';
 import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
-import { showGameOver } from './game-over.js';
-import { render } from './render.js';
 
 const DRAG_THRESHOLD = 8;
 const HUD_STAR_PX = 32;
@@ -17,11 +15,6 @@ let hoverDieEl = null;
 let dragStartX = 0;
 let dragStartY = 0;
 let capturedPointerId = null;
-
-function onGameOver(reason) {
-  showGameOver(reason);
-  render();
-}
 
 function flyLayer() {
   return document.querySelector('.viewport-inner');
@@ -151,7 +144,7 @@ function onStarPointerUp(e) {
     const target = trayRerollTargetAt(e.clientX, e.clientY);
     if (target) {
       if (state.stars <= 0) flashStarShortagePlacement();
-      else tryRerollOuterPay(target.dieId, onGameOver);
+      else tryRerollOuterPay(target.dieId);
     }
     clearStarDrag();
     return;
@@ -167,7 +160,7 @@ function onStarPointerUp(e) {
     flashStarShortagePlacement();
     return;
   }
-  tryRerollOuterPay(dieId, onGameOver);
+  tryRerollOuterPay(dieId);
 }
 
 export function initStarRerollInput() {

@@ -1,8 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { returnDieToBar, getValidSlotsForDie, getValidSlotsForDealtTile, slotFromHintDataset } from '../../logic/row.js';
-import { handleRollButton } from '../../logic/turn.js';
-import { showGameOver } from './game-over.js';
+import { handleRollButton, scheduleRender } from '../../logic/turn.js';
 import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
 import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
@@ -12,10 +11,15 @@ export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
     if (state.phase === 'animating' || state.phase === 'replay') return;
 
-    const rollBtn = e.target.closest('#roll-btn');
-    if (rollBtn && !rollBtn.disabled) {
-      if (handleRollButton(reason => { showGameOver(reason); render(); })) render();
-      return;
+    const rollWrap = e.target.closest('.roll-btn-wrap');
+    if (rollWrap) {
+      const rollBtn = rollWrap.querySelector('#roll-btn');
+      if (rollBtn && !rollBtn.disabled) {
+        if (handleRollButton()) {
+          if (state.phase !== 'replay') scheduleRender(render);
+        }
+        return;
+      }
     }
 
     /* Dealt tile tap/drag — drag-drop.js pointer handlers (not click; preventDefault on pointerdown). */

@@ -7,7 +7,7 @@ deps: [dice-visual, highscores, game-log, turn, render]
 ---
 # Game Over
 
-Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), tile cap exceeded, or tray is stuck. Rendered inside `.viewport-inner` (412×412 design frame).
+Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), tile cap exceeded, or tray is stuck. Rendered inside `.viewport-inner` (variable width × 412px design height).
 
 ## Exports
 - `initGameOver()` — handle minimize + PLAY AGAIN → `resetGame()`; tile matrix segmented toggle

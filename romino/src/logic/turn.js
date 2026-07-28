@@ -1,7 +1,7 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnRandomDie } from './dice.js';
-import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags } from './row.js';
+import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags, countDiceInRow } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
 import { resetGameLog } from './game-log.js';
@@ -32,6 +32,19 @@ export function canEndGame() {
   return state.phase === 'idle' && state.dicePool < settings.nRoll;
 }
 
+/** Remaining dice below N-roll — drives `.roll-btn--low` warning-red chrome. */
+export function isRollPoolLow() {
+  clampSettings();
+  return settings.nDice - countDiceInRow() < settings.nRoll;
+}
+
+/** Warning-red tap → game over: matches `.roll-btn--low` and `.roll-btn-wrap--stuck` chrome. */
+export function isRollButtonEndGameTap() {
+  if (isRollPoolLow()) return true;
+  if (state.phase === 'rolled' && isTrayStuck()) return true;
+  return false;
+}
+
 export function canConfirm() {
   return state.phase === 'rolled'
     && state.placedThisTurn >= settings.nPlace
@@ -52,12 +65,6 @@ export function shouldWarnOnLeave() {
   );
 }
 
-/** Deck Flank ON: block pool-exhausted loss while flank stacks still hold tiles (same “row still playable” rule as top-up roll). */
-export function shouldBlockGameOver(reason) {
-  if (!settings.deckFlank || reason === 'well-done') return false;
-  return reason === 'dice pool exhausted' && flankEndgamePending();
-}
-
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
@@ -72,10 +79,27 @@ export function evaluateGameOver(context) {
   return null;
 }
 
-function enterGameOver(reason, onGameOver) {
-  if (shouldBlockGameOver(reason)) return;
+/** @type {((reason: string) => void) | null} */
+let gameOverHandler = null;
+
+/** Wire once from main — async confirm/sweep paths may not carry an inline callback. */
+export function setGameOverHandler(fn) {
+  gameOverHandler = fn;
+}
+
+export function triggerGameOver(reason, onGameOver) {
   state.phase = 'replay';
-  onGameOver?.(reason ?? '');
+  const cb = onGameOver ?? gameOverHandler;
+  cb?.(reason ?? '');
+}
+
+/** Schedule UI sync after the current click/pointer handler finishes. */
+export function scheduleRender(renderFn) {
+  requestAnimationFrame(() => renderFn());
+}
+
+function enterGameOver(reason) {
+  triggerGameOver(reason);
 }
 
 function applyCadenceDealResult(deal) {
@@ -101,7 +125,7 @@ function applyCadenceDealResult(deal) {
 }
 
 /** After discard animations on roll: reveal pending tile and check stuck state. */
-export function finishRollAfterDiscard(onGameOver) {
+export function finishRollAfterDiscard() {
   if (state.pendingDealtTile) {
     state.dealtTile = state.pendingDealtTile;
     state.pendingDealtTile = null;
@@ -111,32 +135,32 @@ export function finishRollAfterDiscard(onGameOver) {
   state.dealingDiscardQueue = [];
   state.phase = 'rolled';
   const stuckReason = evaluateGameOver('post-roll');
-  if (stuckReason) enterGameOver(stuckReason, onGameOver);
+  if (stuckReason) enterGameOver(stuckReason);
 }
 
 /** After confirm animations: auto-roll or pool/stuck game over. */
-export function tryContinueAfterConfirm(onGameOver) {
+export function tryContinueAfterConfirm() {
   state.phase = 'idle';
   const rollResult = rollDice();
   if (!rollResult) {
-    enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted', onGameOver);
+    enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
     return;
   }
   if (rollResult === 'deck-depleted') {
-    enterGameOver('deck depleted', onGameOver);
+    enterGameOver('deck depleted');
     return;
   }
   if (rollResult === 'discard-anim') {
     import('../ui/transitions/deal-discard-anim.js').then(({ runDealDiscardAnimations }) => {
       runDealDiscardAnimations(() => {
-        finishRollAfterDiscard(onGameOver);
+        finishRollAfterDiscard();
         import('../ui/display/render.js').then(({ render }) => render());
       });
     });
     return;
   }
   const stuckReason = evaluateGameOver('post-roll');
-  if (stuckReason) enterGameOver(stuckReason, onGameOver);
+  if (stuckReason) enterGameOver(stuckReason);
 }
 
 /**
@@ -180,7 +204,7 @@ export function rollDice() {
   return 'ok';
 }
 
-export function confirmTurn(onGameOver) {
+export function confirmTurn() {
   if (!canConfirm()) return false;
 
   state.dicePool += state.actionBar.length;
@@ -197,36 +221,41 @@ export function confirmTurn(onGameOver) {
   import('../ui/transitions/confirm-anim.js').then(({ runConfirmAnimations }) => {
     runConfirmAnimations(result => {
       if (result === 'well-done') {
-        enterGameOver('well-done', onGameOver);
+        enterGameOver('well-done');
         return;
       }
-      tryContinueAfterConfirm(onGameOver);
+      tryContinueAfterConfirm();
     });
   });
   return true;
 }
 
-export function handleRollButton(onGameOver) {
+export function handleRollButton() {
   if (state.phase === 'animating' || state.phase === 'replay') return false;
+
+  if (isRollButtonEndGameTap()) {
+    const reason = state.phase === 'rolled'
+      ? 'no legal placements'
+      : (evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
+    enterGameOver(reason);
+    return true;
+  }
+
   if (state.phase === 'rolled') {
-    if (isTrayStuck()) {
-      enterGameOver('no legal placements', onGameOver);
-      return true;
-    }
-    if (!confirmTurn(onGameOver)) return false;
+    if (!confirmTurn()) return false;
     return true;
   }
   if (state.phase === 'idle') {
     if (canRoll()) {
       const rollResult = rollDice();
       if (rollResult === 'deck-depleted') {
-        enterGameOver('deck depleted', onGameOver);
+        enterGameOver('deck depleted');
         return true;
       }
       if (rollResult === 'discard-anim') {
         import('../ui/transitions/deal-discard-anim.js').then(({ runDealDiscardAnimations }) => {
           runDealDiscardAnimations(() => {
-            finishRollAfterDiscard(onGameOver);
+            finishRollAfterDiscard();
             import('../ui/display/render.js').then(({ render }) => render());
           });
         });
@@ -234,13 +263,9 @@ export function handleRollButton(onGameOver) {
       }
       const stuckReason = evaluateGameOver('post-roll');
       if (stuckReason) {
-        enterGameOver(stuckReason, onGameOver);
+        enterGameOver(stuckReason);
         return true;
       }
-      return true;
-    }
-    if (canEndGame()) {
-      enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted', onGameOver);
       return true;
     }
   }

@@ -40,6 +40,9 @@ lastVerified: 2026-07-28
 
 - **deck-flank.js v2.1, turn.js v2.9, action-bar.js v1.36, reroll-outer-anim.js v1.4** — Deck Flank: block loss game overs while flank stacks hold cards; roll tops up pool when low
 
+- **turn.js v2.15, main.js, game-over.js v2.1** — Deck Flank game-over fix: setGameOverHandler at boot; overlay shows on async WELL DONE
+- **turn.js v2.14, reroll-outer-anim.js v1.5** — game-over overlay always loads in Deck Flank (removed shouldBlockGameOver)
+- **turn.js v2.13, action-bar.js v1.40** — warning-red roll tap always game over (bypasses Flank pool block on explicit tap)
 - **turn.js v2.12, row.js v1.50** — restore pre-Flank game-over rules; Flank ON only blocks pool-exhausted while stacks hold tiles
 - **turn.js v2.11, row.js v1.46** — Deck Flank: parity — all blocked loss game overs incl. tray/dealt stuck while flank stacks hold cards
 - **turn.js v2.10, action-bar.js v1.37** — tray stuck game over with Deck Flank ON
@@ -143,7 +146,7 @@ lastVerified: 2026-07-28
 - **sweeps-row.js v1.4** — ace dual rank (1|13) + wrap bridges for ascending sweep runs
 - **row.js v1.6, convert.js v1.3, sweeps-row.js v1.2, dice-visual.js v1.9** — 1↔6 ace: bypass 1to1 on pair, convert to rank A (sum 1), sweep 2–A–12
 - **dice-visual.js v2.2, action-bar.js, placement-row.js, base.css** — tray + this-turn dice brightened face border; settled row dice white; tiles keep `--tile-border`
-- **base.css** — `--design-size: 412px`; `.viewport` + `.viewport-inner` scale to `min(100vw, 100dvh)` with no upper cap; settings panel inside scaled frame
+- **base.css** — design canvas 412px tall; width 412–824px in landscape (`100dvh` height, uniform scale); portrait square `min(100vw, 100dvh)`; settings panel inside scaled frame
 - **placement-row.css** — tile content-box outside border (48×92 outer); horizontal + vertical column border overlap; col padding removed
 - **base.css** — `--die-stack-pair-height`; `--col-width` aliases `--die-size`
 - **row.js v1.2** — gap insert between dice/tiles (not tile↔tile); column shift on adjacency

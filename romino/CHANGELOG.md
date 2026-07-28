@@ -5,6 +5,13 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **base.css** — landscape viewport: full `100dvh` height; design width clamps 412–824px (2×412); portrait unchanged (square `min(100vw, 100dvh)`)
+- **turn.js v2.18** — `.roll-btn--low` tap → game over in any phase (was idle-only); fixes confirm/auto-roll when warning-red number shows in rolled phase
+- **action-bar.js v1.41, turn.js v2.17** — restore pre-Flank warning-red roll chrome (`isRollPoolLow`, `isTrayStuck`); tap → game over via `isRollButtonEndGameTap` unchanged (incl. Deck Flank)
+- **turn.js v2.16, handlers.js, action-bar.js, main.js** — fix double-tap on warning-red roll: defer render until after click; skip duplicate render on game over
+- **turn.js v2.15, main.js, game-over.js v2.1, handlers.js, reroll-outer-anim.js v1.6** — fix Deck Flank game-over: `setGameOverHandler` wired at boot; async WELL DONE/stuck paths always show overlay; overlay reveals before stats; roll-wrap click target
+- **turn.js v2.14, reroll-outer-anim.js v1.5** — remove `shouldBlockGameOver`; game-over overlay always loads in Deck Flank (same as Flank OFF); Flank only extends play via `canRoll`/pool top-up; export `triggerGameOver`
+- **turn.js v2.13, action-bar.js v1.40** — warning-red roll button (low pool or tray stuck): one tap always opens game over, including Deck Flank pool-low state; shared `isRollButtonEndGameTap` / `isRollPoolLow`
 - **turn.js v2.12, row.js v1.50, action-bar.md v1.39** — restore pre-Flank game-over rules; Deck Flank ON only suppresses pool-exhausted loss while stacks hold tiles (`shouldBlockGameOver`); tray/dealt stuck unchanged (flank tops as tile neighbors in row checks)
 - **row.js v1.49** — fix Deck Flank placement: drop buried-flank duplicate gate (52-card deck made almost every stack completion illegal); flank tops still swept on convert match
 - **deck-flank.js v2.3, row.js v1.48, convert-anim.js v1.3, sweep-anim.js v1.9, confirm-anim.js v1.6** — Deck Flank: on convert, matching flank stack top sweeps away (same anim as sweep), count decrements, next card revealed; placement duplicate gate blocks buried flank cards only (top resolved on convert)
