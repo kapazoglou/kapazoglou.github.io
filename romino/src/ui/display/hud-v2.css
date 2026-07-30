@@ -37,6 +37,19 @@
 .hud-scroll-btn--left { left: 16px; }
 .hud-scroll-btn--right { right: 16px; }
 
+.hud-deck {
+  position: absolute;
+  top: 19px;
+  left: 19px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  font-family: 'Averia Libre', serif;
+  font-size: 32px;
+  line-height: 1;
+  color: #fff;
+}
+
 .hud-scroll-btn:disabled {
   opacity: 0.25;
   pointer-events: none;

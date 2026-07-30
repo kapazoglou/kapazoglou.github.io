@@ -3,6 +3,7 @@ import { settings } from './settings.js';
 import { tileIdentityFromStackValues, tileIdentityRequiresStar, JOKER_RANK } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
 import { recordTileCreated, recordStarSpent } from './game-log.js';
+import { tickDeckOnConvert } from './deck-size.js';
 
 function convertOptions() {
   return {
@@ -31,9 +32,10 @@ export function getConvertibleCols() {
   });
 }
 
+/** @returns {'well-done' | null} */
 export function convertColumn(col) {
   const column = state.row[col];
-  if (!column || column.kind !== 'stack' || column.dice.length !== 3) return;
+  if (!column || column.kind !== 'stack' || column.dice.length !== 3) return null;
   const values = column.dice.map(id => state.dice[id].value);
   state.dicePool += column.dice.length;
   const tile = tileIdentityFromStackValues(values, convertOptions());
@@ -44,6 +46,7 @@ export function convertColumn(col) {
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
   state.row[col] = { kind: 'tile', ...tile };
   recordTileCreated(tile, col);
+  return tickDeckOnConvert();
 }
 
 export function convertFullStacks() {

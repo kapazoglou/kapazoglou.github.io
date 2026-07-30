@@ -1,5 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
+import { isDeckSizeActive } from '../../logic/deck-size.js';
 import { SUIT_BADGE_ORDER, SUIT_COLOR, starSVG } from '../../logic/dice-visual.js';
 
 function suitBadgeHTML(letter) {
@@ -15,8 +16,12 @@ export function renderHUD() {
 
   const badges = SUIT_BADGE_ORDER.map(letter => suitBadgeHTML(letter)).join('');
   const starDraggable = settings.rerollOuter && state.phase === 'rolled' && state.stars > 0;
+  const deckHTML = isDeckSizeActive()
+    ? `<span class="hud-deck" id="hud-deck" aria-label="Deck remaining">${state.deckRemaining}</span>`
+    : '';
 
   hud.innerHTML = `
+    ${deckHTML}
     <div class="hud-center">
       <div class="hud-score" id="hud-score-tap">
         <span class="hud-stars" id="hud-stars">${state.stars}</span>

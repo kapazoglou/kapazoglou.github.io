@@ -5,6 +5,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 ---
 
 ### Changed
+- **hud-v2.css** — deck counter vertically aligned to score row (30px band, unchanged score layout)
+- **settings.js v2.22, settings-panel.js, deck-size.js v1.0, state.js v2.12, turn.js v2.21, convert.js v1.9, convert-anim.js v1.4, hud-v2.js, hud-v2.css** — `deckSize` stepper (0 = off, default 52, max 108): top-left HUD counter; decrements on each stack→tile conversion; WELL DONE when counter hits 0 after confirm pipeline
 - **action-bar.css v1.47** — roll/KO/back button labels: unitless line-height + 2px bottom padding for optical vertical lift
 - **action-bar.css v1.46** — armed KO bar: fix die-face borders — back `&lt;` white, KO warning red (exclude armed wrap from global accent ring)
 - **action-bar.js v1.45, action-bar.css** — armed KO bar: number slot shows white `&lt;` with white die border; KO stays red

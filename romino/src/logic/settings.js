@@ -9,6 +9,7 @@ export const SETTINGS_CONFIG = [
       { key: 'nRoll',  label: 'N-roll',         default: 3,  type: 'stepper', min: 1, max: 6 },
       { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 1, max: 6 },
       { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 6 },
+      { key: 'deckSize',       label: 'Deck Size',        default: 52, type: 'stepper', min: 0, max: 108 },
     ],
   },
   {

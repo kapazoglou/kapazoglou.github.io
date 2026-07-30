@@ -146,14 +146,15 @@ export function processConverts(cols, index, onDone, wellDoneResult = null) {
     requestAnimationFrame(() => {
       const runFlyBack = () => {
         animateConvertFlyBack(col, () => {
-          convertColumn(col);
+          const convertResult = convertColumn(col);
+          const mergedWellDone = mergeWellDone(wellDoneResult, convertResult);
           state.convertingCol = null;
           state.newTileCols.add(col);
           render();
           setTimeout(() => {
             state.newTileCols.delete(col);
             renderHUD();
-            afterConvertTile(col, cols, index, onDone, wellDoneResult);
+            afterConvertTile(col, cols, index, onDone, mergedWellDone);
           }, spd(CONVERT_MS));
         });
       };

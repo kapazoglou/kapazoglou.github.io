@@ -50,6 +50,8 @@ export function createInitialState() {
     pendingDealtTile: null,
     dealingDiscardQueue: [],
     dealingDiscardTile: null,
+    /** Remaining deck conversions this session; null when deckSize setting is 0. */
+    deckRemaining: null,
     /** Deck Flank — virtual 26-card stacks on row edges. */
     flankStackLeft: { remaining: [], top: null },
     flankStackRight: { remaining: [], top: null },

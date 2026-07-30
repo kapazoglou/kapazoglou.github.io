@@ -1,8 +1,8 @@
 ---
 module: convert-anim
 layer: ui/transitions
-v: 1.3
-date: 2026-07-28
+v: 1.4
+date: 2026-07-30
 deps: [state, settings, convert, render, timing, dice-visual]
 ---
 # Convert Anim
@@ -11,7 +11,7 @@ Salvaged from Square `card-anim`: tray slide-in + stack→tile conversion sequen
 
 ## Exports
 - `processConverts(cols, index, onDone, wellDoneResult?)` — ace/joker: star pay fly first, then fly-back then mutate; matching flank tops swept after each convert
-- `animateConverts(onDone)` — queue all full stacks on the row; passes `'well-done'` when convert-match discard empties both flank stacks
+- `animateConverts(onDone)` — queue all full stacks on the row; passes `'well-done'` when convert-match discard empties both flank stacks or deck-size counter hits 0
 - `animateConvertFlyBack(col, onDone)` — (internal) top-first stagger to roll button
 
 ## CSS

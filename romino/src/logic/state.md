@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.11
-date: 2026-07-28
+v: 2.12
+date: 2026-07-30
 deps: []
 ---
 # State
@@ -15,6 +15,7 @@ Single source of truth for v2 row game.
 - `dealtTile` — tile identity in action bar awaiting placement
 - `placedDealtTileCol` — row column of dealt tile placed this turn (repositionable until confirm)
 - `tileDeckRemaining` — shuffled deck keys for cadence deals
+- `deckRemaining` — conversions left this session when `deckSize` setting > 0; else `null`
 - `flankStackLeft`, `flankStackRight` — `{ remaining, top }` virtual deck-flank stacks
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`

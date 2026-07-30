@@ -4,6 +4,7 @@ import { spawnRandomDie } from './dice.js';
 import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags, countDiceInRow, rowHasThreeDiceStack } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
+import { initDeckRemaining } from './deck-size.js';
 import { resetGameLog } from './game-log.js';
 
 /** Starting star balance for a fresh game (rerollOuter seeds N-place). */
@@ -20,6 +21,7 @@ export function resetGame() {
   state.phase = 'idle';
   initTileDeck();
   initFlankStacks();
+  initDeckRemaining();
 }
 
 export function canRoll() {
