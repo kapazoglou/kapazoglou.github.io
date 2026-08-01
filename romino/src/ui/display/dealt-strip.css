@@ -1,0 +1,80 @@
+.dealt-strip {
+  position: relative;
+  flex-shrink: 0;
+  height: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.dealt-strip-inner {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%) translateY(50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  pointer-events: none;
+}
+
+.dealt-strip-inner .dealt-strip-tile + .dealt-strip-tile {
+  margin-left: -1.5px;
+}
+
+/* Half-size tiles — explicit dims (global .placement-tile.is-new resets transform). */
+.dealt-strip-inner .dealt-strip-tile.placement-tile {
+  width: calc(var(--die-face) * 0.5);
+  height: calc(var(--tile-face-h) * 0.5);
+  font-size: 20px;
+  line-height: 19px;
+  border-radius: 6px;
+  border-width: calc(var(--die-border) * 0.5);
+  color: #fff;
+  background: var(--strip-tile-bg, #404A59);
+  border-color: #fff;
+  flex-shrink: 0;
+  pointer-events: auto;
+  cursor: default;
+  touch-action: manipulation;
+  transition: border-color calc(0.3s * var(--t)) ease;
+}
+
+.dealt-strip-tile--accent {
+  border-color: var(--accent);
+  cursor: pointer;
+}
+
+.dealt-strip-tile--warning {
+  border-color: var(--warning-red);
+}
+
+.dealt-strip-inner .dealt-strip-tile.dealt-strip-tile--sweep-pending {
+  animation: sweep-tile-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
+}
+
+.dealt-strip-inner .dealt-strip-tile.dealt-strip-tile--sweep-run {
+  overflow: visible;
+  z-index: 6;
+  animation-duration: calc(0.58s * var(--t));
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.33, 1, 0.45, 1);
+  animation-delay: calc(var(--exit-order, 0) * 68ms * var(--t));
+  animation-name: row-sweep-v;
+}
+
+.dealt-strip-inner .dealt-strip-tile.is-new {
+  animation: dealt-strip-tile-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}
+
+@keyframes dealt-strip-tile-enter {
+  0%   { opacity: 0; transform: scale(0.88); }
+  65%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.placement-col--tile .placement-tile--duplicate-warning {
+  transition: border-color calc(0.3s * var(--t)) ease;
+  border-color: var(--warning-red);
+}

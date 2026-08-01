@@ -1,11 +1,19 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
-import { spawnRandomDie } from './dice.js';
-import { isTrayStuck, hasAnyLegalPlacementForDealtTile, clearDealtThisTurnFlags, countDiceInRow, rowHasThreeDiceStack } from './row.js';
+import { spawnKnownDie, spawnRandomDie } from './dice.js';
+import { isTrayStuck, countDiceInRow, rowHasThreeDiceStack } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
+import { appendDealtStripTile } from './dealt-strip.js';
 import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
 import { initDeckRemaining } from './deck-size.js';
 import { resetGameLog } from './game-log.js';
+import {
+  initDominoPools,
+  clearDominoTrayState,
+  drawDominoRoll,
+  settleDominoQuadRoll,
+  tickDominoDeckOnRoll,
+} from './domino-roll.js';
 
 /** Starting star balance for a fresh game (rerollOuter seeds N-place). */
 export function initialStarCount() {
@@ -22,6 +30,8 @@ export function resetGame() {
   initTileDeck();
   initFlankStacks();
   initDeckRemaining();
+  initDominoPools();
+  clearDominoTrayState();
 }
 
 export function canRoll() {
@@ -54,8 +64,7 @@ export function isRollButtonEndGameTap() {
 
 export function canConfirm() {
   return state.phase === 'rolled'
-    && state.placedThisTurn >= settings.nPlace
-    && !state.dealtTile;
+    && state.placedThisTurn >= settings.nPlace;
 }
 
 /** True when leaving the page would discard an in-progress session (not fresh reset / game over). */
@@ -68,7 +77,7 @@ export function shouldWarnOnLeave() {
     state.points === 0 &&
     state.stars === initialStarCount() &&
     state.actionBar.length === 0 &&
-    !state.dealtTile
+    state.dealtStrip.length === 0
   );
 }
 
@@ -77,11 +86,6 @@ export function evaluateGameOver(context) {
   clampSettings();
   if (context === 'idle-roll' && state.dicePool < settings.nRoll) {
     return 'dice pool exhausted';
-  }
-  if (context === 'post-roll') {
-    if (state.dealtTile && state.placedThisTurn >= settings.nPlace && !hasAnyLegalPlacementForDealtTile()) {
-      return 'no legal placements';
-    }
   }
   return null;
 }
@@ -121,42 +125,6 @@ export function commitRollButtonGameOver(reason) {
   enterGameOver(reason);
 }
 
-function applyCadenceDealResult(deal) {
-  state.pendingDealtTile = null;
-  state.dealingDiscardQueue = [];
-  state.dealingDiscardTile = null;
-
-  if (deal.deckDepleted) return 'deck-depleted';
-
-  if (deal.discardedTiles.length) {
-    state.dealingDiscardQueue = deal.discardedTiles.slice(1);
-    state.dealingDiscardTile = deal.discardedTiles[0];
-    state.pendingDealtTile = deal.dealtTile;
-    state.phase = 'animating';
-    return 'discard-anim';
-  }
-
-  if (deal.dealtTile) {
-    state.dealtTile = deal.dealtTile;
-    state.newDealtTile = true;
-  }
-  return 'ok';
-}
-
-/** After discard animations on roll: reveal pending tile and check stuck state. */
-export function finishRollAfterDiscard() {
-  if (state.pendingDealtTile) {
-    state.dealtTile = state.pendingDealtTile;
-    state.pendingDealtTile = null;
-    state.newDealtTile = true;
-  }
-  state.dealingDiscardTile = null;
-  state.dealingDiscardQueue = [];
-  state.phase = 'rolled';
-  const stuckReason = evaluateGameOver('post-roll');
-  if (stuckReason) enterGameOver(stuckReason);
-}
-
 /** After confirm animations: auto-roll or pool/stuck game over. */
 export function tryContinueAfterConfirm() {
   state.phase = 'idle';
@@ -165,17 +133,8 @@ export function tryContinueAfterConfirm() {
     enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
     return;
   }
-  if (rollResult === 'deck-depleted') {
-    enterGameOver('deck depleted');
-    return;
-  }
-  if (rollResult === 'discard-anim') {
-    import('../ui/transitions/deal-discard-anim.js').then(({ runDealDiscardAnimations }) => {
-      runDealDiscardAnimations(() => {
-        finishRollAfterDiscard();
-        import('../ui/display/render.js').then(({ render }) => render());
-      });
-    });
+  if (rollResult === 'well-done') {
+    enterGameOver('well-done');
     return;
   }
   const stuckReason = evaluateGameOver('post-roll');
@@ -183,7 +142,7 @@ export function tryContinueAfterConfirm() {
 }
 
 /**
- * @returns {null | 'ok' | 'deck-depleted' | 'discard-anim'}
+ * @returns {null | 'ok' | 'well-done'}
  */
 export function rollDice() {
   if (!canRoll()) return null;
@@ -198,25 +157,41 @@ export function rollDice() {
   state.dicePool -= count;
   state.actionBar = [];
   state.newTrayDieIds = new Set();
-  for (let i = 0; i < count; i++) {
-    const id = spawnRandomDie();
-    state.actionBar.push(id);
-    state.newTrayDieIds.add(id);
+  clearDominoTrayState();
+
+  const useDominoRoll = settings.dominoRoll && (count === 2 || count === 3 || count === 4);
+  if (useDominoRoll) {
+    const drawResult = drawDominoRoll(count);
+    if (!drawResult) return null;
+    const { values, pairGroups, pairComboKeys } = drawResult;
+    for (const value of values) {
+      const id = spawnKnownDie(value);
+      state.actionBar.push(id);
+      state.newTrayDieIds.add(id);
+    }
+    if (pairGroups) {
+      state.dominoPairGroups = [
+        [state.actionBar[0], state.actionBar[1]],
+        [state.actionBar[2], state.actionBar[3]],
+      ];
+      state.dominoPairComboKeys = pairComboKeys ?? null;
+    }
+    tickDominoDeckOnRoll(count);
+  } else {
+    for (let i = 0; i < count; i++) {
+      const id = spawnRandomDie();
+      state.actionBar.push(id);
+      state.newTrayDieIds.add(id);
+    }
   }
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
   state.selectedDieId = null;
-  state.selectedDealtTile = false;
-  clearDealtThisTurnFlags();
-  state.dealtTile = null;
-  state.pendingDealtTile = null;
-  state.dealingDiscardQueue = [];
-  state.dealingDiscardTile = null;
 
   if (settings.tileDealtEvery > 0 && !settings.deckFlank && state.rollCount % settings.tileDealtEvery === 0) {
-    const deal = resolveCadenceDeal({ chainDraw: settings.tileDealtChainDraw });
-    const dealResult = applyCadenceDealResult(deal);
-    if (dealResult !== 'ok') return dealResult;
+    const deal = resolveCadenceDeal();
+    if (deal.deckDepleted) return 'well-done';
+    if (deal.tile) appendDealtStripTile(deal.tile);
   }
 
   state.phase = 'rolled';
@@ -226,15 +201,14 @@ export function rollDice() {
 export function confirmTurn() {
   if (!canConfirm()) return false;
 
+  settleDominoQuadRoll(state.placedDieIds);
+
   state.dicePool += state.actionBar.length;
   state.actionBar = [];
   state.starNewDieIds = new Set(state.placedDieIds);
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
   state.selectedDieId = null;
-  state.selectedDealtTile = false;
-  clearDealtThisTurnFlags();
-  state.dealtTile = null;
   state.phase = 'animating';
 
   import('../ui/transitions/confirm-anim.js').then(({ runConfirmAnimations }) => {
@@ -262,17 +236,8 @@ export function handleRollButton() {
   if (state.phase === 'idle') {
     if (canRoll()) {
       const rollResult = rollDice();
-      if (rollResult === 'deck-depleted') {
-        return { pendingEndGame: 'deck depleted' };
-      }
-      if (rollResult === 'discard-anim') {
-        import('../ui/transitions/deal-discard-anim.js').then(({ runDealDiscardAnimations }) => {
-          runDealDiscardAnimations(() => {
-            finishRollAfterDiscard();
-            import('../ui/display/render.js').then(({ render }) => render());
-          });
-        });
-        return true;
+      if (rollResult === 'well-done') {
+        return { pendingEndGame: 'well-done' };
       }
       const stuckReason = evaluateGameOver('post-roll');
       if (stuckReason) {

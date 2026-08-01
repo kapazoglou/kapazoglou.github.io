@@ -61,15 +61,6 @@ export function initTileDeck() {
   state.tileDeckRemaining = keys;
 }
 
-export function isDuplicateOnRow(tile) {
-  for (const column of Object.values(state.row)) {
-    if (column.kind === 'tile' && column.suit === tile.suit && column.rank === tile.rank) {
-      return true;
-    }
-  }
-  return false;
-}
-
 export function drawFromDeck() {
   if (!state.tileDeckRemaining.length) return null;
   const idx = Math.floor(Math.random() * state.tileDeckRemaining.length);
@@ -78,35 +69,13 @@ export function drawFromDeck() {
 }
 
 /**
- * @param {{ chainDraw: boolean }} opts
- * @returns {{ dealtTile: object|null, discardedTiles: object[], deckDepleted: boolean }}
+ * @returns {{ tile: object|null, deckDepleted: boolean }}
  */
-export function resolveCadenceDeal({ chainDraw }) {
-  const discardedTiles = [];
-
+export function resolveCadenceDeal() {
   if (!state.tileDeckRemaining.length) {
-    return { dealtTile: null, discardedTiles, deckDepleted: true };
+    return { tile: null, deckDepleted: true };
   }
-
-  if (!chainDraw) {
-    const drawn = drawFromDeck();
-    if (!drawn) return { dealtTile: null, discardedTiles, deckDepleted: true };
-    if (isDuplicateOnRow(drawn)) {
-      return { dealtTile: null, discardedTiles: [drawn], deckDepleted: false };
-    }
-    return { dealtTile: drawn, discardedTiles, deckDepleted: false };
-  }
-
-  while (true) {
-    if (!state.tileDeckRemaining.length) {
-      return { dealtTile: null, discardedTiles, deckDepleted: true };
-    }
-    const drawn = drawFromDeck();
-    if (!drawn) return { dealtTile: null, discardedTiles, deckDepleted: true };
-    if (isDuplicateOnRow(drawn)) {
-      discardedTiles.push(drawn);
-      continue;
-    }
-    return { dealtTile: drawn, discardedTiles, deckDepleted: false };
-  }
+  const tile = drawFromDeck();
+  if (!tile) return { tile: null, deckDepleted: true };
+  return { tile, deckDepleted: false };
 }

@@ -26,13 +26,51 @@
   width: 100%;
   position: relative;
   z-index: 1;
-  /* Full-width flex layer must not steal taps from the dealt-tile slot underneath. */
   pointer-events: none;
 }
 
 .action-bar-dice .die--action:not(.die--action-inactive),
 .action-bar-dice .die--action-inactive.die--rerollable {
   pointer-events: auto;
+}
+
+.action-bar-dice--domino-quad {
+  gap: 0;
+  align-items: flex-start;
+}
+
+.domino-pair-slot {
+  width: calc(2 * var(--die-size));
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.domino-pair-slot--left-toward-sep {
+  justify-content: flex-end;
+}
+
+.domino-pair-slot--right-toward-sep {
+  justify-content: flex-start;
+}
+
+.domino-pair {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.domino-pair-sep {
+  flex-shrink: 0;
+  align-self: center;
+  font-family: 'Averia Libre', serif;
+  font-size: 24px;
+  line-height: 1;
+  color: #fff;
+  padding: 0 4px;
+  pointer-events: none;
+  user-select: none;
 }
 
 .die--action {
@@ -56,49 +94,6 @@
 
 .die--action-inactive.die--rerollable {
   cursor: pointer;
-}
-
-.action-bar-tile-slot {
-  position: absolute;
-  left: 20px;
-  top: 36px;
-  z-index: 3;
-  pointer-events: auto;
-}
-
-.action-bar-tile-slot .placement-tile--drag-pending {
-  opacity: 0.85;
-}
-
-.action-bar-tile-slot .placement-tile[data-dealt-tile] {
-  cursor: pointer;
-  flex-shrink: 0;
-  touch-action: none;
-  pointer-events: auto;
-  transition: opacity calc(0.15s * var(--t)) ease;
-}
-
-.action-bar-tile-slot .placement-tile--inactive {
-  opacity: 0.45;
-  cursor: default;
-  pointer-events: none;
-}
-
-/* Dealt disabled on deal — is-new entrance must not animate to full opacity. */
-.action-bar-tile-slot .placement-tile--inactive.is-new {
-  animation: placement-tile-enter-inactive calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
-}
-
-.action-bar-tile-slot .placement-tile--discarding {
-  pointer-events: none;
-}
-
-.action-bar-tile-slot .placement-tile--sweep-pending {
-  animation: sweep-tile-pop calc(0.22s * var(--t)) ease both;
-}
-
-.action-bar-tile-slot .placement-tile--sweep-exit {
-  animation: row-sweep-v calc(0.58s * var(--t)) cubic-bezier(0.33, 1, 0.45, 1) forwards;
 }
 
 .roll-btn-wrap {

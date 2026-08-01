@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { returnDieToBar, getValidSlotsForDie, getValidSlotsForDealtTile, slotFromHintDataset } from '../../logic/row.js';
+import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset } from '../../logic/row.js';
 import { handleRollButton, scheduleRender, isRollButtonEndGameTap, getRollButtonEndGameReason, commitRollButtonGameOver } from '../../logic/turn.js';
 import {
   armEndGamePrompt,
@@ -8,14 +8,25 @@ import {
   getPendingEndGameReason,
   isEndGamePromptArmed,
 } from './end-game-prompt.js';
-import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
+import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
+import { attemptPlacementAtPoint } from './placement-input.js';
 import { consumeRowClickBlock } from './drag-drop.js';
+import { startPairSweepAnimation } from './dealt-strip.js';
+import { stripTileHasRowDuplicate } from '../../logic/dealt-strip.js';
 
 export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
     if (state.phase === 'animating' || state.phase === 'replay') return;
+
+    const stripTile = e.target.closest('.dealt-strip-tile--accent[data-strip-id]');
+    if (stripTile) {
+      const stripId = Number(stripTile.dataset.stripId);
+      if (stripTileHasRowDuplicate(stripId)) {
+        startPairSweepAnimation(stripId);
+      }
+      return;
+    }
 
     const rollWrap = e.target.closest('.roll-btn-wrap');
     if (rollWrap) {
@@ -50,21 +61,15 @@ export function initHandlers() {
       }
     }
 
-    /* Dealt tile tap/drag — drag-drop.js pointer handlers (not click; preventDefault on pointerdown). */
     if (settings.directPlacement) {
       if (consumeRowClickBlock()) return;
 
       if (e.target.closest('#placement-row') && !e.target.closest('.die--placed, .placement-tile--returnable')) {
-        if (state.selectedDealtTile) {
-          const result = attemptDealtTilePlacementAtPoint(e.clientX, e.clientY);
-          if (result === 'placed' || result === 'invalid') return;
-        }
         if (state.selectedDieId != null) {
           const result = attemptPlacementAtPoint(state.selectedDieId, e.clientX, e.clientY);
           if (result === 'placed' || result === 'invalid') return;
         }
         state.selectedDieId = null;
-        state.selectedDealtTile = false;
         renderSelection();
         return;
       }
@@ -72,26 +77,12 @@ export function initHandlers() {
     }
 
     const hint = e.target.closest('.placement-hint');
-    if (hint && state.selectedDealtTile) {
-      placeDealtTileWithAnim(slotFromHintDataset(hint.dataset));
-      return;
-    }
     if (hint && state.selectedDieId != null) {
       placeDieWithAnim(state.selectedDieId, slotFromHintDataset(hint.dataset));
       return;
     }
 
     const ghostEdge = e.target.closest('.placement-col--ghost-edge');
-    if (ghostEdge && state.selectedDealtTile) {
-      const edge = ghostEdge.dataset.edge;
-      const slot = getValidSlotsForDealtTile().find(
-        s => s.kind === 'insert' && (edge === 'left' ? s.leftCol === null : s.rightCol === null),
-      );
-      if (slot) {
-        placeDealtTileWithAnim(slot);
-        return;
-      }
-    }
     if (ghostEdge && state.selectedDieId != null) {
       const edge = ghostEdge.dataset.edge;
       const slot = getValidSlotsForDie(state.selectedDieId).find(
@@ -104,13 +95,6 @@ export function initHandlers() {
     }
 
     const ghostFirst = e.target.closest('.placement-col--ghost-first');
-    if (ghostFirst && state.selectedDealtTile) {
-      const slot = getValidSlotsForDealtTile().find(s => s.kind === 'new-column');
-      if (slot) {
-        placeDealtTileWithAnim(slot);
-        return;
-      }
-    }
     if (ghostFirst && state.selectedDieId != null) {
       const slot = getValidSlotsForDie(state.selectedDieId).find(s => s.kind === 'new-column');
       if (slot) {
@@ -121,7 +105,6 @@ export function initHandlers() {
 
     if (e.target.closest('#placement-row') && !e.target.closest('.die--placed, .placement-tile--returnable')) {
       state.selectedDieId = null;
-      state.selectedDealtTile = false;
       renderSelection();
     }
   });

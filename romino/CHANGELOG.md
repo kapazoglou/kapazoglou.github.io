@@ -4,7 +4,25 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **dealt-strip display v1.2, dealt-strip.css, sweep-anim.js v1.11, placement-row.js, dice-visual.js** — between-zone sweeps use same beat + pop + row-sweep-v as row tiles (pair-sweep + row-sweep cascade)
+
+- **dealt-strip.js v1.1, dealt-strip.css, dealt-strip display v1.1** — strip tiles: true 50% dimensions (fixes is-new scale override), 0 gap, sorted A→* by rank
+
+- **dealt-strip.js v1.0, dealt-strip.css, dealt-strip display v1.0, state.js v2.15, tile-deck.js v1.1, turn.js v2.26, row.js v1.53, settings.js v2.24, settings-panel.js v1.35, render.js v1.6, invalid-flash.js v1.2, sweep-anim.js v1.10, handlers.js v2.10, drag-drop.js v2.34, placement-anim.js v1.27, placement-row.js, placement-input.js, action-bar.js v1.53, action-bar.css, index.html, base.css** — Tile Dealt strip redesign: half-size tiles on row↔tray seam (accumulate per cadence roll); block duplicate converts with flash + 3s warning border; accent tap pair-sweeps row duplicate without score; row sweeps clear strip; deck empty → WELL DONE; removed bar dealt tile, chain draw, deal-discard anim, N-place gating, reposition
+
 ### Changed
+- **action-bar.js v1.52** — nRoll=4 domino tray: returned dice keep actionBar return order within each pair
+- **action-bar.js v1.51** — nRoll=4 domino tray: toward-`|` shift starts on drag, not only after placement
+- **action-bar.js v1.50, action-bar.css** — nRoll=4 domino tray: remaining dice hug `|` after placement from that pair
+- **domino-roll.js v1.5, turn.js v2.26** — Domino Roll HUD counter decrements only on roll-button roll (not on confirm/pool settle); resets when it hits 0
+- **action-bar.js v1.49, action-bar.css** — nRoll=4 domino tray: fixed-width pair slots centre remaining dice; pipe separator stays put
+- **action-bar.js v1.48** — fix nRoll=4 domino tray showing placed dice (filter pairs by actionBar)
+- **action-bar.js v1.47, action-bar.css** — nRoll=4 domino quad tray: `|` between pairs; 0px gap within each pair
+- **domino-roll.js v1.4, turn.js v2.25, drag-drop.js v2.33, state.js v2.14** — nRoll=4 Domino Roll: unused pair returned to end of list on confirm (net −1 per roll); full reshuffle only when pair pool depleted
+- **domino-roll.js v1.3, turn.js v2.24** — Domino Roll: empty combo list restarts from top (no WELL DONE); HUD counter resets to full cap
+- **domino-roll.js v1.2** — nRoll=4 with 1 combo left: pair B is random draw from fresh shuffle (not first entry)
+- **deck-size.js v1.1, domino-roll.js v1.1, turn.js v2.23** — Domino Roll: HUD deck counter tracks combo list (active even when deckSize=0); list capped by deckSize when >0; WELL DONE on exhaustion; nRoll=4 with 1 left offers last combo + first of fresh shuffle
+- **settings.js v2.23, domino-roll.js v1.0, state.js v2.13, turn.js v2.22, dice.js v2.3, row.js v1.52, drag-drop.js v2.32, action-bar.js v1.46, action-bar.css** — `dominoRoll` toggle: nRoll 2/3/4 draw from depleting 21-pair / 56-triple pools; nRoll=4 dual-pair tray with pair lock on select (unlock on deselect)
 - **hud-v2.css** — deck counter vertically aligned to score row (30px band, unchanged score layout)
 - **settings.js v2.22, settings-panel.js, deck-size.js v1.0, state.js v2.12, turn.js v2.21, convert.js v1.9, convert-anim.js v1.4, hud-v2.js, hud-v2.css** — `deckSize` stepper (0 = off, default 52, max 108): top-left HUD counter; decrements on each stack→tile conversion; WELL DONE when counter hits 0 after confirm pipeline
 - **action-bar.css v1.47** — roll/KO/back button labels: unitless line-height + 2px bottom padding for optical vertical lift

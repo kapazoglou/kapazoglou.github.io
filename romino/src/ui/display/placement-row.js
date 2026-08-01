@@ -5,8 +5,8 @@ import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHT
 import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
-  getOccupiedCols, getValidSlotsForDie, getValidSlotsForDealtTile,
-  isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt, canPlaceDealtTile, isPlacedDealtTileCol,
+  getOccupiedCols, getValidSlotsForDie,
+  isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt,
   slotsEqual, stackHeight, spreadContextForDie,
 } from '../../logic/row.js';
 
@@ -193,7 +193,7 @@ export function renderPlacementRow() {
   const occupied = getOccupiedCols();
   const showEdgeGhosts = !settings.directPlacement
     && occupied.length > 0
-    && (state.selectedDieId != null || state.selectedDealtTile)
+    && state.selectedDieId != null
     && state.phase !== 'animating';
 
   let colsHTML = '';
@@ -214,11 +214,16 @@ export function renderPlacementRow() {
       }
 
       if (column.kind === 'tile') {
-        const returnable = isPlacedDealtTileCol(col);
-        const selected = returnable && state.selectedDealtTile;
+        const pairExit = state.pairSweepExit;
+        if (pairExit?.rowCol === col) {
+          if (pairExit.phase === 'wait') colClass += ' placement-col--sweep-pending';
+          else if (pairExit.phase === 'run') {
+            colClass += ' placement-col--sweep';
+            colStyle = ' style="--exit-order:0"';
+          }
+        }
         const classExtra = [
-          returnable ? 'placement-tile--returnable' : '',
-          selected ? 'placement-tile--selected' : '',
+          state.rowTileWarningCols.has(col) ? 'placement-tile--duplicate-warning' : '',
         ].filter(Boolean).join(' ');
         colsHTML += `<div class="${colClass} placement-col--tile" data-col="${col}"${colStyle}>${tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) })}</div>`;
       } else {
@@ -293,14 +298,8 @@ export function updatePlacementSelection() {
     }
   });
 
-  inner.querySelectorAll('.placement-col--tile .placement-tile--returnable').forEach(el => {
-    const col = Number(el.closest('.placement-col')?.dataset.col);
-    const sel = state.selectedDealtTile && isPlacedDealtTileCol(col);
-    el.classList.toggle('placement-tile--selected', sel);
-  });
-
   const occupied = getOccupiedCols();
-  const hasSelection = state.selectedDieId != null || state.selectedDealtTile;
+  const hasSelection = state.selectedDieId != null;
   const showEdgeGhosts = !settings.directPlacement
     && occupied.length > 0
     && hasSelection
@@ -326,15 +325,13 @@ export function positionHints() {
   }
 
   const old = inner.querySelector('.placement-hints');
-  const noSelection = state.selectedDieId == null && !state.selectedDealtTile;
+  const noSelection = state.selectedDieId == null;
   if (noSelection || state.phase === 'animating') {
     old?.remove();
     return;
   }
 
-  const slots = state.selectedDealtTile
-    ? getValidSlotsForDealtTile()
-    : getValidSlotsForDie(state.selectedDieId);
+  const slots = getValidSlotsForDie(state.selectedDieId);
   if (old) old.remove();
   if (!slots.length) return;
 

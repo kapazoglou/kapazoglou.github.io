@@ -1,22 +1,24 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, getValidSlotsForDealtTile, isDealtTileInactive, isPlacedDealtTileCol, liftDealtTileForReposition, cancelDealtTileReposition } from '../../logic/row.js';
-import { dieSVG, DIE_OUTER, TILE_OUTER_W, TILE_OUTER_H, tileHTML } from '../../logic/dice-visual.js';
-import { placeDieWithAnim, placeDealtTileWithAnim } from '../transitions/placement-anim.js';
+import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie } from '../../logic/row.js';
+import {
+  setDominoChosenPairFromDie,
+  clearDominoChosenPair,
+  isDominoPairLocked,
+} from '../../logic/domino-roll.js';
+import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
+import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
 import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
-import { attemptPlacementAtPoint, attemptDealtTilePlacementAtPoint } from './placement-input.js';
+import { attemptPlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
-import { beginRepositionCollapse, beginColumnRepositionCollapse, clearRepositionCollapse } from '../transitions/reposition-collapse.js';
+import { beginRepositionCollapse, clearRepositionCollapse } from '../transitions/reposition-collapse.js';
 
 const DRAG_THRESHOLD = 8;
 /** Gap between pointer and bottom edge of drag die (screen px). */
 const FINGER_CLEARANCE_PX = 16;
 
-let dragDealtTile = false;
-/** @type {number | null} — row column when repositioning a placed dealt tile. */
-let dragDealtTileFromCol = null;
 let dragDieId = null;
 let dragDieEl = null;
 let dragStartX = 0;
@@ -34,7 +36,7 @@ let activeSnapSlot = null;
 let snapGhostEl = null;
 
 function snappingActive() {
-  return settings.snapping && settings.directPlacement && !dragDealtTile;
+  return settings.snapping && settings.directPlacement;
 }
 
 export function consumeRowClickBlock() {
@@ -94,20 +96,6 @@ function screenRectToLayerDesign(rect) {
   };
 }
 
-function createTileDragFlyer(tile, sourceRect) {
-  const layer = flyLayer();
-  if (!layer) return;
-  const pos = screenRectToLayerDesign(sourceRect);
-  dragFlyer = document.createElement('div');
-  dragFlyer.className = 'placement-die-flyer placement-die-flyer--tile';
-  dragFlyer.innerHTML = tileHTML(tile);
-  dragFlyer.style.left = `${pos.left}px`;
-  dragFlyer.style.top = `${pos.top}px`;
-  dragFlyer.style.transform = 'translate(0, 0)';
-  dragFlyer.style.transition = 'none';
-  layer.appendChild(dragFlyer);
-}
-
 function createDragFlyer(dieId, sourceRect) {
   const layer = flyLayer();
   if (!layer) return;
@@ -164,10 +152,8 @@ function moveFlyer(clientX, clientY) {
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
   const clearance = FINGER_CLEARANCE_PX / scale;
-  const outerW = dragDealtTile ? TILE_OUTER_W : DIE_OUTER;
-  const outerH = dragDealtTile ? TILE_OUTER_H : DIE_OUTER;
-  dragFlyer.style.left = `${(clientX - layerRect.left) / scale - outerW / 2}px`;
-  dragFlyer.style.top = `${(clientY - layerRect.top) / scale - outerH - clearance}px`;
+  dragFlyer.style.left = `${(clientX - layerRect.left) / scale - DIE_OUTER / 2}px`;
+  dragFlyer.style.top = `${(clientY - layerRect.top) / scale - DIE_OUTER - clearance}px`;
 }
 
 function flyerResolvePoint() {
@@ -177,15 +163,7 @@ function flyerResolvePoint() {
 }
 
 function isDragSessionActive() {
-  return dragDieId != null || dragDealtTile;
-}
-
-function handleDealtTileTap(tileEl) {
-  const fromRow = tileEl.closest('.placement-col--tile');
-  if (!fromRow && isDealtTileInactive()) return null;
-  state.selectedDealtTile = !state.selectedDealtTile;
-  state.selectedDieId = null;
-  return 'selection';
+  return dragDieId != null;
 }
 
 /** @returns {'return' | 'selection' | null} */
@@ -202,9 +180,15 @@ function handleDieTap(dieEl) {
 
   if (dieEl.classList.contains('die--action')) {
     const dieId = Number(dieEl.dataset.dieId);
+    if (isDominoPairLocked(dieId)) return null;
     if (isBarDieInactive(dieId) && !dieEl.classList.contains('die--rerollable')) return null;
-    state.selectedDealtTile = false;
-    state.selectedDieId = state.selectedDieId === dieId ? null : dieId;
+    if (state.selectedDieId === dieId) {
+      state.selectedDieId = null;
+      clearDominoChosenPair();
+    } else {
+      state.selectedDieId = dieId;
+      setDominoChosenPairFromDie(dieId);
+    }
     return 'selection';
   }
 
@@ -221,42 +205,6 @@ export function initDragDrop() {
 function onPointerDown(e) {
   if (state.phase === 'animating' || state.phase === 'replay') return;
 
-  const rowTileEl = e.target.closest('.placement-col--tile .placement-tile');
-  if (rowTileEl && e.button === 0) {
-    const colEl = rowTileEl.closest('.placement-col[data-col]');
-    const col = Number(colEl?.dataset.col);
-    if (!isPlacedDealtTileCol(col)) return;
-    dragDealtTile = true;
-    dragDealtTileFromCol = col;
-    dragDieId = null;
-    dragDieEl = rowTileEl;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    isDragging = false;
-    rowTileEl.classList.add('placement-tile--drag-pending');
-    setDragPending(true);
-    capturePointer(e);
-    e.preventDefault();
-    return;
-  }
-
-  const tileEl = e.target.closest('.action-bar-tile-slot .placement-tile[data-dealt-tile]:not(.placement-tile--discarding)');
-  if (tileEl && e.button === 0) {
-    if (isDealtTileInactive()) return;
-    dragDealtTile = true;
-    dragDealtTileFromCol = null;
-    dragDieId = null;
-    dragDieEl = tileEl;
-    dragStartX = e.clientX;
-    dragStartY = e.clientY;
-    isDragging = false;
-    tileEl.classList.add('placement-tile--drag-pending');
-    setDragPending(true);
-    capturePointer(e);
-    e.preventDefault();
-    return;
-  }
-
   const dieEl = e.target.closest('.die--action, .die--placed.die--returnable');
   if (!dieEl || e.button !== 0) return;
   const dieId = Number(dieEl.dataset.dieId);
@@ -266,11 +214,12 @@ function onPointerDown(e) {
     if (!state.placedDieIds.has(dieId)) return;
   } else if (!state.actionBar.includes(dieId)) {
     return;
+  } else if (isDominoPairLocked(dieId)) {
+    return;
   } else if (isBarDieInactive(dieId) && !dieEl.classList.contains('die--rerollable')) {
     return;
   }
 
-  dragDealtTile = false;
   dragDieId = dieId;
   dragDieEl = dieEl;
   dragStartX = e.clientX;
@@ -292,28 +241,13 @@ function beginDrag(e) {
 
   const sourceRect = dragDieEl.getBoundingClientRect();
 
-  if (dragDealtTile) {
-    dragDieEl.classList.remove('placement-tile--drag-pending');
-    state.draggingDealtTile = true;
-    if (dragDealtTileFromCol != null) {
-      beginColumnRepositionCollapse(dragDealtTileFromCol);
-      liftDealtTileForReposition(dragDealtTileFromCol);
-      createTileDragFlyer(state.dealtTile, sourceRect);
-      render();
-    } else {
-      createTileDragFlyer(state.dealtTile, sourceRect);
-      renderActionBar();
-    }
-    dragDieEl = null;
-    syncStarMarkersDuringMotion();
-    return;
-  }
-
   dragDieEl.classList.remove('die--drag-pending');
 
   state.draggingDieId = dragDieId;
 
   const fromBar = state.actionBar.includes(dragDieId);
+
+  if (fromBar) setDominoChosenPairFromDie(dragDieId);
 
   createDragFlyer(dragDieId, sourceRect);
 
@@ -350,19 +284,16 @@ function onPointerMove(e) {
       moveFlyer(e.clientX, e.clientY);
     }
     if (settings.directPlacement) {
-      const validSlots = dragDealtTile
-        ? getValidSlotsForDealtTile()
-        : getValidSlotsForDie(dragDieId);
-      const dieId = dragDealtTile ? null : dragDieId;
+      const validSlots = getValidSlotsForDie(dragDieId);
       if (snappingActive()) {
         const stackY = flyerResolvePoint()?.y ?? e.clientY;
         activeSnapSlot = resolveNearestValidSlot(
-          e.clientX, e.clientY, stackY, validSlots, dieId,
+          e.clientX, e.clientY, stackY, validSlots, dragDieId,
         );
         updateSnapGhost(activeSnapSlot);
-        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId, activeSnapSlot);
+        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dragDieId, activeSnapSlot);
       } else {
-        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dieId);
+        updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dragDieId);
       }
     }
   }
@@ -370,13 +301,12 @@ function onPointerMove(e) {
 
 function clearDragVisuals() {
   state.draggingDieId = null;
-  state.draggingDealtTile = false;
   clearInsertHoverSpread(false);
   clearRepositionCollapse(false);
   clearSnapGhost();
   dragFlyer?.remove();
   dragFlyer = null;
-  dragDieEl?.classList.remove('die--drag-source', 'die--drag-pending', 'placement-tile--drag-pending');
+  dragDieEl?.classList.remove('die--drag-source', 'die--drag-pending');
   setDragPending(false);
   setDragActive(false);
 }
@@ -389,15 +319,7 @@ function onPointerUp(e) {
     let animHandled = false;
     let returnedToBar = false;
 
-    if (dragDealtTile) {
-      const flyerPt = flyerResolvePoint();
-      const stackY = flyerPt?.y ?? e.clientY;
-      const result = attemptDealtTilePlacementAtPoint(e.clientX, e.clientY, stackY, dragFlyer);
-      if (result === 'placed') {
-        dragFlyer = null;
-        animHandled = true;
-      }
-    } else if (
+    if (
       target?.closest('#action-bar, #action-bar-dice')
       && state.placedDieIds.has(dragDieId)
     ) {
@@ -433,52 +355,33 @@ function onPointerUp(e) {
     }
 
     if (!animHandled) {
-      if (dragDealtTile && dragDealtTileFromCol != null && state.dealtTile) {
-        const tile = { ...state.dealtTile };
-        cancelDealtTileReposition(dragDealtTileFromCol, tile);
-      }
       clearDragVisuals();
     } else {
       state.draggingDieId = null;
-      state.draggingDealtTile = false;
     }
 
     if (!animHandled) {
-      if (returnedToBar || (dragDealtTile && dragDealtTileFromCol != null)) {
+      if (returnedToBar) {
         render();
-      } else if (
-        (dragDieId != null && state.actionBar.includes(dragDieId))
-        || (dragDealtTile && dragDealtTileFromCol == null)
-      ) {
-        // Tray die / dealt tile was hidden from the bar on drag start — restore layout.
+      } else if (dragDieId != null && state.actionBar.includes(dragDieId)) {
         renderActionBar();
       } else {
         requestAnimationFrame(() => renderSelection());
       }
     }
   } else if (dragDieEl) {
-    dragDieEl.classList.remove('die--drag-pending', 'placement-tile--drag-pending');
-    if (dragDealtTile) {
-      const tapResult = handleDealtTileTap(dragDieEl);
-      if (tapResult === 'selection') {
-        if (dragDealtTileFromCol != null) blockNextRowClick = true;
-        renderSelection();
-      }
-    } else {
-      const tapResult = handleDieTap(dragDieEl);
-      if (tapResult === 'return') {
-        blockNextRowClick = true;
-        render();
-      } else if (tapResult === 'selection') renderSelection();
-    }
+    dragDieEl.classList.remove('die--drag-pending');
+    const tapResult = handleDieTap(dragDieEl);
+    if (tapResult === 'return') {
+      blockNextRowClick = true;
+      render();
+    } else if (tapResult === 'selection') renderSelection();
   }
 
   if (capturedPointerId != null) {
     releasePointer();
   }
   dragDieId = null;
-  dragDealtTile = false;
-  dragDealtTileFromCol = null;
   dragDieEl = null;
   isDragging = false;
   skipNextFlyerMove = false;

@@ -55,7 +55,6 @@ function clampDraft() {
 function isDraftControlDisabled(item) {
   if (item.key === 'deckFlank') return draftSettings.tileDealtEvery > 0;
   if (item.key === 'tileDealtEvery') return draftSettings.deckFlank;
-  if (item.key === 'tileDealtChainDraw') return draftSettings.deckFlank;
   return false;
 }
 

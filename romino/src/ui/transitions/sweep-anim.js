@@ -1,6 +1,7 @@
 import { state, clearSweepExitTimers } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { findSweepRuns, applySweepRun, sweepStarMultiplierForRun, checkFlankWellDone } from '../../logic/sweeps-row.js';
+import { clearDealtStrip, sortedDealtStrip } from '../../logic/dealt-strip.js';
 import { flankSideForSweepCol, popFlankStack } from '../../logic/deck-flank.js';
 import {
   beginBankCycle,
@@ -77,7 +78,8 @@ export function startRowSweepAnimation(cols, onDone) {
   pinRowScroll();
   clearSweepExitTimers();
   const flankSides = cols.map(col => flankSideForSweepCol(col)).filter(Boolean);
-  state.sweepExit = { cols: [...cols], flankSides, phase: 'wait', onDone };
+  const stripIds = sortedDealtStrip().map(t => t.stripId);
+  state.sweepExit = { cols: [...cols], flankSides, stripIds, phase: 'wait', onDone };
   document.getElementById('app')?.classList.add('is-sweep-exit');
   render();
 
@@ -186,6 +188,7 @@ export function resolveSweepsAnimated(onDone) {
     }
     const run = runs[0];
     startRowSweepAnimation(run.map(([col]) => col), () => {
+      clearDealtStrip();
       const beforeLeft = captureColLeftPositions();
       const flankRevealed = run.map(([col]) => flankSideForSweepCol(col)).filter(Boolean);
       const tiles = run.map(([, t]) => t);

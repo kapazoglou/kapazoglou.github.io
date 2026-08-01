@@ -13,10 +13,10 @@ lastVerified: 2026-07-29
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, flank deck/previews |
+| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `tileDealtChainDraw`, `deckSize`, `deckFlank`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,15 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **dealt-strip.js v1.0, dealt-strip display v1.0, state.js v2.15, tile-deck.js v1.1, turn.js v2.26, row.js v1.53, settings.js v2.24, sweep-anim.js v1.10, invalid-flash.js v1.2, handlers.js v2.10, drag-drop.js v2.34, placement-anim.js v1.27, action-bar.js v1.53** — Tile Dealt strip: half-size seam tiles, duplicate block flash, accent pair-sweep, row-sweep clears strip, WELL DONE on deck empty; retired bar dealt tile + chain draw + deal-discard anim
+
+
+- **domino-roll.js v1.3, turn.js v2.24** — Domino Roll empty list restarts from top (no WELL DONE on combo exhaustion)
+
+- **deck-size.js v1.1, domino-roll.js v1.1, turn.js v2.23** — Domino Roll deck HUD countdown (even deckSize=0); nRoll=4 last-element bridge draw
+
+- **settings.js v2.23, domino-roll.js v1.0, state.js v2.13, turn.js v2.22, dice.js v2.3, row.js v1.52, drag-drop.js v2.32, action-bar.js v1.46, action-bar.css** — `dominoRoll` toggle: depleting combo pools for nRoll 2/3/4; nRoll=4 dual-pair tray + pair lock
 
 - **settings.js v2.22, deck-size.js v1.0, state.js v2.12, turn.js v2.21, convert.js v1.9, convert-anim.js v1.4, hud-v2.js, hud-v2.css** — Deck Size stepper: HUD counter, convert tick, WELL DONE at 0
 

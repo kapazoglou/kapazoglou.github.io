@@ -1,7 +1,9 @@
 import { spd } from '../../logic/settings.js';
 import { state } from '../../logic/state.js';
+import { getStripTileForIdentity, getRowColForIdentity } from '../../logic/dealt-strip.js';
 
 const FLASH_MS = 280;
+const WARNING_BORDER_MS = 3000;
 
 let flashing = false;
 
@@ -33,4 +35,28 @@ export function flashStarShortagePlacement() {
   flashInvalidPlacement();
   if (state.stars !== 0) return;
   flashHudStarsWarning(spd(FLASH_MS));
+}
+
+/**
+ * Duplicate convert blocked — viewport flash + warning border on strip or row tile for 3s.
+ * @param {string} suit
+ * @param {string} rank
+ */
+export function flashDuplicateBlocked(suit, rank) {
+  flashInvalidPlacement();
+
+  const stripTile = getStripTileForIdentity(suit, rank);
+  const rowCol = getRowColForIdentity(suit, rank);
+
+  if (stripTile) state.dealtStripWarningIds.add(stripTile.stripId);
+  if (rowCol != null) state.rowTileWarningCols.add(rowCol);
+
+  import('../display/render.js').then(({ render }) => render());
+
+  const ms = spd(WARNING_BORDER_MS);
+  setTimeout(() => {
+    if (stripTile) state.dealtStripWarningIds.delete(stripTile.stripId);
+    if (rowCol != null) state.rowTileWarningCols.delete(rowCol);
+    import('../display/render.js').then(({ render }) => render());
+  }, ms);
 }

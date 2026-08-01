@@ -133,7 +133,7 @@ export function getTutorialSteps() {
       type: 'info',
       anchor: '#roll-btn',
       title: 'Don’t get stuck',
-      body: 'Game over when: the dice pool can’t afford another roll; no legal slot exists for tray dice (red roll border — tap to end); a dealt tile has nowhere legal to go (when tile deals are enabled). Plan ahead so every roll still has room to breathe.',
+      body: 'Game over when: the dice pool can’t afford another roll; no legal slot exists for tray dice (red roll border — tap to end); or the tile-deck is exhausted on a cadence deal (WELL DONE). Plan ahead so every roll still has room to breathe.',
     },
     {
       id: 'done',

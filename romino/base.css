@@ -2,6 +2,7 @@
 @import url('src/ui/display/hud-v2.css');
 @import url('src/ui/display/placement-row.css');
 @import url('src/ui/display/action-bar.css');
+@import url('src/ui/display/dealt-strip.css');
 @import url('src/ui/display/settings-panel.css');
 @import url('src/ui/display/game-over.css');
 @import url('src/ui/display/deck-flank.css');

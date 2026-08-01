@@ -16,7 +16,6 @@ export const SETTINGS_CONFIG = [
     group: 'rules',
     label: 'Rules',
     items: [
-      { key: 'tileDealtChainDraw', label: 'Tile dealt chain draw', default: false, type: 'toggle' },
       { key: 'deckFlank',             label: 'Deck Flank',              default: false, type: 'toggle' },
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
@@ -24,6 +23,7 @@ export const SETTINGS_CONFIG = [
       { key: 'verticalStars',       label: 'Vertical Stars',            default: false, type: 'toggle' },
       { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: false,  type: 'toggle' },
       { key: 'rerollOuter',         label: 'Reroll Outer',              default: true, type: 'toggle' },
+      { key: 'dominoRoll',          label: 'Domino Roll',               default: false, type: 'toggle' },
       { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: true,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },

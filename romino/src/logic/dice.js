@@ -7,6 +7,12 @@ export function spawnDie(value) {
   return id;
 }
 
+/** Spawn a die with a known face value and log the outcome. */
+export function spawnKnownDie(value) {
+  recordDiceOutcome(value);
+  return spawnDie(value);
+}
+
 export function rollValue() {
   const value = Math.floor(Math.random() * 6) + 1;
   recordDiceOutcome(value);

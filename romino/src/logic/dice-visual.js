@@ -31,11 +31,12 @@ export const SUIT_COLOR = {
   V: '#E5B800', Z: '#906BFF', X: '#E56700', Y: '#71BD00', W: '#00B6D6',
 };
 
-/** Shared tile face markup — converted row tiles and dealt action-bar tiles. */
-export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '' } = {}) {
+/** Shared tile face markup — converted row tiles and dealt strip tiles. */
+export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '', stripFace = false, styleVars = null } = {}) {
   const color = SUIT_COLOR[tile.suit] ?? '#404A59';
   const classes = ['placement-tile', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
-  return `<div class="${classes}"${attrs} style="color:${color}">
+  const style = styleVars ?? (stripFace ? `--strip-tile-bg:${color}` : `color:${color}`);
+  return `<div class="${classes}"${attrs} style="${style}">
     <span class="placement-tile-rank">${tile.rank}</span>
     <span class="placement-tile-suit">${tile.suit}</span>
   </div>`;

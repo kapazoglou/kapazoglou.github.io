@@ -1,10 +1,12 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { isOuterDieValue } from '../../logic/dice.js';
-import { isBarDieInactive, isDealtTileInactive, isAtSpotCap } from '../../logic/row.js';
+import { isBarDieInactive, isAtSpotCap } from '../../logic/row.js';
+import { clearDominoChosenPair } from '../../logic/domino-roll.js';
 import { renderHUD } from './hud-v2.js';
 import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, positionStarMarkers, restorePinnedRowScroll } from './placement-row.js';
 import { renderActionBar, updateActionBarSelection } from './action-bar.js';
+import { renderDealtStrip } from './dealt-strip.js';
 import { onRender as onTutorialRender } from './tutorial.js';
 import { clearInsertHoverSpread, resetInsertHoverSpread } from '../transitions/placement-hover.js';
 import { resetRepositionCollapse } from '../transitions/reposition-collapse.js';
@@ -26,11 +28,10 @@ export function render() {
   resetRepositionCollapse();
   if (state.selectedDieId != null && shouldClearSelectedDie(state.selectedDieId)) {
     state.selectedDieId = null;
-  }
-  if (state.selectedDealtTile && isDealtTileInactive()) {
-    state.selectedDealtTile = false;
+    clearDominoChosenPair();
   }
   renderPlacementRow();
+  renderDealtStrip();
   renderHUD();
   renderActionBar();
   updateSeparatorSpotCap();
@@ -48,12 +49,11 @@ export function renderSelection() {
   clearInsertHoverSpread(false);
   if (state.selectedDieId != null && shouldClearSelectedDie(state.selectedDieId)) {
     state.selectedDieId = null;
-  }
-  if (state.selectedDealtTile && isDealtTileInactive()) {
-    state.selectedDealtTile = false;
+    clearDominoChosenPair();
   }
   updatePlacementSelection();
   updateActionBarSelection();
+  renderDealtStrip();
   requestAnimationFrame(() => {
     positionEdgeGhosts();
     positionHints();

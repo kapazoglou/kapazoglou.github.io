@@ -1,28 +1,68 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor, tileHTML } from '../../logic/dice-visual.js';
+import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor } from '../../logic/dice-visual.js';
 import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedBorder } from '../../logic/turn.js';
-import { countDiceInRow, isBarDieInactive, isDealtTileInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
+import { countDiceInRow, isBarDieInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
+import { isDominoQuadRollActive, isDominoPairLocked } from '../../logic/domino-roll.js';
 import { isEndGamePromptArmed, syncEndGamePromptWithRollChrome } from './end-game-prompt.js';
 
 function isTrayDieRerollable(dieId) {
   if (!settings.rerollOuter || state.phase !== 'rolled') return false;
+  if (isDominoPairLocked(dieId)) return false;
   const die = state.dice[dieId];
   return die != null && isOuterDieValue(die.value) && state.actionBar.includes(dieId);
 }
 
-function dealtTileHTML(tile, { discarding = false, selected = false, isNew = false, inactive = false } = {}) {
-  const classExtra = [
-    discarding ? 'placement-tile--discarding' : '',
-    discarding ? 'placement-tile--sweep-pending' : '',
-    inactive ? 'placement-tile--inactive' : '',
-    selected ? 'placement-tile--selected' : '',
-  ].filter(Boolean).join(' ');
-  return tileHTML(tile, { classExtra, isNew, attrs: ' data-dealt-tile="1"' });
+function dieActionHTML(id, idx) {
+  const die = state.dice[id];
+  const inactive = isBarDieInactive(id);
+  const rerollable = isTrayDieRerollable(id);
+  const sel = (!inactive || rerollable) && state.selectedDieId === id;
+  const isNew = state.newTrayDieIds?.has(id);
+  const styles = [`--die-border-fill:${dieFaceBorderColor(die.value)}`];
+  if (isNew) styles.push(`animation-delay:${idx * 60}ms`);
+  const styleAttr = ` style="${styles.join(';')}"`;
+  return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${rerollable ? ' die--rerollable' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER)}</div>`;
 }
 
-/** Sync tray dice + dealt tile selection chrome without rebuilding the bar. */
+function trayDieOrder(ids) {
+  return ids.slice().sort((a, b) => state.actionBar.indexOf(a) - state.actionBar.indexOf(b));
+}
+
+function buildDiceTrayHTML() {
+  const visibleIds = state.actionBar.filter(id => id !== state.draggingDieId);
+
+  if (isDominoQuadRollActive() && state.dominoPairGroups) {
+    const [pairA, pairB] = state.dominoPairGroups;
+    const inTray = id => state.actionBar.includes(id) && id !== state.draggingDieId;
+    const pairAVisible = trayDieOrder(pairA.filter(inTray));
+    const pairBVisible = trayDieOrder(pairB.filter(inTray));
+    const pairAPlaced = pairA.some(id => !state.actionBar.includes(id));
+    const pairBPlaced = pairB.some(id => !state.actionBar.includes(id));
+    const pairADragging = state.draggingDieId != null && pairA.includes(state.draggingDieId);
+    const pairBDragging = state.draggingDieId != null && pairB.includes(state.draggingDieId);
+    const pairASlotClass = (pairAPlaced || pairADragging) && pairAVisible.length
+      ? 'domino-pair-slot domino-pair-slot--left-toward-sep'
+      : 'domino-pair-slot';
+    const pairBSlotClass = (pairBPlaced || pairBDragging) && pairBVisible.length
+      ? 'domino-pair-slot domino-pair-slot--right-toward-sep'
+      : 'domino-pair-slot';
+    let idx = 0;
+    const pairAHTML = pairAVisible.map(id => dieActionHTML(id, idx++)).join('');
+    const pairBHTML = pairBVisible.map(id => dieActionHTML(id, idx++)).join('');
+    return `<div class="action-bar-dice action-bar-dice--domino-quad" id="action-bar-dice">
+      <div class="${pairASlotClass}"><div class="domino-pair">${pairAHTML}</div></div>
+      <span class="domino-pair-sep" aria-hidden="true">|</span>
+      <div class="${pairBSlotClass}"><div class="domino-pair">${pairBHTML}</div></div>
+    </div>`;
+  }
+
+  const diceHTML = visibleIds.map((id, idx) => dieActionHTML(id, idx)).join('');
+  return `<div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>`;
+}
+
+/** Sync tray dice selection chrome without rebuilding the bar. */
 export function updateActionBarSelection() {
   const bar = document.getElementById('action-bar');
   if (!bar) return;
@@ -36,13 +76,6 @@ export function updateActionBarSelection() {
     const sel = (!inactive || rerollable) && state.selectedDieId === id && state.draggingDieId !== id;
     el.classList.toggle('die--action-selected', sel);
   });
-
-  const tile = bar.querySelector('.action-bar-tile-slot .placement-tile[data-dealt-tile]:not(.placement-tile--discarding)');
-  if (tile) {
-    const inactive = isDealtTileInactive();
-    tile.classList.toggle('placement-tile--inactive', inactive);
-    tile.classList.toggle('placement-tile--selected', !inactive && state.selectedDealtTile);
-  }
 }
 
 export function renderActionBar() {
@@ -51,32 +84,7 @@ export function renderActionBar() {
   const bar = document.getElementById('action-bar');
   if (!bar) return;
 
-  let dealtTileSlot = '';
-  if (state.dealingDiscardTile) {
-    dealtTileSlot = dealtTileHTML(state.dealingDiscardTile, { discarding: true });
-  } else if (state.dealtTile && !state.draggingDealtTile) {
-    const inactive = isDealtTileInactive();
-    dealtTileSlot = dealtTileHTML(state.dealtTile, {
-      inactive,
-      selected: !inactive && state.selectedDealtTile,
-      isNew: state.newDealtTile,
-    });
-  }
-  state.newDealtTile = false;
-
-  const diceHTML = state.actionBar
-    .filter(id => id !== state.draggingDieId)
-    .map((id, idx) => {
-    const die = state.dice[id];
-    const inactive = isBarDieInactive(id);
-    const rerollable = isTrayDieRerollable(id);
-    const sel = (!inactive || rerollable) && state.selectedDieId === id;
-    const isNew = state.newTrayDieIds?.has(id);
-    const styles = [`--die-border-fill:${dieFaceBorderColor(die.value)}`];
-    if (isNew) styles.push(`animation-delay:${idx * 60}ms`);
-    const styleAttr = ` style="${styles.join(';')}"`;
-    return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${rerollable ? ' die--rerollable' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER)}</div>`;
-  }).join('');
+  const diceTrayHTML = buildDiceTrayHTML();
 
   state.newTrayDieIds?.clear();
 
@@ -122,8 +130,7 @@ export function renderActionBar() {
       </div>`;
 
   bar.innerHTML = `
-    ${dealtTileSlot ? `<div class="action-bar-tile-slot">${dealtTileSlot}</div>` : ''}
-    <div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>
+    ${diceTrayHTML}
     ${rollWrapHTML}
   `;
 }
