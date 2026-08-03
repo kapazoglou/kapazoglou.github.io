@@ -26,7 +26,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. D
 
 ## Settle / discard
 - nRoll=4 confirm (no dominoSpots): unused pair → discard
-- Vacate pre-confirm (dominoSpots): bound key → pool end via `returnKeyToPool`
+- Vacate pre-confirm (dominoSpots): unbind column only; roll offers persist until confirm
 
 ## nRoll=4 tray lock
 - `state.dominoPairGroups` — `[[dieId,dieId],[dieId,dieId]]` after roll

@@ -1,7 +1,7 @@
 ---
 module: domino-spots
 layer: logic
-v: 1.12
+v: 1.13
 date: 2026-08-03
 deps: [state, settings, domino-roll, row]
 ---
@@ -20,7 +20,7 @@ Logic-only relationship between offered domino combos and placement when `domino
 ## Lifecycle
 - Roll: `dominoOfferedKeys` set; persistent spot cols + seam dominoes unchanged
 - First tray die on a column creates a spot and binds domino; further dice on same column reuse spot (domino locked)
-- Pre-confirm vacate: remove spot col; return that column’s `dominoKey` to pool end
+- Pre-confirm vacate: remove spot col; unbind column `dominoKey`; roll offers unchanged until confirm
 - Reposition: spot col moves; persistent spots transfer `dominoKey`; gap insert remaps cols via `shiftDominoSpotCols`
 - Confirm: unbound offers → discard; spot cols + column `dominoKey` persist
 - Sweep: bound `dominoKey` on swept column → discard; spot col removed

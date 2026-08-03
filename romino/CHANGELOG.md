@@ -4,6 +4,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spots.js v1.13, domino-spots.md** — Pre-confirm vacate unbinds spot only; roll offers persist so returning a pair and switching pairs reallocates domino spots correctly
+
 - **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)
 
 - **domino-roll.js v1.13, domino-spots.js v1.11, state.md** — Domino deck counter = pool + discard (excludes tray offers and locked row spots); discard syncs badge on sweep/confirm

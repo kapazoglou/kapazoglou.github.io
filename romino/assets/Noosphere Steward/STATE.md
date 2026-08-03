@@ -33,6 +33,8 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **domino-spots.js v1.13, domino-spots.md** — Pre-confirm vacate unbinds only; roll offers persist for pair switch after tray return
+
 - **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)
 
 - **domino-roll.js v1.13, domino-spots.js v1.11, state.md** — Domino deck counter = pool + discard (excludes tray offers and locked row spots); `discardDominoKey` syncs badge

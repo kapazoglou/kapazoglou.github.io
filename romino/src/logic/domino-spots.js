@@ -2,7 +2,6 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import {
   getDominoPairIndex,
-  returnKeyToPool,
   discardDominoKey,
   getDominoEngagedPairIndex,
   setCurrentRollOfferedKeys,
@@ -198,6 +197,13 @@ export function onSpotColReposition(fromCol, toCol, dieId, preservedKey = null) 
   }
 }
 
+/** Clear used/unused when this roll's spot allocation is fully undone. */
+function resetDominoSpotAllocationIfIdle() {
+  if (state.dominoSpotsCreatedThisTurn.length > 0) return;
+  state.dominoUsedKey = null;
+  state.dominoUnusedKey = null;
+}
+
 /** @param {number} col @param {string | null | undefined} boundKey */
 export function onColumnVacated(col, boundKey = undefined) {
   if (!isDominoSpotsActive()) return;
@@ -209,17 +215,13 @@ export function onColumnVacated(col, boundKey = undefined) {
   if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
 
   delete state.dominoSpotKeys[col];
-
   if (boundKey) {
-    const offerIdx = state.dominoOfferedKeys.indexOf(boundKey);
-    if (offerIdx !== -1) state.dominoOfferedKeys.splice(offerIdx, 1);
-    returnKeyToPool(boundKey);
+    const column = state.row[col];
+    if (column?.dominoKey === boundKey) delete column.dominoKey;
   }
 
-  if (state.dominoSpotCols.length === 0) {
-    state.dominoUsedKey = null;
-    state.dominoUnusedKey = null;
-  }
+  // Roll offers stay intact until confirm; vacate only unbinds the column.
+  resetDominoSpotAllocationIfIdle();
 }
 
 /** @param {Set<number>} placedDieIds */
