@@ -25,6 +25,10 @@
   visibility: visible;
 }
 
+.domino-spot-stack-wrap.is-positioned.is-drag-suppressed {
+  visibility: hidden;
+}
+
 .domino-spot-stack {
   --domino-spot-die: 20px;
   position: relative;

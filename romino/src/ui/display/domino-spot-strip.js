@@ -157,6 +157,20 @@ function dominoSpotSweepClasses(col) {
   return '';
 }
 
+/** Hide seam domino for a spot col during sole-die drag — DOM class only, no strip rebuild. */
+export function setDominoSpotStackDragSuppressed(col, suppressed) {
+  if (!isDominoSpotsActive()) return false;
+  if (!state.dominoSpotCols.includes(col) || !getDominoKeyForCol(col)) return false;
+
+  const strip = document.getElementById('domino-spot-strip');
+  if (!strip) return false;
+  const el = strip.querySelector(`.domino-spot-stack-wrap[data-col="${col}"]`);
+  if (!el) return false;
+
+  el.classList.toggle('is-drag-suppressed', suppressed);
+  return true;
+}
+
 export function renderDominoSpotStrip() {
   const strip = document.getElementById('domino-spot-strip');
   if (!strip) return;
@@ -216,6 +230,7 @@ export function positionDominoSpotStrip() {
   let positioned = false;
 
   for (const el of stripInner.querySelectorAll('.domino-spot-stack-wrap[data-col]')) {
+    if (el.classList.contains('is-drag-suppressed')) continue;
     const col = Number(el.dataset.col);
     const colNode = spreadColumnElement(inner, col);
     if (!colNode) {

@@ -33,6 +33,14 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **domino-spots.js v1.15** — Used-spot vacate promotes remaining unused-spot col to USED (tray return + stack merge)
+
+- **domino-spots.js v1.14** — Used die onto unused spot column rebinds to USED domino
+
+- **domino-spot-strip.js v2.13, domino-spot-strip.css, reposition-collapse.js v1.6** — Seam domino drag hide uses CSS class only (no strip rebuild during column collapse)
+
+- **domino-spots.js v1.14, reposition-collapse.js v1.5** — Seam domino hidden on sole spot die drag start
+
 - **domino-spots.js v1.13, domino-spots.md** — Pre-confirm vacate unbinds only; roll offers persist for pair switch after tray return
 
 - **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)

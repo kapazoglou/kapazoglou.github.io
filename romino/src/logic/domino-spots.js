@@ -116,6 +116,37 @@ function bindKeyToColumn(col, key) {
   if (column) column.dominoKey = key;
 }
 
+/** @param {number} col @param {string | null} key */
+function rebindKeyToColumn(col, key) {
+  if (!key) return;
+  state.dominoSpotKeys[col] = key;
+  const column = state.row[col];
+  if (column) column.dominoKey = key;
+}
+
+/** Sole locked-binding exception: remaining unused-spot column promotes to USED when used-spot vacates. */
+function promoteRemainingUnusedSpotToUsed() {
+  if (!state.dominoUsedKey || !state.dominoUnusedKey) return false;
+  for (const col of state.dominoSpotCols) {
+    if (getDominoKeyForCol(col) === state.dominoUnusedKey) {
+      rebindKeyToColumn(col, state.dominoUsedKey);
+      state.newDominoSpotCols.add(col);
+      return true;
+    }
+  }
+  return false;
+}
+
+function removeSpotColFromTurn(fromCol) {
+  const idx = state.dominoSpotCols.indexOf(fromCol);
+  if (idx !== -1) state.dominoSpotCols.splice(idx, 1);
+
+  const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(fromCol);
+  if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
+
+  delete state.dominoSpotKeys[fromCol];
+}
+
 /** @param {number} fromCol @param {number} toCol @param {string | null} key */
 function moveDominoSpotKey(fromCol, toCol, key) {
   if (!key) return;
@@ -179,16 +210,16 @@ export function onSpotColReposition(fromCol, toCol, dieId, preservedKey = null) 
   if (idx !== -1) {
     const key = preservedKey ?? getDominoKeyForCol(fromCol);
     if (state.dominoSpotCols.includes(toCol)) {
-      state.dominoSpotCols.splice(idx, 1);
-      const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(fromCol);
-      if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
+      const fromKey = preservedKey ?? getDominoKeyForCol(fromCol);
+      removeSpotColFromTurn(fromCol);
+      if (fromKey === state.dominoUsedKey) promoteRemainingUnusedSpotToUsed();
     } else {
       state.dominoSpotCols[idx] = toCol;
       state.newDominoSpotCols.add(toCol);
       const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(fromCol);
       if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn[turnIdx] = toCol;
+      moveDominoSpotKey(fromCol, toCol, key);
     }
-    moveDominoSpotKey(fromCol, toCol, key);
     return;
   }
 
@@ -219,6 +250,8 @@ export function onColumnVacated(col, boundKey = undefined) {
     const column = state.row[col];
     if (column?.dominoKey === boundKey) delete column.dominoKey;
   }
+
+  if (boundKey === state.dominoUsedKey) promoteRemainingUnusedSpotToUsed();
 
   // Roll offers stay intact until confirm; vacate only unbinds the column.
   resetDominoSpotAllocationIfIdle();

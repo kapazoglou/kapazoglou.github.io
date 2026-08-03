@@ -4,6 +4,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spots.js v1.15, domino-spots.md** — Used-spot vacate (tray return or stack merge) promotes remaining unused-spot column to USED
+
+- **domino-spots.js v1.14, domino-spots.md** — Used-spot die stacking onto unused-spot column rebinds seam domino to USED (sole locked-binding exception)
+
+- **domino-spot-strip.js v2.13, domino-spot-strip.css v2.12, reposition-collapse.js v1.6** — Hide seam domino via CSS class during sole spot drag; no strip rebuild so column collapse FLIP is unaffected
+
+- **domino-spots.js v1.14, reposition-collapse.js v1.5, reposition-collapse.md** — Hide seam domino as soon as sole spot die drag starts; restore on cancel or commit
+
 - **domino-spots.js v1.13, domino-spots.md** — Pre-confirm vacate unbinds spot only; roll offers persist so returning a pair and switching pairs reallocates domino spots correctly
 
 - **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)

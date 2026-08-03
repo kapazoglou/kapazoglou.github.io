@@ -2,13 +2,22 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { findDieColumn, getColumn } from '../../logic/row.js';
 import { pinRowScroll, restorePinnedRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
-import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
+import { syncDominoSpotStripDuringMotion, setDominoSpotStackDragSuppressed } from '../display/domino-spot-strip.js';
 import { COL_SPREAD_MS } from './timing.js';
 
 const EASING = 'ease-out';
 
 /** @type {number | null} */
 let vacatedSourceCol = null;
+
+/** @type {number | null} */
+let dragSuppressedSpotCol = null;
+
+function clearDragSuppressedSpot() {
+  if (dragSuppressedSpotCol == null) return;
+  setDominoSpotStackDragSuppressed(dragSuppressedSpotCol, false);
+  dragSuppressedSpotCol = null;
+}
 
 function colEl(inner, col) {
   return inner.querySelector(`.placement-col[data-col="${col}"]`);
@@ -119,11 +128,16 @@ export function beginColumnRepositionCollapse(sourceCol) {
 
   restorePinnedRowScroll();
   runFlip(beforeLeft, false);
+
+  if (setDominoSpotStackDragSuppressed(sourceCol, true)) {
+    dragSuppressedSpotCol = sourceCol;
+  }
 }
 
 /** Drop internal state only — next `render()` rebuilds the row (no column snap). */
 export function resetRepositionCollapse() {
   vacatedSourceCol = null;
+  clearDragSuppressedSpot();
   unpinRowScroll();
 }
 
@@ -145,4 +159,5 @@ export function clearRepositionCollapse(animate = true) {
   restorePinnedRowScroll();
   runFlip(beforeLeft, animate);
   unpinRowScroll();
+  clearDragSuppressedSpot();
 }
