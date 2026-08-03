@@ -13,10 +13,10 @@ lastVerified: 2026-07-29
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
+| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,10 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **settings.js v2.27, state.js v2.23, convert.js v1.10, sweeps-row.js v1.17, dealt-strip.js v1.2, turn.js v2.34, action-bar.js v1.60, convert-anim.js v1.5** — `tileDiceHold` toggle: convert +2 pool +1 withheld per tile; release on sweep/pair-sweep; roll-btn count only; convert anim flies 2 not 3
+
+- **domino-roll.js v1.16, domino-spots.js v1.16** — Domino Spots ON: discard merged into pool and shuffled on sweep / pair-sweep
 
 - **domino-spot-strip.js v2.18, render.js** — Discard pile pre-init shell; render after action bar to avoid first-discard jump
 

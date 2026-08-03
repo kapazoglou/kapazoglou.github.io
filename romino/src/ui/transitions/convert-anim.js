@@ -56,8 +56,15 @@ function animateConvertFlyBack(col, onDone) {
   const layerRect = layer.getBoundingClientRect();
   const target = rollBtnTargetXY(layerRect, scale);
   const diceEls = topFirstDice(colNode);
+  const flyEls = settings.tileDiceHold && diceEls.length > 0
+    ? diceEls.slice(0, diceEls.length - 1)
+    : diceEls;
 
-  if (!target || !diceEls.length) {
+  if (settings.tileDiceHold && diceEls.length > 0) {
+    diceEls[diceEls.length - 1].style.visibility = 'hidden';
+  }
+
+  if (!target || !flyEls.length) {
     onDone();
     return;
   }
@@ -65,9 +72,9 @@ function animateConvertFlyBack(col, onDone) {
   const flyMs = spd(CONVERT_FLY_MS);
   const staggerMs = spd(CONVERT_FLY_STAGGER_MS);
   let completed = 0;
-  const total = diceEls.length;
+  const total = flyEls.length;
 
-  diceEls.forEach((dieEl, i) => {
+  flyEls.forEach((dieEl, i) => {
     const dieId = dieEl.dataset.dieId;
     const die = state.dice[dieId];
     const startR = dieEl.getBoundingClientRect();

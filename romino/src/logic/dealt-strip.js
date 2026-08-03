@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { JOKER_RANK } from './dice-visual.js';
 import { releaseDominoKeysForCols } from './domino-spots.js';
+import { releaseWithheldDice } from './convert.js';
 
 /** Sort key: A=1, ranks 2–12, *=14 (highest). */
 export function stripTileSortKey(tile) {
@@ -104,6 +105,7 @@ export function pairSweepStripTile(stripId) {
     bottomValue: column.bottomValue,
   };
   releaseDominoKeysForCols([rowCol]);
+  releaseWithheldDice(1);
   delete state.row[rowCol];
   if (Object.keys(state.row).length === 0) state.hasPlacedFirstDie = false;
   state.rowTileWarningCols.delete(rowCol);

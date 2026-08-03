@@ -1,7 +1,7 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.15
+v: 1.16
 date: 2026-08-03
 deps: [state, settings, deck-size, game-log]
 ---
@@ -12,7 +12,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. D
 ## Pools
 - **Pairs** — up to 21 combos (`1≤a≤b≤6`); capped by `deckSize` when > 0
 - **Triples** — up to 56 combos (`1≤a≤b≤c≤6`); capped by `deckSize` when > 0
-- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short
+- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short, or immediately on sweep when `dominoSpots` ON
 - When `deckSize` is 0, full pair/triple universe is used
 - Full rebuild from universe only on `initDominoPools()` / reset
 
@@ -36,5 +36,5 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. D
 - `onDominoDieReturnedToTray(dieId)` — clears selection on tray return; idle unlock when all quad dice in tray
 
 ## Exports
-- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
+- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
 - `isDominoQuadRollActive()`, `getDominoPairIndex()`, `setDominoChosenPairFromDie()`, `clearDominoChosenPair()`, `getDominoEngagedPairIndex()`, `syncDominoTrayIdleUnlock()`, `onDominoDieReturnedToTray()`, `isDominoPairLocked()`

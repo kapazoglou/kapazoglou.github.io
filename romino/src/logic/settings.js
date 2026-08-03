@@ -29,6 +29,7 @@ export const SETTINGS_CONFIG = [
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: true,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
+      { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: false, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'snapping',            label: 'Snapping',              default: false, type: 'toggle' },

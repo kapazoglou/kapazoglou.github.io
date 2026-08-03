@@ -1,7 +1,7 @@
 ---
 module: domino-spots
 layer: logic
-v: 1.15
+v: 1.16
 date: 2026-08-03
 deps: [state, settings, domino-roll, row]
 ---
@@ -24,7 +24,7 @@ Logic-only relationship between offered domino combos and placement when `domino
 - Reposition: spot col moves; persistent spots transfer `dominoKey`; merge onto existing spot keeps target key unless vacated col had USED (remaining unused-spot col promotes to USED)
 - Gap insert remaps cols via `shiftDominoSpotCols`
 - Confirm: unbound offers → discard; spot cols + column `dominoKey` persist
-- Sweep: bound `dominoKey` on swept column → discard; spot col removed
+- Sweep: bound `dominoKey` on swept column → discard; spot col removed; discard merged into pool and shuffled
 
 ## Exports
 - `isDominoSpotsActive()`, `setDominoOfferedKeys()`, `clearDominoSpotsRollState()`, `clearAllDominoSpotBindings()`

@@ -6,6 +6,7 @@ import {
   getDominoEngagedPairIndex,
   setCurrentRollOfferedKeys,
   syncDominoDeckCount,
+  reshuffleDominoPoolAtSweep,
 } from './domino-roll.js';
 
 export function isDominoSpotsActive() {
@@ -301,7 +302,7 @@ export function settleDominoSpotsOnConfirm(placedDieIds) {
 
 /** @param {number[]} cols */
 export function releaseDominoKeysForCols(cols) {
-  if (!isDominoSpotsActive()) return;
+  if (!isDominoSpotsActive() || !cols.length) return;
 
   for (const col of cols) {
     const key = getDominoKeyForCol(col);
@@ -318,6 +319,8 @@ export function releaseDominoKeysForCols(cols) {
     const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(col);
     if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
   }
+
+  reshuffleDominoPoolAtSweep();
 }
 
 /** Active spot columns that still have a bound domino key. */

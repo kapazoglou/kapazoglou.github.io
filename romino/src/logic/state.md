@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.22
+v: 2.23
 date: 2026-08-03
 deps: []
 ---
@@ -11,6 +11,7 @@ Single source of truth for v2 row game.
 
 ## Key fields
 - `dicePool` — unrolled dice remaining in pool
+- `diceWithheld` — virtual dice locked by converted tiles when `tileDiceHold` ON; released on sweep/pair-sweep
 - `actionBar` — die IDs in tray this turn
 - `dealtStrip` — half-size between-zone tiles `{ suit, rank, rankSum, bottomValue, stripId }[]`
 - `dealtStripWarningIds`, `rowTileWarningCols` — transient duplicate-block chrome

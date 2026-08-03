@@ -46,8 +46,9 @@ function isDominoSpotsQuadRoll() {
 }
 
 /** Dice not on row — matches roll-button label. */
-function rollAffordanceRemaining() {
-  return settings.nDice - countDiceInRow();
+export function rollAffordanceRemaining() {
+  const withheld = settings.tileDiceHold ? state.diceWithheld : 0;
+  return settings.nDice - countDiceInRow() - withheld;
 }
 
 /** Pool-low / endgame threshold (N-place for nRoll=4 + Domino Spots; else N-roll). */

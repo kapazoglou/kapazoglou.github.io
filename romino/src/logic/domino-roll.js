@@ -118,6 +118,16 @@ function reshuffleDiscardIntoPool(nRoll, needed) {
   syncDominoDeckCount(nRoll);
 }
 
+/** Domino Spots: merge discard into pool and shuffle after a sweep (or pair-sweep). */
+export function reshuffleDominoPoolAtSweep(nRoll = settings.nRoll) {
+  if (!isDominoDeckCountdown()) return;
+  const pool = activeDominoPool(nRoll);
+  const discard = activeDominoDiscard(nRoll);
+  if (discard.length) pool.push(...discard.splice(0));
+  shuffle(pool);
+  syncDominoDeckCount(nRoll);
+}
+
 /** @param {string[]} pool */
 function drawRandomFromPool(pool) {
   if (!pool.length) return null;

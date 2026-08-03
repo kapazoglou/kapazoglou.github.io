@@ -38,7 +38,9 @@ export function convertColumn(col) {
   const column = state.row[col];
   if (!column || column.kind !== 'stack' || column.dice.length !== 3) return null;
   const values = column.dice.map(id => state.dice[id].value);
-  state.dicePool += column.dice.length;
+  const hold = settings.tileDiceHold ? 1 : 0;
+  state.dicePool += column.dice.length - hold;
+  state.diceWithheld += hold;
   const tile = tileIdentityFromStackValues(values, convertOptions());
   if (stackValuesRequireStar(values) && state.stars > 0) {
     state.stars -= 1;
@@ -53,4 +55,11 @@ export function convertColumn(col) {
 
 export function convertFullStacks() {
   for (const col of getConvertibleCols()) convertColumn(col);
+}
+
+/** Release virtual dice held by swept/removed tiles when tileDiceHold ON. */
+export function releaseWithheldDice(count = 1) {
+  if (!settings.tileDiceHold || count <= 0) return;
+  state.dicePool += count;
+  state.diceWithheld -= count;
 }

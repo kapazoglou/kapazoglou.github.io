@@ -11,6 +11,8 @@ export const EMPTY_SUIT_TALLY = () => ({ Z: 0, X: 0, Y: 0, W: 0, V: 0 });
 export function createInitialState() {
   return {
     dicePool: 12,
+    /** Virtual dice held by converted tiles when tileDiceHold ON (roll-button count only). */
+    diceWithheld: 0,
     actionBar: [],
     dice: {},
     /** @type {Record<number, Column>} colIndex → column (0 = center) */

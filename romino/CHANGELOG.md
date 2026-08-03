@@ -4,6 +4,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **settings.js v2.27, settings.md, state.js v2.23, state.md, convert.js v1.10, sweeps-row.js v1.17, dealt-strip.js v1.2, turn.js v2.34, action-bar.js v1.60, convert-anim.js v1.5, EVENTS.md** — `tileDiceHold` toggle: convert returns 2 dice + withholds 1 virtual die per tile until sweep/pair-sweep; roll-button count only feedback; convert anim flies 2 not 3
+
+- **domino-roll.js v1.16, domino-spots.js v1.16** — Domino Spots ON: merge discard into pool and shuffle on sweep (and pair-sweep)
+
 - **turn.js v2.33** — nRoll=4 + Domino Spots: pool-low/KO/endgame at N-place; roll debits N-place; count=2 rolls normally; convert stack still blocks KO at 0
 
 - **turn.js v2.32, action-bar.js v1.59** — nRoll=4 + Domino Spots: roll-button pool number turns warning red only below N-place (border/KO threshold unchanged at N-roll)

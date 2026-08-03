@@ -1,7 +1,7 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.59
+v: 1.60
 date: 2026-08-03
 deps: [state, cards, dice, grid, end-game-prompt, domino-roll, domino-spots]
 ---
