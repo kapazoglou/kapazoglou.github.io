@@ -1,7 +1,7 @@
 import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { isDominoSpotsActive, getDominoKeyForCol, getActiveDominoSpotCols } from '../../logic/domino-spots.js';
-import { parseDominoKey } from '../../logic/domino-roll.js';
+import { parseDominoKey, getDominoDiscardKeys } from '../../logic/domino-roll.js';
 import { dominoStackHTML, DOMINO_SPOT_DIE } from '../../logic/dice-visual.js';
 import { isDominoDeckInActionBar } from '../../logic/deck-size.js';
 import { spreadColumnElement } from './flank-stacks.js';
@@ -12,6 +12,7 @@ let motionRaf = 0;
 let motionDeadline = 0;
 let layoutRaf = 0;
 let lastStripRenderKey = '';
+let lastDiscardRenderKey = '';
 
 function viewportScale() {
   const root = document.querySelector('.viewport-inner');
@@ -46,7 +47,10 @@ export function renderActionBarDeckBadge() {
 
   if (!isDominoDeckInActionBar()) {
     strip.querySelector('#action-bar-deck')?.remove();
-    if (!strip.querySelector('.domino-spot-stack-wrap')) strip.innerHTML = '';
+    if (!strip.querySelector('.domino-spot-stack-wrap[data-col]')
+      && !strip.querySelector('.domino-discard-pile')) {
+      strip.innerHTML = '';
+    }
     return;
   }
 
@@ -118,6 +122,107 @@ export function positionActionBarDeck() {
   badge.style.left = `${centerX}px`;
   badge.style.top = `${centerY}px`;
   badge.classList.add('is-positioned');
+  positionDominoDiscardPile();
+}
+
+function ensureDominoDiscardPileShell(strip) {
+  const inner = ensureStripInner(strip);
+  let pile = strip.querySelector('.domino-discard-pile');
+  if (!pile) {
+    pile = document.createElement('div');
+    pile.className = 'domino-discard-pile';
+    pile.innerHTML = '<div class="domino-discard-pile-scroll"><div class="domino-discard-pile-row"></div></div>';
+    inner.appendChild(pile);
+  }
+  return pile;
+}
+
+/** Discard pile — horizontal LTR row under roll button, vertically centred in band below roll wrap. */
+export function renderDominoDiscardPile() {
+  const strip = document.getElementById('domino-spot-strip');
+  if (!strip) return;
+
+  if (!isDominoSpotsActive()) {
+    strip.querySelector('.domino-discard-pile')?.remove();
+    lastDiscardRenderKey = '';
+    return;
+  }
+
+  const keys = getDominoDiscardKeys();
+  const sig = keys.join('|');
+  const pile = ensureDominoDiscardPileShell(strip);
+  const row = pile.querySelector('.domino-discard-pile-row');
+
+  if (!keys.length) {
+    row.innerHTML = '';
+    lastDiscardRenderKey = '';
+    positionDominoDiscardPile({ reveal: false });
+    return;
+  }
+
+  if (sig === lastDiscardRenderKey) {
+    positionDominoDiscardPile({ reveal: true });
+    return;
+  }
+
+  const firstShow = !pile.classList.contains('is-positioned');
+  if (firstShow) pile.classList.remove('is-positioned');
+
+  positionDominoDiscardPile({ reveal: false });
+
+  row.innerHTML = keys.map((key, i) => {
+    const values = parseDominoKey(key);
+    return dominoStackHTML(values, { attrs: ` data-discard-index="${i}"` });
+  }).join('');
+
+  positionDominoDiscardPile({ reveal: true });
+  lastDiscardRenderKey = sig;
+}
+
+export function positionDominoDiscardPile({ reveal = true } = {}) {
+  const pile = document.querySelector('.domino-discard-pile');
+  const strip = document.getElementById('domino-spot-strip');
+  const bar = document.getElementById('action-bar');
+  if (!pile || !strip || !bar) return;
+
+  const rollWrap = bar.querySelector('.roll-btn-wrap');
+  if (!rollWrap) {
+    pile.classList.remove('is-positioned');
+    return;
+  }
+
+  const scale = viewportScale();
+  const stripRect = strip.getBoundingClientRect();
+  const rollWrapRect = rollWrap.getBoundingClientRect();
+  const viewportInner = document.querySelector('.viewport-inner');
+  const viewportBottom = viewportInner?.getBoundingClientRect().bottom ?? document.documentElement.clientHeight;
+
+  const top = toDesignPx(rollWrapRect.bottom - stripRect.top, scale);
+  const height = toDesignPx(viewportBottom - rollWrapRect.bottom, scale);
+
+  const bandHeight = Math.max(0, height);
+  const row = pile.querySelector('.domino-discard-pile-row');
+  const rowRect = row?.getBoundingClientRect();
+  const rowHeightDesign = rowRect?.height
+    ? toDesignPx(rowRect.height, scale)
+    : DOMINO_SPOT_DIE;
+  const fits = rowHeightDesign <= bandHeight;
+  const margin = fits
+    ? Math.max(0, (bandHeight - rowHeightDesign) / 2)
+    : 0;
+
+  pile.style.top = `${top}px`;
+  pile.style.height = `${bandHeight}px`;
+  pile.style.left = '0';
+  pile.style.width = `${toDesignPx(stripRect.width, scale)}px`;
+  pile.style.paddingTop = `${margin}px`;
+  pile.style.paddingBottom = `${margin}px`;
+  pile.style.paddingRight = `${margin}px`;
+  pile.style.boxSizing = 'border-box';
+  pile.classList.toggle('is-overflowing', !fits);
+  const hasContent = Boolean(row?.children.length);
+  if (reveal && hasContent) pile.classList.add('is-positioned');
+  else pile.classList.remove('is-positioned');
 }
 
 function stripSignature() {
@@ -180,15 +285,19 @@ export function renderDominoSpotStrip() {
   strip.setAttribute('aria-hidden', active ? 'false' : 'true');
 
   if (!active) {
-    strip.querySelectorAll('.domino-spot-stack-wrap').forEach(el => el.remove());
+    strip.querySelectorAll('.domino-spot-stack-wrap[data-col]').forEach(el => el.remove());
     lastStripRenderKey = '';
     renderActionBarDeckBadge();
+    renderDominoDiscardPile();
     return;
   }
 
   const key = stripRenderKey();
   if (key !== lastStripRenderKey) {
     lastStripRenderKey = key;
+    const inner = ensureStripInner(strip);
+    inner.querySelectorAll('.domino-spot-stack-wrap[data-col]').forEach(el => el.remove());
+
     const stacksHTML = spotCols.map(col => {
       const dominoKey = getDominoKeyForCol(col);
       if (!dominoKey) return '';
@@ -200,7 +309,13 @@ export function renderDominoSpotStrip() {
       return dominoStackHTML(values, { col, isNew, stackClassExtra, stackStyleVars });
     }).filter(Boolean).join('');
 
-    strip.innerHTML = `<div class="domino-spot-strip-inner">${stacksHTML}</div>`;
+    const temp = document.createElement('div');
+    temp.innerHTML = stacksHTML;
+    const insertBefore = inner.querySelector('.domino-discard-pile')
+      ?? inner.querySelector('#action-bar-deck');
+    while (temp.firstChild) {
+      inner.insertBefore(temp.firstChild, insertBefore);
+    }
     state.newDominoSpotCols.clear();
     renderActionBarDeckBadge();
   }
@@ -212,6 +327,7 @@ export function positionDominoSpotStrip() {
   const inner = document.querySelector('.placement-row-inner');
   if (!strip || !inner) {
     positionActionBarDeck();
+    positionDominoDiscardPile();
     return false;
   }
 
@@ -222,6 +338,7 @@ export function positionDominoSpotStrip() {
   }
   if (!stripInner) {
     positionActionBarDeck();
+    positionDominoDiscardPile();
     return false;
   }
 
@@ -253,6 +370,7 @@ export function positionDominoSpotStrip() {
   }
 
   positionActionBarDeck();
+  positionDominoDiscardPile();
   return positioned;
 }
 

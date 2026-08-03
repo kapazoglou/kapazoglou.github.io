@@ -33,6 +33,16 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **domino-spot-strip.js v2.18, render.js** — Discard pile pre-init shell; render after action bar to avoid first-discard jump
+
+- **domino-spot-strip.js v2.17, domino-spot-strip.css v2.16** — Discard pile vertical scroll overflow when band exceeded
+
+- **domino-spot-strip.js v2.16, domino-spot-strip.css v2.15** — Discard pile equal top/bottom/right margin
+
+- **domino-spot-strip.js v2.15, domino-spot-strip.css v2.14, domino-roll.js v1.15, render.js** — Domino Spots discard pile under roll button (same glyphs, LTR 2px gap, vertical band justify; badge toggle)
+
+- **domino-spot-strip.css v2.13** — Seam domino sweep anim synced with tile sweep (CSS only)
+
 - **domino-spots.js v1.15** — Used-spot vacate promotes remaining unused-spot col to USED (tray return + stack merge)
 
 - **domino-spots.js v1.14** — Used die onto unused spot column rebinds to USED domino

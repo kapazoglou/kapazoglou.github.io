@@ -63,6 +63,29 @@
   animation: domino-spot-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
+/* Sweep exit — beat pop + upward sweep (matches placement-tile / dealt-strip timing). */
+.domino-spot-stack.domino-spot-stack--sweep-pending {
+  animation: sweep-tile-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
+}
+
+.domino-spot-stack-wrap:has(.domino-spot-stack--sweep-run) {
+  overflow: visible;
+  z-index: 6;
+}
+
+.domino-spot-stack.domino-spot-stack--sweep-run {
+  overflow: visible;
+  animation-duration: calc(0.58s * var(--t));
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(0.33, 1, 0.45, 1);
+  animation-delay: calc(var(--exit-order, 0) * 68ms * var(--t));
+  animation-name: row-sweep-v;
+}
+
+#app.is-sweep-exit .domino-spot-strip-inner {
+  overflow: visible;
+}
+
 .action-bar-deck-badge {
   position: absolute;
   z-index: 7;
@@ -93,6 +116,63 @@
 }
 
 .domino-spot-strip.is-spots-hidden .domino-spot-stack-wrap {
+  visibility: hidden;
+}
+
+.domino-discard-pile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  overflow: hidden;
+  pointer-events: none;
+  visibility: hidden;
+  z-index: 5;
+  box-sizing: border-box;
+}
+
+.domino-discard-pile.is-positioned {
+  visibility: visible;
+}
+
+.domino-discard-pile-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.domino-discard-pile.is-overflowing .domino-discard-pile-scroll {
+  justify-content: flex-start;
+}
+
+.domino-discard-pile-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: 100%;
+}
+
+.domino-discard-pile .domino-spot-stack-wrap {
+  position: static;
+  transform: none;
+  visibility: visible;
+}
+
+.domino-spot-strip.is-spots-hidden .domino-discard-pile {
   visibility: hidden;
 }
 

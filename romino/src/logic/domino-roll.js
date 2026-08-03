@@ -84,6 +84,11 @@ function activeDominoDiscard(nRoll) {
   return nRoll === 3 ? state.dominoTripleDiscard : state.dominoPairDiscard;
 }
 
+/** @param {number} [nRoll] @returns {string[]} discard pile keys (oldest first) */
+export function getDominoDiscardKeys(nRoll = settings.nRoll) {
+  return activeDominoDiscard(nRoll);
+}
+
 /** Deck badge = draw pool + discard pile + tray offers (excludes locked row spots). */
 export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;

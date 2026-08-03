@@ -4,6 +4,20 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **turn.js v2.33** — nRoll=4 + Domino Spots: pool-low/KO/endgame at N-place; roll debits N-place; count=2 rolls normally; convert stack still blocks KO at 0
+
+- **turn.js v2.32, action-bar.js v1.59** — nRoll=4 + Domino Spots: roll-button pool number turns warning red only below N-place (border/KO threshold unchanged at N-roll)
+
+- **domino-spot-strip.js v2.18, render.js** — Discard pile pre-init: shell + band geometry before first discard; position after action bar; no is-positioned flash on first show
+
+- **domino-spot-strip.js v2.17, domino-spot-strip.css v2.16** — Discard pile: vertical scroll when wrapped rows overflow band; flex-wrap + overflow-y auto
+
+- **domino-spot-strip.js v2.16, domino-spot-strip.css v2.15** — Discard pile: equal top/bottom/right margin (vertical-centre inset applied to right padding)
+
+- **domino-spot-strip.js v2.15, domino-spot-strip.css v2.14, domino-roll.js v1.15, render.js** — Domino Spots discard pile: same domino-spot glyphs, LTR row (2px gap) under roll button, vertically centred in roll-wrap→screen band; deck-badge toggle hides seam spots and discard
+
+- **domino-spot-strip.css v2.13** — Sweep exit CSS: beat pop + row-sweep-v on seam domino stacks (matches tile timing; logic unchanged)
+
 - **domino-spots.js v1.15, domino-spots.md** — Used-spot vacate (tray return or stack merge) promotes remaining unused-spot column to USED
 
 - **domino-spots.js v1.14, domino-spots.md** — Used-spot die stacking onto unused-spot column rebinds seam domino to USED (sole locked-binding exception)

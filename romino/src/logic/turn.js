@@ -41,20 +41,57 @@ export function resetGame() {
   clearAllDominoSpotBindings();
 }
 
+function isDominoSpotsQuadRoll() {
+  return settings.nRoll === 4 && isDominoSpotsActive();
+}
+
+/** Dice not on row — matches roll-button label. */
+function rollAffordanceRemaining() {
+  return settings.nDice - countDiceInRow();
+}
+
+/** Pool-low / endgame threshold (N-place for nRoll=4 + Domino Spots; else N-roll). */
+function rollPoolLowThreshold() {
+  if (isDominoSpotsQuadRoll()) {
+    return settings.nPlace;
+  }
+  return settings.nRoll;
+}
+
+/** dicePool debit per roll (N-place for nRoll=4 + Domino Spots; else N-roll). */
+function rollDicePoolCost() {
+  return rollPoolLowThreshold();
+}
+
 export function canRoll() {
   if (state.phase !== 'idle') return false;
-  if (state.dicePool >= settings.nRoll) return true;
+  clampSettings();
+  if (isDominoSpotsQuadRoll()) {
+    if (rollAffordanceRemaining() >= settings.nPlace) return true;
+  } else if (state.dicePool >= settings.nRoll) {
+    return true;
+  }
   return flankEndgamePending();
 }
 
 export function canEndGame() {
-  return state.phase === 'idle' && state.dicePool < settings.nRoll;
+  if (state.phase !== 'idle') return false;
+  clampSettings();
+  if (isDominoSpotsQuadRoll()) {
+    return rollAffordanceRemaining() < settings.nPlace;
+  }
+  return state.dicePool < settings.nRoll;
 }
 
-/** Remaining dice below N-roll — drives `.roll-btn--low` warning-red chrome. */
+/** Remaining dice below pool-low threshold — warning-red number, border, KO tap. */
 export function isRollPoolLow() {
   clampSettings();
-  return settings.nDice - countDiceInRow() < settings.nRoll;
+  return rollAffordanceRemaining() < rollPoolLowThreshold();
+}
+
+/** @deprecated alias — same as isRollPoolLow */
+export function isRollPoolNumberLow() {
+  return isRollPoolLow();
 }
 
 /** Mirrors action-bar.css face inset ring — warning red when enabled. */
@@ -91,8 +128,12 @@ export function shouldWarnOnLeave() {
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
-  if (context === 'idle-roll' && state.dicePool < settings.nRoll) {
-    return 'dice pool exhausted';
+  if (context === 'idle-roll') {
+    if (isDominoSpotsQuadRoll()) {
+      if (rollAffordanceRemaining() < settings.nPlace) return 'dice pool exhausted';
+    } else if (state.dicePool < settings.nRoll) {
+      return 'dice pool exhausted';
+    }
   }
   return null;
 }
@@ -155,13 +196,14 @@ export function rollDice() {
   if (!canRoll()) return null;
   clampSettings();
   const count = settings.nRoll;
+  const poolCost = rollDicePoolCost();
 
-  if (flankEndgamePending() && state.dicePool < count) {
-    state.dicePool = count;
+  if (flankEndgamePending() && state.dicePool < poolCost) {
+    state.dicePool = poolCost;
   }
 
   state.rollCount += 1;
-  state.dicePool -= count;
+  state.dicePool -= poolCost;
   state.actionBar = [];
   state.newTrayDieIds = new Set();
   clearDominoTrayState();
