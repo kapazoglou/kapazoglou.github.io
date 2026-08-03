@@ -5,6 +5,9 @@ import {
   setDominoChosenPairFromDie,
   clearDominoChosenPair,
   isDominoPairLocked,
+  isDominoQuadRollActive,
+  onDominoDieReturnedToTray,
+  syncDominoTrayIdleUnlock,
 } from '../../logic/domino-roll.js';
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
@@ -171,8 +174,9 @@ function handleDieTap(dieEl) {
   if (dieEl.classList.contains('die--placed')) {
     const dieId = Number(dieEl.dataset.dieId);
     if (!state.placedDieIds.has(dieId)) return null;
-    if (returnDieToBar(dieId, true)) {
-      state.selectedDieId = dieId;
+    if (returnDieToBar(dieId, !isDominoQuadRollActive())) {
+      if (isDominoQuadRollActive()) onDominoDieReturnedToTray(dieId);
+      else state.selectedDieId = dieId;
       return 'return';
     }
     return null;
@@ -185,6 +189,7 @@ function handleDieTap(dieEl) {
     if (state.selectedDieId === dieId) {
       state.selectedDieId = null;
       clearDominoChosenPair();
+      syncDominoTrayIdleUnlock();
     } else {
       state.selectedDieId = dieId;
       setDominoChosenPairFromDie(dieId);
@@ -247,7 +252,7 @@ function beginDrag(e) {
 
   const fromBar = state.actionBar.includes(dragDieId);
 
-  if (fromBar) setDominoChosenPairFromDie(dragDieId);
+  setDominoChosenPairFromDie(dragDieId);
 
   createDragFlyer(dragDieId, sourceRect);
 
@@ -324,6 +329,7 @@ function onPointerUp(e) {
       && state.placedDieIds.has(dragDieId)
     ) {
       returnedToBar = returnDieToBar(dragDieId);
+      if (returnedToBar) onDominoDieReturnedToTray(dragDieId);
     } else if (settings.directPlacement) {
       if (snappingActive()) {
         if (activeSnapSlot) {
@@ -364,6 +370,7 @@ function onPointerUp(e) {
       if (returnedToBar) {
         render();
       } else if (dragDieId != null && state.actionBar.includes(dragDieId)) {
+        syncDominoTrayIdleUnlock();
         renderActionBar();
       } else {
         requestAnimationFrame(() => renderSelection());

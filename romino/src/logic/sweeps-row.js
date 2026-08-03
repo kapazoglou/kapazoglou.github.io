@@ -8,6 +8,7 @@ import {
   popFlankStack,
   bothFlankStacksEmpty,
 } from './deck-flank.js';
+import { releaseDominoKeysForCols } from './domino-spots.js';
 
 /** Wheel values used for consecutive-run assignment (13 = ace-high). */
 const ALL_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -243,6 +244,7 @@ export function applySweepRun(run) {
   for (const side of flankSidesToPop) {
     popFlankStack(side);
   }
+  releaseDominoKeysForCols(playerColsToDelete);
   for (const col of playerColsToDelete) {
     delete state.row[col];
   }

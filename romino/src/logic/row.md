@@ -1,9 +1,9 @@
 ---
 module: row
 layer: logic
-v: 1.53
-date: 2026-08-01
-deps: [state, settings, domino-roll, dealt-strip]
+v: 1.55
+date: 2026-08-03
+deps: [state, settings, domino-roll, domino-spots, dealt-strip]
 ---
 # Row
 

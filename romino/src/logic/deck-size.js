@@ -11,6 +11,16 @@ export function isDeckSizeActive() {
   return settings.deckSize > 0 || isDominoDeckCountdown();
 }
 
+/** nRoll=4 Domino Roll shows the deck counter under the tray pipe instead of the HUD. */
+export function isDominoDeckInActionBar() {
+  return isDominoDeckCountdown() && settings.nRoll === 4;
+}
+
+export function showDeckInHud() {
+  if (isDominoDeckInActionBar()) return false;
+  return isDeckSizeActive();
+}
+
 export function initDeckRemaining() {
   if (isDominoDeckCountdown()) return;
   state.deckRemaining = settings.deckSize > 0 ? settings.deckSize : null;

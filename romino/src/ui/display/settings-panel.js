@@ -50,11 +50,13 @@ function clampDraft() {
   if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
   if (draftSettings.deckFlank) draftSettings.tileDealtEvery = 0;
   if (draftSettings.tileDealtEvery > 0) draftSettings.deckFlank = false;
+  if (!draftSettings.dominoRoll) draftSettings.dominoSpots = false;
 }
 
 function isDraftControlDisabled(item) {
   if (item.key === 'deckFlank') return draftSettings.tileDealtEvery > 0;
   if (item.key === 'tileDealtEvery') return draftSettings.deckFlank;
+  if (item.key === 'dominoSpots') return !draftSettings.dominoRoll;
   return false;
 }
 

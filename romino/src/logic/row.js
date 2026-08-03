@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { isDominoPairLocked } from './domino-roll.js';
+import { onTrayDiePlaced, onColumnVacated, onSpotColReposition } from './domino-spots.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
@@ -542,15 +543,21 @@ export function isTopDieInStack(dieId) {
   return false;
 }
 
+/** @returns {number | false | null} vacated col, null if removed but column remains, false if die not found */
 function removeDieFromRow(dieId) {
   for (const [colKey, column] of Object.entries(state.row)) {
     if (column.kind !== 'stack') continue;
     const idx = column.dice.indexOf(dieId);
     if (idx === -1) continue;
     column.dice.splice(idx, 1);
-    if (column.dice.length === 0) delete state.row[Number(colKey)];
+    const col = Number(colKey);
+    if (column.dice.length === 0) {
+      delete state.row[col];
+      if (isRowEmpty()) state.hasPlacedFirstDie = false;
+      return col;
+    }
     if (isRowEmpty()) state.hasPlacedFirstDie = false;
-    return true;
+    return null;
   }
   return false;
 }
@@ -564,21 +571,27 @@ export function placeDie(dieId, slot) {
   const valid = getValidSlotsForDie(dieId);
   if (!valid.some(s => slotsEqual(s, slot))) return false;
 
+  let vacatedCol = null;
   if (fromBar) {
     state.actionBar = state.actionBar.filter(id => id !== dieId);
   } else {
     if (!isTopDieInStack(dieId)) return false;
-    removeDieFromRow(dieId);
+    const removeResult = removeDieFromRow(dieId);
+    if (removeResult === false) return false;
+    if (typeof removeResult === 'number') vacatedCol = removeResult;
   }
 
+  let targetCol;
   if (slot.kind === 'new-column') {
     state.row[slot.col] = { kind: 'stack', dice: [dieId] };
+    targetCol = slot.col;
     state.hasPlacedFirstDie = true;
   } else if (slot.kind === 'insert') {
-    const col = resolveInsertCol(slot.leftCol, slot.rightCol);
-    state.row[col] = { kind: 'stack', dice: [dieId] };
+    targetCol = resolveInsertCol(slot.leftCol, slot.rightCol);
+    state.row[targetCol] = { kind: 'stack', dice: [dieId] };
     state.hasPlacedFirstDie = true;
   } else {
+    targetCol = slot.col;
     const column = state.row[slot.col];
     column.dice.push(dieId);
   }
@@ -586,6 +599,13 @@ export function placeDie(dieId, slot) {
   if (fromBar) {
     state.placedThisTurn++;
     state.placedDieIds.add(dieId);
+    onTrayDiePlaced(dieId, targetCol);
+  } else if (state.placedDieIds.has(dieId)) {
+    if (vacatedCol != null) {
+      onSpotColReposition(vacatedCol, targetCol, dieId);
+    } else {
+      onTrayDiePlaced(dieId, targetCol);
+    }
   }
 
   state.selectedDieId = null;
@@ -595,7 +615,11 @@ export function placeDie(dieId, slot) {
 export function returnDieToBar(dieId, keepSelected = false) {
   if (!state.placedDieIds.has(dieId)) return false;
   if (!isTopDieInStack(dieId)) return false;
-  if (!removeDieFromRow(dieId)) return false;
+  const loc = findDieColumn(dieId);
+  const boundKey = loc ? state.row[loc.col]?.dominoKey ?? null : null;
+  const removeResult = removeDieFromRow(dieId);
+  if (removeResult === false) return false;
+  if (typeof removeResult === 'number') onColumnVacated(removeResult, boundKey);
 
   state.actionBar.push(dieId);
   state.placedThisTurn--;

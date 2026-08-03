@@ -5,6 +5,7 @@ import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedB
 import { countDiceInRow, isBarDieInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
 import { isDominoQuadRollActive, isDominoPairLocked } from '../../logic/domino-roll.js';
+import { isDominoDeckInActionBar } from '../../logic/deck-size.js';
 import { isEndGamePromptArmed, syncEndGamePromptWithRollChrome } from './end-game-prompt.js';
 
 function isTrayDieRerollable(dieId) {
@@ -51,9 +52,18 @@ function buildDiceTrayHTML() {
     let idx = 0;
     const pairAHTML = pairAVisible.map(id => dieActionHTML(id, idx++)).join('');
     const pairBHTML = pairBVisible.map(id => dieActionHTML(id, idx++)).join('');
+    const deckHTML = isDominoDeckInActionBar()
+      ? `<span class="domino-pair-deck" id="action-bar-deck" aria-label="Deck remaining">${state.deckRemaining}</span>`
+      : '';
+    const sepHTML = deckHTML
+      ? `<div class="domino-pair-sep-col" aria-hidden="true">
+          <span class="domino-pair-sep">|</span>
+          ${deckHTML}
+        </div>`
+      : `<span class="domino-pair-sep" aria-hidden="true">|</span>`;
     return `<div class="action-bar-dice action-bar-dice--domino-quad" id="action-bar-dice">
       <div class="${pairASlotClass}"><div class="domino-pair">${pairAHTML}</div></div>
-      <span class="domino-pair-sep" aria-hidden="true">|</span>
+      ${sepHTML}
       <div class="${pairBSlotClass}"><div class="domino-pair">${pairBHTML}</div></div>
     </div>`;
   }

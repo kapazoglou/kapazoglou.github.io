@@ -14,6 +14,13 @@ import {
   settleDominoQuadRoll,
   tickDominoDeckOnRoll,
 } from './domino-roll.js';
+import {
+  setDominoOfferedKeys,
+  clearDominoSpotsRollState,
+  clearAllDominoSpotBindings,
+  settleDominoSpotsOnConfirm,
+  isDominoSpotsActive,
+} from './domino-spots.js';
 
 /** Starting star balance for a fresh game (rerollOuter seeds N-place). */
 export function initialStarCount() {
@@ -32,6 +39,7 @@ export function resetGame() {
   initDeckRemaining();
   initDominoPools();
   clearDominoTrayState();
+  clearAllDominoSpotBindings();
 }
 
 export function canRoll() {
@@ -158,12 +166,14 @@ export function rollDice() {
   state.actionBar = [];
   state.newTrayDieIds = new Set();
   clearDominoTrayState();
+  clearDominoSpotsRollState();
 
   const useDominoRoll = settings.dominoRoll && (count === 2 || count === 3 || count === 4);
   if (useDominoRoll) {
+    if (state.rollCount > 1 && !isDominoSpotsActive()) tickDominoDeckOnRoll(count);
     const drawResult = drawDominoRoll(count);
     if (!drawResult) return null;
-    const { values, pairGroups, pairComboKeys } = drawResult;
+    const { values, pairGroups, pairComboKeys, comboKeys } = drawResult;
     for (const value of values) {
       const id = spawnKnownDie(value);
       state.actionBar.push(id);
@@ -176,7 +186,9 @@ export function rollDice() {
       ];
       state.dominoPairComboKeys = pairComboKeys ?? null;
     }
-    tickDominoDeckOnRoll(count);
+    if (isDominoSpotsActive()) {
+      setDominoOfferedKeys(comboKeys ?? pairComboKeys ?? []);
+    }
   } else {
     for (let i = 0; i < count; i++) {
       const id = spawnRandomDie();
@@ -201,7 +213,11 @@ export function rollDice() {
 export function confirmTurn() {
   if (!canConfirm()) return false;
 
-  settleDominoQuadRoll(state.placedDieIds);
+  if (isDominoSpotsActive()) {
+    settleDominoSpotsOnConfirm(state.placedDieIds);
+  } else {
+    settleDominoQuadRoll(state.placedDieIds);
+  }
 
   state.dicePool += state.actionBar.length;
   state.actionBar = [];

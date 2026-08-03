@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.15
-date: 2026-08-01
+v: 2.17
+date: 2026-08-03
 deps: []
 ---
 # State
@@ -19,6 +19,8 @@ Single source of truth for v2 row game.
 - `flankStackLeft`, `flankStackRight` — `{ remaining, top }` virtual deck-flank stacks
 - `dominoPairPool`, `dominoTriplePool` — depleting combo keys when `dominoRoll` ON
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
+- `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols` — domino spots roll state when `dominoSpots` ON
+- Column `dominoKey` — used domino combo bound to stack/tile until sweep
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
 - `jokerSuitsUsed` — suits that already produced a joker this session (one per suit per game)

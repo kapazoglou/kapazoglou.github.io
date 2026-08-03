@@ -24,6 +24,7 @@ export const SETTINGS_CONFIG = [
       { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: false,  type: 'toggle' },
       { key: 'rerollOuter',         label: 'Reroll Outer',              default: true, type: 'toggle' },
       { key: 'dominoRoll',          label: 'Domino Roll',               default: false, type: 'toggle' },
+      { key: 'dominoSpots',         label: 'Domino spots',              default: false, type: 'toggle' },
       { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: true,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
@@ -51,4 +52,5 @@ export function clampSettings() {
   if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
   if (settings.deckFlank) settings.tileDealtEvery = 0;
   if (settings.tileDealtEvery > 0) settings.deckFlank = false;
+  if (!settings.dominoRoll) settings.dominoSpots = false;
 }

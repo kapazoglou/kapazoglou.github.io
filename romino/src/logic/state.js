@@ -1,7 +1,7 @@
 /** @typedef {{ id: number, value: number }} Die */
 
-/** @typedef {{ kind: 'stack', dice: number[] }} StackColumn */
-/** @typedef {{ kind: 'tile', suit: string, rank: string, rankSum: number, bottomValue: number, flank?: boolean }} TileColumn */
+/** @typedef {{ kind: 'stack', dice: number[], dominoKey?: string }} StackColumn */
+/** @typedef {{ kind: 'tile', suit: string, rank: string, rankSum: number, bottomValue: number, flank?: boolean, dominoKey?: string }} TileColumn */
 /** @typedef {StackColumn | TileColumn} Column */
 /** @typedef {{ remaining: string[], top: object|null }} FlankStack */
 /** @typedef {{ suit: string, rank: string, rankSum: number, bottomValue: number, stripId: number }} DealtStripTile */
@@ -64,6 +64,14 @@ export function createInitialState() {
     dominoChosenPairIndex: null,
     /** nRoll=4 domino quad: combo keys [keyA, keyB] drawn this roll (unused returned on confirm). */
     dominoPairComboKeys: null,
+    /** Domino spots — combo keys offered this roll. */
+    dominoOfferedKeys: [],
+    /** Domino spots — spot 1: used domino key this roll. */
+    dominoUsedKey: null,
+    /** Domino spots — spot 2: unused domino key (nRoll=4). */
+    dominoUnusedKey: null,
+    /** Domino spots — column ids that received tray dice this turn, in first-use order. */
+    dominoSpotCols: [],
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

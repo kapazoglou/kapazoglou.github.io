@@ -1,13 +1,13 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.5
-date: 2026-08-01
+v: 1.9
+date: 2026-08-03
 deps: [state, settings, deck-size, game-log]
 ---
 # Domino Roll
 
-Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. HUD deck counter (`state.deckRemaining`) ticks down **once per roll-button roll** — not on confirm, settle, or pool draws.
+Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. Deck counter (`state.deckRemaining`) starts at list cap (21 pairs / 56 triples); ticks down **once per roll from the 2nd roll onward** (first roll shows full cap) — not on confirm, settle, or pool draws.
 
 ## Pools
 - **Pairs** — up to 21 combos (`1≤a≤b≤6`); capped by `deckSize` when > 0
@@ -27,9 +27,11 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. H
 
 ## nRoll=4 tray lock
 - `state.dominoPairGroups` — `[[dieId,dieId],[dieId,dieId]]` after roll
-- `state.dominoChosenPairIndex` — `0 | 1 | null`; set on tray die select, cleared on deselect
-- `isDominoPairLocked(dieId)` — other pair inactive until deselect
+- `state.dominoChosenPairIndex` — `0 | 1 | null`; tracks chosen pair for confirm settle; set on tray die select/drag
+- `getDominoEngagedPairIndex()` — dragging → selected → row-placed pair drives lock
+- `isDominoPairLocked(dieId)` — other pair inactive while one pair is engaged
+- `onDominoDieReturnedToTray(dieId)` — clears selection on tray return; idle unlock when all quad dice in tray
 
 ## Exports
-- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `tickDominoDeckOnRoll(nRoll)`
-- `isDominoQuadRollActive()`, `getDominoPairIndex()`, `setDominoChosenPairFromDie()`, `clearDominoChosenPair()`, `isDominoPairLocked()`
+- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `tickDominoDeckOnRoll(nRoll)`, `tickDominoDeckBy(count, nRoll)`, `returnKeyToPool(key)`
+- `isDominoQuadRollActive()`, `getDominoPairIndex()`, `setDominoChosenPairFromDie()`, `clearDominoChosenPair()`, `getDominoEngagedPairIndex()`, `syncDominoTrayIdleUnlock()`, `onDominoDieReturnedToTray()`, `isDominoPairLocked()`

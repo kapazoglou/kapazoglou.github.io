@@ -84,9 +84,14 @@ export function syncDominoDeckRemaining(nRoll = settings.nRoll) {
 
 /** HUD counter ticks down once per roll-button roll (not on confirm or pool settle). */
 export function tickDominoDeckOnRoll(nRoll = settings.nRoll) {
-  if (!isDominoDeckCountdown()) return;
+  tickDominoDeckBy(1, nRoll);
+}
+
+/** @param {number} count dominoes consumed this tick */
+export function tickDominoDeckBy(count, nRoll = settings.nRoll) {
+  if (!isDominoDeckCountdown() || count <= 0) return;
   if (state.deckRemaining == null) state.deckRemaining = listCap(nRoll);
-  state.deckRemaining -= 1;
+  state.deckRemaining -= count;
   if (state.deckRemaining <= 0) {
     state.deckRemaining = listCap(nRoll);
     if (nRoll === 3) rebuildTriplePool();
@@ -135,9 +140,16 @@ function ensurePairPoolForQuadDraw() {
   if (!state.dominoPairPool.length) rebuildPairPool();
 }
 
+/** @param {string} key */
+export function returnKeyToPool(key) {
+  if (key.split(',').length === 3) state.dominoTriplePool.push(key);
+  else state.dominoPairPool.push(key);
+}
+
 /** @param {Set<number>} placedDieIds */
 export function settleDominoQuadRoll(placedDieIds) {
   if (!settings.dominoRoll || settings.nRoll !== 4) return;
+  if (settings.dominoSpots) return;
   const keys = state.dominoPairComboKeys;
   const groups = state.dominoPairGroups;
   if (!keys || keys.length !== 2 || !groups) return;
@@ -164,7 +176,7 @@ export function settleDominoQuadRoll(placedDieIds) {
 
 /**
  * @param {number} nRoll
- * @returns {{ values: number[], pairGroups?: PairCombo[] } | null}
+ * @returns {{ values: number[], pairGroups?: PairCombo[], pairComboKeys?: string[], comboKeys?: string[] } | null}
  */
 export function drawDominoRoll(nRoll) {
   if (nRoll === 2) {
@@ -172,14 +184,14 @@ export function drawDominoRoll(nRoll) {
     const pool = state.dominoPairPool;
     const key = drawRandomFromPool(pool);
     if (!key) return null;
-    return { values: keyToValues(key) };
+    return { values: keyToValues(key), comboKeys: [key] };
   }
   if (nRoll === 3) {
     ensureActivePool(nRoll);
     const pool = state.dominoTriplePool;
     const key = drawRandomFromPool(pool);
     if (!key) return null;
-    return { values: keyToValues(key) };
+    return { values: keyToValues(key), comboKeys: [key] };
   }
   if (nRoll === 4) {
     ensurePairPoolForQuadDraw();
@@ -203,6 +215,7 @@ export function drawDominoRoll(nRoll) {
       values: [...pairA, ...pairB],
       pairGroups: [pairA, pairB],
       pairComboKeys: [keyA, keyB],
+      comboKeys: [keyA, keyB],
     };
   }
   return { values: [] };
@@ -235,10 +248,42 @@ export function clearDominoChosenPair() {
   state.dominoChosenPairIndex = null;
 }
 
+/** Active pair: dragging, selected, or has a die on the row this roll. */
+export function getDominoEngagedPairIndex() {
+  if (!isDominoQuadRollActive()) return null;
+  const groups = state.dominoPairGroups;
+  if (!groups) return null;
+
+  if (state.draggingDieId != null) {
+    const idx = getDominoPairIndex(state.draggingDieId);
+    if (idx != null) return idx;
+  }
+  if (state.selectedDieId != null) {
+    const idx = getDominoPairIndex(state.selectedDieId);
+    if (idx != null) return idx;
+  }
+  for (let i = 0; i < groups.length; i++) {
+    if (groups[i].some(id => state.placedDieIds.has(id))) return i;
+  }
+  return null;
+}
+
+/** Clear stale chosen-pair state when nothing is engaged. */
+export function syncDominoTrayIdleUnlock() {
+  if (getDominoEngagedPairIndex() == null) clearDominoChosenPair();
+}
+
+/** Tray return: drop selection; unlock when all quad dice are idle in tray. */
+export function onDominoDieReturnedToTray(dieId) {
+  if (!isDominoQuadRollActive()) return;
+  if (state.selectedDieId === dieId) state.selectedDieId = null;
+  syncDominoTrayIdleUnlock();
+}
+
 /** @param {number} dieId */
 export function isDominoPairLocked(dieId) {
-  if (!isDominoQuadRollActive()) return false;
-  if (state.dominoChosenPairIndex == null) return false;
+  const engaged = getDominoEngagedPairIndex();
+  if (engaged == null) return false;
   const idx = getDominoPairIndex(dieId);
-  return idx != null && idx !== state.dominoChosenPairIndex;
+  return idx != null && idx !== engaged;
 }

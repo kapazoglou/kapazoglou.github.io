@@ -4,6 +4,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spots.js v1.2, row.js v1.55, state.js v2.17** — Domino Spots: deck tick + discard by spots created (0/1/2 columns); 0 spots discards all offers
+
+- **domino-spots.js v1.1, domino-roll.js v1.9, turn.js v2.29** — Domino Spots: deck counter ticks on confirm by assigned spot count (1 or 2), not per roll
+
+- **domino-spots.js v1.0, settings.js v2.25, settings-panel.js v1.36, state.js v2.16, domino-roll.js v1.8, turn.js v2.28, row.js v1.54, sweeps-row.js v1.16** — `dominoSpots` toggle: spot 1 = used domino, spot 2 = unused; column `dominoKey` bind until sweep; requires `dominoRoll`
+
 - **dealt-strip display v1.2, dealt-strip.css, sweep-anim.js v1.11, placement-row.js, dice-visual.js** — between-zone sweeps use same beat + pop + row-sweep-v as row tiles (pair-sweep + row-sweep cascade)
 
 - **dealt-strip.js v1.1, dealt-strip.css, dealt-strip display v1.1** — strip tiles: true 50% dimensions (fixes is-new scale override), 0 gap, sorted A→* by rank
@@ -11,7 +17,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **dealt-strip.js v1.0, dealt-strip.css, dealt-strip display v1.0, state.js v2.15, tile-deck.js v1.1, turn.js v2.26, row.js v1.53, settings.js v2.24, settings-panel.js v1.35, render.js v1.6, invalid-flash.js v1.2, sweep-anim.js v1.10, handlers.js v2.10, drag-drop.js v2.34, placement-anim.js v1.27, placement-row.js, placement-input.js, action-bar.js v1.53, action-bar.css, index.html, base.css** — Tile Dealt strip redesign: half-size tiles on row↔tray seam (accumulate per cadence roll); block duplicate converts with flash + 3s warning border; accent tap pair-sweeps row duplicate without score; row sweeps clear strip; deck empty → WELL DONE; removed bar dealt tile, chain draw, deal-discard anim, N-place gating, reposition
 
 ### Changed
-- **action-bar.js v1.52** — nRoll=4 domino tray: returned dice keep actionBar return order within each pair
+- **turn.js v2.27** — Domino Roll deck counter: first roll shows full cap; ticks down from 2nd roll click onward
+- **domino-roll.js v1.7, drag-drop.js v2.35** — Domino Roll nRoll=4: pair lock from engaged pair (drag/select/row); tray return clears selection and unlocks when all quad dice idle
+- **action-bar.css** — domino deck count top edge sits below die bottom (more gap from `|`)
+- **domino-roll.js v1.6, deck-size.js v1.2, action-bar.js v1.53, action-bar.css, hud-v2.js** — Domino Roll nRoll=4: pair lock clears when all quad dice are back in tray; deck counter moves under tray `|` at half HUD size (hidden from top-left HUD)
 - **action-bar.js v1.51** — nRoll=4 domino tray: toward-`|` shift starts on drag, not only after placement
 - **action-bar.js v1.50, action-bar.css** — nRoll=4 domino tray: remaining dice hug `|` after placement from that pair
 - **domino-roll.js v1.5, turn.js v2.26** — Domino Roll HUD counter decrements only on roll-button roll (not on confirm/pool settle); resets when it hits 0
