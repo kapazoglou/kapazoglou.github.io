@@ -73,35 +73,6 @@
   user-select: none;
 }
 
-.domino-pair-sep-col {
-  position: relative;
-  flex-shrink: 0;
-  align-self: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  pointer-events: none;
-  user-select: none;
-}
-
-.domino-pair-sep-col .domino-pair-sep {
-  padding: 0;
-}
-
-.domino-pair-deck {
-  position: absolute;
-  /* sep-col is die-centred; anchor count below die bottom, not below pipe */
-  top: calc((var(--die-size) + 100%) / 2);
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: 'Averia Libre', serif;
-  font-size: 16px;
-  line-height: 1;
-  color: #fff;
-  white-space: nowrap;
-}
-
 .die--action {
   width: var(--die-size);
   height: var(--die-size);

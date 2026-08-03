@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { isDominoPairLocked } from './domino-roll.js';
-import { onTrayDiePlaced, onColumnVacated, onSpotColReposition } from './domino-spots.js';
+import { onTrayDiePlaced, onColumnVacated, onSpotColReposition, shiftDominoSpotCols, getDominoKeyForCol } from './domino-spots.js';
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
@@ -300,6 +300,7 @@ function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
 }
 
 function shiftColumnsFrom(fromCol, delta) {
+  shiftDominoSpotCols(fromCol, delta);
   for (const k of Object.keys(state.row).map(Number).filter(c => c >= fromCol).sort((a, b) => b - a)) {
     state.row[k + delta] = state.row[k];
     delete state.row[k];
@@ -572,10 +573,13 @@ export function placeDie(dieId, slot) {
   if (!valid.some(s => slotsEqual(s, slot))) return false;
 
   let vacatedCol = null;
+  let vacatedDominoKey = null;
   if (fromBar) {
     state.actionBar = state.actionBar.filter(id => id !== dieId);
   } else {
     if (!isTopDieInStack(dieId)) return false;
+    const loc = findDieColumn(dieId);
+    vacatedDominoKey = loc ? getDominoKeyForCol(loc.col) : null;
     const removeResult = removeDieFromRow(dieId);
     if (removeResult === false) return false;
     if (typeof removeResult === 'number') vacatedCol = removeResult;
@@ -602,11 +606,13 @@ export function placeDie(dieId, slot) {
     onTrayDiePlaced(dieId, targetCol);
   } else if (state.placedDieIds.has(dieId)) {
     if (vacatedCol != null) {
-      onSpotColReposition(vacatedCol, targetCol, dieId);
-    } else {
+      onSpotColReposition(vacatedCol, targetCol, dieId, vacatedDominoKey);
+    } else if (!state.dominoSpotCols.includes(targetCol)) {
       onTrayDiePlaced(dieId, targetCol);
     }
   }
+
+  if (state.dominoSpotCols.includes(targetCol)) getDominoKeyForCol(targetCol);
 
   state.selectedDieId = null;
   return true;
@@ -616,7 +622,7 @@ export function returnDieToBar(dieId, keepSelected = false) {
   if (!state.placedDieIds.has(dieId)) return false;
   if (!isTopDieInStack(dieId)) return false;
   const loc = findDieColumn(dieId);
-  const boundKey = loc ? state.row[loc.col]?.dominoKey ?? null : null;
+  const boundKey = loc ? getDominoKeyForCol(loc.col) : null;
   const removeResult = removeDieFromRow(dieId);
   if (removeResult === false) return false;
   if (typeof removeResult === 'number') onColumnVacated(removeResult, boundKey);

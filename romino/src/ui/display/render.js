@@ -7,6 +7,8 @@ import { renderHUD } from './hud-v2.js';
 import { renderPlacementRow, updatePlacementSelection, positionHints, positionEdgeGhosts, positionStarMarkers, restorePinnedRowScroll } from './placement-row.js';
 import { renderActionBar, updateActionBarSelection } from './action-bar.js';
 import { renderDealtStrip } from './dealt-strip.js';
+import { renderDominoSpotStrip, scheduleDominoSpotStripLayout, renderActionBarDeckBadge } from './domino-spot-strip.js';
+import { syncDominoSpotKeysFromEngagement } from '../../logic/domino-spots.js';
 import { onRender as onTutorialRender } from './tutorial.js';
 import { clearInsertHoverSpread, resetInsertHoverSpread } from '../transitions/placement-hover.js';
 import { resetRepositionCollapse } from '../transitions/reposition-collapse.js';
@@ -31,15 +33,19 @@ export function render() {
     clearDominoChosenPair();
   }
   renderPlacementRow();
+  syncDominoSpotKeysFromEngagement();
   renderDealtStrip();
+  renderDominoSpotStrip();
   renderHUD();
   renderActionBar();
+  renderActionBarDeckBadge();
   updateSeparatorSpotCap();
   requestAnimationFrame(() => {
     restorePinnedRowScroll();
     positionEdgeGhosts();
     positionHints();
     positionStarMarkers();
+    scheduleDominoSpotStripLayout();
     onTutorialRender();
   });
 }
@@ -53,10 +59,13 @@ export function renderSelection() {
   }
   updatePlacementSelection();
   updateActionBarSelection();
+  syncDominoSpotKeysFromEngagement();
   renderDealtStrip();
+  renderDominoSpotStrip();
   requestAnimationFrame(() => {
     positionEdgeGhosts();
     positionHints();
     positionStarMarkers();
+    scheduleDominoSpotStripLayout();
   });
 }

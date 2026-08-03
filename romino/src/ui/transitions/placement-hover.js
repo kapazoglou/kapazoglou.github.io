@@ -2,6 +2,7 @@ import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { slotsEqual, gapInsertAnimationsAllowed } from '../../logic/row.js';
 import { resolveInsertSlotFromPointer, syncStarMarkersDuringMotion } from '../display/placement-row.js';
+import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
 import { spreadColumnElement } from '../display/flank-stacks.js';
 import { computeSpreadOffsets } from './placement-anim.js';
 import { COL_SPREAD_MS } from './timing.js';
@@ -98,6 +99,7 @@ export function updateInsertHoverSpread(clientX, clientY, validSlots, dieId = nu
 
   activeSpreadDx = new Map(offsets);
   syncStarMarkersDuringMotion();
+  syncDominoSpotStripDuringMotion();
 }
 
 export function resetInsertHoverSpread() {
@@ -114,6 +116,7 @@ export function clearInsertHoverSpread(animate = true, touchDom = true) {
       applySpreadCol(col, 0, animate);
     }
     syncStarMarkersDuringMotion();
+    syncDominoSpotStripDuringMotion();
   }
   activeSpreadDx = new Map();
 }

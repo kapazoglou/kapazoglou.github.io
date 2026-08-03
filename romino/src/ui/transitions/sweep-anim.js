@@ -9,6 +9,7 @@ import {
   commitBankCycle,
   cancelBankCycle,
 } from '../../logic/game-log.js';
+import { syncDominoSpotStripDuringMotion, scheduleDominoSpotStripLayout } from '../display/domino-spot-strip.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll } from '../display/placement-row.js';
 import { bankStarsToPoints } from './pip-anim.js';
@@ -52,6 +53,8 @@ function animateColumnCollapse(beforeLeft, onDone) {
     return;
   }
 
+  syncDominoSpotStripDuringMotion(COL_COLLAPSE_MS);
+
   for (const { el, dx } of movers) {
     el.classList.add('placement-col--collapsing');
     el.style.transition = 'none';
@@ -70,6 +73,7 @@ function animateColumnCollapse(beforeLeft, onDone) {
       el.style.transition = '';
       el.style.transform = '';
     }
+    scheduleDominoSpotStripLayout();
     onDone();
   }, ms);
 }

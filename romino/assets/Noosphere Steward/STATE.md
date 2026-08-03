@@ -33,6 +33,18 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)
+
+- **domino-roll.js v1.13, domino-spots.js v1.11, state.md** — Domino deck counter = pool + discard (excludes tray offers and locked row spots); `discardDominoKey` syncs badge
+
+- **domino-spot-strip.js v1.5, domino-spot-strip.css v2.7, dice-visual.js v1.10** — Domino spots sweep with column: beat pop + row-sweep-v (row sweep + pair-sweep)
+
+- **domino-roll.js v1.11, domino-spots.js v1.9, state.js v2.21, turn.js v2.31** — Domino discard pile; counter = active pool length; discard reshuffle on short draw
+
+- **domino-spot-strip.js v1.1, domino-spots.js v1.4, state.js v2.19, turn.js v2.30** — Seam touch-point alignment; dominoes persist across rolls until sweep
+
+- **domino-spot-strip.js v1.0** — Domino spot strip on seam (half-size vertical stacks, column-aligned, motion sync); dominoSpots ↔ tileDealtEvery clamp
+
 - **domino-spots.js v1.2, row.js v1.55, state.js v2.17** — Domino Spots deck tick by spots created (0/1/2); 0 spots discards all offers
 
 - **domino-spots.js v1.1, domino-roll.js v1.9, turn.js v2.29** — Domino Spots deck counter ticks on confirm by spot count (1 or 2), not per roll

@@ -1,8 +1,8 @@
 ---
 module: reposition-collapse
 layer: ui/transitions
-v: 1.3
-date: 2026-07-20
+v: 1.4
+date: 2026-08-03
 deps: [state, settings, row, placement-row, timing]
 ---
 # Reposition Collapse

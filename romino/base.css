@@ -3,6 +3,7 @@
 @import url('src/ui/display/placement-row.css');
 @import url('src/ui/display/action-bar.css');
 @import url('src/ui/display/dealt-strip.css');
+@import url('src/ui/display/domino-spot-strip.css');
 @import url('src/ui/display/settings-panel.css');
 @import url('src/ui/display/game-over.css');
 @import url('src/ui/display/deck-flank.css');
@@ -48,6 +49,7 @@
   --tile-face-h:  calc(var(--die-stack-pair-height) - 2 * var(--die-border));
   --die-gap-h:    6px;
   --col-width:    var(--die-size);
+  --row-seam-gap: 40px;
   --t: 1;
 }
 

@@ -14,9 +14,15 @@ import { attemptPlacementAtPoint } from './placement-input.js';
 import { consumeRowClickBlock } from './drag-drop.js';
 import { startPairSweepAnimation } from './dealt-strip.js';
 import { stripTileHasRowDuplicate } from '../../logic/dealt-strip.js';
+import { toggleDominoSpotsVisibility } from './domino-spot-strip.js';
 
 export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
+    if (e.target.closest('#action-bar-deck')) {
+      toggleDominoSpotsVisibility();
+      return;
+    }
+
     if (state.phase === 'animating' || state.phase === 'replay') return;
 
     const stripTile = e.target.closest('.dealt-strip-tile--accent[data-strip-id]');

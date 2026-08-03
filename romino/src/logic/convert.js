@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import { tileIdentityFromStackValues, tileIdentityRequiresStar, JOKER_RANK } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
+import { getDominoKeyForCol } from './domino-spots.js';
 import { recordTileCreated, recordStarSpent } from './game-log.js';
 import { tickDeckOnConvert } from './deck-size.js';
 
@@ -44,7 +45,8 @@ export function convertColumn(col) {
     recordStarSpent('convert');
   }
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
-  state.row[col] = { kind: 'tile', ...tile };
+  const dominoKey = getDominoKeyForCol(col);
+  state.row[col] = { kind: 'tile', ...tile, ...(dominoKey ? { dominoKey } : {}) };
   recordTileCreated(tile, col);
   return tickDeckOnConvert();
 }

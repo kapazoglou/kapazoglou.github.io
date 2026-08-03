@@ -4,6 +4,76 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-roll.js v1.14, domino-spots.js v1.12, state.md** — Domino deck counter = pool + discard + tray offers (excludes locked row spots)
+
+- **domino-roll.js v1.13, domino-spots.js v1.11, state.md** — Domino deck counter = pool + discard (excludes tray offers and locked row spots); discard syncs badge on sweep/confirm
+
+- **domino-spot-strip.css v2.11** — Deck badge hidden state: white text, no fill, 2px inset white ring
+
+- **state.js v2.22, domino-spot-strip.js v2.11, domino-spot-strip.css v2.10, handlers.js v2.10** — Tap deck badge toggles seam domino spot visibility (`dominoSpotsVisible`)
+
+- **domino-spot-strip.css v2.9** — Deck badge circle 24×24px
+
+- **domino-spot-strip.css v2.8** — Deck badge fixed 30×30px circle (digit count does not resize)
+
+- **domino-spot-strip.js v2.8** — Deck badge X aligned over roll-button centre (not left mirror)
+
+- **domino-spot-strip.js v2.7, domino-spot-strip.css, action-bar.js v1.58, render.js** — Fix deck badge clip: render on seam strip (not action-bar overflow)
+
+- **action-bar.js v1.57, action-bar.css, domino-spot-strip.js v2.6, render.js** — Domino deck badge in seam row (domino-spot Y); left side mirrors roll-button die center
+
+- **action-bar.js v1.56, action-bar.css** — Domino deck counter centred between die top and tray pipe; white circle badge with `--bg` text
+
+- **domino-roll.js v1.12, domino-spots.js v1.10, turn.js v2.32** — Deck counter includes untied tray offers (nRoll=4 roll stays at 21 until tied/discarded); vacate removes offer before pool return
+
+- **domino-roll.js v1.11, domino-spots.js v1.9, state.js v2.21, turn.js v2.31** — Domino discard pile: swept + unbound offers → discard; discard reshuffles into pool when draw is short; HUD counter = active pool length (excludes tied spots and discard); vacate pre-confirm still returns key to pool
+
+- **action-bar.js v1.55, action-bar.css** — Domino spots ON: deck counter above tray `|` (mirrored offset; was below)
+
+- **domino-spot-strip.js v1.4, domino-spot-strip.css v2.4, base.css, placement-row.css** — Domino spots vertically centred in row↔seam gap (measured from column bottom); `--row-seam-gap`
+
+- **dice-visual.js v1.9, domino-spot-strip.css v2.3** — Domino spot dice scaled to 20×20px (was 24px)
+
+- **dice-visual.js v1.8** — Inline domino spot dice: square corners on touching seam (outer + face paths)
+
+- **domino-spot-strip.css v2.2, dice-visual.js v1.7** — Between-zone domino stacks: bottom edge aligned to row↔tray seam (was vertically centred)
+
+- **dice-visual.js v1.6, action-bar.js** — Six pips rotate 90° in row/drag/anim; tray and domino-spot strip stay upright
+
+- **dice-visual.js v1.5, domino-spot-strip.css v2.1** — Domino spot dice: 24px each, 1px border, −1px pair gap
+
+- **dice-visual.js v1.4, domino-spot-strip.css v2.0** — Between-zone domino spots: horizontal row; stack width matches `--die-size`
+
+- **dice-visual.js v1.3, domino-spot-strip.css v1.9** — Remove domino stack stroke overlay; white borders from die SVG only
+
+- **dice-visual.js v1.2, domino-spot-strip.css v1.8** — Domino inner ring per die, stroke overlaps die border band; dice layout/stack overlap restored
+
+- **dice-visual.js v1.1, domino-spot-strip.css v1.7** — Domino spot stack: dice overlap matches border width; SVG inner frame aligned to die geometry; outer border from die SVG only
+
+- **domino-spot-strip.css v1.6** — Between-zone domino stacks: white inner border (same width as outer) around full stack
+
+- **dice-visual.js, domino-spot-strip.css v1.5** — Between-zone domino spot dice: white face, colored pips, white borders (inverted face/pips only)
+
+- **row.js v1.58** — Register spot when repositioning row die to new column without vacating source
+
+- **domino-spots.js v1.8, state.js v2.20, row.js v1.57, convert.js, dealt-strip.js** — `dominoSpotKeys` map survives column recreate/reposition; keys only released on sweep (or pair-sweep/vacate)
+
+- **domino-spots.js v1.7** — Locked domino binding: existing spot cols never rebind on stack or selection change
+
+- **domino-spot-strip.css v1.4, dice-visual.js** — Fixed seam Y: anchor on wrap (px), opacity-only enter anim (no transform conflict)
+
+- **domino-spots.js v1.6, row.js v1.56, convert.js** — Preserve seam dominoes on convert, column shift, and reposition; only sweep removes them
+
+- **domino-spot-strip.js v1.3, domino-spot-strip.css v1.3, render.js v1.8** — Hide seam dominoes until column layout measured; double-rAF position after scroll restore
+
+- **domino-spots.js v1.5, render.js v1.7, drag-drop.js v2.36** — Spot 1 this turn tracks engaged pair; seam domino rebinding on selection/drag change
+
+- **domino-spot-strip.css v1.2** — seam anchor at strip top (row↔between-zone border), matching dealt tiles
+
+- **domino-spot-strip.js v1.1, domino-spot-strip.css, domino-spots.js v1.4, state.js v2.19, turn.js v2.30, dice-visual.js** — Spot strip: dice-touch seam alignment; dominoes persist across rolls until sweep; deck tick uses spots created this turn only
+
+- **domino-spot-strip.js v1.0, domino-spot-strip.css, dice-visual.js, domino-roll.js v1.10, domino-spots.js v1.3, state.js v2.18, settings.js v2.26, settings-panel.js v1.37, render.js v1.6, placement-hover.js v1.13, placement-anim.js v1.27, reposition-collapse.js v1.4, index.html, base.css, main.js** — Domino spot strip: half-size vertical domino stacks on seam, column-aligned, motion/scroll sync; `dominoSpots` ↔ `tileDealtEvery` mutually exclusive
+
 - **domino-spots.js v1.2, row.js v1.55, state.js v2.17** — Domino Spots: deck tick + discard by spots created (0/1/2 columns); 0 spots discards all offers
 
 - **domino-spots.js v1.1, domino-roll.js v1.9, turn.js v2.29** — Domino Spots: deck counter ticks on confirm by assigned spot count (1 or 2), not per roll

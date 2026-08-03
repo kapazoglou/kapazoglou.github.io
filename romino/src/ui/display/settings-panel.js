@@ -51,12 +51,14 @@ function clampDraft() {
   if (draftSettings.deckFlank) draftSettings.tileDealtEvery = 0;
   if (draftSettings.tileDealtEvery > 0) draftSettings.deckFlank = false;
   if (!draftSettings.dominoRoll) draftSettings.dominoSpots = false;
+  if (draftSettings.dominoSpots) draftSettings.tileDealtEvery = 0;
+  if (draftSettings.tileDealtEvery > 0) draftSettings.dominoSpots = false;
 }
 
 function isDraftControlDisabled(item) {
   if (item.key === 'deckFlank') return draftSettings.tileDealtEvery > 0;
-  if (item.key === 'tileDealtEvery') return draftSettings.deckFlank;
-  if (item.key === 'dominoSpots') return !draftSettings.dominoRoll;
+  if (item.key === 'tileDealtEvery') return draftSettings.deckFlank || draftSettings.dominoSpots;
+  if (item.key === 'dominoSpots') return !draftSettings.dominoRoll || draftSettings.tileDealtEvery > 0;
   return false;
 }
 

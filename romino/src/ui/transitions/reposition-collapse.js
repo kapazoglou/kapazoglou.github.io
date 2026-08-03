@@ -2,6 +2,7 @@ import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { findDieColumn, getColumn } from '../../logic/row.js';
 import { pinRowScroll, restorePinnedRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
+import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
 import { COL_SPREAD_MS } from './timing.js';
 
 const EASING = 'ease-out';
@@ -70,10 +71,12 @@ function runFlip(beforeLeft, animate) {
 
   if (ms) {
     syncStarMarkersDuringMotion();
+    syncDominoSpotStripDuringMotion();
     setTimeout(cleanup, ms);
   } else {
     cleanup();
     syncStarMarkersDuringMotion();
+    syncDominoSpotStripDuringMotion();
   }
 }
 

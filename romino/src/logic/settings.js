@@ -53,4 +53,6 @@ export function clampSettings() {
   if (settings.deckFlank) settings.tileDealtEvery = 0;
   if (settings.tileDealtEvery > 0) settings.deckFlank = false;
   if (!settings.dominoRoll) settings.dominoSpots = false;
+  if (settings.dominoSpots) settings.tileDealtEvery = 0;
+  if (settings.tileDealtEvery > 0) settings.dominoSpots = false;
 }

@@ -261,7 +261,7 @@ function beginDrag(e) {
   }
 
   if (fromBar) {
-    renderActionBar();
+    renderSelection();
     dragDieEl = null;
   } else {
     dragDieEl.classList.add('die--drag-source');

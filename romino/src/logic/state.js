@@ -58,6 +58,10 @@ export function createInitialState() {
     dominoPairPool: [],
     /** Domino Roll — remaining triple combo keys (56 multiset triples). */
     dominoTriplePool: [],
+    /** Domino Roll — discarded pair combo keys (reshuffled into pool when draw is short). */
+    dominoPairDiscard: [],
+    /** Domino Roll — discarded triple combo keys (reshuffled into pool when draw is short). */
+    dominoTripleDiscard: [],
     /** nRoll=4 domino quad: [[dieId, dieId], [dieId, dieId]] after roll. */
     dominoPairGroups: null,
     /** nRoll=4 domino quad: 0 | 1 | null — active pair after tray selection. */
@@ -72,6 +76,14 @@ export function createInitialState() {
     dominoUnusedKey: null,
     /** Domino spots — column ids that received tray dice this turn, in first-use order. */
     dominoSpotCols: [],
+    /** Domino spots — spot cols created this turn (deck tick on confirm). */
+    dominoSpotsCreatedThisTurn: [],
+    /** Domino spot strip — cols that just gained a seam domino (enter anim). */
+    newDominoSpotCols: new Set(),
+    /** UI — seam domino spot glyphs visible (toggle via deck badge tap). */
+    dominoSpotsVisible: true,
+    /** Domino spots — authoritative col→combo key until sweep (survives column recreate). */
+    dominoSpotKeys: {},
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

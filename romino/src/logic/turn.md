@@ -1,7 +1,7 @@
 ---
 module: turn
 layer: logic
-v: 2.29
+v: 2.31
 date: 2026-08-03
 deps: [state, settings, dice, domino-roll, domino-spots, tile-deck, dealt-strip, deck-flank, deck-size, confirm-anim]
 ---

@@ -12,11 +12,10 @@ import {
   clearDominoTrayState,
   drawDominoRoll,
   settleDominoQuadRoll,
-  tickDominoDeckOnRoll,
+  setCurrentRollOfferedKeys,
 } from './domino-roll.js';
 import {
   setDominoOfferedKeys,
-  clearDominoSpotsRollState,
   clearAllDominoSpotBindings,
   settleDominoSpotsOnConfirm,
   isDominoSpotsActive,
@@ -166,11 +165,9 @@ export function rollDice() {
   state.actionBar = [];
   state.newTrayDieIds = new Set();
   clearDominoTrayState();
-  clearDominoSpotsRollState();
 
   const useDominoRoll = settings.dominoRoll && (count === 2 || count === 3 || count === 4);
   if (useDominoRoll) {
-    if (state.rollCount > 1 && !isDominoSpotsActive()) tickDominoDeckOnRoll(count);
     const drawResult = drawDominoRoll(count);
     if (!drawResult) return null;
     const { values, pairGroups, pairComboKeys, comboKeys } = drawResult;
@@ -186,8 +183,11 @@ export function rollDice() {
       ];
       state.dominoPairComboKeys = pairComboKeys ?? null;
     }
+    const offeredKeys = comboKeys ?? pairComboKeys ?? [];
     if (isDominoSpotsActive()) {
-      setDominoOfferedKeys(comboKeys ?? pairComboKeys ?? []);
+      setDominoOfferedKeys(offeredKeys);
+    } else {
+      setCurrentRollOfferedKeys(offeredKeys);
     }
   } else {
     for (let i = 0; i < count; i++) {

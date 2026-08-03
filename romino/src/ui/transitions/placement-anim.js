@@ -4,6 +4,7 @@ import { placeDie, getValidSlotsForDie, slotsEqual, getOccupiedCols, gapInsertAn
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion, slotAnchorRowXY } from '../display/placement-row.js';
+import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
 import { spreadColumnElement, flankStackColElement, FLANK_SPREAD_LEFT, FLANK_SPREAD_RIGHT } from '../display/flank-stacks.js';
 import { flankStackTop } from '../../logic/deck-flank.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
@@ -156,6 +157,7 @@ function animateSpreadCollapse(spreadEls, collapseCols, onDone) {
 
   if (any) {
     syncStarMarkersDuringMotion();
+    syncDominoSpotStripDuringMotion();
     setTimeout(onDone, ms);
   } else onDone();
 }
@@ -257,6 +259,7 @@ function animateDieFly(dieId, finalTarget, duration, onDone, existingFlyer = nul
 
 function syncStarMarkers() {
   syncStarMarkersDuringMotion();
+  syncDominoSpotStripDuringMotion();
 }
 
 function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {

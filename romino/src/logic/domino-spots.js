@@ -1,6 +1,13 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { getDominoPairIndex, returnKeyToPool, tickDominoDeckBy } from './domino-roll.js';
+import {
+  getDominoPairIndex,
+  returnKeyToPool,
+  discardDominoKey,
+  getDominoEngagedPairIndex,
+  setCurrentRollOfferedKeys,
+  syncDominoDeckCount,
+} from './domino-roll.js';
 
 export function isDominoSpotsActive() {
   return settings.dominoRoll && settings.dominoSpots;
@@ -9,10 +16,9 @@ export function isDominoSpotsActive() {
 /** @param {string[]} keys */
 export function setDominoOfferedKeys(keys) {
   if (!isDominoSpotsActive()) return;
-  state.dominoOfferedKeys = [...keys];
+  setCurrentRollOfferedKeys(keys);
   state.dominoUsedKey = null;
   state.dominoUnusedKey = null;
-  state.dominoSpotCols = [];
 }
 
 export function clearDominoSpotsRollState() {
@@ -20,29 +26,80 @@ export function clearDominoSpotsRollState() {
   state.dominoUsedKey = null;
   state.dominoUnusedKey = null;
   state.dominoSpotCols = [];
+  state.dominoSpotsCreatedThisTurn = [];
+  state.newDominoSpotCols.clear();
+}
+
+function clearDominoSpotsOfferState() {
+  state.dominoOfferedKeys = [];
+  state.dominoUsedKey = null;
+  state.dominoUnusedKey = null;
+  state.dominoSpotsCreatedThisTurn = [];
 }
 
 export function clearAllDominoSpotBindings() {
   for (const column of Object.values(state.row)) {
     if (column.dominoKey) delete column.dominoKey;
   }
+  state.dominoSpotKeys = {};
   clearDominoSpotsRollState();
 }
 
-/** @param {number} dieId */
+/** @param {number} dieId @returns {boolean} */
 function syncUsedUnusedFromDie(dieId) {
   const offered = state.dominoOfferedKeys;
-  if (!offered.length) return;
+  if (!offered.length) return false;
 
   if (settings.nRoll === 4 && state.dominoPairGroups) {
     const idx = getDominoPairIndex(dieId);
-    if (idx == null) return;
+    if (idx == null) return false;
     state.dominoUsedKey = offered[idx];
     state.dominoUnusedKey = offered.length > 1 ? offered[idx === 0 ? 1 : 0] : null;
   } else {
     state.dominoUsedKey = offered[0];
     state.dominoUnusedKey = null;
   }
+  return true;
+}
+
+/** @returns {boolean} */
+function syncUsedUnusedFromEngagedPair() {
+  const offered = state.dominoOfferedKeys;
+  if (!offered.length) return false;
+
+  if (settings.nRoll === 4 && state.dominoPairGroups) {
+    const idx = getDominoEngagedPairIndex();
+    if (idx == null) return false;
+    state.dominoUsedKey = offered[idx];
+    state.dominoUnusedKey = offered.length > 1 ? offered[idx === 0 ? 1 : 0] : null;
+  } else {
+    state.dominoUsedKey = offered[0];
+    state.dominoUnusedKey = null;
+  }
+  return true;
+}
+
+function rebindThisTurnSpotDominoKeys() {
+  for (let i = 0; i < state.dominoSpotsCreatedThisTurn.length; i++) {
+    const col = state.dominoSpotsCreatedThisTurn[i];
+    if (getDominoKeyForCol(col)) continue;
+    bindKeyToColumn(col, spotKeyForIndex(i));
+  }
+}
+
+/** Rebind this-turn spot cols to engaged pair (spot 1 = used, spot 2 = unused). */
+export function syncDominoSpotKeysFromEngagement() {
+  if (!isDominoSpotsActive() || !state.dominoSpotsCreatedThisTurn.length) return false;
+  if (!syncUsedUnusedFromEngagedPair()) return false;
+
+  const before = state.dominoSpotCols
+    .map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`)
+    .join('|');
+  rebindThisTurnSpotDominoKeys();
+  const after = state.dominoSpotCols
+    .map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`)
+    .join('|');
+  return before !== after;
 }
 
 /** @param {number} spotIndex @returns {string | null} */
@@ -54,39 +111,85 @@ function spotKeyForIndex(spotIndex) {
 
 /** @param {number} col @param {string | null} key */
 function bindKeyToColumn(col, key) {
-  if (!key) return;
+  if (!key || state.dominoSpotKeys[col]) return;
+  state.dominoSpotKeys[col] = key;
   const column = state.row[col];
-  if (!column) return;
-  column.dominoKey = key;
+  if (column) column.dominoKey = key;
+}
+
+/** @param {number} fromCol @param {number} toCol @param {string | null} key */
+function moveDominoSpotKey(fromCol, toCol, key) {
+  if (!key) return;
+  if (fromCol !== toCol) delete state.dominoSpotKeys[fromCol];
+  if (state.dominoSpotKeys[toCol]) return;
+  state.dominoSpotKeys[toCol] = key;
+  const column = state.row[toCol];
+  if (column) column.dominoKey = key;
+}
+
+/** @param {number} fromCol @param {number} delta */
+function shiftDominoSpotKeys(fromCol, delta) {
+  if (!delta) return;
+  const remapped = {};
+  for (const [colStr, key] of Object.entries(state.dominoSpotKeys)) {
+    const col = Number(colStr);
+    remapped[col >= fromCol ? col + delta : col] = key;
+  }
+  state.dominoSpotKeys = remapped;
 }
 
 /** @param {number} dieId @param {number} col */
 function registerNewSpotCol(dieId, col) {
-  syncUsedUnusedFromDie(dieId);
-  state.dominoSpotCols.push(col);
-  const spotIndex = state.dominoSpotCols.length - 1;
-  bindKeyToColumn(col, spotKeyForIndex(spotIndex));
+  if (!state.dominoSpotCols.includes(col)) state.dominoSpotCols.push(col);
+  state.newDominoSpotCols.add(col);
+  state.dominoSpotsCreatedThisTurn.push(col);
+  if (!syncUsedUnusedFromEngagedPair()) syncUsedUnusedFromDie(dieId);
+  rebindThisTurnSpotDominoKeys();
 }
 
 /** @param {number} dieId @param {number} col */
 export function onTrayDiePlaced(dieId, col) {
   if (!isDominoSpotsActive()) return;
-  if (state.dominoSpotCols.includes(col)) {
-    syncUsedUnusedFromDie(dieId);
-    return;
-  }
+  if (state.dominoSpotCols.includes(col)) return;
   registerNewSpotCol(dieId, col);
 }
 
-/** @param {number} fromCol @param {number} toCol @param {number} dieId */
-export function onSpotColReposition(fromCol, toCol, dieId) {
+/** Remap spot col indices when row columns shift for gap insert. */
+export function shiftDominoSpotCols(fromCol, delta) {
+  if (!isDominoSpotsActive() || !delta) return;
+
+  shiftDominoSpotKeys(fromCol, delta);
+  state.dominoSpotCols = state.dominoSpotCols.map(col => (col >= fromCol ? col + delta : col));
+  state.dominoSpotsCreatedThisTurn = state.dominoSpotsCreatedThisTurn.map(col =>
+    (col >= fromCol ? col + delta : col),
+  );
+
+  const remapped = new Set();
+  for (const col of state.newDominoSpotCols) {
+    remapped.add(col >= fromCol ? col + delta : col);
+  }
+  state.newDominoSpotCols = remapped;
+}
+
+/** @param {number} fromCol @param {number} toCol @param {number} dieId @param {string | null} preservedKey */
+export function onSpotColReposition(fromCol, toCol, dieId, preservedKey = null) {
   if (!isDominoSpotsActive()) return;
-  syncUsedUnusedFromDie(dieId);
+  if (!syncUsedUnusedFromEngagedPair()) syncUsedUnusedFromDie(dieId);
 
   const idx = state.dominoSpotCols.indexOf(fromCol);
   if (idx !== -1) {
-    state.dominoSpotCols[idx] = toCol;
-    bindKeyToColumn(toCol, spotKeyForIndex(idx));
+    const key = preservedKey ?? getDominoKeyForCol(fromCol);
+    if (state.dominoSpotCols.includes(toCol)) {
+      state.dominoSpotCols.splice(idx, 1);
+      const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(fromCol);
+      if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
+    } else {
+      state.dominoSpotCols[idx] = toCol;
+      state.newDominoSpotCols.add(toCol);
+      const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(fromCol);
+      if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn[turnIdx] = toCol;
+    }
+    moveDominoSpotKey(fromCol, toCol, key);
     return;
   }
 
@@ -102,7 +205,16 @@ export function onColumnVacated(col, boundKey = undefined) {
   const idx = state.dominoSpotCols.indexOf(col);
   if (idx !== -1) state.dominoSpotCols.splice(idx, 1);
 
-  if (boundKey) returnKeyToPool(boundKey);
+  const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(col);
+  if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
+
+  delete state.dominoSpotKeys[col];
+
+  if (boundKey) {
+    const offerIdx = state.dominoOfferedKeys.indexOf(boundKey);
+    if (offerIdx !== -1) state.dominoOfferedKeys.splice(offerIdx, 1);
+    returnKeyToPool(boundKey);
+  }
 
   if (state.dominoSpotCols.length === 0) {
     state.dominoUsedKey = null;
@@ -125,8 +237,8 @@ function resolveUsedUnusedFromPlaced(placedDieIds) {
 
 function boundOfferKeysThisTurn() {
   const keys = new Set();
-  for (const col of state.dominoSpotCols) {
-    const key = state.row[col]?.dominoKey;
+  for (const col of state.dominoSpotsCreatedThisTurn) {
+    const key = getDominoKeyForCol(col);
     if (key) keys.add(key);
   }
   return keys;
@@ -143,15 +255,13 @@ export function settleDominoSpotsOnConfirm(placedDieIds) {
     resolveUsedUnusedFromPlaced(placedDieIds);
   }
 
-  const spotCount = state.dominoSpotCols.length;
-  tickDominoDeckBy(spotCount);
-
   const bound = boundOfferKeysThisTurn();
   for (const key of offered) {
-    if (!bound.has(key)) returnKeyToPool(key);
+    if (!bound.has(key)) discardDominoKey(key);
   }
 
-  clearDominoSpotsRollState();
+  clearDominoSpotsOfferState();
+  syncDominoDeckCount();
 }
 
 /** @param {number[]} cols */
@@ -159,11 +269,26 @@ export function releaseDominoKeysForCols(cols) {
   if (!isDominoSpotsActive()) return;
 
   for (const col of cols) {
+    const key = getDominoKeyForCol(col);
+    if (!key) continue;
+    discardDominoKey(key);
+    delete state.dominoSpotKeys[col];
+
     const column = state.row[col];
-    if (!column?.dominoKey) continue;
-    returnKeyToPool(column.dominoKey);
-    delete column.dominoKey;
+    if (column?.dominoKey) delete column.dominoKey;
+
+    const idx = state.dominoSpotCols.indexOf(col);
+    if (idx !== -1) state.dominoSpotCols.splice(idx, 1);
+
+    const turnIdx = state.dominoSpotsCreatedThisTurn.indexOf(col);
+    if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
   }
+}
+
+/** Active spot columns that still have a bound domino key. */
+export function getActiveDominoSpotCols() {
+  if (!isDominoSpotsActive()) return [];
+  return state.dominoSpotCols.filter(col => getDominoKeyForCol(col) != null);
 }
 
 /** @param {number} spotIndex @returns {string | null} */
@@ -176,8 +301,14 @@ export function getDominoSpotKey(spotIndex) {
 
 /** @param {number} col @returns {string | null} */
 export function getDominoKeyForCol(col) {
+  let key = state.dominoSpotKeys[col] ?? null;
+  if (!key) {
+    key = state.row[col]?.dominoKey ?? null;
+    if (key) state.dominoSpotKeys[col] = key;
+  }
   const column = state.row[col];
-  return column?.dominoKey ?? null;
+  if (key && column && column.dominoKey !== key) column.dominoKey = key;
+  return key;
 }
 
 /** @param {number} dieId @returns {boolean} */
@@ -209,5 +340,5 @@ export function getDominoKeyForDie(dieId) {
 }
 
 export function countDominoSpotsCreated() {
-  return state.dominoSpotCols.length;
+  return state.dominoSpotsCreatedThisTurn.length;
 }

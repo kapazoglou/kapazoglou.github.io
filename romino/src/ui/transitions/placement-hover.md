@@ -1,8 +1,8 @@
 ---
 module: placement-hover
 layer: ui/transitions
-v: 1.12
-date: 2026-07-28
+v: 1.13
+date: 2026-08-03
 deps: [state, settings, row, placement-row, placement-anim, timing]
 ---
 # Placement Hover

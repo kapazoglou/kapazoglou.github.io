@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.17
+v: 2.22
 date: 2026-08-03
 deps: []
 ---
@@ -15,12 +15,13 @@ Single source of truth for v2 row game.
 - `dealtStrip` — half-size between-zone tiles `{ suit, rank, rankSum, bottomValue, stripId }[]`
 - `dealtStripWarningIds`, `rowTileWarningCols` — transient duplicate-block chrome
 - `tileDeckRemaining` — shuffled deck keys for cadence deals
-- `deckRemaining` — conversions left this session when `deckSize` setting > 0; else `null`
+- `deckRemaining` — conversions left when `deckSize` > 0; domino mode: pool + discard + tray offers (excludes locked row spots)
 - `flankStackLeft`, `flankStackRight` — `{ remaining, top }` virtual deck-flank stacks
-- `dominoPairPool`, `dominoTriplePool` — depleting combo keys when `dominoRoll` ON
+- `dominoPairPool`, `dominoTriplePool` — available combo keys when `dominoRoll` ON
+- `dominoPairDiscard`, `dominoTripleDiscard` — swept / unbound-offer keys; merged into pool when draw is short
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
-- `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols` — domino spots roll state when `dominoSpots` ON
-- Column `dominoKey` — used domino combo bound to stack/tile until sweep
+- `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
+- Column `dominoKey` — mirror of `dominoSpotKeys[col]` on stack/tile until sweep
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`
 - `jokerSuitsUsed` — suits that already produced a joker this session (one per suit per game)

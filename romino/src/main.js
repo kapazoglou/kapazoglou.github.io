@@ -8,6 +8,7 @@ import { initStarRerollInput } from './ui/display/star-reroll-input.js';
 import { initTutorial, shouldStartTutorial } from './ui/display/tutorial.js';
 import { initViewportControls } from './ui/display/viewport-controls.js';
 import { render } from './ui/display/render.js';
+import { initDominoSpotStrip } from './ui/display/domino-spot-strip.js';
 
 /** Numbers Deuce is lazy-loaded via @font-face; warm it before first tile convert. */
 async function initNumbersDeuceFont() {
@@ -18,6 +19,7 @@ async function initNumbersDeuceFont() {
 await initNumbersDeuceFont();
 
 initDragDrop();
+initDominoSpotStrip();
 initStarRerollInput();
 setGameOverHandler(reason => {
   showGameOver(reason);

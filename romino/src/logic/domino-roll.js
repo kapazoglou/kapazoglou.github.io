@@ -66,10 +66,12 @@ function buildCappedPool(buildFull, cap) {
 
 function rebuildPairPool() {
   state.dominoPairPool = buildCappedPool(buildPairPoolKeys, listCap(2));
+  state.dominoPairDiscard = [];
 }
 
 function rebuildTriplePool() {
   state.dominoTriplePool = buildCappedPool(buildTriplePoolKeys, listCap(3));
+  state.dominoTripleDiscard = [];
 }
 
 /** @returns {string[]} */
@@ -77,34 +79,38 @@ function activeDominoPool(nRoll) {
   return nRoll === 3 ? state.dominoTriplePool : state.dominoPairPool;
 }
 
-export function syncDominoDeckRemaining(nRoll = settings.nRoll) {
+/** @returns {string[]} */
+function activeDominoDiscard(nRoll) {
+  return nRoll === 3 ? state.dominoTripleDiscard : state.dominoPairDiscard;
+}
+
+/** Deck badge = draw pool + discard pile + tray offers (excludes locked row spots). */
+export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
-  state.deckRemaining = listCap(nRoll);
+  state.deckRemaining = activeDominoPool(nRoll).length
+    + activeDominoDiscard(nRoll).length
+    + state.dominoOfferedKeys.length;
 }
 
-/** HUD counter ticks down once per roll-button roll (not on confirm or pool settle). */
-export function tickDominoDeckOnRoll(nRoll = settings.nRoll) {
-  tickDominoDeckBy(1, nRoll);
+/** Track combo keys offered in the tray this roll; refreshes deck counter. */
+export function setCurrentRollOfferedKeys(keys) {
+  state.dominoOfferedKeys = [...keys];
+  syncDominoDeckCount();
 }
 
-/** @param {number} count dominoes consumed this tick */
-export function tickDominoDeckBy(count, nRoll = settings.nRoll) {
-  if (!isDominoDeckCountdown() || count <= 0) return;
-  if (state.deckRemaining == null) state.deckRemaining = listCap(nRoll);
-  state.deckRemaining -= count;
-  if (state.deckRemaining <= 0) {
-    state.deckRemaining = listCap(nRoll);
-    if (nRoll === 3) rebuildTriplePool();
-    else rebuildPairPool();
-  }
+export function syncDominoDeckRemaining(nRoll = settings.nRoll) {
+  syncDominoDeckCount(nRoll);
 }
 
-/** @param {number} nRoll */
-function ensureActivePool(nRoll) {
+/** @param {number} nRoll @param {number} needed */
+function reshuffleDiscardIntoPool(nRoll, needed) {
   const pool = activeDominoPool(nRoll);
-  if (pool.length) return;
-  if (nRoll === 3) rebuildTriplePool();
-  else rebuildPairPool();
+  if (pool.length >= needed) return;
+  const discard = activeDominoDiscard(nRoll);
+  if (!discard.length) return;
+  pool.push(...discard.splice(0));
+  shuffle(pool);
+  syncDominoDeckCount(nRoll);
 }
 
 /** @param {string[]} pool */
@@ -115,7 +121,7 @@ function drawRandomFromPool(pool) {
 }
 
 /** @param {string} key @returns {number[]} */
-function keyToValues(key) {
+export function parseDominoKey(key) {
   return key.split(',').map(Number);
 }
 
@@ -123,11 +129,13 @@ export function initDominoPools() {
   if (!settings.dominoRoll) {
     state.dominoPairPool = [];
     state.dominoTriplePool = [];
+    state.dominoPairDiscard = [];
+    state.dominoTripleDiscard = [];
     return;
   }
   rebuildPairPool();
   rebuildTriplePool();
-  syncDominoDeckRemaining();
+  syncDominoDeckCount();
 }
 
 export function clearDominoTrayState() {
@@ -136,14 +144,18 @@ export function clearDominoTrayState() {
   state.dominoPairComboKeys = null;
 }
 
-function ensurePairPoolForQuadDraw() {
-  if (!state.dominoPairPool.length) rebuildPairPool();
-}
-
-/** @param {string} key */
+/** @param {string} key — vacate-undo only; swept/unbound offers use discardDominoKey. */
 export function returnKeyToPool(key) {
   if (key.split(',').length === 3) state.dominoTriplePool.push(key);
   else state.dominoPairPool.push(key);
+  syncDominoDeckCount();
+}
+
+/** @param {string} key */
+export function discardDominoKey(key) {
+  if (key.split(',').length === 3) state.dominoTripleDiscard.push(key);
+  else state.dominoPairDiscard.push(key);
+  syncDominoDeckCount();
 }
 
 /** @param {Set<number>} placedDieIds */
@@ -161,8 +173,11 @@ export function settleDominoQuadRoll(placedDieIds) {
     if (placed0 && !placed1) usedIdx = 0;
     else if (placed1 && !placed0) usedIdx = 1;
     else if (!placed0 && !placed1) {
-      state.dominoPairPool.push(keys[0], keys[1]);
+      discardDominoKey(keys[0]);
+      discardDominoKey(keys[1]);
       state.dominoPairComboKeys = null;
+      state.dominoOfferedKeys = [];
+      syncDominoDeckCount();
       return;
     } else {
       usedIdx = placed0 ? 0 : 1;
@@ -170,8 +185,10 @@ export function settleDominoQuadRoll(placedDieIds) {
   }
 
   const unusedIdx = usedIdx === 0 ? 1 : 0;
-  state.dominoPairPool.push(keys[unusedIdx]);
+  discardDominoKey(keys[unusedIdx]);
   state.dominoPairComboKeys = null;
+  state.dominoOfferedKeys = [];
+  syncDominoDeckCount();
 }
 
 /**
@@ -180,37 +197,33 @@ export function settleDominoQuadRoll(placedDieIds) {
  */
 export function drawDominoRoll(nRoll) {
   if (nRoll === 2) {
-    ensureActivePool(nRoll);
+    const needed = 1;
+    reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoPairPool;
+    if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
     if (!key) return null;
-    return { values: keyToValues(key), comboKeys: [key] };
+    return { values: parseDominoKey(key), comboKeys: [key] };
   }
   if (nRoll === 3) {
-    ensureActivePool(nRoll);
+    const needed = 1;
+    reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoTriplePool;
+    if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
     if (!key) return null;
-    return { values: keyToValues(key), comboKeys: [key] };
+    return { values: parseDominoKey(key), comboKeys: [key] };
   }
   if (nRoll === 4) {
-    ensurePairPoolForQuadDraw();
+    const needed = 2;
+    reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoPairPool;
-    let keyA;
-    let keyB;
-    if (pool.length >= 2) {
-      keyA = drawRandomFromPool(pool);
-      keyB = drawRandomFromPool(pool);
-    } else if (pool.length === 1) {
-      keyA = pool.pop();
-      rebuildPairPool();
-      keyB = drawRandomFromPool(state.dominoPairPool);
-    } else {
-      return null;
-    }
+    if (pool.length < needed) return null;
+    const keyA = drawRandomFromPool(pool);
+    const keyB = drawRandomFromPool(pool);
     if (!keyA || !keyB) return null;
-    const pairA = keyToValues(keyA);
-    const pairB = keyToValues(keyB);
+    const pairA = parseDominoKey(keyA);
+    const pairB = parseDominoKey(keyB);
     return {
       values: [...pairA, ...pairB],
       pairGroups: [pairA, pairB],

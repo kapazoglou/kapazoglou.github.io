@@ -189,22 +189,121 @@ export const DIE_OUTER = DIE_FACE + DIE_BORDER * 2;
 export const TILE_OUTER_W = DIE_OUTER;
 export const TILE_OUTER_H = 2 * DIE_OUTER - DIE_BORDER;
 
+/** Between-zone domino spot die — half outer, 1px border, −1px pair gap. */
+export const DOMINO_SPOT_DIE = 20;
+export const DOMINO_SPOT_BORDER = 1;
+export const DOMINO_SPOT_GAP = 1;
+
+/** Six pips rotate 90° in row columns, drag, and anim; tray and domino-spot strip stay upright. */
+export function sixPipRotationDeg(value) {
+  return value === 6 ? 90 : 0;
+}
+
+/** Per-corner radii — tl/tr/br/bl. Zero on touching edges of inline domino pairs. */
+function roundedRectPath(x, y, w, h, { tl, tr, br, bl }) {
+  const right = x + w;
+  const bot = y + h;
+  return [
+    `M ${x + tl} ${y}`,
+    `H ${right - tr}`,
+    tr ? `A ${tr} ${tr} 0 0 1 ${right} ${y + tr}` : `L ${right} ${y}`,
+    `V ${bot - br}`,
+    br ? `A ${br} ${br} 0 0 1 ${right - br} ${bot}` : `L ${right} ${bot}`,
+    `H ${x + bl}`,
+    bl ? `A ${bl} ${bl} 0 0 1 ${x} ${bot - bl}` : `L ${x} ${bot}`,
+    `V ${y + tl}`,
+    tl ? `A ${tl} ${tl} 0 0 1 ${x + tl} ${y}` : `L ${x} ${y}`,
+    'Z',
+  ].join(' ');
+}
+
+function dominoSpotJoinRadii(join, outerRx, faceRx) {
+  const round = { tl: outerRx, tr: outerRx, br: outerRx, bl: outerRx };
+  const flat = { tl: 0, tr: 0, br: 0, bl: 0 };
+  const roundFace = { tl: faceRx, tr: faceRx, br: faceRx, bl: faceRx };
+  const flatFace = { tl: 0, tr: 0, br: 0, bl: 0 };
+  if (join === 'right') {
+    return { outer: { ...round, tr: 0, br: 0 }, face: { ...roundFace, tr: 0, br: 0 } };
+  }
+  if (join === 'left') {
+    return { outer: { ...round, tl: 0, bl: 0 }, face: { ...roundFace, tl: 0, bl: 0 } };
+  }
+  if (join === 'both') {
+    return { outer: flat, face: flatFace };
+  }
+  return { outer: round, face: roundFace };
+}
+
+function dominoSpotJoinForIndex(i, n) {
+  if (n <= 1) return 'none';
+  if (i === 0) return 'right';
+  if (i === n - 1) return 'left';
+  return 'both';
+}
+
+/** 20×20 domino spot die — 1px white border, inverted face/pips. */
+export function dominoSpotDieSVG(value, { join = 'none' } = {}) {
+  const outer = DOMINO_SPOT_DIE;
+  const border = DOMINO_SPOT_BORDER;
+  const face = outer - border * 2;
+  const faceColor = DIE_FACE_COLOR[value] ?? '#404A59';
+  const faceFill = '#FFFFFF';
+  const pipFill = faceColor;
+  const active = new Set(PIP_PATTERN[value] ?? []);
+  const faceScale = face / DIE_FACE;
+  const pipR = 5 * faceScale;
+  const outerRx = 12 * (outer / DIE_OUTER);
+  const faceRx = 8 * (face / DIE_FACE);
+  const { outer: outerR, face: faceR } = dominoSpotJoinRadii(join, outerRx, faceRx);
+  const circles = ALL_PIPS.filter(k => active.has(k)).map(k => {
+    const [fx, fy] = PIP_POS[k];
+    return `<circle cx="${border + fx * faceScale}" cy="${border + fy * faceScale}" r="${pipR}" fill="${pipFill}"/>`;
+  }).join('');
+  const pips = circles;
+  const borderPath = roundedRectPath(0, 0, outer, outer, outerR);
+  const facePath = roundedRectPath(border, border, face, face, faceR);
+  return `<svg width="${outer}" height="${outer}" viewBox="0 0 ${outer} ${outer}" xmlns="http://www.w3.org/2000/svg" data-name="dice_filled_bg">
+    <path class="die-border-ring" d="${borderPath}"/>
+    <path d="${facePath}" fill="${faceFill}"/>
+    ${pips}
+  </svg>`;
+}
+
+/** Horizontal domino strip for between-zone spot strip. */
+export function dominoStackHTML(values, { col, isNew = false, attrs = '', stackClassExtra = '', stackStyleVars = '' } = {}) {
+  const size = DOMINO_SPOT_DIE;
+  const n = values.length;
+  const stackWidth = n * size - Math.max(0, n - 1) * DOMINO_SPOT_GAP;
+  const classExtra = ['domino-spot-stack', isNew ? 'is-new' : '', stackClassExtra].filter(Boolean).join(' ');
+  const colAttr = col != null ? ` data-col="${col}"` : '';
+  const wrapStyle = `--domino-spot-die:${size}px`;
+  const stackStyle = `--domino-spot-width:${stackWidth}px${stackStyleVars ? `;${stackStyleVars}` : ''}`;
+  const diceHTML = values.map((v, i) => {
+    const join = dominoSpotJoinForIndex(i, n);
+    return `<div class="domino-spot-die">${dominoSpotDieSVG(v, { join })}</div>`;
+  }).join('');
+  return `<div class="domino-spot-stack-wrap"${colAttr} style="${wrapStyle}"${attrs}><div class="${classExtra}" style="${stackStyle}">${diceHTML}</div></div>`;
+}
+
 /**
  * Colored face, white pips, 4px outside border ring (fill via CSS — see base.css).
- * Third arg: number (pip rotation deg) or { pipRotationDeg }.
+ * Third arg: number (pip rotation deg) or { pipRotationDeg } — default 0 (tray, domino-spot).
  */
 export function dieSVG(value, size = DIE_OUTER, opts = {}) {
-  const pipRotationDeg = typeof opts === 'number' ? opts : (opts.pipRotationDeg ?? 90);
-  const face = DIE_FACE_COLOR[value] ?? '#404A59';
+  const o = typeof opts === 'number' ? { pipRotationDeg: opts } : opts;
+  const pipRotationDeg = o.pipRotationDeg ?? sixPipRotationDeg(value);
+  const faceColor = DIE_FACE_COLOR[value] ?? '#404A59';
+  const face = o.inverted ? '#FFFFFF' : faceColor;
+  const pipFill = o.inverted ? faceColor : '#FFFFFF';
   const active = new Set(PIP_PATTERN[value] ?? []);
   const center = DIE_FACE / 2 + DIE_BORDER;
   const circles = ALL_PIPS.filter(k => active.has(k)).map(k => {
     const [cx, cy] = PIP_POS[k];
-    return `<circle cx="${cx + DIE_BORDER}" cy="${cy + DIE_BORDER}" r="5" fill="#FFFFFF"/>`;
+    return `<circle cx="${cx + DIE_BORDER}" cy="${cy + DIE_BORDER}" r="5" fill="${pipFill}"/>`;
   }).join('');
-  const pips = circles
+  const pips = circles && pipRotationDeg
     ? `<g transform="rotate(${pipRotationDeg} ${center} ${center})">${circles}</g>`
-    : '';
+    : circles;
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${DIE_OUTER} ${DIE_OUTER}" xmlns="http://www.w3.org/2000/svg" data-name="dice_filled_bg">
     <rect class="die-border-ring" width="${DIE_OUTER}" height="${DIE_OUTER}" rx="12"/>
     <rect x="${DIE_BORDER}" y="${DIE_BORDER}" width="${DIE_FACE}" height="${DIE_FACE}" rx="8" fill="${face}"/>

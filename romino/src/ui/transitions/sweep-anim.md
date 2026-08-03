@@ -1,13 +1,13 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.9
-date: 2026-07-28
-deps: [state, settings, sweeps-row, game-log, render, timing, pip-anim]
+v: 1.12
+date: 2026-08-03
+deps: [state, settings, sweeps-row, game-log, render, timing, pip-anim, domino-spot-strip]
 ---
 # Sweep Anim
 
-Beat pop → upward tile sweep → `popFlankStack` for swept flank tops (count −1, next card revealed) → remaining columns collapse inward. Flank reveal uses `newFlankSides` + `.placement-tile.is-new` pop.
+Beat pop → upward tile sweep → `popFlankStack` for swept flank tops (count −1, next card revealed) → remaining columns collapse inward (domino spot strip tracks via `syncDominoSpotStripDuringMotion`). Flank reveal uses `newFlankSides` + `.placement-tile.is-new` pop.
 
 ## Exports
 - `startRowSweepAnimation(cols, onDone)` — beat then sweep run

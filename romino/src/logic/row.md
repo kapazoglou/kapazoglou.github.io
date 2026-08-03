@@ -1,7 +1,7 @@
 ---
 module: row
 layer: logic
-v: 1.55
+v: 1.58
 date: 2026-08-03
 deps: [state, settings, domino-roll, domino-spots, dealt-strip]
 ---
