@@ -115,6 +115,15 @@
   box-shadow: inset 0 0 0 2px #fff;
 }
 
+.action-bar-deck-badge--low {
+  color: var(--warning-red);
+}
+
+.action-bar-deck-badge.is-spots-hidden.action-bar-deck-badge--low {
+  color: var(--warning-red);
+  box-shadow: inset 0 0 0 2px var(--warning-red);
+}
+
 .domino-spot-strip.is-spots-hidden .domino-spot-stack-wrap {
   visibility: hidden;
 }

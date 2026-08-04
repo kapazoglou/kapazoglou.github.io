@@ -11,6 +11,7 @@ import {
   initDominoPools,
   clearDominoTrayState,
   drawDominoRoll,
+  canDrawDominoRoll,
   settleDominoQuadRoll,
   setCurrentRollOfferedKeys,
 } from './domino-roll.js';
@@ -45,6 +46,11 @@ function isDominoSpotsQuadRoll() {
   return settings.nRoll === 4 && isDominoSpotsActive();
 }
 
+/** Domino Spots: active draw pool empty — discard returns only on sweep. */
+function isDominoPoolRollBlocked() {
+  return isDominoSpotsActive() && !canDrawDominoRoll();
+}
+
 /** Dice not on row — matches roll-button label. */
 export function rollAffordanceRemaining() {
   const withheld = settings.tileDiceHold ? state.diceWithheld : 0;
@@ -67,6 +73,7 @@ function rollDicePoolCost() {
 export function canRoll() {
   if (state.phase !== 'idle') return false;
   clampSettings();
+  if (isDominoPoolRollBlocked()) return flankEndgamePending();
   if (isDominoSpotsQuadRoll()) {
     if (rollAffordanceRemaining() >= settings.nPlace) return true;
   } else if (state.dicePool >= settings.nRoll) {
@@ -78,6 +85,7 @@ export function canRoll() {
 export function canEndGame() {
   if (state.phase !== 'idle') return false;
   clampSettings();
+  if (isDominoPoolRollBlocked()) return true;
   if (isDominoSpotsQuadRoll()) {
     return rollAffordanceRemaining() < settings.nPlace;
   }
@@ -98,7 +106,7 @@ export function isRollPoolNumberLow() {
 /** Mirrors action-bar.css face inset ring — warning red when enabled. */
 export function isRollButtonWarningRedBorder() {
   if (state.phase === 'rolled' && isTrayStuck()) return true;
-  if (isRollPoolLow() && !rowHasThreeDiceStack()) return true;
+  if ((isRollPoolLow() || isDominoPoolRollBlocked()) && !rowHasThreeDiceStack()) return true;
   return false;
 }
 
@@ -130,6 +138,7 @@ export function shouldWarnOnLeave() {
 export function evaluateGameOver(context) {
   clampSettings();
   if (context === 'idle-roll') {
+    if (isDominoPoolRollBlocked()) return 'domino pool exhausted';
     if (isDominoSpotsQuadRoll()) {
       if (rollAffordanceRemaining() < settings.nPlace) return 'dice pool exhausted';
     } else if (state.dicePool < settings.nRoll) {
@@ -212,7 +221,11 @@ export function rollDice() {
   const useDominoRoll = settings.dominoRoll && (count === 2 || count === 3 || count === 4);
   if (useDominoRoll) {
     const drawResult = drawDominoRoll(count);
-    if (!drawResult) return null;
+    if (!drawResult) {
+      state.dicePool += poolCost;
+      state.rollCount -= 1;
+      return null;
+    }
     const { values, pairGroups, pairComboKeys, comboKeys } = drawResult;
     for (const value of values) {
       const id = spawnKnownDie(value);

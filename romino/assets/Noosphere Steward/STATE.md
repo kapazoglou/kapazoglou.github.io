@@ -33,7 +33,15 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **sweeps-row.js v1.19, sweep-anim.js v1.13, tutorial-steps.js** — chain sweeps: sum per-run star multipliers before banking (was max)
+
 - **settings.js v2.27, state.js v2.23, convert.js v1.10, sweeps-row.js v1.17, dealt-strip.js v1.2, turn.js v2.34, action-bar.js v1.60, convert-anim.js v1.5** — `tileDiceHold` toggle: convert +2 pool +1 withheld per tile; release on sweep/pair-sweep; roll-btn count only; convert anim flies 2 not 3
+
+- **domino-roll.js v1.19** — Domino pair/triple pools always start at full size (21/56); deckSize no longer caps domino lists
+
+- **domino-roll.js v1.18, domino-spot-strip.js v2.19, domino-spot-strip.css v2.17** — Domino deck badge: pool-only count; warning-red when below 2
+
+- **domino-roll.js v1.17, turn.js v2.35** — Domino Spots ON: no discard reshuffle on draw; active pool empty → game over; reshuffle only on sweep
 
 - **domino-roll.js v1.16, domino-spots.js v1.16** — Domino Spots ON: discard merged into pool and shuffled on sweep / pair-sweep
 

@@ -53,7 +53,6 @@ function buildTriplePoolKeys() {
 }
 
 function listCap(nRoll) {
-  if (settings.deckSize > 0) return settings.deckSize;
   return nRoll === 3 ? TRIPLE_POOL_SIZE : PAIR_POOL_SIZE;
 }
 
@@ -89,12 +88,10 @@ export function getDominoDiscardKeys(nRoll = settings.nRoll) {
   return activeDominoDiscard(nRoll);
 }
 
-/** Deck badge = draw pool + discard pile + tray offers (excludes locked row spots). */
+/** Deck badge = active draw pool only (excludes discard and tray offers). */
 export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
-  state.deckRemaining = activeDominoPool(nRoll).length
-    + activeDominoDiscard(nRoll).length
-    + state.dominoOfferedKeys.length;
+  state.deckRemaining = activeDominoPool(nRoll).length;
 }
 
 /** Track combo keys offered in the tray this roll; refreshes deck counter. */
@@ -105,6 +102,21 @@ export function setCurrentRollOfferedKeys(keys) {
 
 export function syncDominoDeckRemaining(nRoll = settings.nRoll) {
   syncDominoDeckCount(nRoll);
+}
+
+/** @param {number} nRoll */
+function dominoDrawNeeded(nRoll) {
+  return nRoll === 4 ? 2 : 1;
+}
+
+/** Active pool can satisfy the next draw (Domino Spots: discard stays out until sweep). */
+export function canDrawDominoRoll(nRoll = settings.nRoll) {
+  if (!settings.dominoRoll || (nRoll !== 2 && nRoll !== 3 && nRoll !== 4)) return true;
+  const needed = dominoDrawNeeded(nRoll);
+  const pool = activeDominoPool(nRoll);
+  if (settings.dominoSpots) return pool.length >= needed;
+  if (pool.length >= needed) return true;
+  return pool.length + activeDominoDiscard(nRoll).length >= needed;
 }
 
 /** @param {number} nRoll @param {number} needed */
@@ -212,8 +224,8 @@ export function settleDominoQuadRoll(placedDieIds) {
  */
 export function drawDominoRoll(nRoll) {
   if (nRoll === 2) {
-    const needed = 1;
-    reshuffleDiscardIntoPool(nRoll, needed);
+    const needed = dominoDrawNeeded(nRoll);
+    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoPairPool;
     if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
@@ -221,8 +233,8 @@ export function drawDominoRoll(nRoll) {
     return { values: parseDominoKey(key), comboKeys: [key] };
   }
   if (nRoll === 3) {
-    const needed = 1;
-    reshuffleDiscardIntoPool(nRoll, needed);
+    const needed = dominoDrawNeeded(nRoll);
+    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoTriplePool;
     if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
@@ -230,8 +242,8 @@ export function drawDominoRoll(nRoll) {
     return { values: parseDominoKey(key), comboKeys: [key] };
   }
   if (nRoll === 4) {
-    const needed = 2;
-    reshuffleDiscardIntoPool(nRoll, needed);
+    const needed = dominoDrawNeeded(nRoll);
+    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
     const pool = state.dominoPairPool;
     if (pool.length < needed) return null;
     const keyA = drawRandomFromPool(pool);

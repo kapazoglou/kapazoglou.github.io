@@ -27,21 +27,13 @@ function fixedRankCandidates(tile) {
   return isJokerTile(tile) ? null : rankValues(tile.rankSum);
 }
 
-/** +1 step, or ace wrap bridges on the 2…12 wheel (e.g. 2–A–12, 12–A–2, A–2–3, 11–12–A). */
+/** +1 step only; ace reads as 1 or 13 via rankValues (A–2–3 low, 11–12–A high — no wheel wrap). */
 function isRankStep(prev, next) {
-  if (next === prev + 1) return true;
-  if (prev === 2 && next === 1) return true;
-  if (prev === 1 && next === 12) return true;
-  if (prev === 13 && next === 2) return true;
-  return false;
+  return next === prev + 1;
 }
 
 function isRankStepDesc(prev, next) {
-  if (next === prev - 1) return true;
-  if (prev === 12 && next === 1) return true;
-  if (prev === 1 && next === 2) return true;
-  if (prev === 2 && next === 13) return true;
-  return false;
+  return next === prev - 1;
 }
 
 function possibleNextAsc(prev) {
@@ -119,7 +111,7 @@ function runHasJoker(tiles) {
   return tiles.some(isJokerTile);
 }
 
-/** Ace wrap is only for bridging wheel ends (e.g. 12–A–2), not same rank both sides (2–A–2). */
+/** Reject ace sandwiched by two tiles of the same rank (e.g. 2–A–2). */
 function hasAceBetweenSameRanks(tiles) {
   for (let i = 1; i < tiles.length - 1; i++) {
     const mid = tiles[i];
@@ -262,21 +254,21 @@ export function checkFlankWellDone() {
 export function resolveSweeps() {
   const sweptCols = new Set();
   let anySwept = false;
-  let maxMult = 1;
+  let totalMult = 0;
 
   while (true) {
     const runs = findSweepRuns();
     if (!runs.length) break;
     anySwept = true;
     for (const run of runs) {
-      maxMult = Math.max(maxMult, sweepStarMultiplierForRun(run.map(([, t]) => t)));
+      totalMult += sweepStarMultiplierForRun(run.map(([, t]) => t));
       applySweepRun(run);
       for (const [col] of run) sweptCols.add(col);
     }
   }
 
   if (anySwept) {
-    state.points += state.stars * maxMult;
+    state.points += state.stars * totalMult;
     state.stars = 0;
   }
 

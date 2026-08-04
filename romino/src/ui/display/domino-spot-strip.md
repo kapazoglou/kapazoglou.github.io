@@ -1,8 +1,8 @@
 ---
 module: domino-spot-strip
 layer: ui/display
-v: 2.18
-date: 2026-08-03
+v: 2.19
+date: 2026-08-04
 deps: [domino-spots.js, domino-roll.js, dice-visual.js, flank-stacks.js, render.js]
 ---
 # Domino spot strip (display)
@@ -17,7 +17,7 @@ Between-zone domino glyphs on the row↔tray seam when `dominoSpots` ON. Horizon
 - `renderDominoSpotStrip()` — rebuild from `getActiveDominoSpotCols()` + column `dominoKey`
 - `renderDominoDiscardPile()` / `positionDominoDiscardPile()` — discard pile under roll button
 - `toggleDominoSpotsVisibility()` / `syncDominoSpotsVisibility()` — deck badge tap hides/shows seam domino glyphs and discard pile
-- `renderActionBarDeckBadge()` — nRoll=4 domino deck counter (white circle, `--bg` text; tap toggles spot visibility)
+- `renderActionBarDeckBadge()` — nRoll=4 domino deck counter (white circle, `--bg` text; warning-red below 2; tap toggles spot visibility)
 - `positionActionBarDeck()` — seam-row Y (domino-spot offset); X over roll-button die centre
 - `positionDominoSpotStrip()` — map each stack to live column centre (incl. spread transforms); also runs `positionActionBarDeck()`
 - `scheduleDominoSpotStripLayout()` — double-rAF position after row layout/scroll settle; hidden until positioned

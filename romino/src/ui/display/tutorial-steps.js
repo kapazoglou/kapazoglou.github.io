@@ -126,7 +126,7 @@ export function getTutorialSteps() {
       type: 'info',
       anchor: '#hud-stars',
       title: 'Sweep multiplier',
-      body: 'A 3-tile sweep uses ×1. Each extra tile adds +1 to the multiplier (4 tiles → ×2, 5 → ×3). Your stars × best multiplier fly into points.',
+      body: 'A 3-tile sweep uses ×1. Each extra tile adds +1 to the multiplier (4 tiles → ×2, 5 → ×3). Multiple sweeps add their multipliers together — your stars × total multiplier fly into points.',
     },
     {
       id: 'stay-alive',

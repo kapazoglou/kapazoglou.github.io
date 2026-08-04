@@ -60,9 +60,9 @@ export function createInitialState() {
     dominoPairPool: [],
     /** Domino Roll — remaining triple combo keys (56 multiset triples). */
     dominoTriplePool: [],
-    /** Domino Roll — discarded pair combo keys (reshuffled into pool when draw is short). */
+    /** Domino Roll — discarded pair combo keys (reshuffled on short draw when Domino Spots OFF; on sweep when ON). */
     dominoPairDiscard: [],
-    /** Domino Roll — discarded triple combo keys (reshuffled into pool when draw is short). */
+    /** Domino Roll — discarded triple combo keys (reshuffled on short draw when Domino Spots OFF; on sweep when ON). */
     dominoTripleDiscard: [],
     /** nRoll=4 domino quad: [[dieId, dieId], [dieId, dieId]] after roll. */
     dominoPairGroups: null,

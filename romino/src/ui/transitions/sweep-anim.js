@@ -164,17 +164,17 @@ export function animateFlankStackSweep(flankSides, onDone) {
 /** Beat → sweep each run; re-scan after every apply so chain sweeps are not missed. */
 export function resolveSweepsAnimated(onDone) {
   const starsToBank = state.stars;
-  let maxMult = 1;
+  let totalMult = 0;
   let anySwept = false;
   beginBankCycle(starsToBank);
 
   const finish = (result = null) => {
     if (anySwept) {
-      commitBankCycle(maxMult, starsToBank);
+      commitBankCycle(totalMult, starsToBank);
       if (starsToBank > 0) {
-        state.points += starsToBank * maxMult;
+        state.points += starsToBank * totalMult;
         state.stars = 0;
-        bankStarsToPoints(starsToBank, maxMult, () => onDone?.(result));
+        bankStarsToPoints(starsToBank, totalMult, () => onDone?.(result));
       } else {
         onDone?.(result);
       }
@@ -203,7 +203,7 @@ export function resolveSweepsAnimated(onDone) {
       }
       recordSweepRun(tiles, mult);
       anySwept = true;
-      maxMult = Math.max(maxMult, mult);
+      totalMult += mult;
       const wellDone = checkFlankWellDone();
       render();
       if (flankRevealed.length) {

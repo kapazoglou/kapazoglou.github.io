@@ -30,7 +30,7 @@ handleRollButton()
     ├── runConfirmAnimations()
     │   ├── collectStarsToHUD() — row gap pips → score (pre-convert, dice still visible)
     │   ├── animateConverts() — stack → tile per column; dicePool += 3 per convert (or +2 + hold 1 when tileDiceHold ON; 2 dice fly to roll btn)
-    │   ├── resolveSweepsAnimated() — beat + sweep each run; releases held dice to pool (count only); bank stars × max sweep mult (longer runs → higher mult); HUD equation → product → pip fly
+    │   ├── resolveSweepsAnimated() — beat + sweep each run; releases held dice to pool (count only); bank stars × sum of sweep mults (longer runs → higher per-run mult); HUD equation → product → pip fly
     │   └── phase = 'idle'
     └── rollDice() if dicePool >= nRoll
         └── post-roll: no legal tray slots → roll button warning red; tap → game over

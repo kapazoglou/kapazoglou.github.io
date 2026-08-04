@@ -1,19 +1,18 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.16
-date: 2026-08-03
+v: 1.19
+date: 2026-08-04
 deps: [state, settings, deck-size, game-log]
 ---
 # Domino Roll
 
-Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. Deck counter (`state.deckRemaining`) = draw pool + discard pile + tray offers (excludes locked row spots).
+Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. Deck counter (`state.deckRemaining`) = active draw pool length only (excludes discard and tray offers).
 
 ## Pools
-- **Pairs** — up to 21 combos (`1≤a≤b≤6`); capped by `deckSize` when > 0
-- **Triples** — up to 56 combos (`1≤a≤b≤c≤6`); capped by `deckSize` when > 0
-- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short, or immediately on sweep when `dominoSpots` ON
-- When `deckSize` is 0, full pair/triple universe is used
+- **Pairs** — 21 combos (`1≤a≤b≤6`)
+- **Triples** — 56 combos (`1≤a≤b≤c≤6`)
+- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short (Domino Spots OFF), or on sweep when `dominoSpots` ON
 - Full rebuild from universe only on `initDominoPools()` / reset
 
 ## Draw behaviour
@@ -22,7 +21,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. D
 | 2 | 1 random pair combo |
 | 3 | 1 random triple combo |
 | 4 | 2 random pair combos |
-| Pool too short | Merge discard → shuffle → draw; `null` if still insufficient |
+| Pool too short | Domino Spots OFF: merge discard → shuffle → draw; `null` if still insufficient. Domino Spots ON: no merge on draw — `null` when active pool insufficient (discard returns on sweep) |
 
 ## Settle / discard
 - nRoll=4 confirm (no dominoSpots): unused pair → discard
@@ -36,5 +35,5 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. D
 - `onDominoDieReturnedToTray(dieId)` — clears selection on tray return; idle unlock when all quad dice in tray
 
 ## Exports
-- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
+- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `canDrawDominoRoll(nRoll)`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
 - `isDominoQuadRollActive()`, `getDominoPairIndex()`, `setDominoChosenPairFromDie()`, `clearDominoChosenPair()`, `getDominoEngagedPairIndex()`, `syncDominoTrayIdleUnlock()`, `onDominoDieReturnedToTray()`, `isDominoPairLocked()`

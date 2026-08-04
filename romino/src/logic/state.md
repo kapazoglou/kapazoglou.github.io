@@ -16,7 +16,7 @@ Single source of truth for v2 row game.
 - `dealtStrip` — half-size between-zone tiles `{ suit, rank, rankSum, bottomValue, stripId }[]`
 - `dealtStripWarningIds`, `rowTileWarningCols` — transient duplicate-block chrome
 - `tileDeckRemaining` — shuffled deck keys for cadence deals
-- `deckRemaining` — conversions left when `deckSize` > 0; domino mode: pool + discard + tray offers (excludes locked row spots)
+- `deckRemaining` — conversions left when `deckSize` > 0; domino mode: active draw pool length only
 - `flankStackLeft`, `flankStackRight` — `{ remaining, top }` virtual deck-flank stacks
 - `dominoPairPool`, `dominoTriplePool` — available combo keys when `dominoRoll` ON
 - `dominoPairDiscard`, `dominoTripleDiscard` — swept / unbound-offer keys; merged into pool when draw is short

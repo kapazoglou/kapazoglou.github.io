@@ -1,8 +1,8 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.12
-date: 2026-08-03
+v: 1.13
+date: 2026-08-04
 deps: [state, settings, sweeps-row, game-log, render, timing, pip-anim, domino-spot-strip]
 ---
 # Sweep Anim
@@ -12,7 +12,7 @@ Beat pop → upward tile sweep → `popFlankStack` for swept flank tops (count �
 ## Exports
 - `startRowSweepAnimation(cols, onDone)` — beat then sweep run
 - `animateFlankStackSweep(flankSides, onDone)` — same beat/sweep on flank tops only; `popFlankStack` + reveal; returns `'well-done'` when both stacks empty
-- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; log bank cycle to `game-log`; track max `sweepStarMultiplierForRun` across runs (tricolor flushes always ×1); bank `stars × maxMult` with pips **only when at least one sweep ran and stars > 0**
+- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; log bank cycle to `game-log`; sum each run’s `sweepStarMultiplierForRun` (tricolor flushes always ×1); bank `stars × totalMult` with pips **only when at least one sweep ran and stars > 0**
 
 ## CSS
 - `#app.is-sweep-exit` — input freeze

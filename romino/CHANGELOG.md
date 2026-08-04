@@ -4,6 +4,16 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **sweeps-row.js v1.19, sweep-anim.js v1.13, tutorial-steps.js** — chain sweeps: sum each run’s star multiplier before banking (was max)
+
+- **sweeps-row.js v1.18** — consecutive sweeps: ace is low (A–2–3) or high (11–12–A) only; wheel wraps like 2–A–12 / 12–A–2 no longer qualify
+
+- **domino-roll.js v1.19** — Domino pair/triple pools always start at full size (21/56); deckSize no longer caps domino lists
+
+- **domino-roll.js v1.18, domino-spot-strip.js v2.19, domino-spot-strip.css v2.17** — Domino deck badge: pool-only count; warning-red when below 2
+
+- **domino-roll.js v1.17, turn.js v2.35** — Domino Spots ON: no discard reshuffle on draw; active pool empty → game over; reshuffle only on sweep
+
 - **settings.js v2.27, settings.md, state.js v2.23, state.md, convert.js v1.10, sweeps-row.js v1.17, dealt-strip.js v1.2, turn.js v2.34, action-bar.js v1.60, convert-anim.js v1.5, EVENTS.md** — `tileDiceHold` toggle: convert returns 2 dice + withholds 1 virtual die per tile until sweep/pair-sweep; roll-button count only feedback; convert anim flies 2 not 3
 
 - **domino-roll.js v1.16, domino-spots.js v1.16** — Domino Spots ON: merge discard into pool and shuffle on sweep (and pair-sweep)
