@@ -5,6 +5,7 @@ import { onTrayDiePlaced, onColumnVacated, onSpotColReposition, shiftDominoSpotC
 import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
+import { isCubeLockedForIdentity, getCubeLockColForBlockedAttempt } from './nine-cubes.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -283,7 +284,9 @@ function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = nul
   }
   if (identityBlockedByStripOrRow(suit, rank, excludeCol)) return false;
   if (rowHasMatchingConvertIdentity(suit, rank, excludeCol)) return false;
-  return !rowHasTile(suit, rank, excludeCol);
+  if (rowHasTile(suit, rank, excludeCol)) return false;
+  if (settings.nineCubes > 0 && isCubeLockedForIdentity(suit, rank, excludeCol)) return false;
+  return true;
 }
 
 function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
@@ -297,6 +300,22 @@ function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
     if (rightValue != null && rightValue === value) return false;
   }
   return true;
+}
+
+/** Lone-die columns whose value matches — must stack there when nextMustFollow ON. */
+function getMustFollowCols(value, excludeDieId = null) {
+  if (!settings.nextMustFollow) return [];
+  const cols = [];
+  for (const col of getOccupiedCols()) {
+    const column = getColumn(col);
+    if (column?.kind !== 'stack' || column.dice.length !== 1) continue;
+    const loneDieId = column.dice[0];
+    if (loneDieId === excludeDieId) continue;
+    if (state.dice[loneDieId]?.value !== value) continue;
+    if (!canPlaceValueAt(col, 'stack', value)) continue;
+    cols.push(col);
+  }
+  return cols;
 }
 
 function shiftColumnsFrom(fromCol, delta) {
@@ -411,6 +430,42 @@ export function wouldCompleteBlockedDuplicate(dieId, slot) {
   return identityBlockedByStripOrRow(suit, rank, slot.col);
 }
 
+/** Slot completes a stack blocked by nine-cubes lock (duplicate-block takes priority). */
+export function wouldCompleteBlockedCube(dieId, slot) {
+  if (!settings.nineCubes) return false;
+  if (wouldCompleteBlockedDuplicate(dieId, slot)) return false;
+  if (slot.kind !== 'stack') return false;
+  const column = getColumn(slot.col);
+  if (!column || column.kind !== 'stack' || column.dice.length !== 2) return false;
+  const die = state.dice[dieId];
+  if (!die) return false;
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  const v2 = die.value;
+  if (!passesOneToOneThirdDie(v0, v1, v2, slot.col)) return false;
+  if (!passesStarCostForStackCompletion(v0, v1, v2, slot.col)) return false;
+  const { suit, rank } = tileIdentityFromStackValues([v0, v1, v2], jokerTileOptions());
+  if (rank === JOKER_RANK && settings.tricolorRestriction) {
+    if (rowHasJoker(slot.col) || jokerSuitBlocked(suit, slot.col)) return false;
+  }
+  if (rowHasMatchingThreeDiceStack(v0, v1, v2, slot.col)) return false;
+  if (rowHasMatchingConvertIdentity(suit, rank, slot.col)) return false;
+  if (rowHasTile(suit, rank, slot.col)) return false;
+  if (identityBlockedByStripOrRow(suit, rank, slot.col)) return false;
+  return isCubeLockedForIdentity(suit, rank, slot.col);
+}
+
+/** Row col of the tile locking the cube for a blocked stack completion. */
+export function cubeLockColForStackCompletion(dieId, slot) {
+  if (!wouldCompleteBlockedCube(dieId, slot)) return null;
+  const column = getColumn(slot.col);
+  const die = state.dice[dieId];
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  const { suit, rank } = tileIdentityFromStackValues([v0, v1, die.value], jokerTileOptions());
+  return getCubeLockColForBlockedAttempt(suit, rank, slot.col);
+}
+
 /** Convert identity for a would-be 3-dice stack completion (for duplicate feedback). */
 export function convertIdentityForStackCompletion(dieId, slot) {
   if (slot.kind !== 'stack') return null;
@@ -522,6 +577,11 @@ export function getValidSlotsForDie(dieId) {
 
   if (isAtSpotCap()) {
     slots = slots.filter(slot => slot.kind === 'stack');
+  }
+
+  const followCols = getMustFollowCols(value, excludeDieId);
+  if (followCols.length > 0) {
+    slots = slots.filter(s => s.kind === 'stack' && followCols.includes(s.col));
   }
 
   return slots;

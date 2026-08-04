@@ -16,7 +16,7 @@ lastVerified: 2026-07-29
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `directPlacement`, `snapping`, `suitRestriction`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,12 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: lone-die stack matching value forces stack placement only
+
+- **nine-cubes.js v1.1, settings.js v2.29, settings-panel.js** — `nineCubes` stepper 0–2 (two-set mode = 2 tiles per cube capacity)
+
+- **nine-cubes.js v1.0, row.js v1.59, settings.js v2.28, invalid-flash.js v1.3, placement-input.js** — `nineCubes` toggle: 52 tiles → 9 cubes; converted row tile locks cube; stack completion blocked + locking tile warning-red flash
 
 - **sweeps-row.js v1.19, sweep-anim.js v1.13, tutorial-steps.js** — chain sweeps: sum per-run star multipliers before banking (was max)
 

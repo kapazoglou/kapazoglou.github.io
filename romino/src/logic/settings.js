@@ -19,6 +19,7 @@ export const SETTINGS_CONFIG = [
       { key: 'deckFlank',             label: 'Deck Flank',              default: false, type: 'toggle' },
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'suitRestriction',     label: 'Suit restriction',      default: false, type: 'toggle' },
+      { key: 'nextMustFollow',      label: 'Next Must Follow',      default: false, type: 'toggle' },
       { key: 'consecutiveStars',    label: 'Consecutive star scoring', default: false, type: 'toggle' },
       { key: 'verticalStars',       label: 'Vertical Stars',            default: false, type: 'toggle' },
       { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
@@ -29,6 +30,7 @@ export const SETTINGS_CONFIG = [
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
+      { key: 'nineCubes',           label: 'Nine Cubes',              default: 0, type: 'stepper', min: 0, max: 2 },
       { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: false, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
@@ -56,4 +58,6 @@ export function clampSettings() {
   if (!settings.dominoRoll) settings.dominoSpots = false;
   if (settings.dominoSpots) settings.tileDealtEvery = 0;
   if (settings.tileDealtEvery > 0) settings.dominoSpots = false;
+  if (settings.nineCubes < 0) settings.nineCubes = 0;
+  if (settings.nineCubes > 2) settings.nineCubes = 2;
 }

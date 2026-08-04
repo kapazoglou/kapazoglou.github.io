@@ -4,6 +4,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: matching lone-die columns force stack placement (bar + row reposition)
+
+- **nine-cubes.js v1.1, settings.js v2.29, settings-panel.js** — `nineCubes` stepper 0–2 (0=off, 1=one set, 2=two identical cube sets); capacity per cube equals setting value
+
+- **nine-cubes.js v1.0, row.js v1.59, settings.js v2.28, invalid-flash.js v1.3, placement-input.js** — `nineCubes` toggle: 52 tiles partition into 9 cubes; converted row tile locks cube; stack completion blocked + locking tile warning-red flash
+
 - **sweeps-row.js v1.19, sweep-anim.js v1.13, tutorial-steps.js** — chain sweeps: sum each run’s star multiplier before banking (was max)
 
 - **sweeps-row.js v1.18** — consecutive sweeps: ace is low (A–2–3) or high (11–12–A) only; wheel wraps like 2–A–12 / 12–A–2 no longer qualify

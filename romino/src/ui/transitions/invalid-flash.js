@@ -60,3 +60,22 @@ export function flashDuplicateBlocked(suit, rank) {
     import('../display/render.js').then(({ render }) => render());
   }, ms);
 }
+
+/**
+ * Nine-cubes lock blocked — viewport flash + 3s warning border on the locking row tile.
+ * @param {number} lockCol
+ */
+export function flashCubeBlocked(lockCol) {
+  flashInvalidPlacement();
+  if (lockCol == null) return;
+
+  state.rowTileWarningCols.add(lockCol);
+
+  import('../display/render.js').then(({ render }) => render());
+
+  const ms = spd(WARNING_BORDER_MS);
+  setTimeout(() => {
+    state.rowTileWarningCols.delete(lockCol);
+    import('../display/render.js').then(({ render }) => render());
+  }, ms);
+}

@@ -35,6 +35,9 @@ function loadSettings() {
     for (const [k, v] of Object.entries(saved)) {
       if (k in settings) settings[k] = v;
     }
+    if (typeof settings.nineCubes === 'boolean') {
+      settings.nineCubes = settings.nineCubes ? 1 : 0;
+    }
     clampSettings();
   } catch { /* ignore */ }
 }
@@ -53,6 +56,8 @@ function clampDraft() {
   if (!draftSettings.dominoRoll) draftSettings.dominoSpots = false;
   if (draftSettings.dominoSpots) draftSettings.tileDealtEvery = 0;
   if (draftSettings.tileDealtEvery > 0) draftSettings.dominoSpots = false;
+  if (draftSettings.nineCubes < 0) draftSettings.nineCubes = 0;
+  if (draftSettings.nineCubes > 2) draftSettings.nineCubes = 2;
 }
 
 function isDraftControlDisabled(item) {

@@ -1,8 +1,8 @@
 ---
 module: invalid-flash
 layer: ui/transitions
-v: 1.2
-date: 2026-08-01
+v: 1.3
+date: 2026-08-04
 deps: [settings, state, dealt-strip.js, render.js]
 ---
 # Invalid Flash
@@ -12,3 +12,4 @@ Brief full-viewport red overlay when direct-placement tap/drag hits the row but 
 - `flashInvalidPlacement()` — viewport red flash
 - `flashStarShortagePlacement()` — viewport flash + `#hud-stars` warning when stars === 0
 - `flashDuplicateBlocked(suit, rank)` — viewport flash + 3s warning border on strip or row tile
+- `flashCubeBlocked(lockCol)` — viewport flash + 3s warning border on locking row tile (nine-cubes)
