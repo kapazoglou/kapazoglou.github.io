@@ -4,6 +4,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **row.js v1.62** — `nextMustFollow` fix: lone-die check excludes repositioned die so insert stays blocked after stacking then removing/repositioning top die
+
 - **row.js v1.61** — `nextMustFollow` relaxed: blocks gap-insert/new-column when lone-die value matches; stack on any valid column still allowed
 
 - **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: matching lone-die columns force stack placement (bar + row reposition)

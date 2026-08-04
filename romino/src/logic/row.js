@@ -302,15 +302,21 @@ function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
   return true;
 }
 
+/** Lone die value in a column, optionally ignoring a die being repositioned. */
+function loneDieValueInColumn(column, excludeDieId = null) {
+  if (column?.kind !== 'stack') return null;
+  const remaining = excludeDieId
+    ? column.dice.filter(id => id !== excludeDieId)
+    : column.dice;
+  if (remaining.length !== 1) return null;
+  return state.dice[remaining[0]]?.value ?? null;
+}
+
 /** True when a lone-die stack shows this value (nextMustFollow blocks new columns). */
 function hasLoneDieWithValue(value, excludeDieId = null) {
   if (!settings.nextMustFollow) return false;
   for (const col of getOccupiedCols()) {
-    const column = getColumn(col);
-    if (column?.kind !== 'stack' || column.dice.length !== 1) continue;
-    const loneDieId = column.dice[0];
-    if (loneDieId === excludeDieId) continue;
-    if (state.dice[loneDieId]?.value === value) return true;
+    if (loneDieValueInColumn(getColumn(col), excludeDieId) === value) return true;
   }
   return false;
 }

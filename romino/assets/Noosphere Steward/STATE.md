@@ -33,6 +33,8 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **row.js v1.62** — `nextMustFollow` fix: lone-die detection excludes die being repositioned (insert blocked after stack-then-remove)
+
 - **row.js v1.61** — `nextMustFollow` relaxed: blocks insert/new-column when lone-die value matches; stack on any valid column allowed
 
 - **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: lone-die stack matching value forces stack placement only
