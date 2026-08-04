@@ -18,6 +18,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 - **sweeps-row.js v1.18** — consecutive sweeps: ace is low (A–2–3) or high (11–12–A) only; wheel wraps like 2–A–12 / 12–A–2 no longer qualify
 
+- **domino-roll.js v1.20, domino-spot-strip.js v2.20** — Domino Spots splits pool/counter rules: ON = full 21/56 pool, pool-only badge, red below 2; OFF = deckSize cap, pool+discard+offers count, short-draw reshuffle
+
 - **domino-roll.js v1.19** — Domino pair/triple pools always start at full size (21/56); deckSize no longer caps domino lists
 
 - **domino-roll.js v1.18, domino-spot-strip.js v2.19, domino-spot-strip.css v2.17** — Domino deck badge: pool-only count; warning-red when below 2

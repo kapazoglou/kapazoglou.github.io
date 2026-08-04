@@ -53,6 +53,10 @@ function buildTriplePoolKeys() {
 }
 
 function listCap(nRoll) {
+  if (settings.dominoSpots) {
+    return nRoll === 3 ? TRIPLE_POOL_SIZE : PAIR_POOL_SIZE;
+  }
+  if (settings.deckSize > 0) return settings.deckSize;
   return nRoll === 3 ? TRIPLE_POOL_SIZE : PAIR_POOL_SIZE;
 }
 
@@ -88,10 +92,17 @@ export function getDominoDiscardKeys(nRoll = settings.nRoll) {
   return activeDominoDiscard(nRoll);
 }
 
-/** Deck badge = active draw pool only (excludes discard and tray offers). */
+/** Deck badge — Domino Spots ON: active pool only; OFF: pool + discard + tray offers. */
 export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
-  state.deckRemaining = activeDominoPool(nRoll).length;
+  const poolLen = activeDominoPool(nRoll).length;
+  if (settings.dominoSpots) {
+    state.deckRemaining = poolLen;
+    return;
+  }
+  state.deckRemaining = poolLen
+    + activeDominoDiscard(nRoll).length
+    + state.dominoOfferedKeys.length;
 }
 
 /** Track combo keys offered in the tray this roll; refreshes deck counter. */

@@ -47,6 +47,8 @@ lastVerified: 2026-07-29
 
 - **settings.js v2.27, state.js v2.23, convert.js v1.10, sweeps-row.js v1.17, dealt-strip.js v1.2, turn.js v2.34, action-bar.js v1.60, convert-anim.js v1.5** — `tileDiceHold` toggle: convert +2 pool +1 withheld per tile; release on sweep/pair-sweep; roll-btn count only; convert anim flies 2 not 3
 
+- **domino-roll.js v1.20, domino-spot-strip.js v2.20** — Domino Spots splits pool/counter rules: ON = full 21/56 pool, pool-only badge, red below 2; OFF = deckSize cap, pool+discard+offers count, short-draw reshuffle
+
 - **domino-roll.js v1.19** — Domino pair/triple pools always start at full size (21/56); deckSize no longer caps domino lists
 
 - **domino-roll.js v1.18, domino-spot-strip.js v2.19, domino-spot-strip.css v2.17** — Domino deck badge: pool-only count; warning-red when below 2

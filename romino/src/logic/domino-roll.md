@@ -1,17 +1,21 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.19
+v: 1.20
 date: 2026-08-04
 deps: [state, settings, deck-size, game-log]
 ---
 # Domino Roll
 
-Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4. Deck counter (`state.deckRemaining`) = active draw pool length only (excludes discard and tray offers).
+Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4.
+
+**Domino Spots ON** — deck counter = active draw pool only; pools always 21/56; discard returns on sweep only.
+
+**Domino Spots OFF** — deck counter = pool + discard + tray offers; pools capped by `deckSize` when > 0; short draw merges discard into pool.
 
 ## Pools
-- **Pairs** — 21 combos (`1≤a≤b≤6`)
-- **Triples** — 56 combos (`1≤a≤b≤c≤6`)
+- **Pairs** — 21 combos (`1≤a≤b≤6`); capped by `deckSize` when > 0 and Domino Spots OFF
+- **Triples** — 56 combos (`1≤a≤b≤c≤6`); capped by `deckSize` when > 0 and Domino Spots OFF
 - **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short (Domino Spots OFF), or on sweep when `dominoSpots` ON
 - Full rebuild from universe only on `initDominoPools()` / reset
 

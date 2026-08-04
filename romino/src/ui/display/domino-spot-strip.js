@@ -67,7 +67,7 @@ export function renderActionBarDeckBadge() {
     inner.appendChild(badge);
   }
   badge.textContent = state.deckRemaining != null ? String(state.deckRemaining) : '';
-  const poolLow = (state.deckRemaining ?? 0) < 2;
+  const poolLow = isDominoSpotsActive() && (state.deckRemaining ?? 0) < 2;
   badge.classList.toggle('action-bar-deck-badge--low', poolLow);
   syncDominoSpotsVisibility();
 }
