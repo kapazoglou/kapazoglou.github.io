@@ -302,20 +302,21 @@ function passesSuitRestriction(leftCol, rightCol, value, excludeDieId = null) {
   return true;
 }
 
-/** Lone-die columns whose value matches — must stack there when nextMustFollow ON. */
-function getMustFollowCols(value, excludeDieId = null) {
-  if (!settings.nextMustFollow) return [];
-  const cols = [];
+/** True when a lone-die stack shows this value (nextMustFollow blocks new columns). */
+function hasLoneDieWithValue(value, excludeDieId = null) {
+  if (!settings.nextMustFollow) return false;
   for (const col of getOccupiedCols()) {
     const column = getColumn(col);
     if (column?.kind !== 'stack' || column.dice.length !== 1) continue;
     const loneDieId = column.dice[0];
     if (loneDieId === excludeDieId) continue;
-    if (state.dice[loneDieId]?.value !== value) continue;
-    if (!canPlaceValueAt(col, 'stack', value)) continue;
-    cols.push(col);
+    if (state.dice[loneDieId]?.value === value) return true;
   }
-  return cols;
+  return false;
+}
+
+function passesNextMustFollowNewColumn(value, excludeDieId = null) {
+  return !hasLoneDieWithValue(value, excludeDieId);
 }
 
 function shiftColumnsFrom(fromCol, delta) {
@@ -342,6 +343,7 @@ function canInsertAt(leftCol, rightCol, value, excludeDieId = null) {
   if (!gapAllowsInsert(leftCol, rightCol)) return false;
   if (!passesTileAdjacencyRule(leftCol, rightCol)) return false;
   if (!passesOneToOneNewColumn(value)) return false;
+  if (!passesNextMustFollowNewColumn(value, excludeDieId)) return false;
   return passesSuitRestriction(leftCol, rightCol, value, excludeDieId);
 }
 
@@ -504,6 +506,7 @@ function canPlaceValueAt(col, kind, value) {
 
   if (kind === 'new-column') {
     if (!passesOneToOneNewColumn(value)) return false;
+    if (!passesNextMustFollowNewColumn(value)) return false;
     if (isRowEmpty()) return col === CENTER_COL;
     return false;
   }
@@ -577,11 +580,6 @@ export function getValidSlotsForDie(dieId) {
 
   if (isAtSpotCap()) {
     slots = slots.filter(slot => slot.kind === 'stack');
-  }
-
-  const followCols = getMustFollowCols(value, excludeDieId);
-  if (followCols.length > 0) {
-    slots = slots.filter(s => s.kind === 'stack' && followCols.includes(s.col));
   }
 
   return slots;

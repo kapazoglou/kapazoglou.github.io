@@ -4,6 +4,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **row.js v1.61** — `nextMustFollow` relaxed: blocks gap-insert/new-column when lone-die value matches; stack on any valid column still allowed
+
 - **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: matching lone-die columns force stack placement (bar + row reposition)
 
 - **nine-cubes.js v1.1, settings.js v2.29, settings-panel.js** — `nineCubes` stepper 0–2 (0=off, 1=one set, 2=two identical cube sets); capacity per cube equals setting value

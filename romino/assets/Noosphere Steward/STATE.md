@@ -33,6 +33,8 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **row.js v1.61** — `nextMustFollow` relaxed: blocks insert/new-column when lone-die value matches; stack on any valid column allowed
+
 - **row.js v1.60, settings.js v2.30** — `nextMustFollow` toggle: lone-die stack matching value forces stack placement only
 
 - **nine-cubes.js v1.1, settings.js v2.29, settings-panel.js** — `nineCubes` stepper 0–2 (two-set mode = 2 tiles per cube capacity)
