@@ -242,6 +242,7 @@ export function applySweepRun(run) {
   for (const col of playerColsToDelete) {
     delete state.row[col];
   }
+  state.rowTileWarningCols.clear();
 }
 
 /** @returns {'well-done' | null} */

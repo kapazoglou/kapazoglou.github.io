@@ -8,6 +8,18 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **monotonic.js v1.9** — lock PATH RULE invariant: linear between unless ace in pair; rename wheel helpers to aceWheelArc/aceUnionArc (aceBetween only); linearBetween + pairHasAce
+
+- **monotonic.js v1.8** — 3+ non-ace between gaps use linear min..max (fixes [3]..[12] blocking 11)
+
+- **monotonic.js v1.7** — ace+3–11 between gaps use linear 1..R (fixes [12][A]..[10] blocking 2); 3+ anchor gaps pair-local via shared aceBetween helper
+
+- **monotonic.js v1.6, sweeps-row.js** — monotonic anchors include pending 3-dice stacks (recalc within turn / post-sweep); clear tile warning cols on sweep
+
+- **monotonic.js v1.5** — 3+ anchors: ace anywhere in span → outward-left allows all ranks ([2][A][12] calibration)
+
+- **monotonic.js v1.4, row.js v1.66, placement-input.js v1.4** — wheel-based Monotonic rewrite: segment zones, short/long arcs, ace 1|13, calibration layouts
+
 - **monotonic.js v1.3** — [A][3–11]: left of ace `< 13`, right of partner `> R`; keep [A][2] and [A][12] edge wraps
 
 - **monotonic.js v1.2** — ace boundary outward: partner ≥12 wraps low (ace as 1); partner <12 wraps high (≥13); between uses ace as 1 only

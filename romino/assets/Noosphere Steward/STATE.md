@@ -33,6 +33,16 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **monotonic.js v1.9** — PATH RULE invariant documented; wheel arcs aceBetween-only
+
+- **monotonic.js v1.7** — ace+partner between gaps linear 1..R; pair-local 3+ gaps
+
+- **monotonic.js v1.6, sweeps-row.js** — pending 3-dice stacks as monotonic anchors; clear warning cols on sweep
+
+- **monotonic.js v1.5** — 3+ anchors: ace in span → outward-left all ranks
+
+- **monotonic.js v1.4, row.js v1.66, placement-input.js v1.4** — wheel-based Monotonic segment zones
+
 - **monotonic.js v1.3** — [A][3–11] ascending outward from ace; [A][2]/[A][12] edge wraps kept
 
 - **monotonic.js v1.2** — ace boundary outward wrap (partner ≥12 low / <12 high)

@@ -6,7 +6,7 @@ import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackV
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
 import { isCubeLockedForIdentity, getCubeLockColForBlockedAttempt } from './nine-cubes.js';
-import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryCols } from './monotonic.js';
+import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryColsForCol } from './monotonic.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -518,8 +518,9 @@ export function wouldCompleteBlockedMonotonic(dieId, slot) {
 }
 
 /** Boundary anchor cols to flash on monotonic-blocked stack completion. */
-export function monotonicBoundaryColsForBlockedAttempt() {
-  return monotonicBoundaryCols();
+export function monotonicBoundaryColsForBlockedAttempt(_dieId, slot) {
+  if (slot?.col != null) return monotonicBoundaryColsForCol(slot.col);
+  return [];
 }
 
 /** Convert identity for a would-be 3-dice stack completion (for duplicate feedback). */

@@ -54,7 +54,7 @@ export function attemptPlacementAtPoint(dieId, clientX, clientY, stackY = client
     else flashInvalidPlacement();
   }
   else if (wouldCompleteBlockedMonotonic(dieId, slot)) {
-    flashMonotonicBlocked(monotonicBoundaryColsForBlockedAttempt());
+    flashMonotonicBlocked(monotonicBoundaryColsForBlockedAttempt(dieId, slot));
   }
   else flashInvalidPlacement();
 

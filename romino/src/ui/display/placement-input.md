@@ -1,7 +1,7 @@
 ---
 module: placement-input
 layer: ui/display
-v: 1.3
+v: 1.4
 date: 2026-08-10
 deps: [row, placement-row, placement-anim, invalid-flash]
 ---
