@@ -1,7 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { findStarMatches } from '../../logic/stars.js';
-import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML } from '../../logic/dice-visual.js';
+import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML, cubeTileHTML, isSwitcherTricolorStack } from '../../logic/dice-visual.js';
 import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
@@ -52,8 +52,10 @@ function gapCenterX(leftEl, rightEl, innerRect, scale) {
 /** Visual bottom die in a column (anchored row). */
 function bottomDieInCol(colNode) {
   const dice = colNode.querySelectorAll('.die--placed');
-  if (!dice.length) return null;
-  return settings.stackBottomUp ? dice[0] : dice[dice.length - 1];
+  if (dice.length) {
+    return settings.stackBottomUp ? dice[0] : dice[dice.length - 1];
+  }
+  return colNode.querySelector('.placement-tile-cube .suit-die');
 }
 
 /** Last placed die — top of stack. */
@@ -104,6 +106,14 @@ function cellElAtRow(colNode, row) {
 function dieCenterAtRow(colNode, row, scale) {
   if (colNode.classList.contains('placement-col--tile')) {
     if (row !== 0) return null;
+    const suitDie = colNode.querySelector('.placement-tile-cube .suit-die');
+    if (suitDie) {
+      const rect = suitDie.getBoundingClientRect();
+      return {
+        x: (rect.left + rect.right) / 2,
+        y: (rect.top + rect.bottom) / 2,
+      };
+    }
     const colRect = colNode.getBoundingClientRect();
     const diePx = DIE_OUTER * scale;
     return {
@@ -225,12 +235,20 @@ export function renderPlacementRow() {
         const classExtra = [
           state.rowTileWarningCols.has(col) ? 'placement-tile--duplicate-warning' : '',
         ].filter(Boolean).join(' ');
-        colsHTML += `<div class="${colClass} placement-col--tile" data-col="${col}"${colStyle}>${tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) })}</div>`;
+        const tileColClass = settings.diceAndCubes
+          ? `${colClass} placement-col--tile placement-col--tile-cube`
+          : `${colClass} placement-col--tile`;
+        const tileMarkup = settings.diceAndCubes
+          ? cubeTileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) })
+          : tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) });
+        colsHTML += `<div class="${tileColClass}" data-col="${col}"${colStyle}>${tileMarkup}</div>`;
       } else {
         const converting = state.convertingCol === col;
+        const switcherConverting = converting && column.dice.length === 3
+          && isSwitcherTricolorStack(column.dice.map(id => state.dice[id].value));
         const pairClass = column.dice.length === 2 ? ' placement-col--stack-pair' : '';
         const dirClass = settings.stackBottomUp ? ' placement-col--stack-bottom-up' : '';
-        colsHTML += `<div class="${colClass} placement-col--stack${pairClass}${dirClass}${converting ? ' is-converting' : ''}" data-col="${col}"${colStyle}>${stackHTML(col, column)}</div>`;
+        colsHTML += `<div class="${colClass} placement-col--stack${pairClass}${dirClass}${converting ? ' is-converting' : ''}${converting && settings.diceAndCubes && !switcherConverting ? ' is-cube-converting' : ''}${switcherConverting ? ' is-switcher-converting' : ''}" data-col="${col}"${colStyle}>${stackHTML(col, column)}</div>`;
       }
     }
   }

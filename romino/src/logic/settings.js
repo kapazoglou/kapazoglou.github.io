@@ -23,6 +23,7 @@ export const SETTINGS_CONFIG = [
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'nextMustFollow',      label: 'Next Must Follow',      default: true, type: 'toggle' },
       { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
+      { key: 'switcherJokers',      label: 'Switcher Jokers',         default: false, type: 'toggle' },
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
@@ -36,6 +37,8 @@ export const SETTINGS_CONFIG = [
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'snapping',            label: 'Snapping',              default: true, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
+      { key: 'diceAndCubes',        label: 'Dice & Cubes',          default: false, type: 'toggle' },
+      { key: 'monotonic',           label: 'Monotonic',             default: false, type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },
@@ -72,4 +75,9 @@ export function clampSettings() {
   if (settings.tileDealtEvery > 0) settings.dominoSpots = false;
   if (settings.nineCubes < 0) settings.nineCubes = 0;
   if (settings.nineCubes > 2) settings.nineCubes = 2;
+  if (settings.diceAndCubes) settings.tileDiceHold = true;
+  if (!settings.tileDiceHold) settings.diceAndCubes = false;
+  if (!settings.tricolors) settings.switcherJokers = false;
+  if (settings.switcherJokers) settings.tricolorSevens = false;
+  if (settings.tricolorSevens) settings.switcherJokers = false;
 }

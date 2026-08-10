@@ -1,8 +1,8 @@
 ---
 module: timing
 layer: ui/transitions
-v: 1.6
-date: 2026-07-23
+v: 1.9
+date: 2026-08-10
 deps: []
 ---
 # Timing — User Story
@@ -18,6 +18,11 @@ As an animator, I need a single source of truth for animation durations so that 
 - `CONVERT_MS` (240) — tile enter pop after convert
 - `CONVERT_FLY_MS` (320) — stack dice fly to roll button
 - `CONVERT_FLY_STAGGER_MS` (80) — stagger between convert fly-backs (top first)
+- `CUBE_FLY_SCALE_MS` (90) — Dice & Cubes: in-place scale-down at rank cube before arc
+- `CUBE_FLY_ARC_MS` (280) — Dice & Cubes: quadratic arc to roll button
+- `CUBE_MERGE_MS` (140) — Dice & Cubes: top die travels to middle die
+- `CUBE_REPLACE_MS` (200) — rank cube appears; glyph color resolve
+- `CUBE_WRAP_MS` (240) — outer wrapper stroke conjoins rank cube + bottom die
 - `COL_SPREAD_MS` (110) — columns slide aside before gap insert
 - `COL_DIE_IN_MS` (95) — die flies tray → gap (fast start, ease-out landing)
 - `TRAY_STAGGER_MS` / `PREVIEW_STAGGER_MS` (60) — stagger between spawned elements

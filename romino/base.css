@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Averia+Libre&display=swap');
 @import url('src/ui/display/hud-v2.css');
 @import url('src/ui/display/placement-row.css');
+@import url('src/ui/display/dice-cubes.css');
 @import url('src/ui/display/action-bar.css');
 @import url('src/ui/display/dealt-strip.css');
 @import url('src/ui/display/domino-spot-strip.css');

@@ -112,6 +112,13 @@ function createDragFlyer(dieId, sourceRect) {
   dragFlyer.style.transform = 'translate(0, 0)';
   dragFlyer.style.transition = 'none';
   layer.appendChild(dragFlyer);
+  syncDragPreviewVisibility();
+}
+
+/** Snapping ON — show snap ghost only; hide pointer flyer while ghost has a slot. */
+function syncDragPreviewVisibility() {
+  if (!dragFlyer || !snappingActive()) return;
+  dragFlyer.style.visibility = activeSnapSlot ? 'hidden' : '';
 }
 
 function createSnapGhost(dieId) {
@@ -130,16 +137,19 @@ function updateSnapGhost(slot) {
   if (!snapGhostEl) return;
   if (!slot) {
     snapGhostEl.style.display = 'none';
+    syncDragPreviewVisibility();
     return;
   }
   const pos = slotAnchorXY(slot, dragDieId);
   if (!pos) {
     snapGhostEl.style.display = 'none';
+    syncDragPreviewVisibility();
     return;
   }
   snapGhostEl.style.display = '';
   snapGhostEl.style.left = `${pos.left}px`;
   snapGhostEl.style.top = `${pos.top}px`;
+  syncDragPreviewVisibility();
 }
 
 function clearSnapGhost() {
@@ -261,6 +271,7 @@ function beginDrag(e) {
   }
 
   if (fromBar) {
+    renderActionBar();
     renderSelection();
     dragDieEl = null;
   } else {

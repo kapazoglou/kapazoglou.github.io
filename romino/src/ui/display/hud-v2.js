@@ -2,6 +2,7 @@ import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { showDeckInHud } from '../../logic/deck-size.js';
 import { SUIT_BADGE_ORDER, SUIT_COLOR, starSVG } from '../../logic/dice-visual.js';
+import { isHudStarPayDraggable } from './star-reroll-input.js';
 
 function suitBadgeHTML(letter) {
   const bg = SUIT_COLOR[letter] ?? '#404A59';
@@ -15,7 +16,7 @@ export function renderHUD() {
   if (!hud) return;
 
   const badges = SUIT_BADGE_ORDER.map(letter => suitBadgeHTML(letter)).join('');
-  const starDraggable = settings.rerollOuter && state.phase === 'rolled' && state.stars > 0;
+  const starDraggable = isHudStarPayDraggable();
   const deckHTML = showDeckInHud()
     ? `<span class="hud-deck" id="hud-deck" aria-label="Deck remaining">${state.deckRemaining}</span>`
     : '';

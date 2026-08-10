@@ -30,13 +30,21 @@
 }
 
 .action-bar-dice .die--action:not(.die--action-inactive),
-.action-bar-dice .die--action-inactive.die--rerollable {
+.action-bar-dice .die--action-inactive.die--rerollable,
+.action-bar-dice .die--domino-rerollable {
   pointer-events: auto;
 }
 
-.action-bar-dice--domino-quad {
+.action-bar-dice--domino-quad,
+.action-bar-dice--domino-pair {
   gap: 0;
   align-items: flex-start;
+}
+
+.action-bar-dice--domino-pair .domino-pair {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
 }
 
 .domino-pair-slot {

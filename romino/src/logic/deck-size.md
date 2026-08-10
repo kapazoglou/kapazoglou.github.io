@@ -1,17 +1,17 @@
 ---
 module: deck-size
 layer: logic
-v: 1.2
-date: 2026-08-03
+v: 1.3
+date: 2026-08-10
 deps: [state, settings]
 ---
 # Deck Size
 
-Runtime deck counter when `settings.deckSize > 0` (0 = feature off), or when **Domino Roll** is ON with nRoll 2/3/4. nRoll=4 domino shows counter under action-bar `|` (half HUD size); nRoll 2/3 and deckSize-only use top-left HUD.
+Runtime deck counter when `settings.deckSize > 0` (0 = feature off), or when **Domino Roll** is ON with nRoll 2/3/4. nRoll=4 and nRoll=2 + nPlace=2 domino show counter on seam strip (white circle badge); nRoll 3 and other domino modes use top-left HUD.
 
 ## Exports
 - `isDominoDeckCountdown()` — domino list drives deck counter
-- `isDominoDeckInActionBar()` — nRoll=4 domino: counter in action bar, not HUD
+- `isDominoDeckInActionBar()` — nRoll=4 or nRoll=2 + nPlace=2 domino: counter on seam strip, not HUD
 - `showDeckInHud()` — HUD deck span when active
 - `isDeckSizeActive()` — counter shown when deckSize > 0 or domino countdown
 - `initDeckRemaining()` — seeds from setting, or skipped when domino pools init

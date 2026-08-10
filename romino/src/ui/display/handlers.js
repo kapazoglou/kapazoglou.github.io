@@ -1,7 +1,13 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset } from '../../logic/row.js';
-import { handleRollButton, scheduleRender, isRollButtonEndGameTap, getRollButtonEndGameReason, commitRollButtonGameOver } from '../../logic/turn.js';
+import {
+  handleRollButton,
+  scheduleRender,
+  isRollButtonEndGameTap,
+  getRollButtonEndGameReason,
+  commitRollButtonGameOver,
+} from '../../logic/turn.js';
 import {
   armEndGamePrompt,
   disarmEndGamePrompt,

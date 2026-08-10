@@ -13,7 +13,12 @@ import {
   drawDominoRoll,
   canDrawDominoRoll,
   settleDominoQuadRoll,
+  settleDominoRollOnConfirm,
   setCurrentRollOfferedKeys,
+  canShowDominoPairReroll,
+  canApplyDominoPairReroll,
+  discardOfferedDominoKeys,
+  isDominoPairRollTray,
 } from './domino-roll.js';
 import {
   setDominoOfferedKeys,
@@ -22,8 +27,9 @@ import {
   isDominoSpotsActive,
 } from './domino-spots.js';
 
-/** Starting star balance for a fresh game (rerollOuter seeds N-place). */
+/** Starting star balance — rerollOuter seeds N-place; nRoll=2 domino pair seeds N-place for star-pay redraw. */
 export function initialStarCount() {
+  if (settings.dominoRoll && settings.nRoll === 2 && settings.nPlace === 2) return settings.nPlace;
   return settings.rerollOuter ? settings.nPlace : 0;
 }
 
@@ -262,7 +268,32 @@ export function rollDice() {
     if (deal.tile) appendDealtStripTile(deal.tile);
   }
 
+  if (settings.dominoRoll && count === 2) {
+    state.dominoPairRerollAvailable = true;
+  }
+
   state.phase = 'rolled';
+  return 'ok';
+}
+
+/** nRoll=2 domino pair — star-pay: discard offer, random tray dice (no pool draw; counter unchanged). */
+export function rerollDominoPairOffer() {
+  if (!canApplyDominoPairReroll()) return null;
+
+  for (const id of state.actionBar) delete state.dice[id];
+  state.actionBar = [];
+  state.selectedDieId = null;
+
+  discardOfferedDominoKeys();
+  state.dominoPairRerollAvailable = false;
+
+  state.newTrayDieIds = new Set();
+  for (let i = 0; i < 2; i++) {
+    const id = spawnRandomDie();
+    state.actionBar.push(id);
+    state.newTrayDieIds.add(id);
+  }
+
   return 'ok';
 }
 
@@ -272,6 +303,7 @@ export function confirmTurn() {
   if (isDominoSpotsActive()) {
     settleDominoSpotsOnConfirm(state.placedDieIds);
   } else {
+    settleDominoRollOnConfirm();
     settleDominoQuadRoll(state.placedDieIds);
   }
 

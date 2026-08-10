@@ -2,10 +2,11 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import { isDominoPairLocked } from './domino-roll.js';
 import { onTrayDiePlaced, onColumnVacated, onSpotColReposition, shiftDominoSpotCols, getDominoKeyForCol } from './domino-spots.js';
-import { JOKER_RANK, isInnerDie, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
+import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
 import { isCubeLockedForIdentity, getCubeLockColForBlockedAttempt } from './nine-cubes.js';
+import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryCols } from './monotonic.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -25,6 +26,7 @@ function jokerSuitFromStackValues(v0, v1, v2) {
 
 function stackValuesRequireStar(values) {
   if (!settings.aceJokerStarCost) return false;
+  if (isSwitcherTricolorStack(values)) return true;
   const tile = tileIdentityFromStackValues(values, jokerTileOptions());
   return tileIdentityRequiresStar(tile);
 }
@@ -158,10 +160,11 @@ function isOneSixPair(a, b) {
 
 function passesTricolorThirdDie(first, second, third, excludeCol = null) {
   if (!tricolorJokersEnabled()) return false;
-  if (rowHasJoker(excludeCol)) return false;
   if (!isInnerDie(first) || !isInnerDie(second) || !isInnerDie(third)) return false;
   if (first === second || first === third || second === third) return false;
   if (settings.tricolorSevens && second + third !== 7) return false;
+  if (settings.switcherJokers && settings.tricolors && !settings.tricolorSevens) return true;
+  if (rowHasJoker(excludeCol)) return false;
   const suit = jokerSuitFromStackValues(first, second, third);
   if (suit == null || jokerSuitBlocked(suit, excludeCol)) return false;
   return true;
@@ -193,6 +196,7 @@ function gapAllowsInsert(leftCol, rightCol) {
 
 /** New columns may touch a tile only when the other side of the gap is a dice stack (or flank stack). */
 function passesTileAdjacencyRule(leftCol, rightCol) {
+  if (settings.diceAndCubes) return true;
   const leftTile = leftCol != null && getColumn(leftCol)?.kind === 'tile';
   const rightTile = rightCol != null && getColumn(rightCol)?.kind === 'tile';
   if (!leftTile && !rightTile) return true;
@@ -274,10 +278,20 @@ function rowHasMatchingConvertIdentity(suit, rank, excludeCol = null) {
   return false;
 }
 
+function passesMonotonicTile(bottomValue, midValue, topValue, col) {
+  if (!monotonicEnabled()) return true;
+  const values = [bottomValue, midValue, topValue];
+  if (isSwitcherTricolorStack(values)) return true;
+  const { rank, rankSum } = tileIdentityFromStackValues(values, jokerTileOptions());
+  if (rank === JOKER_RANK) return true;
+  return monotonicRankAllowed(col, rankSum);
+}
+
 /** Block completing a stack whose convert result duplicates an existing tile or another full stack. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
   if (rowHasMatchingThreeDiceStack(bottomValue, midValue, topValue, excludeCol)) return false;
+  if (isSwitcherTricolorStack(values)) return true;
   const { suit, rank } = tileIdentityFromStackValues(values, jokerTileOptions());
   if (rank === JOKER_RANK && settings.tricolorRestriction) {
     if (rowHasJoker(excludeCol) || jokerSuitBlocked(suit, excludeCol)) return false;
@@ -286,6 +300,7 @@ function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = nul
   if (rowHasMatchingConvertIdentity(suit, rank, excludeCol)) return false;
   if (rowHasTile(suit, rank, excludeCol)) return false;
   if (settings.nineCubes > 0 && isCubeLockedForIdentity(suit, rank, excludeCol)) return false;
+  if (!passesMonotonicTile(bottomValue, midValue, topValue, excludeCol)) return false;
   return true;
 }
 
@@ -472,6 +487,39 @@ export function cubeLockColForStackCompletion(dieId, slot) {
   const v1 = state.dice[column.dice[1]].value;
   const { suit, rank } = tileIdentityFromStackValues([v0, v1, die.value], jokerTileOptions());
   return getCubeLockColForBlockedAttempt(suit, rank, slot.col);
+}
+
+/** Slot completes a stack blocked by monotonic rank zone (duplicate/cube take priority). */
+export function wouldCompleteBlockedMonotonic(dieId, slot) {
+  if (!monotonicEnabled()) return false;
+  if (wouldCompleteBlockedDuplicate(dieId, slot)) return false;
+  if (wouldCompleteBlockedCube(dieId, slot)) return false;
+  if (isStarBlockedPlacement(dieId, slot)) return false;
+  if (slot.kind !== 'stack') return false;
+  const column = getColumn(slot.col);
+  if (!column || column.kind !== 'stack' || column.dice.length !== 2) return false;
+  const die = state.dice[dieId];
+  if (!die) return false;
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  const v2 = die.value;
+  if (!passesOneToOneThirdDie(v0, v1, v2, slot.col)) return false;
+  if (!passesStarCostForStackCompletion(v0, v1, v2, slot.col)) return false;
+  const values = [v0, v1, v2];
+  if (isSwitcherTricolorStack(values)) return false;
+  const { suit, rank } = tileIdentityFromStackValues(values, jokerTileOptions());
+  if (rank === JOKER_RANK) return false;
+  if (rowHasMatchingThreeDiceStack(v0, v1, v2, slot.col)) return false;
+  if (rowHasMatchingConvertIdentity(suit, rank, slot.col)) return false;
+  if (rowHasTile(suit, rank, slot.col)) return false;
+  if (identityBlockedByStripOrRow(suit, rank, slot.col)) return false;
+  if (settings.nineCubes > 0 && isCubeLockedForIdentity(suit, rank, slot.col)) return false;
+  return !passesMonotonicTile(v0, v1, v2, slot.col);
+}
+
+/** Boundary anchor cols to flash on monotonic-blocked stack completion. */
+export function monotonicBoundaryColsForBlockedAttempt() {
+  return monotonicBoundaryCols();
 }
 
 /** Convert identity for a would-be 3-dice stack completion (for duplicate feedback). */

@@ -150,6 +150,46 @@ export function payStarForConvert(col, onDone) {
   }, flyMs);
 }
 
+function dominoPairCenter(layerRect, scale) {
+  if (state.actionBar.length !== 2) return null;
+  const centers = state.actionBar
+    .map(id => trayDieCenter(id, layerRect, scale))
+    .filter(Boolean);
+  if (centers.length !== 2) return null;
+  return {
+    left: (centers[0].left + centers[1].left) / 2,
+    top: (centers[0].top + centers[1].top) / 2,
+  };
+}
+
+/** Visual-only HUD → domino pair midpoint before star-pay pair redraw. */
+export function payStarForDominoPair(onDone) {
+  const starsEl = document.getElementById('hud-stars');
+  const layer = flyLayer();
+  if (!starsEl || !layer || state.stars <= 0) {
+    onDone?.();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const end = dominoPairCenter(layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
+
+  if (!end) {
+    onDone?.();
+    return;
+  }
+
+  starsEl.textContent = String(state.stars - 1);
+  launchStarFlyer(start, end, layer, flyMs);
+
+  setTimeout(() => {
+    onDone?.();
+  }, flyMs);
+}
+
 /** Visual-only HUD → tray die before outer reroll (mirror of payStarForConvert). */
 export function payStarForTrayDie(dieId, onDone) {
   const starsEl = document.getElementById('hud-stars');

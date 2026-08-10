@@ -1,7 +1,9 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
+import { canShowDominoPairReroll } from '../../logic/domino-roll.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { selectedOuterTrayDieId, tryRerollOuterPay } from '../transitions/reroll-outer-anim.js';
+import { canDominoPairStarReroll, tryDominoPairStarReroll } from '../transitions/domino-reroll-anim.js';
 import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
 
 const DRAG_THRESHOLD = 8;
@@ -11,7 +13,8 @@ let dragStarPay = false;
 let starDragActive = false;
 let starDragMoved = false;
 let starFlyer = null;
-let hoverDieEl = null;
+/** @type {HTMLElement[]} */
+let hoverDieEls = [];
 let dragStartX = 0;
 let dragStartY = 0;
 let capturedPointerId = null;
@@ -27,7 +30,38 @@ function viewportScale() {
 }
 
 function isStarPayDraggable() {
-  return settings.rerollOuter && state.phase === 'rolled' && state.stars > 0;
+  if (state.phase !== 'rolled' || state.stars <= 0) return false;
+  return settings.rerollOuter || canShowDominoPairReroll();
+}
+
+export function isHudStarPayDraggable() {
+  return isStarPayDraggable();
+}
+
+function dominoPairStarPayDieId() {
+  if (!canShowDominoPairReroll()) return null;
+  if (state.selectedDieId != null && state.actionBar.includes(state.selectedDieId)) {
+    return state.selectedDieId;
+  }
+  return state.actionBar[0] ?? null;
+}
+
+function selectedStarPayTrayDieId() {
+  if (state.phase !== 'rolled') return null;
+  const dominoDieId = dominoPairStarPayDieId();
+  if (dominoDieId != null) return dominoDieId;
+  return selectedOuterTrayDieId();
+}
+
+function tryStarPayReroll(dieId) {
+  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId);
+  return tryRerollOuterPay(dieId);
+}
+
+function dominoPairHoverEls() {
+  return state.actionBar
+    .map(id => document.querySelector(`.die--action[data-die-id="${id}"]`))
+    .filter(Boolean);
 }
 
 function capturePointer(e) {
@@ -43,13 +77,13 @@ function releasePointer() {
 }
 
 function clearHoverTarget() {
-  if (hoverDieEl) {
-    const id = Number(hoverDieEl.dataset.dieId);
+  for (const el of hoverDieEls) {
+    const id = Number(el.dataset.dieId);
     if (state.selectedDieId !== id) {
-      hoverDieEl.classList.remove('die--action-selected');
+      el.classList.remove('die--action-selected');
     }
   }
-  hoverDieEl = null;
+  hoverDieEls = [];
 }
 
 function clearStarDrag() {
@@ -87,7 +121,9 @@ function moveStarFlyer(clientX, clientY) {
 }
 
 function trayRerollTargetAt(clientX, clientY) {
-  const el = document.elementFromPoint(clientX, clientY)?.closest('.die--action.die--rerollable');
+  const el = document.elementFromPoint(clientX, clientY)?.closest(
+    '.die--action.die--domino-rerollable, .die--action.die--rerollable',
+  );
   if (!el) return null;
   const dieId = Number(el.dataset.dieId);
   if (Number.isNaN(dieId)) return null;
@@ -96,11 +132,18 @@ function trayRerollTargetAt(clientX, clientY) {
 
 function updateStarDropHover(clientX, clientY) {
   const target = trayRerollTargetAt(clientX, clientY);
-  const nextEl = target?.el ?? null;
-  if (nextEl === hoverDieEl) return;
+  const nextEls = target && canDominoPairStarReroll(target.dieId)
+    ? dominoPairHoverEls()
+    : (target ? [target.el] : []);
+  if (nextEls.length === hoverDieEls.length
+    && nextEls.every((el, i) => el === hoverDieEls[i])) {
+    return;
+  }
   clearHoverTarget();
-  hoverDieEl = nextEl;
-  hoverDieEl?.classList.add('die--action-selected');
+  hoverDieEls = nextEls;
+  for (const el of hoverDieEls) {
+    el.classList.add('die--action-selected');
+  }
 }
 
 function onStarPointerDown(e) {
@@ -144,7 +187,7 @@ function onStarPointerUp(e) {
     const target = trayRerollTargetAt(e.clientX, e.clientY);
     if (target) {
       if (state.stars <= 0) flashStarShortagePlacement();
-      else tryRerollOuterPay(target.dieId);
+      else tryStarPayReroll(target.dieId);
     }
     clearStarDrag();
     return;
@@ -152,15 +195,15 @@ function onStarPointerUp(e) {
 
   clearStarDrag();
 
-  if (!settings.rerollOuter || state.phase !== 'rolled') return;
+  if (!isStarPayDraggable()) return;
 
-  const dieId = selectedOuterTrayDieId();
+  const dieId = selectedStarPayTrayDieId();
   if (dieId == null) return;
   if (state.stars <= 0) {
     flashStarShortagePlacement();
     return;
   }
-  tryRerollOuterPay(dieId);
+  tryStarPayReroll(dieId);
 }
 
 export function initStarRerollInput() {

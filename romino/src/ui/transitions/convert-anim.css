@@ -20,6 +20,93 @@
   animation: placement-tile-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
 
+/* ─── Dice & Cubes convert phases ─── */
+.placement-col.is-cube-converting {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.placement-col.is-switcher-converting {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.placement-die-flyer--cube-convert {
+  z-index: 650;
+  mix-blend-mode: normal;
+  opacity: 0.5;
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+.cube-convert-rank-overlay {
+  position: absolute;
+  width: var(--die-size);
+  height: var(--die-size);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.cube-convert-missing-overlay {
+  position: absolute;
+  width: var(--die-size);
+  height: var(--die-size);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.cube-convert-rank-overlay .cube-convert-rank,
+.cube-convert-shell .cube-convert-rank {
+  opacity: 0;
+  transition: opacity calc(0.2s * var(--t)) ease;
+}
+
+.cube-convert-rank-overlay .cube-convert-rank.cube-convert-rank--revealed,
+.cube-convert-shell .cube-convert-rank.cube-convert-rank--revealed {
+  opacity: 1;
+}
+
+.die--cube-merge {
+  position: relative;
+  z-index: 4;
+}
+
+.die--cube-merge-blend {
+  mix-blend-mode: overlay;
+}
+
+.die--cube-convert-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cube-convert-shell {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  width: var(--cube-outer-w);
+  height: var(--cube-outer-h);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 var(--cube-wrapper-border) transparent;
+  transition: box-shadow calc(0.24s * var(--t)) ease;
+}
+
+.cube-convert-shell--wrap {
+  box-shadow: inset 0 0 0 var(--cube-wrapper-border) #fff;
+}
+
+.cube-convert-rank .rank-cube-glyph {
+  transition: color calc(0.24s * var(--t)) ease;
+}
+
 @keyframes placement-tile-enter-inactive {
   0%   { opacity: 0; transform: scale(0.88); }
   65%  { opacity: 0.45; transform: scale(1.04); }

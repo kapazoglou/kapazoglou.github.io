@@ -4,7 +4,12 @@ import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor } from '../../
 import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedBorder, rollAffordanceRemaining } from '../../logic/turn.js';
 import { isBarDieInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
-import { isDominoQuadRollActive, isDominoPairLocked } from '../../logic/domino-roll.js';
+import {
+  isDominoQuadRollActive,
+  isDominoPairLocked,
+  isDominoPairTraySeamless,
+  canShowDominoPairReroll,
+} from '../../logic/domino-roll.js';
 import { isEndGamePromptArmed, syncEndGamePromptWithRollChrome } from './end-game-prompt.js';
 
 function isTrayDieRerollable(dieId) {
@@ -14,16 +19,26 @@ function isTrayDieRerollable(dieId) {
   return die != null && isOuterDieValue(die.value) && state.actionBar.includes(dieId);
 }
 
+function isTrayDieDominoStarRerollable(dieId) {
+  return canShowDominoPairReroll() && state.actionBar.includes(dieId);
+}
+
+function isTrayDieStarRerollable(dieId) {
+  if (isTrayDieDominoStarRerollable(dieId)) return true;
+  return isTrayDieRerollable(dieId);
+}
+
 function dieActionHTML(id, idx) {
   const die = state.dice[id];
   const inactive = isBarDieInactive(id);
-  const rerollable = isTrayDieRerollable(id);
+  const dominoRerollable = isTrayDieDominoStarRerollable(id);
+  const rerollable = isTrayDieStarRerollable(id);
   const sel = (!inactive || rerollable) && state.selectedDieId === id;
   const isNew = state.newTrayDieIds?.has(id);
   const styles = [`--die-border-fill:${dieFaceBorderColor(die.value)}`];
   if (isNew) styles.push(`animation-delay:${idx * 60}ms`);
   const styleAttr = ` style="${styles.join(';')}"`;
-  return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${rerollable ? ' die--rerollable' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER, { pipRotationDeg: 0 })}</div>`;
+  return `<div class="die die--action${inactive ? ' die--action-inactive' : ''}${dominoRerollable ? ' die--domino-rerollable' : ''}${rerollable && !dominoRerollable ? ' die--rerollable' : ''}${sel ? ' die--action-selected' : ''}${isNew ? ' is-new' : ''}" data-die-id="${id}"${styleAttr}>${dieSVG(die.value, DIE_OUTER, { pipRotationDeg: 0 })}</div>`;
 }
 
 function trayDieOrder(ids) {
@@ -59,6 +74,16 @@ function buildDiceTrayHTML() {
     </div>`;
   }
 
+  if (isDominoPairTraySeamless()) {
+    const pairHTML = trayDieOrder(state.actionBar)
+      .filter(id => id !== state.draggingDieId)
+      .map((id, idx) => dieActionHTML(id, idx))
+      .join('');
+    return `<div class="action-bar-dice action-bar-dice--domino-pair" id="action-bar-dice">
+      <div class="domino-pair">${pairHTML}</div>
+    </div>`;
+  }
+
   const diceHTML = visibleIds.map((id, idx) => dieActionHTML(id, idx)).join('');
   return `<div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>`;
 }
@@ -71,9 +96,11 @@ export function updateActionBarSelection() {
   bar.querySelectorAll('.die--action').forEach(el => {
     const id = Number(el.dataset.dieId);
     const inactive = isBarDieInactive(id);
-    const rerollable = isTrayDieRerollable(id);
+    const dominoRerollable = isTrayDieDominoStarRerollable(id);
+    const rerollable = isTrayDieStarRerollable(id);
     el.classList.toggle('die--action-inactive', inactive);
-    el.classList.toggle('die--rerollable', rerollable);
+    el.classList.toggle('die--domino-rerollable', dominoRerollable);
+    el.classList.toggle('die--rerollable', rerollable && !dominoRerollable);
     const sel = (!inactive || rerollable) && state.selectedDieId === id && state.draggingDieId !== id;
     el.classList.toggle('die--action-selected', sel);
   });

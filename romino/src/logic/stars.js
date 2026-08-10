@@ -19,6 +19,21 @@ function matchIncludesNewDie(leftCol, rightCol, row, newDieIds) {
     || (rightId != null && newDieIds.has(rightId));
 }
 
+function isTileCol(col) {
+  return getColumn(col)?.kind === 'tile';
+}
+
+/** Dice & Cubes: tile bottom die vs adjacent stack die — new die must be on the stack side. */
+function matchIncludesNewDieWithTile(leftCol, rightCol, row, newDieIds) {
+  const leftTile = isTileCol(leftCol);
+  const rightTile = isTileCol(rightCol);
+  if (leftTile && rightTile) return false;
+  if (row !== 0) return false;
+  const stackCol = leftTile ? rightCol : leftCol;
+  const stackDieId = dieIdAt(stackCol, 0);
+  return stackDieId != null && newDieIds.has(stackDieId);
+}
+
 function matchIncludesNewDieVertical(col, topRow, newDieIds) {
   const topId = dieIdAt(col, topRow);
   const bottomId = dieIdAt(col, topRow + 1);
@@ -33,13 +48,20 @@ export function findStarMatches(newDieIds = state.placedDieIds) {
   for (let i = 0; i < cols.length - 1; i++) {
     const leftCol = cols[i];
     const rightCol = cols[i + 1];
-    if (getColumn(leftCol)?.kind === 'tile' || getColumn(rightCol)?.kind === 'tile') continue;
+    const leftTile = isTileCol(leftCol);
+    const rightTile = isTileCol(rightCol);
+    if (leftTile || rightTile) {
+      if (!settings.diceAndCubes || (leftTile && rightTile)) continue;
+    }
     const maxRows = Math.max(stackHeight(leftCol), stackHeight(rightCol));
     for (let row = 0; row < maxRows; row++) {
+      if ((leftTile || rightTile) && row !== 0) continue;
       const va = dieValueAt(leftCol, row);
       const vb = dieValueAt(rightCol, row);
-      if (isStarValuePair(va, vb)
-        && matchIncludesNewDie(leftCol, rightCol, row, newDieIds)) {
+      const includesNew = (leftTile || rightTile)
+        ? matchIncludesNewDieWithTile(leftCol, rightCol, row, newDieIds)
+        : matchIncludesNewDie(leftCol, rightCol, row, newDieIds);
+      if (isStarValuePair(va, vb) && includesNew) {
         matches.push({ axis: 'h', leftCol, rightCol, row });
       }
     }

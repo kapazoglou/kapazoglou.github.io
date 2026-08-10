@@ -22,6 +22,21 @@ export const CONVERT_FLY_MS = 320;
 /** Stagger between each convert fly-back (top die first). */
 export const CONVERT_FLY_STAGGER_MS = 80;
 
+/** Dice & Cubes: scale-down beat at rank cube before arc fly. */
+export const CUBE_FLY_SCALE_MS = 90;
+
+/** Dice & Cubes: arc travel to roll button after scale-down. */
+export const CUBE_FLY_ARC_MS = 280;
+
+/** Dice & Cubes: top die travels toward middle die. */
+export const CUBE_MERGE_MS = 140;
+
+/** Dice & Cubes: rank cube appears; glyph resolves to suit color. */
+export const CUBE_REPLACE_MS = 200;
+
+/** Dice & Cubes: outer wrapper stroke conjoins rank cube + bottom die. */
+export const CUBE_WRAP_MS = 240;
+
 /** Columns slide aside before a gap insert. */
 export const COL_SPREAD_MS = 110;
 

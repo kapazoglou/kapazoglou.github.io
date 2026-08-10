@@ -1,0 +1,90 @@
+/* Dice & Cubes — rank cube + suit die row tiles (Figma 5708:13681) */
+
+:root {
+  --cube-wrapper-border: 6px;
+  --cube-outer-w: var(--die-size);
+  --cube-outer-h: var(--die-stack-pair-height);
+}
+
+.placement-col--tile-cube {
+  width: var(--cube-outer-w);
+}
+
+.placement-row-inner > .placement-col--tile-cube + .placement-col--tile-cube {
+  margin-left: calc(-1 * var(--die-border));
+}
+
+.placement-tile-cube {
+  box-sizing: border-box;
+  width: var(--cube-outer-w);
+  height: var(--cube-outer-h);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  contain: layout style;
+  background: transparent;
+  box-shadow: inset 0 0 0 var(--cube-wrapper-border) #fff;
+}
+
+.placement-tile-cube.placement-tile--duplicate-warning {
+  box-shadow: inset 0 0 0 var(--cube-wrapper-border) var(--warning-red, #ff4444);
+}
+
+.rank-cube {
+  position: relative;
+  width: var(--die-size);
+  height: var(--die-size);
+  flex-shrink: 0;
+}
+
+.rank-cube-shell {
+  display: block;
+  width: var(--die-size);
+  height: var(--die-size);
+}
+
+.rank-cube-border-ring {
+  fill: #fff;
+}
+
+.rank-cube-glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Numbers Deuce', serif;
+  font-size: 48px;
+  line-height: 38px;
+  text-align: center;
+  color: var(--cube-suit-color, #404A59);
+  pointer-events: none;
+}
+
+.rank-cube-glyph--muted {
+  color: #7E8296;
+  font-size: 44px;
+}
+
+.suit-die {
+  width: var(--die-size);
+  height: var(--die-size);
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.placement-tile-cube .rank-cube + .suit-die,
+.cube-convert-shell .rank-cube + .suit-die {
+  margin-top: calc(-1 * var(--die-border));
+}
+
+.suit-die svg {
+  display: block;
+}
+
+.placement-tile-cube.is-new {
+  animation: placement-tile-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+}

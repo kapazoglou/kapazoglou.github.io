@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { isDominoDeckCountdown } from './deck-size.js';
+import { isDominoDeckCountdown, isDominoDeckInActionBar } from './deck-size.js';
 
 /** @typedef {[number, number]} PairCombo */
 /** @typedef {[number, number, number]} TripleCombo */
@@ -92,11 +92,11 @@ export function getDominoDiscardKeys(nRoll = settings.nRoll) {
   return activeDominoDiscard(nRoll);
 }
 
-/** Deck badge — Domino Spots ON: active pool only; OFF: pool + discard + tray offers. */
+/** Deck badge — pool-only when Domino Spots ON or seam-strip badge (nRoll=4 / nRoll=2+nPlace=2); else pool + discard + tray offers. */
 export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
   const poolLen = activeDominoPool(nRoll).length;
-  if (settings.dominoSpots) {
+  if (settings.dominoSpots || isDominoDeckInActionBar()) {
     state.deckRemaining = poolLen;
     return;
   }
@@ -126,8 +126,7 @@ export function canDrawDominoRoll(nRoll = settings.nRoll) {
   const needed = dominoDrawNeeded(nRoll);
   const pool = activeDominoPool(nRoll);
   if (settings.dominoSpots) return pool.length >= needed;
-  if (pool.length >= needed) return true;
-  return pool.length + activeDominoDiscard(nRoll).length >= needed;
+  return true;
 }
 
 /** @param {number} nRoll @param {number} needed */
@@ -139,6 +138,15 @@ function reshuffleDiscardIntoPool(nRoll, needed) {
   pool.push(...discard.splice(0));
   shuffle(pool);
   syncDominoDeckCount(nRoll);
+}
+
+/** Domino Spots OFF: merge discard, then full rebuild when still too short (no game over). */
+function ensureDominoPoolForDraw(nRoll, needed) {
+  if (settings.dominoSpots) return;
+  reshuffleDiscardIntoPool(nRoll, needed);
+  if (activeDominoPool(nRoll).length >= needed) return;
+  if (nRoll === 3) rebuildTriplePool();
+  else rebuildPairPool();
 }
 
 /** Domino Spots: merge discard into pool and shuffle after a sweep (or pair-sweep). */
@@ -180,6 +188,43 @@ export function clearDominoTrayState() {
   state.dominoPairGroups = null;
   state.dominoChosenPairIndex = null;
   state.dominoPairComboKeys = null;
+  state.dominoPairRerollAvailable = false;
+}
+
+/** nRoll=2 + dominoRoll: tray shows a seamless pair while both dice are idle. */
+export function isDominoPairRollTray() {
+  return settings.dominoRoll
+    && settings.nRoll === 2
+    && state.phase === 'rolled';
+}
+
+/** Seamless domino pair only on the initial roll offer (before ↺ reroll). */
+export function isDominoPairTraySeamless() {
+  return isDominoPairRollTray()
+    && state.dominoPairRerollAvailable
+    && state.placedThisTurn === 0
+    && state.actionBar.length === 2;
+}
+
+/** Substantive gate for star-pay pair redraw (ignores phase — safe during anim callback). */
+export function canApplyDominoPairReroll() {
+  if (!settings.dominoRoll || settings.nRoll !== 2) return false;
+  if (!state.dominoPairRerollAvailable) return false;
+  if (state.placedThisTurn > 0) return false;
+  if (state.actionBar.length !== 2) return false;
+  return state.dominoOfferedKeys.length > 0;
+}
+
+/** ↺ active only while both tray dice are idle and reroll not yet spent. */
+export function canShowDominoPairReroll() {
+  return isDominoPairRollTray() && canApplyDominoPairReroll();
+}
+
+/** Discard current tray domino offer (star-pay redraw — does not draw from pool). */
+export function discardOfferedDominoKeys() {
+  for (const key of state.dominoOfferedKeys) discardDominoKey(key);
+  state.dominoOfferedKeys = [];
+  syncDominoDeckCount(2);
 }
 
 /** @param {string} key — vacate-undo only; swept/unbound offers use discardDominoKey. */
@@ -193,6 +238,15 @@ export function returnKeyToPool(key) {
 export function discardDominoKey(key) {
   if (key.split(',').length === 3) state.dominoTripleDiscard.push(key);
   else state.dominoPairDiscard.push(key);
+  syncDominoDeckCount();
+}
+
+/** nRoll 2/3 confirm (Domino Spots OFF): move offered combo keys to discard. */
+export function settleDominoRollOnConfirm() {
+  if (!settings.dominoRoll || settings.dominoSpots) return;
+  if (settings.nRoll === 4) return;
+  for (const key of state.dominoOfferedKeys) discardDominoKey(key);
+  state.dominoOfferedKeys = [];
   syncDominoDeckCount();
 }
 
@@ -236,7 +290,7 @@ export function settleDominoQuadRoll(placedDieIds) {
 export function drawDominoRoll(nRoll) {
   if (nRoll === 2) {
     const needed = dominoDrawNeeded(nRoll);
-    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
+    ensureDominoPoolForDraw(nRoll, needed);
     const pool = state.dominoPairPool;
     if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
@@ -245,7 +299,7 @@ export function drawDominoRoll(nRoll) {
   }
   if (nRoll === 3) {
     const needed = dominoDrawNeeded(nRoll);
-    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
+    ensureDominoPoolForDraw(nRoll, needed);
     const pool = state.dominoTriplePool;
     if (pool.length < needed) return null;
     const key = drawRandomFromPool(pool);
@@ -254,7 +308,7 @@ export function drawDominoRoll(nRoll) {
   }
   if (nRoll === 4) {
     const needed = dominoDrawNeeded(nRoll);
-    if (!settings.dominoSpots) reshuffleDiscardIntoPool(nRoll, needed);
+    ensureDominoPoolForDraw(nRoll, needed);
     const pool = state.dominoPairPool;
     if (pool.length < needed) return null;
     const keyA = drawRandomFromPool(pool);

@@ -1,3 +1,5 @@
+import { settings } from './settings.js';
+
 /* ── Die / tile visual constants (v2 colors, Square v1 die geometry) ── */
 
 export const COLOR_BG = '#334466';
@@ -42,6 +44,34 @@ export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '', str
   </div>`;
 }
 
+/** Rank cube glyph color during convert (Figma text token). */
+export const CUBE_RANK_GRAY = '#7E8296';
+
+/** Rank glyph for cube tile — jokers show suit letter, not *. */
+export function cubeTileRankGlyph(tile) {
+  return tile.rank === JOKER_RANK ? tile.suit : tile.rank;
+}
+
+/** White die shell for rank cube (inline SVG, no pip img assets). */
+export function rankCubeShellSVG(size = DIE_OUTER) {
+  return `<svg class="rank-cube-shell" width="${size}" height="${size}" viewBox="0 0 ${DIE_OUTER} ${DIE_OUTER}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect class="rank-cube-border-ring" width="${DIE_OUTER}" height="${DIE_OUTER}" rx="12"/>
+    <rect x="${DIE_BORDER}" y="${DIE_BORDER}" width="${DIE_FACE}" height="${DIE_FACE}" rx="8" fill="#FFFFFF"/>
+  </svg>`;
+}
+
+/** Dice & Cubes row tile — rank cube + bottom-value suit die in conjoined wrapper. */
+export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '', glyphMuted = false } = {}) {
+  const color = SUIT_COLOR[tile.suit] ?? '#404A59';
+  const glyph = cubeTileRankGlyph(tile);
+  const classes = ['placement-tile-cube', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
+  const glyphClass = ['rank-cube-glyph', glyphMuted ? 'rank-cube-glyph--muted' : ''].filter(Boolean).join(' ');
+  return `<div class="${classes}"${attrs} style="--cube-suit-color:${color}">
+    <div class="rank-cube">${rankCubeShellSVG()}<span class="${glyphClass}">${glyph}</span></div>
+    <div class="suit-die">${dieSVG(tile.bottomValue, DIE_OUTER)}</div>
+  </div>`;
+}
+
 export const SUIT_BADGE_ORDER = ['W', 'Y', 'Z', 'X'];
 
 export const DISCARD_RANKS = ['★', 'A', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'aj', 'aa', 'ab', 'ac'];
@@ -74,6 +104,11 @@ export function isTricolorSevensStack(values) {
   return isTricolorStack(values) && values[1] + values[2] === 7;
 }
 
+/** Standard tricolor stack that converts to a switched die instead of a joker tile. */
+export function isSwitcherTricolorStack(values) {
+  return settings.switcherJokers && settings.tricolors && !settings.tricolorSevens && isTricolorStack(values);
+}
+
 /** Missing value from {2,3,4,5} when three distinct inner dice are present. */
 export function missingInnerDieFromTricolor(values) {
   for (let v = 2; v <= 5; v++) {
@@ -88,7 +123,7 @@ function jokerIdentityFromTricolor(values) {
     suit: suitFromValue(missing),
     rank: JOKER_RANK,
     rankSum: 0,
-    bottomValue: values[0],
+    bottomValue: missing,
   };
 }
 
@@ -111,7 +146,7 @@ export function tileIdentityFromStackValues(values, { tricolors = false, tricolo
   if (tricolorSevens && isTricolorSevensStack(values)) {
     return jokerIdentityFromTricolorSevens(values);
   }
-  if (tricolors && !tricolorSevens && isTricolorStack(values)) {
+  if (tricolors && !tricolorSevens && isTricolorStack(values) && !settings.switcherJokers) {
     return jokerIdentityFromTricolor(values);
   }
   const bottomValue = values[0];

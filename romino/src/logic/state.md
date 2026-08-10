@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.23
-date: 2026-08-03
+v: 2.24
+date: 2026-08-10
 deps: []
 ---
 # State
@@ -21,6 +21,7 @@ Single source of truth for v2 row game.
 - `dominoPairPool`, `dominoTriplePool` — available combo keys when `dominoRoll` ON
 - `dominoPairDiscard`, `dominoTripleDiscard` — swept / unbound-offer keys; merged into pool when draw is short
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
+- `dominoPairRerollAvailable` — nRoll=2 ↺ reroll once per roll
 - `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
 - Column `dominoKey` — mirror of `dominoSpotKeys[col]` on stack/tile until sweep
 - `row` — `Record<colIndex, Column>` (0 = center)

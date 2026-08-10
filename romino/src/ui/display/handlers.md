@@ -1,8 +1,8 @@
 ---
 module: handlers
 layer: ui/display
-v: 2.10
-date: 2026-08-03
+v: 2.12
+date: 2026-08-10
 deps: [state, settings, row, turn, end-game-prompt, placement-anim, render, placement-input]
 ---
 # Handlers — User Story

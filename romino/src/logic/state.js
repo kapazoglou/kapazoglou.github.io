@@ -70,6 +70,8 @@ export function createInitialState() {
     dominoChosenPairIndex: null,
     /** nRoll=4 domino quad: combo keys [keyA, keyB] drawn this roll (unused returned on confirm). */
     dominoPairComboKeys: null,
+    /** nRoll=2 domino pair: one reroll offer per roll (↺ discards offer and redraws). */
+    dominoPairRerollAvailable: false,
     /** Domino spots — combo keys offered this roll. */
     dominoOfferedKeys: [],
     /** Domino spots — spot 1: used domino key this roll. */

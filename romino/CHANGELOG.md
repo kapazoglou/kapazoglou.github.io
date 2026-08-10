@@ -4,6 +4,82 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+---
+
+---
+
+- **monotonic.js v1.3** — [A][3–11]: left of ace `< 13`, right of partner `> R`; keep [A][2] and [A][12] edge wraps
+
+- **monotonic.js v1.2** — ace boundary outward: partner ≥12 wraps low (ace as 1); partner <12 wraps high (≥13); between uses ace as 1 only
+
+- **monotonic.js v1.1** — fix outward zones: left allows rank ≤ rLow, right allows rank ≥ rHigh (was inverted)
+
+- **settings.js v2.33, monotonic.js v1.0, row.js v1.65, invalid-flash.js v1.4, placement-input.js v1.3** — `monotonic` KEEP toggle: Dice & Cubes rank-cube anchors (≥2) define spatial zones; ace dual 1|13 recalc; jokers exempt; blocked 3rd-die flash + boundary cube borders
+
+---
+
+- **domino-roll.js v1.28, turn.js v2.41, domino-reroll-anim.js v1.2** — revert star-pay domino redraw to exact former ↺ logic (discard offer + pool draw)
+
+- **domino-roll.js v1.27, turn.js v2.40, domino-reroll-anim.js v1.2** — fix star-pay domino redraw (phase gate during anim); discard offer + two random spaced dice
+
+- **domino-reroll-anim.js v1.1, star-reroll-input.js v1.2, action-bar.js v1.66, action-bar.css, pip-anim.js** — domino star-pay redraws whole pair (both dice highlight; star flies to pair centre; blocks outer reroll on 1/6 during offer)
+
+- **domino-spot-strip.js v2.22** — deck badge X anchored to roll-wrap right inset (stable when KO endgame expands roll button)
+
+- **turn.js v2.39** — nRoll=2 + nPlace=2 + Domino Roll: fresh game starts with N-place (2) stars for domino star-pay redraw
+
+- **domino-reroll-anim.js v1.0, star-reroll-input.js v1.1, action-bar.js v1.65, action-bar.css, handlers.js v2.12, hud-v2.js, domino-roll.js v1.26, turn.js v2.38** — nRoll=2 domino redraw: remove ↺ button; 1-star HUD drag/tap onto tray pair
+
+- **domino-roll.js v1.25, action-bar.js v1.64** — nRoll=2 ↺ stays at 33% opacity when spent or when domino dice are placed (not hidden)
+
+- **domino-roll.js v1.24, action-bar.js v1.63, action-bar.css** — nRoll=2 ↺ stays visible at 33% opacity after use (disabled, not hidden)
+
+- **domino-roll.js v1.23, domino-spot-strip.js v2.21, action-bar.js v1.62** — seam-strip deck badge uses pool-only count (ticks on roll/draw); post-↺ tray dice use normal gap (not domino)
+
+- **deck-size.js v1.3** — nRoll=2 + nPlace=2 Domino Roll: seam-strip deck badge (same as nRoll=4), not HUD
+
+- **domino-roll.js v1.22, turn.js v2.37, action-bar.js v1.61, action-bar.css, handlers.js v2.11, state.js v2.24** — nRoll=2 Domino Roll: seamless domino pair tray; ↺ reroll discards offer, redraws from pool once per roll
+
+- **domino-roll.js v1.21, turn.js v2.36** — Domino Spots OFF: depleted domino pool merges discard then full rebuild (no game over); nRoll 2/3 confirm discards offered combo to discard pile
+
+- **settings.js v2.32, settings-panel.js v1.38, dice-visual.js v2.13, convert.js v1.11, row.js v1.64, convert-anim.js v1.21, convert-anim.css, placement-row.js** — `switcherJokers` toggle: tricolor stacks convert to lone die of missing inner color (not joker tile); stripped cube-joker anim; mutual exclusive with `tricolorSevens`; respects `aceJokerStarCost`
+
+- **row.js v1.63, stars.js v1.5, placement-row.js** — Dice & Cubes: allow gap insert next to tile (not between tiles); tile suit-die stars with adjacent matching die; cube-tile insert/snap/star anchor fixes
+
+- **convert-anim.js v1.20** — Joker cube convert: arc flyers spawn from bottom suit die (not rank cube)
+
+- **convert-anim.js v1.19, convert-anim.css, dice-visual.js v2.12** — Joker cube convert: missing-suit die crossfades at bottom suit slot (replaces stack bottom); tricolor joker `bottomValue` = missing inner die
+
+- **convert-anim.js v1.18, convert-anim.css** — Dice & Cubes joker convert: mid+top collapse to bottom, missing-suit die fade-in at mid, all three stack dice arc-fly
+
+- **convert-anim.js v1.17, convert-anim.css** — Dice & Cubes arc flyers at 50% opacity (fade to 0 on landing)
+
+- **timing.js v1.9** — `CUBE_MERGE_MS` 280→140 (2× faster cube merge)
+
+- **convert-anim.js v1.16, convert-anim.css** — Dice & Cubes merge: rank overlay on mid (no layout shift); shell deferred until merge ends; top z-index 4
+
+- **convert-anim.js v1.15** — Dice & Cubes: rank cube fade starts with top-die merge (parallel); fly still at fade end
+
+- **convert-anim.css v1.14** — Dice & Cubes fly: z-index 650 so arc passes over action bar into roll button
+
+- **convert-anim.js v1.13, convert-anim.css** — Dice & Cubes fly: spawn on viewport-inner in front of row (z-index 500), not behind shell
+
+- **convert-anim.js v1.12, convert-anim.css, timing.js v1.8** — Dice & Cubes fly: scale down at rank cube, then upward arc to roll (not straight line)
+
+- **convert-anim.js v1.11** — Dice & Cubes fly: spawn both dice at rank cube XY after fade; fly + color/stroke parallel (not sequential)
+
+- **drag-drop.js v2.36** — fix drag duplicate: remove tray die from bar on drag start (`renderActionBar`); snapping shows snap ghost only (hide pointer flyer while ghost has a slot)
+
+- **convert-anim.js v1.10, convert-anim.css** — Dice & Cubes fly: append flyers inside column behind shell (z-index 1 vs 2); strip overlay blend before fly; container-local coords
+
+- **convert-anim.js v1.9, convert-anim.css** — Dice & Cubes convert: single shell (no overlay swap), pre-capture fly coords, skip is-new pop on final render
+
+- **convert-anim.js v1.8** — Dice & Cubes convert alignment: design-space merge step, stackBottomUp-aware roles, rank overlay + shell anchored from bottom die
+
+- **convert-anim.js v1.7, convert-anim.css, dice-cubes.css** — Dice & Cubes convert: overlay-blend merge, rank cube covers mid+top, fly then suit-color glyph + 6px inset stroke; die-stack gap on resting tile
+
+- **settings.js v2.31, settings-panel.js, dice-visual.js v2.11, placement-row.js, dice-cubes.css, convert-anim.js v1.6, convert-anim.css, timing.js v1.7, sweep-anim.css, base.css** — `diceAndCubes` toggle (Keep): row tiles render as rank cube + suit die; merge→fly-back→wrapper convert anim; clamps `tileDiceHold` ON
+
 - **row.js v1.62** — `nextMustFollow` fix: lone-die check excludes repositioned die so insert stays blocked after stacking then removing/repositioning top die
 
 - **row.js v1.61** — `nextMustFollow` relaxed: blocks gap-insert/new-column when lone-die value matches; stack on any valid column still allowed

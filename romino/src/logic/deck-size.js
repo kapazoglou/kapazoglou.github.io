@@ -11,9 +11,11 @@ export function isDeckSizeActive() {
   return settings.deckSize > 0 || isDominoDeckCountdown();
 }
 
-/** nRoll=4 Domino Roll shows the deck counter under the tray pipe instead of the HUD. */
+/** nRoll=4 (and nRoll=2 + nPlace=2 domino pair) show deck counter on seam strip, not HUD. */
 export function isDominoDeckInActionBar() {
-  return isDominoDeckCountdown() && settings.nRoll === 4;
+  if (!isDominoDeckCountdown()) return false;
+  if (settings.nRoll === 4) return true;
+  return settings.nRoll === 2 && settings.nPlace === 2;
 }
 
 export function showDeckInHud() {

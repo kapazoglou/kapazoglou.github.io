@@ -18,7 +18,8 @@
   100% { transform: scale(1); }
 }
 
-.placement-col--sweep-pending .placement-tile {
+.placement-col--sweep-pending .placement-tile,
+.placement-col--sweep-pending .placement-tile-cube {
   animation: sweep-tile-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
 }
 
@@ -28,7 +29,8 @@
   z-index: 6;
 }
 
-.placement-col--sweep .placement-tile {
+.placement-col--sweep .placement-tile,
+.placement-col--sweep .placement-tile-cube {
   overflow: visible;
   animation-duration: calc(0.58s * var(--t));
   animation-fill-mode: forwards;

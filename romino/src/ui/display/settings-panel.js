@@ -58,12 +58,19 @@ function clampDraft() {
   if (draftSettings.tileDealtEvery > 0) draftSettings.dominoSpots = false;
   if (draftSettings.nineCubes < 0) draftSettings.nineCubes = 0;
   if (draftSettings.nineCubes > 2) draftSettings.nineCubes = 2;
+  if (draftSettings.diceAndCubes) draftSettings.tileDiceHold = true;
+  if (!draftSettings.tileDiceHold) draftSettings.diceAndCubes = false;
+  if (!draftSettings.tricolors) draftSettings.switcherJokers = false;
+  if (draftSettings.switcherJokers) draftSettings.tricolorSevens = false;
+  if (draftSettings.tricolorSevens) draftSettings.switcherJokers = false;
 }
 
 function isDraftControlDisabled(item) {
   if (item.key === 'deckFlank') return draftSettings.tileDealtEvery > 0;
   if (item.key === 'tileDealtEvery') return draftSettings.deckFlank || draftSettings.dominoSpots;
   if (item.key === 'dominoSpots') return !draftSettings.dominoRoll || draftSettings.tileDealtEvery > 0;
+  if (item.key === 'switcherJokers') return !draftSettings.tricolors || draftSettings.tricolorSevens;
+  if (item.key === 'tricolorSevens') return draftSettings.switcherJokers;
   return false;
 }
 

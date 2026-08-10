@@ -67,7 +67,7 @@ export function renderActionBarDeckBadge() {
     inner.appendChild(badge);
   }
   badge.textContent = state.deckRemaining != null ? String(state.deckRemaining) : '';
-  const poolLow = isDominoSpotsActive() && (state.deckRemaining ?? 0) < 2;
+  const poolLow = (isDominoSpotsActive() || isDominoDeckInActionBar()) && (state.deckRemaining ?? 0) < 2;
   badge.classList.toggle('action-bar-deck-badge--low', poolLow);
   syncDominoSpotsVisibility();
 }
@@ -112,11 +112,12 @@ export function positionActionBarDeck() {
   const offsetY = dominoSeamOffsetY(gap);
   const centerY = -offsetY + DOMINO_SPOT_DIE / 2;
 
-  const rollFace = bar.querySelector('.roll-btn-face');
+  const rollWrap = bar.querySelector('.roll-btn-wrap');
   let centerX;
-  if (rollFace) {
-    const faceRect = rollFace.getBoundingClientRect();
-    centerX = toDesignPx(faceRect.left + faceRect.width / 2 - stripRect.left, scale);
+  if (rollWrap) {
+    const wrapRect = rollWrap.getBoundingClientRect();
+    // Fixed over roll-button die centre — right inset 36px (12px pad + half die), stable when KO expands wrap
+    centerX = toDesignPx(wrapRect.right - stripRect.left, scale) - 36;
   } else {
     centerX = toDesignPx(stripRect.width, scale) - 36;
   }

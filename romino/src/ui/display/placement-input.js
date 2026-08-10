@@ -1,10 +1,10 @@
-import { getValidSlotsForDie, slotsEqual, isStarBlockedPlacement, wouldCompleteBlockedDuplicate, convertIdentityForStackCompletion, wouldCompleteBlockedCube, cubeLockColForStackCompletion } from '../../logic/row.js';
+import { getValidSlotsForDie, slotsEqual, isStarBlockedPlacement, wouldCompleteBlockedDuplicate, convertIdentityForStackCompletion, wouldCompleteBlockedCube, cubeLockColForStackCompletion, wouldCompleteBlockedMonotonic, monotonicBoundaryColsForBlockedAttempt } from '../../logic/row.js';
 
 import { resolveSlotFromPointer, isPointerOnPlacementRow } from './placement-row.js';
 
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 
-import { flashInvalidPlacement, flashStarShortagePlacement, flashDuplicateBlocked, flashCubeBlocked } from '../transitions/invalid-flash.js';
+import { flashInvalidPlacement, flashStarShortagePlacement, flashDuplicateBlocked, flashCubeBlocked, flashMonotonicBlocked } from '../transitions/invalid-flash.js';
 
 
 
@@ -52,6 +52,9 @@ export function attemptPlacementAtPoint(dieId, clientX, clientY, stackY = client
     const lockCol = cubeLockColForStackCompletion(dieId, slot);
     if (lockCol != null) flashCubeBlocked(lockCol);
     else flashInvalidPlacement();
+  }
+  else if (wouldCompleteBlockedMonotonic(dieId, slot)) {
+    flashMonotonicBlocked(monotonicBoundaryColsForBlockedAttempt());
   }
   else flashInvalidPlacement();
 

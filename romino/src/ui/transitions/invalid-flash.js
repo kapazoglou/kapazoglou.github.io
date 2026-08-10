@@ -79,3 +79,22 @@ export function flashCubeBlocked(lockCol) {
     import('../display/render.js').then(({ render }) => render());
   }, ms);
 }
+
+/**
+ * Monotonic zone blocked — viewport flash + 3s warning border on boundary anchor tiles.
+ * @param {number[]} boundaryCols
+ */
+export function flashMonotonicBlocked(boundaryCols) {
+  flashInvalidPlacement();
+  if (!boundaryCols?.length) return;
+
+  for (const col of boundaryCols) state.rowTileWarningCols.add(col);
+
+  import('../display/render.js').then(({ render }) => render());
+
+  const ms = spd(WARNING_BORDER_MS);
+  setTimeout(() => {
+    for (const col of boundaryCols) state.rowTileWarningCols.delete(col);
+    import('../display/render.js').then(({ render }) => render());
+  }, ms);
+}

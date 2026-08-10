@@ -16,7 +16,7 @@ lastVerified: 2026-07-29
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,30 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **monotonic.js v1.3** — [A][3–11] ascending outward from ace; [A][2]/[A][12] edge wraps kept
+
+- **monotonic.js v1.2** — ace boundary outward wrap (partner ≥12 low / <12 high)
+
+- **monotonic.js v1.1** — outward zones: left ≤ rLow, right ≥ rHigh (fix inverted outward check)
+
+- **settings.js v2.33, monotonic.js v1.0, row.js v1.65, invalid-flash.js v1.4, placement-input.js v1.3** — `monotonic` KEEP toggle: rank-cube spatial zones; ace dual 1|13 bounds; jokers exempt; blocked 3rd-die flash + boundary cube borders
+
+- **domino-reroll-anim.js v1.0, star-reroll-input.js v1.1, action-bar.js v1.65, domino-roll.js v1.26, turn.js v2.38** — star-pay domino pair redraw (↺ button removed)
+
+- **domino-roll.js v1.23, domino-spot-strip.js v2.21, action-bar.js v1.62** — pool-only seam badge count; post-redraw spaced tray dice
+
+- **deck-size.js v1.3** — nRoll=2 + nPlace=2: seam-strip deck badge like nRoll=4
+
+- **domino-roll.js v1.22, turn.js v2.37, action-bar.js v1.61, handlers.js v2.11, state.js v2.24** — nRoll=2 Domino Roll: seamless pair tray + ↺ one-shot reroll (discard offer, pool redraw)
+
+- **domino-roll.js v1.21, turn.js v2.36** — Domino Spots OFF: pool depleted → discard merge + full rebuild (no game over); nRoll 2/3 confirm discards offered combo
+
+- **settings.js v2.32, settings-panel.js v1.38, dice-visual.js v2.13, convert.js v1.11, row.js v1.64, convert-anim.js v1.21, convert-anim.css, placement-row.js** — `switcherJokers` toggle: tricolor stacks → lone die of missing inner color; stripped cube-joker anim; mutual exclusive with `tricolorSevens`; respects `aceJokerStarCost`
+
+- **row.js v1.63, stars.js v1.5, placement-row.js** — `diceAndCubes`: gap insert adjacent to tile (tile↔tile still blocked); tile bottom suit-die horizontal stars; cube-tile snap/insert min-Y and star marker anchors
+
+- **settings.js v2.31, settings-panel.js, dice-visual.js v2.11, placement-row.js, dice-cubes.css, convert-anim.js v1.6, convert-anim.css, timing.js v1.7, sweep-anim.css, base.css** — `diceAndCubes` toggle: rank cube + suit die row tiles; merge→fly-back→wrapper convert anim; clamps `tileDiceHold` ON
 
 - **row.js v1.62** — `nextMustFollow` fix: lone-die detection excludes die being repositioned (insert blocked after stack-then-remove)
 
