@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.24
-date: 2026-08-10
+v: 2.25
+date: 2026-08-11
 deps: []
 ---
 # State
@@ -33,3 +33,4 @@ Single source of truth for v2 row game.
 - `placedDieIds` — unconfirmed placements this turn
 - `draggingDieId`, `snapGhostSlot` — UI-only drag / snap-ghost preview flags
 - `pairSweepExit` — accent pair-sweep anim state
+- `sweepExit` — `{ cols, flankSides, stripIds, phase, suitFlownCols, onDone }` row/flank sweep anim; `sweepExitBeatTimer`, `sweepExitPreludeTimer`, `sweepExitDoneTimer`

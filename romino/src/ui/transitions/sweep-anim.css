@@ -23,6 +23,20 @@
   animation: sweep-tile-pop calc(0.22s * var(--t)) ease calc(var(--exit-order, 0) * 75ms * var(--t)) both;
 }
 
+.placement-col--sweep-pending.placement-col--tile-cube {
+  overflow: visible;
+}
+
+.placement-tile-cube--sweep-prelude {
+  position: relative;
+  overflow: visible;
+  contain: none;
+}
+
+.placement-tile-cube .rank-cube + .cube-sweep-suit-cube {
+  margin-top: calc(-1 * var(--die-border));
+}
+
 /* ─── Upward tile sweep ─── */
 .placement-col--sweep {
   overflow: visible;

@@ -8,6 +8,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **sweep-anim.js v1.16** — sweep prelude suit cube glyph starts in suit color (not gray)
+
+- **sweep-anim.js v1.15, dice-visual.js, placement-row.js, sweep-anim.css** — fix sweep cube prelude: overlay anchored on tile-cube (not col); suit cube persists in tile through fly-away
+
+- **state.js v2.25** — `sweepExit.suitFlownCols`, `sweepExitPreludeTimer`; cleared in `clearSweepExitTimers`
+
 - **monotonic.js v1.9** — lock PATH RULE invariant: linear between unless ace in pair; rename wheel helpers to aceWheelArc/aceUnionArc (aceBetween only); linearBetween + pairHasAce
 
 - **monotonic.js v1.8** — 3+ non-ace between gaps use linear min..max (fixes [3]..[12] blocking 11)

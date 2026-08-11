@@ -91,6 +91,7 @@ export function createInitialState() {
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,
+    sweepExitPreludeTimer: null,
     /** Pair-sweep anim: strip tile + row col, no score. */
     pairSweepExit: null,
   };
@@ -101,8 +102,10 @@ export let state = createInitialState();
 export function clearSweepExitTimers() {
   if (state.sweepExitBeatTimer) clearTimeout(state.sweepExitBeatTimer);
   if (state.sweepExitDoneTimer) clearTimeout(state.sweepExitDoneTimer);
+  if (state.sweepExitPreludeTimer) clearTimeout(state.sweepExitPreludeTimer);
   state.sweepExitBeatTimer = null;
   state.sweepExitDoneTimer = null;
+  state.sweepExitPreludeTimer = null;
 }
 
 export function resetStateObject() {

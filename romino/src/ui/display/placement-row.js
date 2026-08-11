@@ -235,11 +235,12 @@ export function renderPlacementRow() {
         const classExtra = [
           state.rowTileWarningCols.has(col) ? 'placement-tile--duplicate-warning' : '',
         ].filter(Boolean).join(' ');
+        const suitFlown = Boolean(se?.suitFlownCols?.has(col));
         const tileColClass = settings.diceAndCubes
           ? `${colClass} placement-col--tile placement-col--tile-cube`
           : `${colClass} placement-col--tile`;
         const tileMarkup = settings.diceAndCubes
-          ? cubeTileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) })
+          ? cubeTileHTML(column, { classExtra, isNew: state.newTileCols?.has(col), suitFlown })
           : tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) });
         colsHTML += `<div class="${tileColClass}" data-col="${col}"${colStyle}>${tileMarkup}</div>`;
       } else {

@@ -1,5 +1,6 @@
 import { state, clearSweepExitTimers } from '../../logic/state.js';
-import { spd } from '../../logic/settings.js';
+import { settings, spd } from '../../logic/settings.js';
+import { SUIT_COLOR } from '../../logic/dice-visual.js';
 import { findSweepRuns, applySweepRun, sweepStarMultiplierForRun, checkFlankWellDone } from '../../logic/sweeps-row.js';
 import { clearDealtStrip, sortedDealtStrip } from '../../logic/dealt-strip.js';
 import { flankSideForSweepCol, popFlankStack } from '../../logic/deck-flank.js';
@@ -13,7 +14,25 @@ import { syncDominoSpotStripDuringMotion, scheduleDominoSpotStripLayout } from '
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll } from '../display/placement-row.js';
 import { bankStarsToPoints } from './pip-anim.js';
-import { BEAT_MS, SWEEP_MS, COL_COLLAPSE_MS, CONVERT_MS } from './timing.js';
+import {
+  buildRankCubeNode,
+  positionOverlayOnDie,
+  captureElementFlyStart,
+  animateCubeDiceArcFlyFromStarts,
+  flyLayer,
+  viewportScale,
+  rollBtnTargetXY,
+} from './cube-fly.js';
+import {
+  BEAT_MS,
+  SWEEP_MS,
+  COL_COLLAPSE_MS,
+  CONVERT_MS,
+  CONVERT_FLY_STAGGER_MS,
+  CUBE_REPLACE_MS,
+  CUBE_FLY_SCALE_MS,
+  CUBE_FLY_ARC_MS,
+} from './timing.js';
 
 const COLLAPSE_EASING = 'ease-out';
 
@@ -78,24 +97,127 @@ function animateColumnCollapse(beforeLeft, onDone) {
   }, ms);
 }
 
+function sweepCubePreludeDuration(colCount) {
+  const stagger = spd(CONVERT_FLY_STAGGER_MS);
+  const reveal = spd(CUBE_REPLACE_MS);
+  const fly = spd(CUBE_FLY_SCALE_MS) + spd(CUBE_FLY_ARC_MS);
+  const maxOrder = Math.max(0, colCount - 1);
+  return maxOrder * stagger + reveal + fly;
+}
+
+/** Dice & Cubes: suit cube fade on bottom die, then arc fly to roll button (no render during). */
+function animateSweepCubePrelude(cols, onDone) {
+  const inner = document.querySelector('.placement-row-inner');
+  const layer = flyLayer();
+  if (!inner || !layer || !cols.length) {
+    onDone();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const target = rollBtnTargetXY(layerRect, scale);
+  const staggerMs = spd(CONVERT_FLY_STAGGER_MS);
+  const revealMs = spd(CUBE_REPLACE_MS);
+  const overlays = [];
+
+  cols.forEach((col, exitOrder) => {
+    const colNode = inner.querySelector(`.placement-col[data-col="${col}"]`);
+    const tile = state.row[col];
+    if (!colNode || !tile || tile.kind !== 'tile') return;
+
+    const tileCube = colNode.querySelector('.placement-tile-cube');
+    const suitDie = tileCube?.querySelector('.suit-die');
+    if (!tileCube || !suitDie) return;
+
+    tileCube.classList.add('placement-tile-cube--sweep-prelude');
+
+    const suitColor = SUIT_COLOR[tile.suit] ?? '#404A59';
+    const suitCube = buildRankCubeNode(tile.suit, { muted: false });
+    suitCube.style.setProperty('--cube-suit-color', suitColor);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'cube-convert-rank-overlay';
+    overlay.appendChild(suitCube);
+    tileCube.appendChild(overlay);
+    positionOverlayOnDie(overlay, suitDie, tileCube, scale);
+    overlays.push({ overlay, tileCube });
+
+    setTimeout(() => {
+      if (!state.sweepExit) return;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          suitCube.classList.add('cube-convert-rank--revealed');
+        });
+      });
+
+      setTimeout(() => {
+        if (!state.sweepExit) return;
+
+        const flyStart = captureElementFlyStart(suitDie, layer, scale);
+        suitCube.classList.remove('cube-convert-rank');
+        suitCube.classList.add('cube-sweep-suit-cube');
+        overlay.removeChild(suitCube);
+        tileCube.replaceChild(suitCube, suitDie);
+        overlay.remove();
+
+        state.sweepExit.suitFlownCols.add(col);
+
+        animateCubeDiceArcFlyFromStarts(
+          [{ value: tile.bottomValue, ...flyStart }],
+          layer,
+          target,
+          { flyerClass: 'placement-die-flyer--cube-convert' },
+        );
+      }, revealMs);
+    }, exitOrder * staggerMs);
+  });
+
+  state.sweepExitPreludeTimer = setTimeout(() => {
+    state.sweepExitPreludeTimer = null;
+    overlays.forEach(({ overlay, tileCube }) => {
+      overlay.remove();
+      tileCube.classList.remove('placement-tile-cube--sweep-prelude');
+    });
+    onDone();
+  }, sweepCubePreludeDuration(cols.length));
+}
+
+function beginSweepRunPhase() {
+  if (!state.sweepExit) return;
+  state.sweepExit.phase = 'run';
+  render();
+  state.sweepExitDoneTimer = setTimeout(() => {
+    state.sweepExitDoneTimer = null;
+    commitRowSweepExit();
+  }, spd(SWEEP_MS));
+}
+
 export function startRowSweepAnimation(cols, onDone) {
   pinRowScroll();
   clearSweepExitTimers();
   const flankSides = cols.map(col => flankSideForSweepCol(col)).filter(Boolean);
   const stripIds = sortedDealtStrip().map(t => t.stripId);
-  state.sweepExit = { cols: [...cols], flankSides, stripIds, phase: 'wait', onDone };
+  state.sweepExit = {
+    cols: [...cols],
+    flankSides,
+    stripIds,
+    phase: 'wait',
+    suitFlownCols: new Set(),
+    onDone,
+  };
   document.getElementById('app')?.classList.add('is-sweep-exit');
   render();
 
   state.sweepExitBeatTimer = setTimeout(() => {
     state.sweepExitBeatTimer = null;
     if (!state.sweepExit) return;
-    state.sweepExit.phase = 'run';
-    render();
-    state.sweepExitDoneTimer = setTimeout(() => {
-      state.sweepExitDoneTimer = null;
-      commitRowSweepExit();
-    }, spd(SWEEP_MS));
+    if (settings.diceAndCubes) {
+      animateSweepCubePrelude(state.sweepExit.cols, beginSweepRunPhase);
+    } else {
+      beginSweepRunPhase();
+    }
   }, spd(BEAT_MS));
 }
 

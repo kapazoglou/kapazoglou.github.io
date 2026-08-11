@@ -61,14 +61,17 @@ export function rankCubeShellSVG(size = DIE_OUTER) {
 }
 
 /** Dice & Cubes row tile — rank cube + bottom-value suit die in conjoined wrapper. */
-export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '', glyphMuted = false } = {}) {
+export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '', glyphMuted = false, suitFlown = false } = {}) {
   const color = SUIT_COLOR[tile.suit] ?? '#404A59';
   const glyph = cubeTileRankGlyph(tile);
   const classes = ['placement-tile-cube', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
   const glyphClass = ['rank-cube-glyph', glyphMuted ? 'rank-cube-glyph--muted' : ''].filter(Boolean).join(' ');
+  const bottomMarkup = suitFlown
+    ? `<div class="rank-cube cube-sweep-suit-cube">${rankCubeShellSVG()}<span class="rank-cube-glyph">${tile.suit}</span></div>`
+    : `<div class="suit-die">${dieSVG(tile.bottomValue, DIE_OUTER)}</div>`;
   return `<div class="${classes}"${attrs} style="--cube-suit-color:${color}">
     <div class="rank-cube">${rankCubeShellSVG()}<span class="${glyphClass}">${glyph}</span></div>
-    <div class="suit-die">${dieSVG(tile.bottomValue, DIE_OUTER)}</div>
+    ${bottomMarkup}
   </div>`;
 }
 

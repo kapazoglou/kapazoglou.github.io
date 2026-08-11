@@ -33,6 +33,8 @@ lastVerified: 2026-07-29
 
 ## Modified this session
 
+- **sweep-anim.js v1.14, cube-fly.js v1.0, convert-anim.js, state.js, placement-row.js, sweep-anim.css** — `diceAndCubes` sweep prelude: beat → suit cube overlay fade on bottom die → arc fly to roll btn (staggered) → upward sweep; `sweepExit.suitFlownCols` + `sweepExitPreludeTimer`; shared arc-fly helpers in `cube-fly.js`
+
 - **monotonic.js v1.9** — PATH RULE invariant documented; wheel arcs aceBetween-only
 
 - **monotonic.js v1.7** — ace+partner between gaps linear 1..R; pair-local 3+ gaps
