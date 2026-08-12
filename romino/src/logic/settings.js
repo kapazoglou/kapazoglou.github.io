@@ -9,6 +9,7 @@ export const SETTINGS_CONFIG = [
       { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 6 },
       { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 1, max: 6 },
       { key: 'nineCubes',  label: 'Nine Cubes', default: 0, type: 'stepper', min: 0, max: 2 },
+      { key: 'startingDice', label: 'Starting Dice', default: 0, type: 'stepper', min: 0, max: 24 },
     ],
   },
   {
@@ -80,4 +81,7 @@ export function clampSettings() {
   if (!settings.tricolors) settings.switcherJokers = false;
   if (settings.switcherJokers) settings.tricolorSevens = false;
   if (settings.tricolorSevens) settings.switcherJokers = false;
+  if (settings.startingDice < 0) settings.startingDice = 0;
+  const startingDiceCap = Math.min(settings.nDice, settings.nSpots * 2, 24);
+  if (settings.startingDice > startingDiceCap) settings.startingDice = startingDiceCap;
 }

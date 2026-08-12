@@ -129,24 +129,13 @@ export function canDrawDominoRoll(nRoll = settings.nRoll) {
   return true;
 }
 
-/** @param {number} nRoll @param {number} needed */
-function reshuffleDiscardIntoPool(nRoll, needed) {
-  const pool = activeDominoPool(nRoll);
-  if (pool.length >= needed) return;
-  const discard = activeDominoDiscard(nRoll);
-  if (!discard.length) return;
-  pool.push(...discard.splice(0));
-  shuffle(pool);
-  syncDominoDeckCount(nRoll);
-}
-
-/** Domino Spots OFF: merge discard, then full rebuild when still too short (no game over). */
+/** Domino Spots OFF: pool too short → full rebuild (every combo available again). */
 function ensureDominoPoolForDraw(nRoll, needed) {
   if (settings.dominoSpots) return;
-  reshuffleDiscardIntoPool(nRoll, needed);
   if (activeDominoPool(nRoll).length >= needed) return;
   if (nRoll === 3) rebuildTriplePool();
   else rebuildPairPool();
+  syncDominoDeckCount(nRoll);
 }
 
 /** Domino Spots: merge discard into pool and shuffle after a sweep (or pair-sweep). */

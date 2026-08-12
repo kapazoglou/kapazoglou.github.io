@@ -41,6 +41,8 @@ export function createInitialState() {
     newTileCols: new Set(),
     newFlankSides: new Set(),
     newTrayDieIds: new Set(),
+    /** Starting dice fly-in — row dice hidden until animation completes. */
+    startingDiceAnimPending: false,
     /** Half-size tiles on row↔tray seam (tile-deck cadence deals). */
     /** @type {DealtStripTile[]} */
     dealtStrip: [],

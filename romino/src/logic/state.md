@@ -19,7 +19,7 @@ Single source of truth for v2 row game.
 - `deckRemaining` — conversions left when `deckSize` > 0 (non-domino); domino mode: pool-only when Domino Spots ON, else pool + discard + tray offers
 - `flankStackLeft`, `flankStackRight` — `{ remaining, top }` virtual deck-flank stacks
 - `dominoPairPool`, `dominoTriplePool` — available combo keys when `dominoRoll` ON
-- `dominoPairDiscard`, `dominoTripleDiscard` — swept / unbound-offer keys; merged into pool when draw is short
+- `dominoPairDiscard`, `dominoTripleDiscard` — swept / unbound-offer keys; Spots ON: merge into pool on sweep; Spots OFF: cleared on full rebuild when draw is short
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
 - `dominoPairRerollAvailable` — nRoll=2 ↺ reroll once per roll
 - `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON

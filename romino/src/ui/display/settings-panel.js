@@ -63,6 +63,9 @@ function clampDraft() {
   if (!draftSettings.tricolors) draftSettings.switcherJokers = false;
   if (draftSettings.switcherJokers) draftSettings.tricolorSevens = false;
   if (draftSettings.tricolorSevens) draftSettings.switcherJokers = false;
+  if (draftSettings.startingDice < 0) draftSettings.startingDice = 0;
+  const startingDiceCap = Math.min(draftSettings.nDice, draftSettings.nSpots * 2, 24);
+  if (draftSettings.startingDice > startingDiceCap) draftSettings.startingDice = startingDiceCap;
 }
 
 function isDraftControlDisabled(item) {

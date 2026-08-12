@@ -1,12 +1,13 @@
 import { state, createInitialState, resetStateObject } from './state.js';
 import { settings, clampSettings } from './settings.js';
 import { spawnKnownDie, spawnRandomDie } from './dice.js';
-import { isTrayStuck, countDiceInRow, rowHasThreeDiceStack } from './row.js';
+import { isTrayStuck, countDiceInRow, countTilesInRow, rowHasThreeDiceStack } from './row.js';
 import { initTileDeck, resolveCadenceDeal } from './tile-deck.js';
 import { appendDealtStripTile } from './dealt-strip.js';
 import { initFlankStacks, flankEndgamePending } from './deck-flank.js';
 import { initDeckRemaining } from './deck-size.js';
 import { resetGameLog } from './game-log.js';
+import { seedStartingDice } from './starting-dice.js';
 import {
   initDominoPools,
   clearDominoTrayState,
@@ -46,6 +47,7 @@ export function resetGame() {
   initDominoPools();
   clearDominoTrayState();
   clearAllDominoSpotBindings();
+  seedStartingDice();
 }
 
 function isDominoSpotsQuadRoll() {
@@ -129,10 +131,14 @@ export function canConfirm() {
 /** True when leaving the page would discard an in-progress session (not fresh reset / game over). */
 export function shouldWarnOnLeave() {
   if (state.phase === 'replay') return false;
+  clampSettings();
+  const seeded = settings.startingDice;
   return !(
     state.phase === 'idle' &&
-    state.dicePool === settings.nDice &&
-    Object.keys(state.row).length === 0 &&
+    state.rollCount === 0 &&
+    state.dicePool === settings.nDice - seeded &&
+    countDiceInRow() === seeded &&
+    countTilesInRow() === 0 &&
     state.points === 0 &&
     state.stars === initialStarCount() &&
     state.actionBar.length === 0 &&

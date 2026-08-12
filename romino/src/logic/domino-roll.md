@@ -1,8 +1,8 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.29
-date: 2026-08-10
+v: 1.30
+date: 2026-08-12
 deps: [state, settings, deck-size, game-log]
 ---
 # Domino Roll
@@ -13,13 +13,13 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4.
 
 **Seam-strip badge** (nRoll=4 or nRoll=2 + nPlace=2) — pool-only count; ticks down on **roll-button** pool draw only (not star-pay redraw); red below 2.
 
-**Domino Spots OFF** (HUD badge only) — deck counter = pool + discard + tray offers; pools capped by `deckSize` when > 0; short draw merges discard into pool.
+**Domino Spots OFF** (HUD badge only) — deck counter = pool + discard + tray offers; pools capped by `deckSize` when > 0; short draw → full pool rebuild (every combo available again).
 
 ## Pools
 - **Pairs** — 21 combos (`1≤a≤b≤6`); capped by `deckSize` when > 0 and Domino Spots OFF
 - **Triples** — 56 combos (`1≤a≤b≤c≤6`); capped by `deckSize` when > 0 and Domino Spots OFF
-- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; merged into pool when draw is short (Domino Spots OFF), or on sweep when `dominoSpots` ON
-- Full rebuild from universe only on `initDominoPools()` / reset
+- **Discard** — `dominoPairDiscard` / `dominoTripleDiscard`; swept + unbound-offer keys; returns on sweep when `dominoSpots` ON; cleared on full rebuild (Spots OFF short draw)
+- Full rebuild from universe on `initDominoPools()` / reset, and on Spots OFF when pool too short to draw
 
 ## Draw behaviour
 | nRoll | Draw |
@@ -27,7 +27,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4.
 | 2 | 1 random pair combo |
 | 3 | 1 random triple combo |
 | 4 | 2 random pair combos |
-| Pool too short | Domino Spots OFF: merge discard → shuffle → draw; full pool rebuild if still insufficient (no game over). Domino Spots ON: no merge on draw — `null` when active pool insufficient (discard returns on sweep) |
+| Pool too short | Domino Spots OFF: full pool rebuild (21/56 or deckSize cap) then draw — no game over. Domino Spots ON: no rebuild on draw — `null` when active pool insufficient (discard returns on sweep) |
 
 ## Settle / discard
 - nRoll 2/3 confirm (no dominoSpots): offered combo → discard

@@ -8,6 +8,18 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+---
+
+- **starting-dice.js v1.3** — reverse pair stack rule: any outer → stack; both inner → two singles
+
+- **starting-dice.js v1.2** — pair-roll seed: both inner → stack; any outer → reroll outers, two singles
+
+- **starting-dice.js v1.1** — random column count + 1/2 height mix; seed inner faces only (2–5)
+
+- **starting-dice.js v1.0, settings.js v2.34, turn.js v2.43, settings-panel.js** — `startingDice` Counts stepper: seed random row dice on reset (≤2/col, contiguous around center); debits dicePool; `shouldWarnOnLeave` accounts for seed
+
+- **domino-roll.js v1.30** — Domino Spots OFF: depleted pool full-rebuilds all combos (nRoll 2/3/4); drop discard-merge-on-draw that left used nRoll=4 pairs missing
+
 - **sweep-anim.js v1.16** — sweep prelude suit cube glyph starts in suit color (not gray)
 
 - **sweep-anim.js v1.15, dice-visual.js, placement-row.js, sweep-anim.css** — fix sweep cube prelude: overlay anchored on tile-cube (not col); suit cube persists in tile through fly-away

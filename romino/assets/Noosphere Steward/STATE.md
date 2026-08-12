@@ -16,7 +16,7 @@ lastVerified: 2026-07-29
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,16 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **domino-roll.js v1.30** — Domino Spots OFF: pool too short → full rebuild (all combos); fixes nRoll=4 deplete leaving used pairs out after discard-merge
+
+- **starting-dice.js v1.3** — reverse pair stack rule: any outer → stack; both inner → two singles
+
+- **starting-dice.js v1.2** — pair-roll seed: both inner → stack; any outer → reroll outers, two singles
+
+- **starting-dice.js v1.1** — random column count + 1/2 height mix; seed inner faces only (2–5)
+
+- **starting-dice.js v1.0, settings.js v2.34, turn.js v2.43, settings-panel.js** — `startingDice` Counts stepper: seed random row dice on reset (≤2/col, contiguous around center); debits dicePool; `shouldWarnOnLeave` accounts for seed
 
 - **sweep-anim.js v1.14, cube-fly.js v1.0, convert-anim.js, state.js, placement-row.js, sweep-anim.css** — `diceAndCubes` sweep prelude: beat → suit cube overlay fade on bottom die → arc fly to roll btn (staggered) → upward sweep; `sweepExit.suitFlownCols` + `sweepExitPreludeTimer`; shared arc-fly helpers in `cube-fly.js`
 
