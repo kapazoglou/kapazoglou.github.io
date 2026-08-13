@@ -13,10 +13,10 @@ lastVerified: 2026-07-29
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
+| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,8 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **settings.js v2.35, hud-v2.js v1.1, hud-v2.css, dice-visual.js, tutorial-steps.js, tutorial.js** — `sweptSuits` toggle (default ON): HUD left per-suit swept counts (Z X Y W, Figma styling); score right-aligned; tutorial suits step skipped when OFF
 
 - **domino-roll.js v1.30** — Domino Spots OFF: pool too short → full rebuild (all combos); fixes nRoll=4 deplete leaving used pairs out after discard-merge
 
@@ -291,4 +293,4 @@ lastVerified: 2026-07-29
 
 ## Next topological move
 
-- Suit tally HUD polish
+- (none flagged)

@@ -4,20 +4,25 @@
   height: 64px;
   width: 100%;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0;
+  align-items: center;
+  padding: 0 19px;
+  box-sizing: border-box;
+  --hud-pad-x: 19px;
+  /* Roll die + domino deck badge centre — action-bar roll-btn-wrap inset */
+  --roll-die-center-from-edge: 36px;
+  --hud-star-icon-size: 32px;
+  --hud-score-edge-inset: calc(var(--roll-die-center-from-edge) - var(--hud-pad-x) - var(--hud-star-icon-size) / 2);
 }
 
-.hud-center {
+.hud-left {
+  position: absolute;
+  left: 19px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 64px;
-  gap: 2px;
-  padding-top: 4px;
-  width: 100%;
+  gap: 12px;
+  min-width: 0;
 }
 
 .hud-scroll-btn {
@@ -38,9 +43,7 @@
 .hud-scroll-btn--right { right: 16px; }
 
 .hud-deck {
-  position: absolute;
-  top: 19px;
-  left: 19px;
+  flex-shrink: 0;
   height: 30px;
   display: flex;
   align-items: center;
@@ -62,12 +65,14 @@
 }
 
 .hud-score {
-  display: grid;
-  grid-template-columns: 1fr auto auto auto 1fr;
+  position: relative;
+  display: flex;
   align-items: center;
-  column-gap: 8px;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
   width: 100%;
-  height: 30px;
+  min-width: 0;
   font-family: 'Averia Libre', serif;
   font-size: 32px;
   line-height: 1;
@@ -77,27 +82,55 @@
   white-space: nowrap;
 }
 
-.hud-stars {
-  grid-column: 1;
-  justify-self: end;
-  text-align: right;
-  min-width: 0;
+.hud-score:has(.hud-suit-align) .hud-suit-align {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.hud-star-pay {
-  grid-column: 2;
-  display: inline-flex;
+.hud-score-after {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: var(--hud-score-edge-inset);
+  display: flex;
   align-items: center;
-  flex-shrink: 0;
-}
-
-.hud-score-sep {
-  grid-column: 3;
+  gap: 8px;
 }
 
 .hud-points {
-  grid-column: 4;
-  justify-self: start;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: var(--hud-score-edge-inset);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  height: 1em;
+  line-height: 1;
+  text-align: left;
+}
+
+.hud-stars {
+  display: inline-flex;
+  align-items: center;
+  height: 1em;
+  line-height: 1;
+}
+
+.hud-suit-align {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.hud-star-pay {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .hud-star-pay.is-star-draggable {
@@ -130,25 +163,62 @@
 }
 
 .hud-suit-row {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 24px;
-  margin-top: 2px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+  isolation: isolate;
 }
 
-.hud-suit-badge {
+/* Same surface as .action-bar::before — overlay blend on --bg base (not HUD text behind) */
+.hud-suit-row::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--overlay);
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hud-suit-row > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hud-swept-suit {
+  display: inline-grid;
+  grid-template-columns: max-content max-content;
+  align-items: start;
+  flex-shrink: 0;
+}
+
+.hud-swept-suit-count {
+  font-family: 'Averia Libre', serif;
+  font-size: 12px;
+  line-height: normal;
+  text-align: right;
+  white-space: nowrap;
+  margin-top: 3px;
+}
+
+.hud-swept-suit-glyph {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  padding: 4px;
-  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  margin-left: 0;
   font-family: 'Numbers Deuce', serif;
   font-size: 21px;
   line-height: 22px;
-  color: rgba(255, 255, 255, 0.33);
   text-align: center;
 }

@@ -7,6 +7,8 @@ import {
   updateLifetimeStats,
 } from '../../logic/game-log.js';
 import { resetGame } from '../../logic/turn.js';
+import { settings } from '../../logic/settings.js';
+import { applySweptSuitsEndBonus, SWEPT_SUIT_CAP_REASON } from '../../logic/suit-tally.js';
 import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
@@ -94,6 +96,10 @@ export function showGameOver(reason = '') {
 
   const reasonEl = document.getElementById('game-over-reason');
   if (reasonEl) reasonEl.textContent = reason === 'well-done' ? '' : reason;
+
+  if (settings.sweptSuits && reason === SWEPT_SUIT_CAP_REASON) {
+    applySweptSuitsEndBonus();
+  }
 
   const score = state.points;
   const rolls = state.rollCount;

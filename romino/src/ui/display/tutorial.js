@@ -84,6 +84,10 @@ function gateMet(step) {
   return step.type !== 'gate' || (step.gate?.() ?? true);
 }
 
+function visibleTutorialSteps() {
+  return getTutorialSteps().filter(step => !(step.skip?.() ?? false));
+}
+
 function advanceStep() {
   if (stepIndex >= steps.length - 1) {
     finishTutorial();
@@ -276,7 +280,7 @@ export function onRender() {
 export function initTutorial() {
   if (active || !shouldStartTutorial()) return;
 
-  steps = getTutorialSteps();
+  steps = visibleTutorialSteps();
   stepIndex = 0;
   active = true;
 

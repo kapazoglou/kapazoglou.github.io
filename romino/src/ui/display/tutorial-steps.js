@@ -14,6 +14,7 @@ import { initialStarCount } from '../../logic/turn.js';
  *   centered?: boolean,
  *   final?: boolean,
  *   gate?: () => boolean,
+ *   skip?: () => boolean,
  * }} TutorialStep
  */
 
@@ -49,6 +50,7 @@ export function getTutorialSteps() {
       anchor: '.hud-suit-row',
       title: 'Suits',
       body: 'Each sweep adds to these suit tallies. They track what you’ve cleared — useful for reading your run history.',
+      skip: () => !settings.sweptSuits,
     },
     {
       id: 'row',

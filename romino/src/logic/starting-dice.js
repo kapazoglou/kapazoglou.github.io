@@ -19,25 +19,11 @@ function ensureInner(value) {
 
 /** @typedef {{ kind: 'stack', dice: number[] }} StackColumn */
 
-/**
- * Roll two dice: any outer on first throw → reroll outers to inner, one 2-high stack;
- * both inner → two single-die columns (no stack).
- * @returns {StackColumn[]}
- */
-function columnsFromPair() {
-  const v1 = rollValue();
-  const v2 = rollValue();
-
-  if (isOuterDieValue(v1) || isOuterDieValue(v2)) {
-    const f1 = ensureInner(v1);
-    const f2 = ensureInner(v2);
-    return [{ kind: 'stack', dice: [spawnDie(f1), spawnDie(f2)] }];
-  }
-
-  return [
-    { kind: 'stack', dice: [spawnDie(v1)] },
-    { kind: 'stack', dice: [spawnDie(v2)] },
-  ];
+/** Pair roll → one 2-high stack; outers rerolled until inner. */
+function stackFromPair() {
+  const f1 = ensureInner(rollValue());
+  const f2 = ensureInner(rollValue());
+  return { kind: 'stack', dice: [spawnDie(f1), spawnDie(f2)] };
 }
 
 /** Odd remainder — single die, reroll outer until inner. */
@@ -56,15 +42,15 @@ export function seedStartingDice() {
 
   /** @type {StackColumn[]} */
   const columns = [];
-  let remaining = n;
+  const pairCount = Math.floor(n / 2);
 
-  while (remaining >= 2) {
-    columns.push(...columnsFromPair());
-    remaining -= 2;
+  for (let i = 0; i < pairCount; i++) {
+    columns.push(stackFromPair());
   }
 
-  if (remaining === 1) {
-    columns.push(columnFromSingleton());
+  if (n % 2 === 1) {
+    const insertAt = Math.floor(Math.random() * (columns.length + 1));
+    columns.splice(insertAt, 0, columnFromSingleton());
   }
 
   const cols = centeredCols(columns.length);

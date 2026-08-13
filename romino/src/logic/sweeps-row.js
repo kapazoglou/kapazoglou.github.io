@@ -9,7 +9,7 @@ import {
   bothFlankStacksEmpty,
 } from './deck-flank.js';
 import { releaseDominoKeysForCols } from './domino-spots.js';
-import { releaseWithheldDice } from './convert.js';
+import { tallySuit } from './suit-tally.js';
 
 /** Wheel values used for consecutive-run assignment (13 = ace-high). */
 const ALL_RANKS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -221,8 +221,7 @@ export function applySweepRun(run) {
     run.map(([, tile]) => ({ suit: tile.suit, rank: tile.rank, rankSum: tile.rankSum })),
   );
   for (const [, tile] of run) {
-    const suit = tile.suit;
-    if (state.suitTally[suit] != null) state.suitTally[suit]++;
+    tallySuit(tile.suit);
   }
 
   const flankSidesToPop = new Set();

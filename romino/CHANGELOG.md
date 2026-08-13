@@ -10,6 +10,34 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **suit-tally.js v1.0, sweeps-row.js, convert.js v1.13, turn.js, game-over.js** — `sweptSuits` ON: end at suit count > 12; game-over bonus 10 × lowest suit tally
+
+- **convert.js v1.12** — Switcher Jokers convert increments `suitTally` for missing inner die suit
+
+- **hud-v2.css v1.11** — fix suit box bg: `--bg` base + `isolation` so overlay blend ignores score text behind
+
+- **hud-v2.css v1.10** — points mirror right score edge inset; left-aligned text
+
+- **hud-v2.css v1.9** — star icon X aligned to roll button / domino badge centre (36px inset)
+
+- **hud-v2.js v1.8, hud-v2.css v1.8** — suit box pinned to HUD horizontal center; stars left, points right
+
+- **hud-v2.js v1.7, hud-v2.css v1.7** — suit box vertically centered to score figure cap height (`1em` align strut)
+
+- **hud-v2.js v1.6, hud-v2.css** — score block centered; pipe separators removed
+
+- **hud-v2.css v1.5** — swept-suit box uses action-bar overlay surface (`var(--overlay)` + blend)
+
+- **hud-v2.css v1.4** — swept-suit box uses `var(--bg)` (action bar surface)
+
+- **hud-v2.css v1.3** — swept-suit counts in white rounded box within score row
+
+- **hud-v2.js v1.2, hud-v2.css** — swept-suit counts inline in score row: stars | counts | points (right-aligned)
+
+- **settings.js v2.35, hud-v2.js v1.1, hud-v2.css, dice-visual.js, tutorial-steps.js, tutorial.js** — `sweptSuits` toggle (default ON): per-suit swept tile counts left (Figma Z X Y W); score right-aligned
+
+- **starting-dice.js v1.4** — all pairs stacked; odd die singleton at random column index
+
 - **starting-dice.js v1.3** — reverse pair stack rule: any outer → stack; both inner → two singles
 
 - **starting-dice.js v1.2** — pair-roll seed: both inner → stack; any outer → reroll outers, two singles

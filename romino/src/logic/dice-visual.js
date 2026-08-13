@@ -76,6 +76,7 @@ export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '',
 }
 
 export const SUIT_BADGE_ORDER = ['W', 'Y', 'Z', 'X'];
+export const SWEPT_SUIT_ORDER = ['Z', 'X', 'Y', 'W'];
 
 export const DISCARD_RANKS = ['★', 'A', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'aj', 'aa', 'ab', 'ac'];
 

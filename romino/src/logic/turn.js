@@ -27,6 +27,7 @@ import {
   settleDominoSpotsOnConfirm,
   isDominoSpotsActive,
 } from './domino-spots.js';
+import { suitTallyGameOverReason } from './suit-tally.js';
 
 /** Starting star balance — rerollOuter seeds N-place; nRoll=2 domino pair seeds N-place for star-pay redraw. */
 export function initialStarCount() {
@@ -325,6 +326,11 @@ export function confirmTurn() {
     runConfirmAnimations(result => {
       if (result === 'well-done') {
         enterGameOver('well-done');
+        return;
+      }
+      const suitCapReason = suitTallyGameOverReason();
+      if (suitCapReason) {
+        enterGameOver(suitCapReason);
         return;
       }
       tryContinueAfterConfirm();

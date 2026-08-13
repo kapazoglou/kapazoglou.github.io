@@ -40,6 +40,7 @@ export const SETTINGS_CONFIG = [
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'snapping',            label: 'Snapping',              default: true, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
+      { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },
