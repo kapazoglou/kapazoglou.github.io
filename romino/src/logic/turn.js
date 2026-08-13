@@ -51,8 +51,9 @@ export function resetGame() {
   seedStartingDice();
 }
 
-function isDominoSpotsQuadRoll() {
-  return settings.nRoll === 4 && isDominoSpotsActive();
+/** nRoll=4 + dominoRoll: only N-place dice consumed net (unused pair returns on confirm). */
+function isDominoQuadRoll() {
+  return settings.dominoRoll && settings.nRoll === 4;
 }
 
 /** Domino Spots: active draw pool empty — discard returns only on sweep. */
@@ -66,15 +67,15 @@ export function rollAffordanceRemaining() {
   return settings.nDice - countDiceInRow() - withheld;
 }
 
-/** Pool-low / endgame threshold (N-place for nRoll=4 + Domino Spots; else N-roll). */
+/** Pool-low / endgame threshold (N-place for nRoll=4 + dominoRoll; else N-roll). */
 function rollPoolLowThreshold() {
-  if (isDominoSpotsQuadRoll()) {
+  if (isDominoQuadRoll()) {
     return settings.nPlace;
   }
   return settings.nRoll;
 }
 
-/** dicePool debit per roll (N-place for nRoll=4 + Domino Spots; else N-roll). */
+/** dicePool debit per roll (N-place for nRoll=4 + dominoRoll; else N-roll). */
 function rollDicePoolCost() {
   return rollPoolLowThreshold();
 }
@@ -83,7 +84,7 @@ export function canRoll() {
   if (state.phase !== 'idle') return false;
   clampSettings();
   if (isDominoPoolRollBlocked()) return flankEndgamePending();
-  if (isDominoSpotsQuadRoll()) {
+  if (isDominoQuadRoll()) {
     if (rollAffordanceRemaining() >= settings.nPlace) return true;
   } else if (state.dicePool >= settings.nRoll) {
     return true;
@@ -95,7 +96,7 @@ export function canEndGame() {
   if (state.phase !== 'idle') return false;
   clampSettings();
   if (isDominoPoolRollBlocked()) return true;
-  if (isDominoSpotsQuadRoll()) {
+  if (isDominoQuadRoll()) {
     return rollAffordanceRemaining() < settings.nPlace;
   }
   return state.dicePool < settings.nRoll;
@@ -150,9 +151,13 @@ export function shouldWarnOnLeave() {
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
+  const suitCapReason = suitTallyGameOverReason();
+  if (suitCapReason && (context === 'post-confirm' || context === 'post-roll' || context === 'idle-roll')) {
+    return suitCapReason;
+  }
   if (context === 'idle-roll') {
     if (isDominoPoolRollBlocked()) return 'domino pool exhausted';
-    if (isDominoSpotsQuadRoll()) {
+    if (isDominoQuadRoll()) {
       if (rollAffordanceRemaining() < settings.nPlace) return 'dice pool exhausted';
     } else if (state.dicePool < settings.nRoll) {
       return 'dice pool exhausted';
@@ -199,6 +204,11 @@ export function commitRollButtonGameOver(reason) {
 /** After confirm animations: auto-roll or pool/stuck game over. */
 export function tryContinueAfterConfirm() {
   state.phase = 'idle';
+  const suitCapReason = evaluateGameOver('post-confirm');
+  if (suitCapReason) {
+    enterGameOver(suitCapReason);
+    return;
+  }
   const rollResult = rollDice();
   if (!rollResult) {
     enterGameOver(evaluateGameOver('idle-roll') ?? 'dice pool exhausted');
@@ -328,9 +338,9 @@ export function confirmTurn() {
         enterGameOver('well-done');
         return;
       }
-      const suitCapReason = suitTallyGameOverReason();
-      if (suitCapReason) {
-        enterGameOver(suitCapReason);
+      const reason = evaluateGameOver('post-confirm');
+      if (reason) {
+        enterGameOver(reason);
         return;
       }
       tryContinueAfterConfirm();

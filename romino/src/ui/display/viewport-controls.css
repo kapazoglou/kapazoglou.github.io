@@ -2,7 +2,7 @@
 .viewport-controls {
   position: fixed;
   z-index: 900;
-  right: max(12px, env(safe-area-inset-right, 0px));
+  left: max(12px, env(safe-area-inset-left, 0px));
   bottom: max(12px, env(safe-area-inset-bottom, 0px));
   pointer-events: auto;
 }

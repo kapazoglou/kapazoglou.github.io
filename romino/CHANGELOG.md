@@ -10,6 +10,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **viewport-controls.css v1.4** — full-screen button pinned bottom-left (was bottom-right)
+
+- **turn.js v2.45** — restore suit-cap game over in `evaluateGameOver('post-confirm')`; safety net in `tryContinueAfterConfirm` if confirm callback missed cap after tally pipeline throw/recover
+
+- **turn.js v2.44** — nRoll=4 + dominoRoll (not only Domino Spots): roll/KO threshold and pool debit use N-place (2), not N-roll (4)
+
 - **suit-tally.js v1.4** — suit-cap end bonus adds 1 pt per unique swept rank+suit combo (max 52) on top of 2× lowest suit tally
 
 - **viewport-controls.js v1.3, viewport-controls.css v1.3** — full-screen button pinned bottom-right (landscape too); square frame / reverse square frame SVG icons
