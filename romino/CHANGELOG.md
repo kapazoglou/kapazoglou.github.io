@@ -10,6 +10,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **suit-tally.js v1.4** — suit-cap end bonus adds 1 pt per unique swept rank+suit combo (max 52) on top of 2× lowest suit tally
+
+- **viewport-controls.js v1.3, viewport-controls.css v1.3** — full-screen button pinned bottom-right (landscape too); square frame / reverse square frame SVG icons
+
 - **sweeps-row.js v1.20** — restore `releaseWithheldDice` import dropped when suit tally landed (sweep throw skipped tally HUD + row collapse)
 
 - **suit-tally.js v1.3** — guard `convertSweepTiles` if missing (HMR/stale state)
@@ -17,6 +21,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **convert.js v1.14** — restore `tickDeckOnConvert` import dropped when suit tally landed (convert throw left phase stuck on `animating`)
 
 ---
+
+- **suit-discovery-overlay.js v1.6** — discovery grid rows reversed (V at top, A at bottom)
+
+- **suit-discovery-overlay.css v1.13** — rank header column: white text only (no overlay blend)
+
+- **suit-discovery-overlay.css v1.12** — lighten rank header overlay + horizontal gridlines
+
+- **suit-discovery-overlay.css v1.11** — rank header column: white text + dark overlay blend; darker horizontal gridlines
 
 - **suit-tally.js v1.3, game-over.css, suit-discovery-overlay.css** — suit-cap end bonus 2× lowest (was 10×); suit box + discovery work when game-over sheet collapsed
 

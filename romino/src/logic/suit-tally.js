@@ -43,9 +43,26 @@ export function lowestSuitTallyCount() {
 /** End bonus points per lowest suit tally (applied at suit-cap game over). */
 export const SWEPT_SUIT_END_BONUS_PER = 2;
 
-/** End bonus: SWEPT_SUIT_END_BONUS_PER × lowest suit tally (applied at suit-cap game over). */
+/** End bonus points per unique swept rank+suit combo (full deck cap). */
+export const SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER = 1;
+
+/** Max distinct rank+suit combos that count toward the end bonus (52-card deck). */
+export const SWEPT_SUIT_UNIQUE_COMBO_CAP = 52;
+
+/** Distinct suit:rank keys swept or Switcher-converted this session (capped). */
+export function countUniqueSessionSweepCombos() {
+  const seen = new Set();
+  for (const tile of buildSessionSweepTiles()) {
+    seen.add(tileCountKey(tile.suit, tile.rank));
+  }
+  return Math.min(seen.size, SWEPT_SUIT_UNIQUE_COMBO_CAP);
+}
+
+/** End bonus: lowest-suit tally + unique rank+suit combos (applied at suit-cap game over). */
 export function applySweptSuitsEndBonus() {
-  const bonus = lowestSuitTallyCount() * SWEPT_SUIT_END_BONUS_PER;
+  const suitBonus = lowestSuitTallyCount() * SWEPT_SUIT_END_BONUS_PER;
+  const comboBonus = countUniqueSessionSweepCombos() * SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER;
+  const bonus = suitBonus + comboBonus;
   if (bonus > 0) state.points += bonus;
   return bonus;
 }

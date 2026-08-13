@@ -1,13 +1,13 @@
 ---
 module: viewport-controls
 layer: ui/display
-v: 1.2
-date: 2026-07-29
+v: 1.3
+date: 2026-08-13
 deps: []
 ---
 # Viewport Controls
 
-Floating **⛶** full-screen button on touch phones (`hover: none`, `pointer: coarse`). Hidden on desktop.
+Floating square-frame full-screen button on touch phones (`hover: none`, `pointer: coarse`). Bottom-right in all orientations. Hidden on desktop.
 
 ## Exports
 - `initViewportControls()` — mount control on `#app`; Fullscreen API on `#app`

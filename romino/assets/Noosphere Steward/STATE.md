@@ -33,6 +33,8 @@ lastVerified: 2026-08-13
 
 ## Modified this session
 
+- **suit-tally.js v1.4** — suit-cap end bonus: `(2 × lowest suit tally) + (1 × unique rank+suit combos, max 52)`
+
 - **sweeps-row.js v1.20, suit-tally.js v1.3** — restore `releaseWithheldDice` on sweep (tally import had dropped it); guard `convertSweepTiles`
 
 - **convert.js v1.14** — restore `tickDeckOnConvert` import; tallying drop left convert throwing and roll/confirm stuck after convert

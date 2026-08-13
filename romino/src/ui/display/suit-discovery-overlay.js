@@ -26,7 +26,7 @@ function groupTilesBySuitRank(tiles) {
 function sessionSweepDiscoveryHTML(tiles) {
   const groups = groupTilesBySuitRank(tiles);
 
-  const bodyRows = SWEEP_DISCOVERY_RANKS.map(rank => {
+  const bodyRows = [...SWEEP_DISCOVERY_RANKS].reverse().map(rank => {
     const cells = SWEPT_SUIT_ORDER.map(suit => {
       const swept = groups[sweepTileCountKey(suit, rank)] ?? [];
       if (!swept.length) {

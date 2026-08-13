@@ -3,6 +3,22 @@ const TOUCH_PHONE = '(hover: none) and (pointer: coarse)';
 let root = null;
 let fullscreenBtn = null;
 
+/** Enter full screen — square frame (corners outward). */
+function squareFrameSVG(size = 24) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      d="M8 3H3v5 M16 3h5v5 M8 21H3v-5 M16 21h5v-5"/>
+  </svg>`;
+}
+
+/** Exit full screen — reverse square frame (corners inward). */
+function reverseSquareFrameSVG(size = 24) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      d="M3 8V3h5 M21 8V3h-5 M3 16v5h5 M21 16v5h-5"/>
+  </svg>`;
+}
+
 function isTouchPhone() {
   return window.matchMedia(TOUCH_PHONE).matches;
 }
@@ -31,7 +47,7 @@ function syncFullscreenButton() {
   const on = isFullscreen();
   fullscreenBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
   fullscreenBtn.setAttribute('aria-label', on ? 'Exit full screen' : 'Enter full screen');
-  fullscreenBtn.textContent = on ? '⤡' : '⛶';
+  fullscreenBtn.innerHTML = on ? reverseSquareFrameSVG() : squareFrameSVG();
 }
 
 async function toggleFullscreen() {
@@ -63,7 +79,7 @@ export function initViewportControls() {
   root.hidden = true;
   root.setAttribute('aria-hidden', 'true');
   root.innerHTML = `
-    <button type="button" class="viewport-controls-btn" id="viewport-fullscreen" aria-label="Enter full screen" aria-pressed="false">⛶</button>
+    <button type="button" class="viewport-controls-btn" id="viewport-fullscreen" aria-label="Enter full screen" aria-pressed="false">${squareFrameSVG()}</button>
   `;
   app.appendChild(root);
 
