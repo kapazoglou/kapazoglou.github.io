@@ -117,6 +117,7 @@
   align-items: center;
   height: 1em;
   line-height: 1;
+  color: var(--accent);
 }
 
 .hud-suit-align {
@@ -153,7 +154,7 @@
 
 @keyframes hud-star-warning-flash {
   0% { color: var(--warning-red); }
-  100% { color: #fff; }
+  100% { color: var(--accent); }
 }
 
 .hud-score .star-icon {

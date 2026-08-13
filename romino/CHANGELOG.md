@@ -10,6 +10,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **hud-v2.css v1.12** — star score count uses accent color (warning flash returns to accent)
+
 - **viewport-controls.css v1.4** — full-screen button pinned bottom-left (was bottom-right)
 
 - **turn.js v2.45** — restore suit-cap game over in `evaluateGameOver('post-confirm')`; safety net in `tryContinueAfterConfirm` if confirm callback missed cap after tally pipeline throw/recover

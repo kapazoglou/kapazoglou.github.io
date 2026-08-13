@@ -1,8 +1,8 @@
 ---
 module: hud-v2
 layer: ui/display
-v: 1.11
-date: 2026-08-13
+v: 1.12
+date: 2026-08-14
 deps: [state, settings, deck-size, dice-visual, star-reroll-input]
 ---
 # HUD v2
