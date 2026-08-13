@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-07-29
+lastVerified: 2026-08-13
 ---
 
 # römino — Verified Pattern State
@@ -32,6 +32,12 @@ lastVerified: 2026-07-29
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **sweeps-row.js v1.20, suit-tally.js v1.3** — restore `releaseWithheldDice` on sweep (tally import had dropped it); guard `convertSweepTiles`
+
+- **convert.js v1.14** — restore `tickDeckOnConvert` import; tallying drop left convert throwing and roll/confirm stuck after convert
+
+- **suit-discovery-overlay.js v1.2** — overlay mounted on hold only; fixes roll/confirm blocked by idle full-screen layer
 
 - **settings.js v2.35, hud-v2.js v1.1, hud-v2.css, dice-visual.js, tutorial-steps.js, tutorial.js** — `sweptSuits` toggle (default ON): HUD left per-suit swept counts (Z X Y W, Figma styling); score right-aligned; tutorial suits step skipped when OFF
 

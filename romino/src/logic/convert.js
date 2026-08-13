@@ -5,13 +5,13 @@ import {
   tileIdentityRequiresStar,
   isSwitcherTricolorStack,
   missingInnerDieFromTricolor,
-  suitFromValue,
   JOKER_RANK,
 } from './dice-visual.js';
 import { getOccupiedCols } from './row.js';
 import { getDominoKeyForCol } from './domino-spots.js';
+import { tickDeckOnConvert } from './deck-size.js';
 import { recordTileCreated, recordStarSpent } from './game-log.js';
-import { tallySuit } from './suit-tally.js';
+import { tallySwitcherConvert } from './suit-tally.js';
 
 function convertOptions() {
   return {
@@ -59,8 +59,7 @@ export function convertSwitcherColumn(col) {
   const bottomId = column.dice[0];
   state.dicePool += 2;
 
-  const suit = suitFromValue(missing);
-  tallySuit(suit);
+  tallySwitcherConvert(values);
 
   if (stackValuesRequireStar(values) && state.stars > 0) {
     state.stars -= 1;

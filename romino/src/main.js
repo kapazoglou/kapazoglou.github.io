@@ -9,6 +9,7 @@ import { initTutorial, shouldStartTutorial } from './ui/display/tutorial.js';
 import { initViewportControls } from './ui/display/viewport-controls.js';
 import { render } from './ui/display/render.js';
 import { initDominoSpotStrip } from './ui/display/domino-spot-strip.js';
+import { initSuitDiscoveryOverlay } from './ui/display/suit-discovery-overlay.js';
 
 /** Numbers Deuce is lazy-loaded via @font-face; warm it before first tile convert. */
 async function initNumbersDeuceFont() {
@@ -30,6 +31,7 @@ initGameOver();
 initNavigationGuard();
 initSettingsPanel();
 initViewportControls();
+initSuitDiscoveryOverlay();
 
 resetGame();
 render();

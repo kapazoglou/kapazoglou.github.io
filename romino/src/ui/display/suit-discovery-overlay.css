@@ -1,0 +1,83 @@
+.suit-discovery-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.suit-discovery-panel {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.suit-discovery-matrix {
+  margin: 0 auto;
+  font-family: 'Numbers Deuce', serif;
+}
+
+.suit-discovery-col-header {
+  width: 28px;
+}
+
+.suit-discovery-matrix .suit-discovery-matrix-rowhead {
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--text-dim);
+  text-align: center;
+  padding-right: 6px;
+  padding-left: 6px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.suit-discovery-matrix .go-tile-matrix-cell {
+  overflow: visible;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.suit-discovery-matrix th,
+.suit-discovery-matrix td {
+  text-align: center;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.suit-discovery-matrix tbody tr:last-child th,
+.suit-discovery-matrix tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.suit-discovery-stack {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  white-space: nowrap;
+}
+
+.suit-discovery-glyph {
+  font-size: 14px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.hud-suit-row.is-held {
+  opacity: 0.85;
+}
+
+.hud-suit-row {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}

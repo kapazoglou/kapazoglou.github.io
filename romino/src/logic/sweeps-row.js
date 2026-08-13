@@ -9,6 +9,7 @@ import {
   bothFlankStacksEmpty,
 } from './deck-flank.js';
 import { releaseDominoKeysForCols } from './domino-spots.js';
+import { releaseWithheldDice } from './convert.js';
 import { tallySuit } from './suit-tally.js';
 
 /** Wheel values used for consecutive-run assignment (13 = ace-high). */

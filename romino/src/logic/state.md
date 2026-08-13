@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.25
-date: 2026-08-11
+v: 2.26
+date: 2026-08-13
 deps: []
 ---
 # State
@@ -28,6 +28,7 @@ Single source of truth for v2 row game.
 - `stars`, `points`, `suitTally`
 - `jokerSuitsUsed` — suits that already produced a joker this session (one per suit per game)
 - `sweepHistory` — game-over sweep summary
+- `convertSweepTiles` — Switcher Joker converts counted as swept (`sweptSuits` discovery grid)
 - `rollCount` — successful rolls this session (game-over stat)
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`
 - `placedDieIds` — unconfirmed placements this turn

@@ -16,6 +16,14 @@
 
 .game-over-overlay.is-minimized { background: rgba(7, 13, 26, 0); }
 
+.game-over-overlay.is-visible.is-minimized {
+  pointer-events: none;
+}
+
+.game-over-overlay.is-visible.is-minimized .game-over-dialog {
+  pointer-events: auto;
+}
+
 .game-over-dialog {
   position: absolute;
   bottom: 0;

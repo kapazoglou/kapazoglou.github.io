@@ -10,6 +10,42 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **sweeps-row.js v1.20** — restore `releaseWithheldDice` import dropped when suit tally landed (sweep throw skipped tally HUD + row collapse)
+
+- **suit-tally.js v1.3** — guard `convertSweepTiles` if missing (HMR/stale state)
+
+- **convert.js v1.14** — restore `tickDeckOnConvert` import dropped when suit tally landed (convert throw left phase stuck on `animating`)
+
+---
+
+- **suit-tally.js v1.3, game-over.css, suit-discovery-overlay.css** — suit-cap end bonus 2× lowest (was 10×); suit box + discovery work when game-over sheet collapsed
+
+- **suit-discovery-overlay.css v1.10** — discovery grid horizontal row lines only (no vertical gridlines)
+
+- **suit-discovery-overlay.css v1.9** — discovery grid borders hidden
+
+- **suit-discovery-overlay.css v1.8** — equal overlay + panel padding on all sides
+
+- **suit-discovery-overlay.css v1.7** — discovery grid cells center-aligned (rank header + suit columns)
+
+- **suit-discovery-overlay.css v1.6** — discovery grid uses Numbers Deuce throughout (rank header + suit cells)
+
+- **suit-discovery-overlay.js v1.5, suit-discovery-overlay.css v1.5** — rank labels in fixed header column (colgroup + rowhead styling)
+
+- **suit-discovery-overlay.css v1.4** — duplicate suit glyphs inline on one row (no vertical stack)
+
+- **suit-discovery-overlay.js v1.4, suit-discovery-overlay.css v1.3, suit-tally.js v1.2** — discovery grid: no suit header row; 14px suit glyphs; one glyph per swept tile (duplicates visible)
+
+- **suit-tally.js v1.2, convert.js, state.js v2.26** — Switcher Joker converts record as swept (HUD suit tally + discovery grid joker/V row)
+
+- **suit-discovery-overlay.js v1.3** — joker rank row label `V` (internal key still `*`)
+
+- **suit-discovery-overlay.js v1.2, suit-discovery-overlay.css v1.2, action-bar.css** — mount discovery overlay only while suit box held (no idle DOM blocker); roll-btn-wrap `pointer-events: auto`
+
+- **suit-discovery-overlay.css v1.1** — fix hidden overlay panel intercepting roll/row clicks (`pointer-events` on descendants)
+
+- **suit-discovery-overlay.js v1.0, suit-discovery-overlay.css, suit-tally.js v1.1** — press/hold HUD suit box shows session swept-tile 13×4 discovery grid (Z X Y W stacks per cell)
+
 - **suit-tally.js v1.0, sweeps-row.js, convert.js v1.13, turn.js, game-over.js** — `sweptSuits` ON: end at suit count > 12; game-over bonus 10 × lowest suit tally
 
 - **convert.js v1.12** — Switcher Jokers convert increments `suitTally` for missing inner die suit

@@ -7,6 +7,7 @@
 @import url('src/ui/display/domino-spot-strip.css');
 @import url('src/ui/display/settings-panel.css');
 @import url('src/ui/display/game-over.css');
+@import url('src/ui/display/suit-discovery-overlay.css');
 @import url('src/ui/display/deck-flank.css');
 @import url('src/ui/transitions/convert-anim.css');
 @import url('src/ui/transitions/placement-anim.css');

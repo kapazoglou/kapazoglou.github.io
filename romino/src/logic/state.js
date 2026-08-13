@@ -24,6 +24,8 @@ export function createInitialState() {
     suitTally: EMPTY_SUIT_TALLY(),
     /** Swept tile runs for game-over summary (each run = tile snapshots). */
     sweepHistory: [],
+    /** Switcher Joker converts counted as swept (discovery grid). */
+    convertSweepTiles: [],
     /** Successful rollDice() calls this session (game-over stat). */
     rollCount: 0,
     /** Suits that already produced a joker tile this session (one joker per suit per game). */
