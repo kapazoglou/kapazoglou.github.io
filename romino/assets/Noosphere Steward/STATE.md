@@ -33,7 +33,11 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **handlers.js v2.14** — tap-to-return a pushed die parity with drag: `consumeRowClickBlock()` hoisted to top of click handler (all modes, before push-below re-attempt); trailing click after a tap-return/refund no longer re-pushes the just-returned die
+
 - **sweeps-row.js v1.21, sweep-anim.js v1.17, pip-anim.js v1.11, game-log.js v1.3, suit-tally.js v1.5, settings.js v2.38, settings-panel.js, tutorial-steps.js** — sweep bank `(length − 2) × effectiveStars` (0 stars → 1); end bonus steppers `sweptLowSuitBonus` / `sweptDuplicatePenalty`
+
+- **handlers.js v2.13, row.js v1.77** — settled swapped stacks refundable via click (no active stroke); this-turn die stays draggable off a 2-die stack after swap moves it to the bottom (`canReturnDieToBar`)
 
 - **state.js v2.30, star-powers.js v1.10, flip-tray-anim.js v1.1, row.js v1.76, turn.js v2.47, placement-row.js, base.css** — Star flip (Action A) refund: `flippedDieIds` (odd flips) refunds star + reverts face on return to bar; active suit-tint stroke limited to just-placed/returnable dice (swap-refundable no longer tinted)
 

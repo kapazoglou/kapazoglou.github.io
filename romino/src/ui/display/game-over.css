@@ -147,6 +147,54 @@
 .go-stat-value { font-size: 40px; color: var(--text-primary); line-height: 1; }
 .go-stat-label { font-size: 15px; color: var(--text-dim); }
 
+.go-score-breakdown {
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.go-breakdown-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.go-breakdown-label {
+  color: var(--text-dim);
+  text-transform: lowercase;
+}
+
+.go-breakdown-value {
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.go-breakdown-value--neg {
+  color: #e57373;
+}
+
+.go-breakdown-row--total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 17px;
+}
+
+.go-breakdown-row--total .go-breakdown-label,
+.go-breakdown-row--total .go-breakdown-value {
+  color: var(--text-primary);
+}
+
 .go-session-stats {
   width: 100%;
   display: flex;

@@ -10,7 +10,13 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **handlers.js v2.14** — tap-to-return a pushed die now works like drag: `consumeRowClickBlock()` moved to the top of the click handler (all modes, before push-below re-attempt) so a tap that returns/refunds a die swallows its trailing click instead of re-pushing the just-returned die below the same column
+
+- **game-over.js v2.4, game-over.css, suit-tally.js v1.6, index.html** — suit-cap game over: apply end bonus via tally check (not reason string only); score breakdown (swept + unique − duplicates + lowest suit → total)
+
 - **sweeps-row.js v1.21, sweep-anim.js v1.17, pip-anim.js v1.11, game-log.js v1.3, suit-tally.js v1.5, settings.js v2.38, settings-panel.js, tutorial-steps.js** — sweep bank `(length − 2) × effectiveStars` (0 stars → 1); tricolor flush ×1 cap kept; end bonus `sweptLowSuitBonus` + unique discovery − `sweptDuplicatePenalty` per extra suit:rank copy
+
+- **handlers.js v2.13, row.js v1.77** — settled swapped stacks: click refunds the swap (`tryRefundSwapStack`) without an active stroke; this-turn die placed on a stack stays draggable off even after a swap moves it to the bottom of a 2-die stack
 
 - **state.js v2.30, star-powers.js v1.10, flip-tray-anim.js v1.1, row.js v1.76, turn.js v2.47, placement-row.js, base.css** — Star flip (Action A) refund: `flippedDieIds` tracks odd flips this turn; returning a flipped die to the tray refunds 1 star + reverts its face; active suit-tint stroke limited to just-placed (returnable) dice only (swap-refundable no longer tinted)
 

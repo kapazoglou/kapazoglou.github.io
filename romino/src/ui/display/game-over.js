@@ -8,7 +8,7 @@ import {
 } from '../../logic/game-log.js';
 import { resetGame } from '../../logic/turn.js';
 import { settings } from '../../logic/settings.js';
-import { applySweptSuitsEndBonus, SWEPT_SUIT_CAP_REASON } from '../../logic/suit-tally.js';
+import { applySweptSuitsEndBonus, isSuitTallyCapReached, SWEPT_SUIT_CAP_REASON } from '../../logic/suit-tally.js';
 import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
@@ -81,6 +81,53 @@ export function leaderboardHTML(currentId = null) {
   }).join('');
 }
 
+function scoreBreakdownHTML(sweptScore, breakdown) {
+  const finalTotal = sweptScore + breakdown.total;
+  const fmtSigned = (sign, n) => {
+    if (n === 0) return '0';
+    return sign === '−' ? `−${n}` : `+${n}`;
+  };
+  const rows = [
+    { label: 'swept', text: String(sweptScore), neg: false },
+    { label: 'unique', text: fmtSigned('+', breakdown.comboBonus), neg: false },
+    { label: 'duplicates', text: fmtSigned('−', breakdown.dupPenalty), neg: breakdown.dupPenalty > 0 },
+    { label: 'lowest suit', text: fmtSigned('+', breakdown.suitBonus), neg: false },
+  ];
+  const lineHTML = rows.map(({ label, text, neg }) => {
+    const valueClass = neg ? ' go-breakdown-value--neg' : '';
+    return `<div class="go-breakdown-row">
+      <span class="go-breakdown-label">${label}</span>
+      <span class="go-breakdown-value${valueClass}">${text}</span>
+    </div>`;
+  }).join('');
+  return `<div class="go-score-breakdown">
+    ${lineHTML}
+    <div class="go-breakdown-row go-breakdown-row--total">
+      <span class="go-breakdown-label">total</span>
+      <span class="go-breakdown-value">${finalTotal}</span>
+    </div>
+  </div>`;
+}
+
+function renderScoreBreakdown(sweptScore, breakdown) {
+  const el = document.getElementById('go-score-breakdown');
+  const labelEl = document.querySelector('.go-stat-label');
+  if (!el) return;
+  el.innerHTML = scoreBreakdownHTML(sweptScore, breakdown);
+  el.hidden = false;
+  if (labelEl) labelEl.textContent = 'total score';
+}
+
+function hideScoreBreakdown() {
+  const el = document.getElementById('go-score-breakdown');
+  const labelEl = document.querySelector('.go-stat-label');
+  if (el) {
+    el.innerHTML = '';
+    el.hidden = true;
+  }
+  if (labelEl) labelEl.textContent = 'swept points';
+}
+
 export function showGameOver(reason = '') {
   const overlay = document.getElementById('game-over-overlay');
   if (overlay) {
@@ -97,8 +144,14 @@ export function showGameOver(reason = '') {
   const reasonEl = document.getElementById('game-over-reason');
   if (reasonEl) reasonEl.textContent = reason === 'well-done' ? '' : reason;
 
-  if (settings.sweptSuits && reason === SWEPT_SUIT_CAP_REASON) {
-    applySweptSuitsEndBonus();
+  const sweptScore = state.points;
+  const isSuitCapEnd = settings.sweptSuits && (
+    reason === SWEPT_SUIT_CAP_REASON || isSuitTallyCapReached()
+  );
+  if (isSuitCapEnd) {
+    renderScoreBreakdown(sweptScore, applySweptSuitsEndBonus());
+  } else {
+    hideScoreBreakdown();
   }
 
   const score = state.points;

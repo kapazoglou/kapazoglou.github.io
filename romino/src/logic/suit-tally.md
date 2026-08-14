@@ -1,7 +1,7 @@
 ---
 module: suit-tally
 layer: logic
-v: 1.5
+v: 1.6
 date: 2026-08-14
 deps: [state, settings, dice-visual, game-log]
 ---
@@ -12,7 +12,8 @@ Per-suit swept/converted counts in `state.suitTally` (Z X Y W). When `sweptSuits
 - `tallySuit(suit)` — increment one suit
 - `tallySwitcherConvert(values)` — Switcher Jokers: suit tally + `convertSweepTiles` (joker rank, missing suit)
 - `suitTallyGameOverReason()` — `'suit tally complete'` or null
-- `applySweptSuitsEndBonus()` — lowest-suit tally bonus + unique combo bonus − duplicate penalty at game over
+- `applySweptSuitsEndBonus()` — apply breakdown to `state.points`; returns breakdown object
+- `computeSweptSuitsEndBonus()` — breakdown without mutating state
 - `countUniqueSessionSweepCombos()` — distinct swept suit:rank keys this session (cap 52)
 - `countDuplicateSessionSweepExtras()` — sum of (count − 1) per suit:rank with duplicates
 - `SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER` — end bonus per unique rank+suit combo (1)

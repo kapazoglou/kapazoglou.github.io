@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset } from '../../logic/row.js';
+import { returnDieToBar, getValidSlotsForDie, slotFromHintDataset, isSwapRefundableDie, isReturnablePlacedDie, findDieColumn } from '../../logic/row.js';
 import {
   handleRollButton,
   scheduleRender,
@@ -18,6 +18,7 @@ import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
 import { attemptPlacementAtPoint, attemptPushBelowOnBottomDie } from './placement-input.js';
 import { consumeRowClickBlock } from './drag-drop.js';
+import { tryRefundSwapStack } from '../transitions/stack-swap-anim.js';
 import { startPairSweepAnimation } from './dealt-strip.js';
 import { stripTileHasRowDuplicate } from '../../logic/dealt-strip.js';
 import { toggleDominoSpotsVisibility } from './domino-spot-strip.js';
@@ -31,7 +32,24 @@ export function initHandlers() {
 
     if (state.phase === 'animating' || state.phase === 'replay') return;
 
+    // A tap that already acted on a die (return / swap-refund) swallows its trailing click,
+    // so it can't re-trigger push-below or placement on the same target.
+    if (consumeRowClickBlock()) return;
+
     const placedDie = e.target.closest('.die--placed');
+
+    if (placedDie && state.phase === 'rolled') {
+      const placedDieId = Number(placedDie.dataset.dieId);
+      if (
+        !Number.isNaN(placedDieId)
+        && isSwapRefundableDie(placedDieId)
+        && !isReturnablePlacedDie(placedDieId)
+      ) {
+        const loc = findDieColumn(placedDieId);
+        if (loc && tryRefundSwapStack(loc.col)) return;
+      }
+    }
+
     if (
       placedDie
       && state.selectedDieId != null
@@ -85,8 +103,6 @@ export function initHandlers() {
     }
 
     if (settings.directPlacement) {
-      if (consumeRowClickBlock()) return;
-
       if (e.target.closest('#placement-row') && !e.target.closest('.die--placed, .placement-tile--returnable')) {
         if (state.selectedDieId != null) {
           const result = attemptPlacementAtPoint(state.selectedDieId, e.clientX, e.clientY);

@@ -64,14 +64,33 @@ export function countDuplicateSessionSweepExtras() {
   return extras;
 }
 
+/** End bonus breakdown (suit-cap game over); does not mutate state. */
+export function computeSweptSuitsEndBonus() {
+  const lowestCount = lowestSuitTallyCount();
+  const uniqueCount = countUniqueSessionSweepCombos();
+  const duplicateExtras = countDuplicateSessionSweepExtras();
+  const lowSuitPer = settings.sweptLowSuitBonus ?? 2;
+  const dupPer = settings.sweptDuplicatePenalty ?? 1;
+  const suitBonus = lowestCount * lowSuitPer;
+  const comboBonus = uniqueCount * SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER;
+  const dupPenalty = duplicateExtras * dupPer;
+  const total = suitBonus + comboBonus - dupPenalty;
+  return {
+    lowestCount,
+    uniqueCount,
+    duplicateExtras,
+    suitBonus,
+    comboBonus,
+    dupPenalty,
+    total,
+  };
+}
+
 /** End bonus: lowest-suit tally + unique combos − duplicate penalty (suit-cap game over). */
 export function applySweptSuitsEndBonus() {
-  const suitBonus = lowestSuitTallyCount() * settings.sweptLowSuitBonus;
-  const comboBonus = countUniqueSessionSweepCombos() * SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER;
-  const dupPenalty = countDuplicateSessionSweepExtras() * settings.sweptDuplicatePenalty;
-  const bonus = suitBonus + comboBonus - dupPenalty;
-  if (bonus !== 0) state.points += bonus;
-  return bonus;
+  const breakdown = computeSweptSuitsEndBonus();
+  if (breakdown.total !== 0) state.points += breakdown.total;
+  return breakdown;
 }
 
 /** All session swept tiles (sweeps + Switcher Joker converts), one entry per tile. */
