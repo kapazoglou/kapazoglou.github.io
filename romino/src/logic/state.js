@@ -106,6 +106,10 @@ export function createInitialState() {
     dominoSpotsVisible: true,
     /** Domino spots — authoritative col→combo key until sweep (survives column recreate). */
     dominoSpotKeys: {},
+    /** Starting-dice columns — pool-draw seam dominos only (not roll offers). */
+    startingDominoSpotCols: new Set(),
+    /** Domino spots — offer slot consumed per col: 0 = used, 1 = unused. */
+    dominoColSpotSlot: {},
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

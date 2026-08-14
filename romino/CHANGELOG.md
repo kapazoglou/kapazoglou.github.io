@@ -10,6 +10,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+---
+
+- **domino-spots.js v1.20, row.js v1.90, state.js v2.33** — Domino Spots offer bind: new columns + Bugger Singles use roll used/unused offers (1st/2nd); Starting Dice pool-only; confirm discards unassigned offers; restore v1.14 stack rebind + v1.15 vacate promote
+
 - **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.6, placement-anim.js v1.41, domino-spot-strip.js** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render (fixes flash/drops)
 
 - **game-over.js v2.7, game-over.css, index.html** — remove hero “X swept points” row from game-over sheet

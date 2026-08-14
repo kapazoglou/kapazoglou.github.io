@@ -9,6 +9,7 @@ import {
   getDominoKeyForCol,
   ensureDominoSpotForCol,
   isDominoSpotsActive,
+  maybeRebindDominoSpotToUsed,
 } from './domino-spots.js';
 import { recordStarSpent } from './game-log.js';
 import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
@@ -903,6 +904,10 @@ export function placeDie(dieId, slot) {
     } else if (!state.dominoSpotCols.includes(targetCol)) {
       onTrayDiePlaced(dieId, targetCol);
     }
+  }
+
+  if (fromBar && (slot.kind === 'stack' || slot.kind === 'stack-below')) {
+    maybeRebindDominoSpotToUsed(targetCol, dieId);
   }
 
   if (state.dominoSpotCols.includes(targetCol)) getDominoKeyForCol(targetCol);

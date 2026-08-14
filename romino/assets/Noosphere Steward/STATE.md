@@ -33,6 +33,8 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **domino-spots.js v1.20, row.js v1.90, state.js v2.33** — Domino Spots offer bind: new columns + Bugger Singles from roll used/unused; Starting Dice pool-only; confirm discards unassigned offers; v1.14/v1.15 rebind/promote restored
+
 - **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.8, placement-anim.js v1.41** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render
 
 - **domino-spots.js v1.18, row.js v1.88, starting-dice.js v1.5** — Bugger Singles + Domino Spots: pool-drawn domino on lone 1/6 and all-outer columns
