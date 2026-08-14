@@ -1,7 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { dieSVG, rollButtonFaceSVG, DIE_OUTER, dieFaceBorderColor } from '../../logic/dice-visual.js';
-import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedBorder, rollAffordanceRemaining } from '../../logic/turn.js';
+import { canRoll, canConfirm, canEndGame, isRollPoolLow, isRollButtonWarningRedBorder, rollAffordanceRemaining, isDominoSpotAssignmentBlocked } from '../../logic/turn.js';
 import { isBarDieInactive, isTrayStuck, rowHasThreeDiceStack } from '../../logic/row.js';
 import { isOuterDieValue } from '../../logic/dice.js';
 import {
@@ -118,7 +118,9 @@ export function renderActionBar() {
 
   const confirm = canConfirm();
   const trayStuck = state.phase === 'rolled' && isTrayStuck();
-  const rollDisabled = state.phase === 'replay' || (!canRoll() && !confirm && !canEndGame() && !trayStuck);
+  const spotBlocked = isDominoSpotAssignmentBlocked();
+  const rollDisabled = state.phase === 'replay'
+    || (!canRoll() && !confirm && !canEndGame() && !trayStuck && !spotBlocked);
   const rollLabel = rollAffordanceRemaining();
   const rollLow = isRollPoolLow();
   const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';

@@ -12,6 +12,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **base.css** — desktop/wide viewports use 16:9 width-fit letterbox (removed ≥825px / landscape fill override); edge-to-edge only via `html.is-browser-fullscreen`
+
+- **base.css** — phone portrait letterbox: 16:9 frame width-first contain (`min(100vw, 100dvh×16/9)`); full-screen unchanged
+
+- **turn.js v2.54, render.js v1.9, game-over.js v2.12, action-bar.js v1.67, placement-anim.js v1.43** — fix domino-spot game over loop: render no longer auto-triggers overlay; spot assignment → warning-red roll + KO (not post-confirm auto-end); guard repeated `showGameOver` / `triggerGameOver`
+
+- **game-over.js v2.11** — discovery win titles FULL DECK / FLAWLESS DECK (was WINNER / FLAWLESS)
+
 - **suit-tally.js v1.13, game-over.js v2.10, turn.js v2.53, suit-tally.md, game-over.md, turn.md** — discovery win: all 52 unique suit:rank combos → game over title WINNER (+1 score multiplier); zero duplicates → FLAWLESS (+2); checked before suit-cap loss
 
 - **game-over.js v2.9, game-over.css, sweeps-row.js v1.22, state.js v2.34** — full-sweep game-over multiplier: scoring sweep that empties the row increments `fullSweepCount`; final score ×(1 + count) after end bonus; breakdown shows `full sweeps ×N` when N > 1

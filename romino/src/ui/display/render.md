@@ -1,7 +1,7 @@
 ---
 module: render
 layer: ui/display
-v: 1.8
+v: 1.9
 date: 2026-08-14
 deps: [state, cards, grid, action-bar, hud, tutorial, domino-spots, turn]
 ---

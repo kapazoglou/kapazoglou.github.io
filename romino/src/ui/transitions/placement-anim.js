@@ -13,11 +13,11 @@ import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForSlot } from './pip-anim.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { playRepositionStarRefunds, peekStarPowerRepositionRefund } from './star-refund-anim.js';
-import { triggerGameOver } from '../../logic/turn.js';
+import { scheduleRender } from '../../logic/turn.js';
 
 function handlePlaceDieResult(result) {
   if (result === 'domino-exhausted') {
-    triggerGameOver('domino pool exhausted');
+    scheduleRender(render);
     return false;
   }
   return result === true;

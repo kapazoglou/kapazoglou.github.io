@@ -103,6 +103,7 @@ export function canRoll() {
 export function canEndGame() {
   if (state.phase !== 'idle') return false;
   clampSettings();
+  if (isDominoSpotAssignmentBlocked()) return true;
   if (isDominoPoolRollBlocked()) return true;
   if (isDominoQuadRoll()) {
     return rollAffordanceRemaining() < settings.nPlace;
@@ -123,6 +124,7 @@ export function isRollPoolNumberLow() {
 
 /** Mirrors action-bar.css face inset ring — warning red when enabled. */
 export function isRollButtonWarningRedBorder() {
+  if (isDominoSpotAssignmentBlocked()) return true;
   if (state.phase === 'rolled' && isTrayStuck()) return true;
   if ((isRollPoolLow() || isDominoPoolRollBlocked()) && !rowHasThreeDiceStack()) return true;
   return false;
@@ -156,11 +158,18 @@ export function shouldWarnOnLeave() {
   );
 }
 
+/** Row column lacks a seam domino — loss state; KO via roll button only. */
+export function isDominoSpotAssignmentBlocked() {
+  return dominoSpotAssignmentGameOverReason() != null;
+}
+
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
-  const spotReason = dominoSpotAssignmentGameOverReason();
-  if (spotReason) return spotReason;
+  if (context === 'idle-roll' || context === 'post-roll') {
+    const spotReason = dominoSpotAssignmentGameOverReason();
+    if (spotReason) return spotReason;
+  }
   const winContexts = context === 'post-confirm' || context === 'post-roll' || context === 'idle-roll';
   const discoveryReason = discoveryWinGameOverReason();
   if (discoveryReason && winContexts) return discoveryReason;
@@ -186,6 +195,7 @@ export function setGameOverHandler(fn) {
 }
 
 export function triggerGameOver(reason, onGameOver) {
+  if (state.phase === 'replay') return;
   state.phase = 'replay';
   const cb = onGameOver ?? gameOverHandler;
   cb?.(reason ?? '');
@@ -202,6 +212,8 @@ function enterGameOver(reason) {
 
 /** Reason string for warning-red roll tap (eligibility unchanged — UI defers commit). */
 export function getRollButtonEndGameReason() {
+  const spotReason = dominoSpotAssignmentGameOverReason();
+  if (spotReason) return spotReason;
   return state.phase === 'rolled'
     ? 'no legal placements'
     : (evaluateGameOver('idle-roll') ?? 'dice pool exhausted');

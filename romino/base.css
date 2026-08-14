@@ -38,12 +38,14 @@
   --text-dim:     rgba(255, 255, 255, 0.55);
   --warning-red-rgb: 255, 72, 72;
   --warning-red: #ff2e51;
-  --design-width-min: 412px;
   --design-height:    412px;
-  --frame-height:     min(100vw, 100dvh);
+  --design-width-min: calc(var(--design-height) * 16 / 9);
+  --frame-fit-width:  min(100vw, calc(100dvh * 16 / 9));
+  --frame-fit-height: calc(var(--frame-fit-width) * 9 / 16);
   --design-width:     var(--design-width-min);
-  --viewport-scale:   calc(var(--frame-height) / var(--design-height));
-  --frame-width:      calc(var(--design-width) * var(--viewport-scale));
+  --viewport-scale:   calc(var(--frame-fit-height) / var(--design-height));
+  --frame-width:      var(--frame-fit-width);
+  --frame-height:     var(--frame-fit-height);
   --die-size:     48px;
   --die-border:   4px;
   --die-face:     calc(var(--die-size) - 2 * var(--die-border));
@@ -57,25 +59,6 @@
   --z-star-fly: 850;
   /* Gap ⭐ markers between matching dice — above row dice/selection (max ~103) */
   --z-row-stars: 150;
-}
-
-@media (orientation: landscape), (min-width: 825px) {
-  :root {
-    --frame-height:   100dvh;
-    --viewport-scale: calc(var(--frame-height) / var(--design-height));
-    --design-width:   max(
-      var(--design-width-min),
-      calc(100vw / var(--viewport-scale))
-    );
-    --frame-width:    100vw;
-    --frame-height:   100dvh;
-  }
-
-  #app {
-    justify-content: stretch;
-    align-items: stretch;
-    background: var(--bg);
-  }
 }
 
 html.is-browser-fullscreen {

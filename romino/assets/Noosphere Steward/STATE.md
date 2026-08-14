@@ -33,6 +33,8 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **turn.js v2.54, render.js v1.9, game-over.js v2.12, action-bar.js v1.67, placement-anim.js v1.43** — domino-spot game over loop fix: render sync only; spot assignment → KO roll button; idempotent game-over overlay
+
 - **suit-tally.js v1.13, game-over.js v2.10, turn.js v2.53** — discovery win end: 52 unique suit:rank combos → WINNER (+1 multiplier); zero duplicates → FLAWLESS (+2); evaluated before suit-cap loss
 
 - **game-over.js v2.9, game-over.css, sweeps-row.js v1.22, state.js v2.34** — full-sweep end multiplier: scoring sweep that empties player row → `fullSweepCount`; game-over total ×(1 + count) after end bonus
@@ -348,7 +350,7 @@ lastVerified: 2026-08-14
 - **sweeps-row.js v1.4** — ace dual rank (1|13) + wrap bridges for ascending sweep runs
 - **row.js v1.6, convert.js v1.3, sweeps-row.js v1.2, dice-visual.js v1.9** — 1↔6 ace: bypass 1to1 on pair, convert to rank A (sum 1), sweep 2–A–12
 - **dice-visual.js v2.2, action-bar.js, placement-row.js, base.css** — tray + this-turn dice brightened face border; settled row dice white; tiles keep `--tile-border`
-- **base.css** — design canvas 412px tall; width ≥412px, grows to fill viewport in landscape / browsers ≥825px / browser full-screen; phone portrait square unless `html.is-browser-fullscreen`
+- **base.css** — design canvas 412px tall × 16:9 min width (~733px); 16:9 width-fit letterbox at all sizes unless `html.is-browser-fullscreen` (mobile full-screen button)
 - **viewport-controls.js v1.1** — touch-phone full-screen ⛶ only (Fullscreen API on `#app`)
 - **placement-row.css** — tile content-box outside border (48×92 outer); horizontal + vertical column border overlap; col padding removed
 - **base.css** — `--die-stack-pair-height`; `--col-width` aliases `--die-size`

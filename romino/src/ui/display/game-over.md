@@ -1,7 +1,7 @@
 ---
 module: game-over
 layer: ui/display
-v: 2.10
+v: 2.12
 date: 2026-08-14
 deps: [dice-visual, highscores, game-log, turn, end-game-prompt, render, suit-tally, settings, sweeps-row]
 ---
@@ -11,7 +11,7 @@ Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), ti
 
 ## Exports
 - `initGameOver()` — handle minimize + PLAY AGAIN → `disarmEndGamePrompt()` + `resetGame()`
-- `showGameOver(reason?)` — when `sweptSuits` ON: end bonus + score breakdown on every game over; discovery win titles WINNER / FLAWLESS (+1 / +2 multiplier bonus); full sweeps multiply final total `×(1 + fullSweepCount + discoveryBonus)` after bonus; persist game log + lifetime stats (settings panel only); record highscore; reveal overlay
+- `showGameOver(reason?)` — when `sweptSuits` ON: end bonus + score breakdown on every game over; discovery win titles FULL DECK / FLAWLESS DECK (+1 / +2 multiplier bonus); full sweeps multiply final total `×(1 + fullSweepCount + discoveryBonus)` after bonus; persist game log + lifetime stats (settings panel only); record highscore; reveal overlay
 - `sweepListHTML()` — sweep row markup
 - `leaderboardHTML(currentId?)` — top-10 highscore rows
 

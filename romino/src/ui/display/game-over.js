@@ -115,6 +115,7 @@ function hideScoreBreakdown() {
 
 export function showGameOver(reason = '') {
   const overlay = document.getElementById('game-over-overlay');
+  if (overlay?.classList.contains('is-visible')) return;
   if (overlay) {
     overlay.classList.remove('is-minimized');
     overlay.classList.add('is-visible');
@@ -124,8 +125,8 @@ export function showGameOver(reason = '') {
   const titleEl = document.getElementById('game-over-title');
   if (titleEl) {
     if (reason === 'well-done') titleEl.textContent = 'WELL DONE';
-    else if (reason === DISCOVERY_FLAWLESS_REASON) titleEl.textContent = 'FLAWLESS';
-    else if (reason === DISCOVERY_WIN_REASON) titleEl.textContent = 'WINNER';
+    else if (reason === DISCOVERY_FLAWLESS_REASON) titleEl.textContent = 'FLAWLESS DECK';
+    else if (reason === DISCOVERY_WIN_REASON) titleEl.textContent = 'FULL DECK';
     else titleEl.textContent = 'GAME OVER';
   }
 
