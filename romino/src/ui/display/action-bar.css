@@ -237,3 +237,24 @@
   opacity: 0.45;
   cursor: default;
 }
+
+.action-bar-credit {
+  position: absolute;
+  left: 20px;
+  top: calc(var(--roll-btn-wrap-inset-top) + 72px);
+  bottom: 0;
+  height: fit-content;
+  margin: auto 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Averia Libre', serif;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #fff;
+  mix-blend-mode: overlay;
+  text-align: left;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}

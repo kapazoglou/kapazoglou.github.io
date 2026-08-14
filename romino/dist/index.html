@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <title>römino</title>
   <link rel="preload" href="/assets/NumbersDeuce-INwwIkFU.ttf" as="font" type="font/ttf" crossorigin>
-  <script type="module" crossorigin src="/assets/index-CDwv5tbn.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-C9Jgb_xs.css">
+  <script type="module" crossorigin src="/assets/index-C6tFqu5C.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Bz1TKG-C.css">
 </head>
 <body>
 <div id="app">
@@ -22,8 +22,10 @@
       </div>
       <div id="settings-panel" aria-hidden="true">
         <div id="settings-content">
-          <button id="settings-back" aria-label="Back">←</button>
-          <h2 id="settings-title">SETTINGS</h2>
+          <div id="settings-header" class="settings-header">
+            <h2 id="settings-title">SETTINGS</h2>
+            <button id="settings-back" aria-label="Close">×</button>
+          </div>
           <div id="settings-toggles"></div>
           <div class="go-section-label">lifetime</div>
           <div class="go-lifetime" id="settings-lifetime">
@@ -38,6 +40,16 @@
               <div class="go-lifetime-tiles" id="settings-lifetime-tiles" aria-label="Lifetime tile counts by suit and rank"></div>
             </div>
           </div>
+          <div
+            id="settings-clear-highscores"
+            class="settings-clear-highscores"
+            role="button"
+            tabindex="0"
+            aria-label="Clear high scores"
+          >
+            <div class="settings-clear-highscores-thumb" aria-hidden="true"></div>
+            <span class="settings-clear-highscores-label">Clear high scores</span>
+          </div>
         </div>
       </div>
       <div id="game-over-overlay" class="game-over-overlay" aria-hidden="true">
@@ -51,8 +63,12 @@
           </div>
           <div class="go-inner">
             <div class="go-body">
-              <div class="game-over-reason" id="game-over-reason"></div>
-              <div class="go-score-breakdown" id="go-score-breakdown" hidden></div>
+              <div class="go-summary-head">
+                <div class="go-summary-lead">
+                  <div class="game-over-reason" id="game-over-reason"></div>
+                </div>
+                <div class="go-score-breakdown" id="go-score-breakdown" hidden></div>
+              </div>
               <div class="go-session-stats" id="go-session-stats">
                 <span><strong id="go-rolls-value">0</strong> rolls</span>
                 <span class="go-stat-sep" aria-hidden="true">·</span>

@@ -13,7 +13,6 @@
 @import url('src/ui/transitions/placement-anim.css');
 @import url('src/ui/transitions/pip-anim.css');
 @import url('src/ui/transitions/sweep-anim.css');
-@import url('src/ui/display/viewport-controls.css');
 @import url('src/ui/transitions/invalid-flash.css');
 
 @font-face {

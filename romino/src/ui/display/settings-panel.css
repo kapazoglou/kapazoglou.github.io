@@ -1,21 +1,41 @@
-/* ─── SETTINGS PANEL ─── */
+/* ─── SETTINGS PANEL (left sidebar) ─── */
 #settings-panel {
   position: absolute;
   inset: 0;
-  background: #000;
   z-index: 1000;
   overflow: hidden;
-  transform: translateY(100%);
-  transition: transform calc(0.28s * var(--t)) cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  visibility: hidden;
 }
 
-#settings-panel.is-open { transform: translateY(0); }
+#settings-panel.is-open {
+  pointer-events: auto;
+  visibility: visible;
+}
+
+#settings-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity calc(0.28s * var(--t)) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settings-panel.is-open::before {
+  opacity: 1;
+}
 
 #settings-content {
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(320px, 88%);
+  max-width: 100%;
   min-height: 0;
   background: var(--bg);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.35);
   display: flex;
   flex-direction: column;
   padding: 24px 20px;
@@ -25,21 +45,59 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  transform: translateX(-100%);
+  transition: transform calc(0.28s * var(--t)) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#settings-panel.is-open #settings-content {
+  transform: translateX(0);
 }
 
 #settings-content::-webkit-scrollbar {
   display: none;
 }
 
-#settings-back {
-  align-self: flex-start; background: none; border: none;
-  color: var(--text-primary); font-size: 24px;
-  cursor: pointer; padding: 4px 8px 4px 0; line-height: 1;
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 #settings-title {
-  font-size: 22px; font-weight: normal;
-  color: var(--text-primary); margin-top: -8px;
+  font-size: 22px;
+  font-weight: normal;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1;
+}
+
+#settings-back {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 28px;
+  font-weight: 300;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: -10px -10px -10px 0;
+}
+
+.settings-credit {
+  margin: -12px 0 0;
+  font-family: 'Averia Libre', serif;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--text-dim);
+  white-space: nowrap;
 }
 
 #settings-lifetime { margin-top: 4px; }

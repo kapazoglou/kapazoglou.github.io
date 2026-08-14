@@ -162,5 +162,6 @@ export function renderActionBar() {
   bar.innerHTML = `
     ${diceTrayHTML}
     ${rollWrapHTML}
+    <p class="action-bar-credit">röminó</p>
   `;
 }

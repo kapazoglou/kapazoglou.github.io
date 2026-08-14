@@ -12,6 +12,22 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **settings-panel.css, index.html** — copyright credit under CONFIG header (matches action bar)
+
+- **action-bar.js v1.69** — main-screen credit shortened to `RÖMINÓ` (full credit remains in settings)
+
+- **settings-panel.js v1.54** — Deprecated group hidden from config panel (still in `SETTINGS_CONFIG`)
+
+- **index.html, settings-panel.md** — sidebar header title: CONFIG (was SETTINGS)
+
+- **settings.js v2.41, viewport-controls.js v1.5, settings-panel.js v1.52, base.css** — full screen moved to settings Keep toggle; floating button removed
+
+- **settings-panel.js v1.51** — settings entry: double-tap `#hud-points` (was triple-tap)
+
+- **settings-panel.css, index.html** — settings header row: title left, close × top-right aligned
+
+- **settings-panel.css, index.html** — settings opens as left sidebar (slide-in + dim backdrop); back arrow → close ×
+
 - **settings-panel.js v1.48, settings-panel.css** — clear high scores: warning-red DELETED flash on successful slide confirm
 
 - **settings-panel.js v1.47, settings-panel.css** — clear high scores: restore original button look; square thumb on left after tap

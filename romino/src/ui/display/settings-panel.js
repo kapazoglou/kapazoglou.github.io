@@ -1,11 +1,12 @@
 import { settings, SETTINGS_CONFIG, clampSettings, spd } from '../../logic/settings.js';
 import { clearHighscores } from '../../logic/highscores.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
+import { setFullscreenEnabled } from './viewport-controls.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
 export const TUTORIAL_DONE_KEY = 'romino-tutorial-done';
 
-/** Pending edits while the panel is open; applied on back. */
+/** Pending edits while the panel is open; applied on close. */
 let draftSettings = null;
 let settingsLifetimeMatrixMode = 'converted';
 
@@ -125,7 +126,10 @@ function refreshSettingsPanelControls() {
 function applyDraftSettings() {
   if (!draftSettings) return false;
 
-  const changed = Object.keys(settings).some(key => draftSettings[key] !== settings[key]);
+  const fullScreenChanged = draftSettings.fullScreen !== settings.fullScreen;
+  const gameChanged = Object.keys(settings).some(
+    key => key !== 'fullScreen' && draftSettings[key] !== settings[key]
+  );
 
   if (!settings.tutoria && draftSettings.tutoria) {
     try { localStorage.removeItem(TUTORIAL_DONE_KEY); } catch { /* ignore */ }
@@ -138,7 +142,11 @@ function applyDraftSettings() {
   saveSettings();
   draftSettings = null;
 
-  if (!changed) return false;
+  if (fullScreenChanged) {
+    setFullscreenEnabled(settings.fullScreen);
+  }
+
+  if (!gameChanged) return false;
 
   location.reload();
   return true;
@@ -148,7 +156,7 @@ export function renderSettingsPanel() {
   const container = document.getElementById('settings-toggles');
   container.innerHTML = '';
 
-  for (const group of SETTINGS_CONFIG) {
+  for (const group of SETTINGS_CONFIG.filter(g => g.group !== 'deprecated')) {
     const header = document.createElement('div');
     header.className = 'settings-group-label';
     header.textContent = group.label;
@@ -262,7 +270,7 @@ export function initSettingsPanel() {
     tapCount++;
     clearTimeout(tapTimer);
     tapTimer = setTimeout(() => { tapCount = 0; }, 600);
-    if (tapCount >= 3) {
+    if (tapCount >= 2) {
       tapCount = 0;
       draftSettings = { ...settings };
       settingsLifetimeMatrixMode = 'converted';

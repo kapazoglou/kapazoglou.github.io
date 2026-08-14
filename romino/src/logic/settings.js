@@ -44,6 +44,7 @@ export const SETTINGS_CONFIG = [
       { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
       { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
+      { key: 'fullScreen',          label: 'Full screen',           default: false, type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },

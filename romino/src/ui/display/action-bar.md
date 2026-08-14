@@ -1,8 +1,8 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.67
-date: 2026-08-14
+v: 1.69
+date: 2026-08-15
 deps: [state, cards, dice, grid, end-game-prompt, domino-roll, domino-spots]
 ---
 # Action Bar — User Story
@@ -15,6 +15,7 @@ As a player, I need the action bar to show my hand cards during the place-card p
 - **Domino Roll nRoll=4** — dual-pair tray (pipe separator; deck counter badge on seam strip — see domino-spot-strip; fixed slots; toward-`|` on drag/placement; return order preserved per pair)
 - `ghostCardHTML(slotCount)` — skeleton card HTML for the action-bar ghost indicator
 - Roll button face border (`action-bar.css`): **accent** (`--accent`) when enabled and not warning red; **warning red** when enabled and (`isRollPoolLow()` without a 3-dice stack on the row, or rolled + `isTrayStuck()`). Number text (`.roll-btn--low`) follows `isRollPoolLow()` — nRoll=4 + dominoRoll uses **N-place** threshold; may stay red while border stays accent if a full stack is on the row. Tap: warning-red border → arm KO confirm bar (`isRollButtonEndGameTap` + `end-game-prompt`); armed wrap expands left with white **`&lt;`** back + red **KO** confirm; accent border → idle roll or rolled confirm.
+- `.action-bar-credit` — static footer under roll button: `röminó` (16px, white + overlay blend)
 
 ## Modes
 - **place-card**: renders hand cards (`.in-tray`) with `is-new` slide-in if flagged

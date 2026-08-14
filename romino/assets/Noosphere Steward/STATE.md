@@ -33,7 +33,7 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
-- **settings-panel.js v1.46, settings-panel.css, index.html** — clear high scores slide-to-confirm (full-right release)
+- **settings.js v2.41, viewport-controls.js v1.5, settings-panel.js v1.52, base.css** — `fullScreen` settings toggle replaces bottom-left fullscreen button
 
 - **highscores.js v1.1, settings-panel.js v1.45, settings-panel.css, index.html** — settings: clear high scores button + `clearHighscores()`
 
