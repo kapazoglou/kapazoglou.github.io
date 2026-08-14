@@ -1,8 +1,8 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.45
-date: 2026-08-14
+v: 2.46
+date: 2026-08-15
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input, stack-swap-anim]
 ---
 # Drag-Drop — User Story
@@ -27,7 +27,7 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 - Sole-die row reposition: source gap closes on drag via `reposition-collapse`
 - Push-below return drag: upper dice shift down one stack step on drag start via `beginPushReturnCollapse` (column height unchanged — row baseline preserved)
 - **`directPlacement` ON** — gap spread preview **during drag only**; drop resolves slot from pointer coordinates via `attemptPlacementAtPoint` (uses flyer top edge, not finger Y)
-- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; pointer flyer hidden while ghost has a slot (flyer only when no snap target); gap spread follows snap target; drop **re-resolves** snap at release coordinates (never commits a stale ghost from the last move frame); `state.snapGhostSlot` drives star-marker suppression beside the ghost
+- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; pointer flyer hidden while ghost has a slot (flyer only when no snap target); gap spread follows snap target; drop **re-resolves** snap at release coordinates (never commits a stale ghost from the last move frame); `state.snapGhostSlot` drives star-marker suppression beside the ghost; push-from-below excluded from snap (`PUSH_BELOW_DRAG_SNAP_ENABLED` — tap bottom die only; snap handoff code kept gated)
 - **`directPlacement` OFF** — drop onto `.placement-hint` buttons
 - Dealt tile row drag drop uses coordinate placement in all modes (not hint hit-test); pointerdown matches any this-turn row tile via `isPlacedDealtTileCol`
 

@@ -74,3 +74,10 @@ export function recordHighscore(run) {
     saved: rankIndex >= 0,
   };
 }
+
+/** Remove all persisted highscore entries. */
+export function clearHighscores() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch { /* ignore quota / private mode */ }
+}

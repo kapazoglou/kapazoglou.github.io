@@ -12,6 +12,9 @@ import {
   slotsEqual, stackHeight, spreadContextForDie,
 } from '../../logic/row.js';
 
+/** Push-from-below via drag/snap pointer resolution — OFF; tap bottom die only. Snap code kept gated. */
+export const PUSH_BELOW_DRAG_SNAP_ENABLED = false;
+
 function stackHTML(col, column) {
   return column.dice.map((dieId, i) => {
     const die = state.dice[dieId];
@@ -329,10 +332,11 @@ function updatePushBelowTargets(inner) {
     el.classList.remove('die--push-below-target');
   });
   if (!pushBelowEnabled() || state.phase !== 'rolled') return;
+  if (state.draggingDieId != null) return;
 
-  const dieId = state.draggingDieId ?? state.selectedDieId;
+  const dieId = state.selectedDieId;
   if (dieId == null) return;
-  if (!state.actionBar.includes(dieId) && !state.placedDieIds.has(dieId)) return;
+  if (!state.actionBar.includes(dieId)) return;
 
   const valid = getValidSlotsForDie(dieId);
   for (const slot of valid) {
@@ -343,7 +347,7 @@ function updatePushBelowTargets(inner) {
   }
 }
 
-/** Accent valid bottom dice for push-from-below (selection or drag). */
+/** Accent valid bottom dice for push-from-below (tray selection — tap bottom die). */
 export function syncPushBelowTargets() {
   const inner = document.querySelector('.placement-row-inner');
   if (inner) updatePushBelowTargets(inner);
@@ -713,7 +717,7 @@ function resolvePushBelowSlotFromPointer(clientX, clientY, validSlots) {
 }
 
 /** Stack slot when pointer/flyer targets the stack band (incl. dropping onto a placed die). */
-function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, validSlots = []) {
+function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, validSlots = [], allowPushBelow = PUSH_BELOW_DRAG_SNAP_ENABLED) {
   const dieH = DIE_OUTER * viewportScale();
   const slotOk = slot => validSlots.some(s => slotsEqual(s, slot));
 
@@ -733,7 +737,7 @@ function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, validSlot
     const belowSlot = { kind: 'stack-below', col };
     const topSlot = { kind: 'stack', col };
 
-    if (pushBelowZoneAtCol(colNode, clientX, clientY) && slotOk(belowSlot)) {
+    if (allowPushBelow && pushBelowZoneAtCol(colNode, clientX, clientY) && slotOk(belowSlot)) {
       return belowSlot;
     }
 
@@ -745,14 +749,14 @@ function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, validSlot
 
     if (pointerOnStack || flyerAboveStack || slotAboveStack) {
       if (slotOk(topSlot)) return topSlot;
-      if (slotOk(belowSlot)) return belowSlot;
+      if (allowPushBelow && slotOk(belowSlot)) return belowSlot;
     }
   }
   return null;
 }
 
 /** Drag flyer sits above the row — peek through it for a stack target die. */
-function stackSlotThroughFlyer(clientX, clientY, inner, occupied, validSlots = []) {
+function stackSlotThroughFlyer(clientX, clientY, inner, occupied, validSlots = [], allowPushBelow = PUSH_BELOW_DRAG_SNAP_ENABLED) {
   for (const el of document.elementsFromPoint(clientX, clientY)) {
     const die = el.closest?.('.die--placed');
     if (!die || !inner.contains(die)) continue;
@@ -763,9 +767,9 @@ function stackSlotThroughFlyer(clientX, clientY, inner, occupied, validSlots = [
     const belowSlot = { kind: 'stack-below', col };
     const belowOk = validSlots.some(s => slotsEqual(s, belowSlot));
     const topOk = validSlots.some(s => slotsEqual(s, topSlot));
-    if (belowOk && colNode && pushBelowZoneAtCol(colNode, clientX, clientY)) return belowSlot;
+    if (allowPushBelow && belowOk && colNode && pushBelowZoneAtCol(colNode, clientX, clientY)) return belowSlot;
     if (topOk) return topSlot;
-    if (belowOk) return belowSlot;
+    if (allowPushBelow && belowOk) return belowSlot;
     return null;
   }
   return null;
@@ -835,7 +839,7 @@ export function resolveSlotFromPointer(
   clientX,
   clientY,
   stackY = clientY,
-  { allowStack = true, validSlots = null, dieId = null } = {},
+  { allowStack = true, validSlots = null, dieId = null, allowPushBelow = PUSH_BELOW_DRAG_SNAP_ENABLED } = {},
 ) {
   if (!isPointerOnPlacementRow(clientX, clientY)) return null;
 
@@ -849,16 +853,18 @@ export function resolveSlotFromPointer(
 
   const slots = validSlots ?? (dieId != null ? getValidSlotsForDie(dieId) : []);
 
-  const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
-  if (pushBelow) return pushBelow;
+  if (allowPushBelow) {
+    const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
+    if (pushBelow) return pushBelow;
+  }
 
   const insert = resolveInsertSlotFromPointer(clientX, clientY);
   if (insert && slots.some(s => slotsEqual(s, insert))) return insert;
 
   if (!allowStack) return null;
 
-  const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, slots)
-    ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied, slots);
+  const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, slots, allowPushBelow)
+    ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied, slots, allowPushBelow);
   if (stack) return stack;
 
   return null;
@@ -1039,10 +1045,15 @@ function dedupeOverlappingStackSlots(validSlots, dieId) {
 export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, dieId = null) {
   if (!validSlots.length) return null;
 
-  const slots = dedupeOverlappingStackSlots(validSlots, dieId);
+  const snapSlots = PUSH_BELOW_DRAG_SNAP_ENABLED
+    ? validSlots
+    : validSlots.filter(slot => slot.kind !== 'stack-below');
+  if (!snapSlots.length) return null;
+
+  const slots = dedupeOverlappingStackSlots(snapSlots, dieId);
   const onRow = isPointerOnPlacementRow(clientX, clientY);
 
-  if (onRow) {
+  if (onRow && PUSH_BELOW_DRAG_SNAP_ENABLED) {
     const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
     if (pushBelow) return pushBelow;
   }
@@ -1050,6 +1061,7 @@ export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, di
   const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY, {
     validSlots: slots,
     dieId,
+    allowPushBelow: PUSH_BELOW_DRAG_SNAP_ENABLED,
   });
   if (pointerSlot && slots.some(s => slotsEqual(s, pointerSlot))) {
     return pointerSlot;

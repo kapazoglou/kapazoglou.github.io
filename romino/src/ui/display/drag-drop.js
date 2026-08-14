@@ -13,7 +13,14 @@ import {
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY, syncPushBelowTargets, isPointerOnPlacementRow } from './placement-row.js';
+import {
+  syncStarMarkersDuringMotion,
+  resolveNearestValidSlot,
+  slotAnchorXY,
+  syncPushBelowTargets,
+  isPointerOnPlacementRow,
+  PUSH_BELOW_DRAG_SNAP_ENABLED,
+} from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
@@ -416,7 +423,7 @@ function resolveDrop(e) {
         );
         if (commitSlot) {
           let commitFlyer = dragFlyer;
-          if (commitSlot.kind === 'stack-below') {
+          if (PUSH_BELOW_DRAG_SNAP_ENABLED && commitSlot.kind === 'stack-below') {
             updateSnapGhost(commitSlot);
             const snapHandoff = takeSnapGhostForCommit();
             dragFlyer?.remove();

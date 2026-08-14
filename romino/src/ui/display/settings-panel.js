@@ -1,4 +1,5 @@
 import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
+import { clearHighscores } from '../../logic/highscores.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
@@ -266,6 +267,7 @@ export function initSettingsPanel() {
       draftSettings = { ...settings };
       settingsLifetimeMatrixMode = 'converted';
       renderSettingsPanel();
+      resetClearHighscoresSlider();
       document.getElementById('settings-panel').classList.add('is-open');
     }
   });
@@ -279,9 +281,125 @@ export function initSettingsPanel() {
   });
 
   document.getElementById('settings-back').addEventListener('click', () => {
+    resetClearHighscoresSlider();
     const reloading = applyDraftSettings();
     if (!reloading) {
       document.getElementById('settings-panel').classList.remove('is-open');
     }
+  });
+
+  initClearHighscoresSlider();
+}
+
+const CLEAR_HS_THUMB_PAD = 4;
+const CLEAR_HS_COMPLETE_RATIO = 0.98;
+
+function resetClearHighscoresSlider() {
+  const track = document.getElementById('settings-clear-highscores');
+  const thumb = track?.querySelector('.settings-clear-highscores-thumb');
+  if (!track || !thumb) return;
+  track.classList.remove('is-armed');
+  track.setAttribute('role', 'button');
+  track.setAttribute('aria-label', 'Clear high scores');
+  track.removeAttribute('aria-valuemin');
+  track.removeAttribute('aria-valuemax');
+  track.removeAttribute('aria-valuenow');
+  thumb.classList.remove('is-dragging');
+  thumb.style.transform = 'translateX(0)';
+}
+
+function getClearHighscoresMaxTravel(track, thumb) {
+  return Math.max(0, track.offsetWidth - thumb.offsetWidth - CLEAR_HS_THUMB_PAD * 2);
+}
+
+function initClearHighscoresSlider() {
+  const track = document.getElementById('settings-clear-highscores');
+  const thumb = track?.querySelector('.settings-clear-highscores-thumb');
+  if (!track || !thumb) return;
+
+  let dragging = false;
+  let pointerId = null;
+  let dragStartX = 0;
+  let dragStartOffset = 0;
+  let currentOffset = 0;
+
+  const setThumbOffset = (offset, animate = false) => {
+    const max = getClearHighscoresMaxTravel(track, thumb);
+    currentOffset = Math.min(max, Math.max(0, offset));
+    if (!animate) thumb.classList.add('is-dragging');
+    else thumb.classList.remove('is-dragging');
+    thumb.style.transform = `translateX(${currentOffset}px)`;
+    if (track.classList.contains('is-armed')) {
+      track.setAttribute('aria-valuenow', String(Math.round(max ? (currentOffset / max) * 100 : 0)));
+    }
+  };
+
+  const armSlider = () => {
+    if (track.classList.contains('is-armed')) return;
+    track.classList.add('is-armed');
+    track.setAttribute('role', 'slider');
+    track.setAttribute('aria-label', 'Slide to clear high scores');
+    track.setAttribute('aria-valuemin', '0');
+    track.setAttribute('aria-valuemax', '100');
+    thumb.classList.remove('is-dragging');
+    currentOffset = 0;
+    thumb.style.transform = 'translateX(0)';
+    track.setAttribute('aria-valuenow', '0');
+  };
+
+  const finishDrag = () => {
+    if (!dragging) return;
+    dragging = false;
+    thumb.classList.remove('is-dragging');
+    if (pointerId != null) {
+      try { thumb.releasePointerCapture(pointerId); } catch { /* ignore */ }
+      pointerId = null;
+    }
+
+    const max = getClearHighscoresMaxTravel(track, thumb);
+    if (max > 0 && currentOffset >= max * CLEAR_HS_COMPLETE_RATIO) {
+      clearHighscores();
+      resetClearHighscoresSlider();
+      return;
+    }
+    setThumbOffset(0, true);
+  };
+
+  track.addEventListener('click', e => {
+    if (track.classList.contains('is-armed')) return;
+    e.preventDefault();
+    armSlider();
+  });
+
+  track.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    if (!track.classList.contains('is-armed')) armSlider();
+  });
+
+  thumb.addEventListener('pointerdown', e => {
+    if (!track.classList.contains('is-armed')) return;
+    e.preventDefault();
+    dragging = true;
+    pointerId = e.pointerId;
+    dragStartX = e.clientX;
+    dragStartOffset = currentOffset;
+    thumb.classList.add('is-dragging');
+    thumb.setPointerCapture(e.pointerId);
+  });
+
+  thumb.addEventListener('pointermove', e => {
+    if (!dragging || e.pointerId !== pointerId) return;
+    setThumbOffset(dragStartOffset + (e.clientX - dragStartX));
+  });
+
+  thumb.addEventListener('pointerup', e => {
+    if (e.pointerId !== pointerId) return;
+    finishDrag();
+  });
+
+  thumb.addEventListener('pointercancel', e => {
+    if (e.pointerId !== pointerId) return;
+    finishDrag();
   });
 }

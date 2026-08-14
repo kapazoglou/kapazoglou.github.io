@@ -12,6 +12,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **settings-panel.js v1.46, settings-panel.css, index.html** — clear high scores: tap → slide-to-confirm thumb; delete only on full-right release
+
+- **highscores.js v1.1, settings-panel.js v1.45, settings-panel.css, index.html** — settings panel: “Clear high scores” button below lifetime block; `clearHighscores()` removes local top-10
+
+- **placement-row.js, drag-drop.js v2.46** — push-from-below disabled for drag/snap pointer resolution (`PUSH_BELOW_DRAG_SNAP_ENABLED`); tap bottom die only; snap handoff code kept gated
+
+- **navigation-guard.js v1.1** — block context menu (right-click) app-wide
+
 - **base.css** — desktop/wide viewports use 16:9 width-fit letterbox (removed ≥825px / landscape fill override); edge-to-edge only via `html.is-browser-fullscreen`
 
 - **base.css** — phone portrait letterbox: 16:9 frame width-first contain (`min(100vw, 100dvh×16/9)`); full-screen unchanged

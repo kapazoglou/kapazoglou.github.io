@@ -33,6 +33,12 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **settings-panel.js v1.46, settings-panel.css, index.html** — clear high scores slide-to-confirm (full-right release)
+
+- **highscores.js v1.1, settings-panel.js v1.45, settings-panel.css, index.html** — settings: clear high scores button + `clearHighscores()`
+
+- **placement-row.js, drag-drop.js v2.46** — push-from-below tap-only: `PUSH_BELOW_DRAG_SNAP_ENABLED` gates drag/snap pointer resolution; bottom-die accent on tray selection only; snap handoff code kept
+
 - **turn.js v2.54, render.js v1.9, game-over.js v2.12, action-bar.js v1.67, placement-anim.js v1.43** — domino-spot game over loop fix: render sync only; spot assignment → KO roll button; idempotent game-over overlay
 
 - **suit-tally.js v1.13, game-over.js v2.10, turn.js v2.53** — discovery win end: 52 unique suit:rank combos → WINNER (+1 multiplier); zero duplicates → FLAWLESS (+2); evaluated before suit-cap loss

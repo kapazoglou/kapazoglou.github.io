@@ -111,3 +111,64 @@
   opacity: 0.35;
   pointer-events: none;
 }
+
+.settings-clear-highscores {
+  position: relative;
+  align-self: stretch;
+  margin-top: 8px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(var(--warning-red-rgb), 0.45);
+  background: rgba(var(--warning-red-rgb), 0.12);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.settings-clear-highscores.is-armed {
+  cursor: default;
+  touch-action: none;
+}
+
+.settings-clear-highscores-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--warning-red);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.settings-clear-highscores-thumb {
+  display: none;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 36px;
+  height: calc(100% - 8px);
+  border-radius: 6px;
+  background: var(--warning-red);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  z-index: 1;
+  cursor: grab;
+  touch-action: none;
+  transform: translateX(0);
+  transition: transform calc(0.22s * var(--t)) cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.settings-clear-highscores.is-armed .settings-clear-highscores-thumb {
+  display: block;
+}
+
+.settings-clear-highscores-thumb.is-dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.settings-clear-highscores:active:not(.is-armed) {
+  transform: scale(0.98);
+}
