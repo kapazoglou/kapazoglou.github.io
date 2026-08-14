@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { rollValue, spawnDie, isOuterDieValue } from './dice.js';
+import { buggerSinglesEnabled, markBuggerPendingCol } from './star-powers.js';
 
 /** Contiguous column indices centered on col 0. */
 function centeredCols(count) {
@@ -26,9 +27,11 @@ function stackFromPair() {
   return { kind: 'stack', dice: [spawnDie(f1), spawnDie(f2)] };
 }
 
-/** Odd remainder — single die, reroll outer until inner. */
+/** Odd remainder — bugger singles: random 1/6; else inner only. */
 function columnFromSingleton() {
-  const v = ensureInner(rollValue());
+  const v = buggerSinglesEnabled()
+    ? (Math.random() < 0.5 ? 1 : 6)
+    : ensureInner(rollValue());
   return { kind: 'stack', dice: [spawnDie(v)] };
 }
 
@@ -56,6 +59,10 @@ export function seedStartingDice() {
   const cols = centeredCols(columns.length);
   for (let i = 0; i < columns.length; i++) {
     state.row[cols[i]] = columns[i];
+    if (buggerSinglesEnabled() && columns[i].dice.length === 1) {
+      const val = state.dice[columns[i].dice[0]].value;
+      if (val === 1 || val === 6) markBuggerPendingCol(cols[i]);
+    }
   }
 
   state.hasPlacedFirstDie = true;

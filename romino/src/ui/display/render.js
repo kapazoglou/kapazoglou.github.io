@@ -8,7 +8,8 @@ import { renderPlacementRow, updatePlacementSelection, positionHints, positionEd
 import { renderActionBar, updateActionBarSelection } from './action-bar.js';
 import { renderDealtStrip } from './dealt-strip.js';
 import { renderDominoSpotStrip, scheduleDominoSpotStripLayout, renderActionBarDeckBadge, renderDominoDiscardPile } from './domino-spot-strip.js';
-import { syncDominoSpotKeysFromEngagement } from '../../logic/domino-spots.js';
+import { syncAllRowDominoSpots, dominoSpotAssignmentGameOverReason } from '../../logic/domino-spots.js';
+import { triggerGameOver } from '../../logic/turn.js';
 import { onRender as onTutorialRender } from './tutorial.js';
 import { clearInsertHoverSpread, resetInsertHoverSpread } from '../transitions/placement-hover.js';
 import { resetRepositionCollapse } from '../transitions/reposition-collapse.js';
@@ -33,7 +34,10 @@ export function render() {
     clearDominoChosenPair();
   }
   renderPlacementRow();
-  syncDominoSpotKeysFromEngagement();
+  if (!syncAllRowDominoSpots()) {
+    const reason = dominoSpotAssignmentGameOverReason();
+    if (reason) triggerGameOver(reason);
+  }
   renderDealtStrip();
   renderDominoSpotStrip();
   renderHUD();
@@ -60,7 +64,10 @@ export function renderSelection() {
   }
   updatePlacementSelection();
   updateActionBarSelection();
-  syncDominoSpotKeysFromEngagement();
+  if (!syncAllRowDominoSpots()) {
+    const reason = dominoSpotAssignmentGameOverReason();
+    if (reason) triggerGameOver(reason);
+  }
   renderDealtStrip();
   renderDominoSpotStrip();
   renderDominoDiscardPile();

@@ -1,7 +1,15 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { isDominoPairLocked } from './domino-roll.js';
-import { onTrayDiePlaced, onColumnVacated, onSpotColReposition, shiftDominoSpotCols, getDominoKeyForCol } from './domino-spots.js';
+import {
+  onTrayDiePlaced,
+  onColumnVacated,
+  onSpotColReposition,
+  shiftDominoSpotCols,
+  getDominoKeyForCol,
+  ensureDominoSpotForCol,
+  isDominoSpotsActive,
+} from './domino-spots.js';
 import { recordStarSpent } from './game-log.js';
 import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
@@ -898,6 +906,10 @@ export function placeDie(dieId, slot) {
   }
 
   if (state.dominoSpotCols.includes(targetCol)) getDominoKeyForCol(targetCol);
+
+  if (isDominoSpotsActive() && state.row[targetCol] && !ensureDominoSpotForCol(targetCol)) {
+    return 'domino-exhausted';
+  }
 
   state.selectedDieId = null;
   return true;

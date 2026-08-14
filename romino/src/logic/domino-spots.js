@@ -4,6 +4,7 @@ import {
   getDominoPairIndex,
   discardDominoKey,
   drawDominoKeyFromPool,
+  returnKeyToPool,
   getDominoEngagedPairIndex,
   setCurrentRollOfferedKeys,
   syncDominoDeckCount,
@@ -12,6 +13,17 @@ import {
 
 export function isDominoSpotsActive() {
   return settings.dominoRoll && settings.dominoSpots;
+}
+
+/** Row columns that must carry a seam domino while they exist. */
+export function getRowDominoSpotCols() {
+  if (!isDominoSpotsActive()) return [];
+  return Object.keys(state.row).map(Number).sort((a, b) => a - b);
+}
+
+/** @deprecated alias — all live row cols, not filtered by key presence */
+export function getActiveDominoSpotCols() {
+  return getRowDominoSpotCols();
 }
 
 /** @param {string[]} keys */
@@ -46,19 +58,60 @@ export function clearAllDominoSpotBindings() {
   clearDominoSpotsRollState();
 }
 
-/** One random pool key per starting-dice column; persistent spot cols until sweep. */
-export function seedStartingDominoSpots() {
-  if (!isDominoSpotsActive() || settings.startingDice <= 0) return;
+function pruneStaleDominoSpotCols() {
+  const live = new Set(getRowDominoSpotCols());
+  state.dominoSpotCols = state.dominoSpotCols.filter(col => live.has(col));
+  state.dominoSpotsCreatedThisTurn = state.dominoSpotsCreatedThisTurn.filter(col => live.has(col));
+}
 
-  for (const colStr of Object.keys(state.row)) {
-    const col = Number(colStr);
-    const key = drawDominoKeyFromPool();
-    if (!key) break;
-    state.dominoSpotKeys[col] = key;
-    const column = state.row[col];
-    if (column) column.dominoKey = key;
-    if (!state.dominoSpotCols.includes(col)) state.dominoSpotCols.push(col);
+/** @param {number} col @returns {boolean} */
+function bindDominoSpotFromPool(col) {
+  if (getDominoKeyForCol(col)) return true;
+  const key = drawDominoKeyFromPool();
+  if (!key) return false;
+  state.dominoSpotKeys[col] = key;
+  const column = state.row[col];
+  if (column) column.dominoKey = key;
+  if (!state.dominoSpotCols.includes(col)) state.dominoSpotCols.push(col);
+  state.newDominoSpotCols.add(col);
+  return true;
+}
+
+/** Assign a pool key to a live row column; false when the pool is empty. */
+export function ensureDominoSpotForCol(col) {
+  if (!isDominoSpotsActive()) return true;
+  if (!state.row[col]) return true;
+  return bindDominoSpotFromPool(col);
+}
+
+/** Every row column must have a bound domino key. @returns {boolean} */
+export function syncAllRowDominoSpots() {
+  if (!isDominoSpotsActive()) return true;
+  for (const col of getRowDominoSpotCols()) {
+    if (!ensureDominoSpotForCol(col)) return false;
   }
+  pruneStaleDominoSpotCols();
+  return true;
+}
+
+/** @returns {string|null} */
+export function dominoSpotAssignmentGameOverReason() {
+  if (!isDominoSpotsActive()) return null;
+  for (const col of getRowDominoSpotCols()) {
+    if (!getDominoKeyForCol(col)) return 'domino pool exhausted';
+  }
+  return null;
+}
+
+/** One random pool key per starting-dice column; persistent until sweep. */
+export function seedStartingDominoSpots() {
+  if (!isDominoSpotsActive() || settings.startingDice <= 0) return true;
+  return syncAllRowDominoSpots();
+}
+
+/** @deprecated — pool assignment is unified; kept for call-site compat */
+export function maybeAssignBuggerDominoSpot(col) {
+  return ensureDominoSpotForCol(col);
 }
 
 /** @param {number} dieId @returns {boolean} */
@@ -95,62 +148,10 @@ function syncUsedUnusedFromEngagedPair() {
   return true;
 }
 
-function rebindThisTurnSpotDominoKeys() {
-  for (let i = 0; i < state.dominoSpotsCreatedThisTurn.length; i++) {
-    const col = state.dominoSpotsCreatedThisTurn[i];
-    if (getDominoKeyForCol(col)) continue;
-    bindKeyToColumn(col, spotKeyForIndex(i));
-  }
-}
-
-/** Rebind this-turn spot cols to engaged pair (spot 1 = used, spot 2 = unused). */
+/** Ensure row cols have keys — no offer rebinding (prevents render flash). */
 export function syncDominoSpotKeysFromEngagement() {
-  if (!isDominoSpotsActive() || !state.dominoSpotsCreatedThisTurn.length) return false;
-  if (!syncUsedUnusedFromEngagedPair()) return false;
-
-  const before = state.dominoSpotCols
-    .map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`)
-    .join('|');
-  rebindThisTurnSpotDominoKeys();
-  const after = state.dominoSpotCols
-    .map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`)
-    .join('|');
-  return before !== after;
-}
-
-/** @param {number} spotIndex @returns {string | null} */
-function spotKeyForIndex(spotIndex) {
-  if (spotIndex === 0) return state.dominoUsedKey;
-  if (spotIndex === 1) return state.dominoUnusedKey;
-  return null;
-}
-
-/** @param {number} col @param {string | null} key */
-function bindKeyToColumn(col, key) {
-  if (!key || state.dominoSpotKeys[col]) return;
-  state.dominoSpotKeys[col] = key;
-  const column = state.row[col];
-  if (column) column.dominoKey = key;
-}
-
-/** @param {number} col @param {string | null} key */
-function rebindKeyToColumn(col, key) {
-  if (!key) return;
-  state.dominoSpotKeys[col] = key;
-  const column = state.row[col];
-  if (column) column.dominoKey = key;
-}
-
-/** Sole locked-binding exception: remaining unused-spot column promotes to USED when used-spot vacates. */
-function promoteRemainingUnusedSpotToUsed() {
-  if (!state.dominoUsedKey || !state.dominoUnusedKey) return false;
-  for (const col of state.dominoSpotCols) {
-    if (getDominoKeyForCol(col) === state.dominoUnusedKey) {
-      rebindKeyToColumn(col, state.dominoUsedKey);
-      state.newDominoSpotCols.add(col);
-      return true;
-    }
-  }
+  if (!isDominoSpotsActive()) return false;
+  syncAllRowDominoSpots();
   return false;
 }
 
@@ -168,7 +169,6 @@ function removeSpotColFromTurn(fromCol) {
 function moveDominoSpotKey(fromCol, toCol, key) {
   if (!key) return;
   if (fromCol !== toCol) delete state.dominoSpotKeys[fromCol];
-  if (state.dominoSpotKeys[toCol]) return;
   state.dominoSpotKeys[toCol] = key;
   const column = state.row[toCol];
   if (column) column.dominoKey = key;
@@ -188,17 +188,17 @@ function shiftDominoSpotKeys(fromCol, delta) {
 /** @param {number} dieId @param {number} col */
 function registerNewSpotCol(dieId, col) {
   if (!state.dominoSpotCols.includes(col)) state.dominoSpotCols.push(col);
-  state.newDominoSpotCols.add(col);
-  state.dominoSpotsCreatedThisTurn.push(col);
+  if (!state.dominoSpotsCreatedThisTurn.includes(col)) {
+    state.dominoSpotsCreatedThisTurn.push(col);
+  }
   if (!syncUsedUnusedFromEngagedPair()) syncUsedUnusedFromDie(dieId);
-  rebindThisTurnSpotDominoKeys();
 }
 
 /** @param {number} dieId @param {number} col */
 export function onTrayDiePlaced(dieId, col) {
   if (!isDominoSpotsActive()) return;
-  if (state.dominoSpotCols.includes(col)) return;
   registerNewSpotCol(dieId, col);
+  ensureDominoSpotForCol(col);
 }
 
 /** Remap spot col indices when row columns shift for gap insert. */
@@ -227,9 +227,8 @@ export function onSpotColReposition(fromCol, toCol, dieId, preservedKey = null) 
   if (idx !== -1) {
     const key = preservedKey ?? getDominoKeyForCol(fromCol);
     if (state.dominoSpotCols.includes(toCol)) {
-      const fromKey = preservedKey ?? getDominoKeyForCol(fromCol);
       removeSpotColFromTurn(fromCol);
-      if (fromKey === state.dominoUsedKey) promoteRemainingUnusedSpotToUsed();
+      if (key) returnKeyToPool(key);
     } else {
       state.dominoSpotCols[idx] = toCol;
       state.newDominoSpotCols.add(toCol);
@@ -237,12 +236,14 @@ export function onSpotColReposition(fromCol, toCol, dieId, preservedKey = null) 
       if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn[turnIdx] = toCol;
       moveDominoSpotKey(fromCol, toCol, key);
     }
+    ensureDominoSpotForCol(toCol);
     return;
   }
 
   if (!state.dominoSpotCols.includes(toCol)) {
     registerNewSpotCol(dieId, toCol);
   }
+  ensureDominoSpotForCol(toCol);
 }
 
 /** Clear used/unused when this roll's spot allocation is fully undone. */
@@ -256,6 +257,9 @@ function resetDominoSpotAllocationIfIdle() {
 export function onColumnVacated(col, boundKey = undefined) {
   if (!isDominoSpotsActive()) return;
 
+  const key = boundKey ?? getDominoKeyForCol(col);
+  if (key) returnKeyToPool(key);
+
   const idx = state.dominoSpotCols.indexOf(col);
   if (idx !== -1) state.dominoSpotCols.splice(idx, 1);
 
@@ -263,37 +267,10 @@ export function onColumnVacated(col, boundKey = undefined) {
   if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
 
   delete state.dominoSpotKeys[col];
-  if (boundKey) {
-    const column = state.row[col];
-    if (column?.dominoKey === boundKey) delete column.dominoKey;
-  }
+  const column = state.row[col];
+  if (column?.dominoKey) delete column.dominoKey;
 
-  if (boundKey === state.dominoUsedKey) promoteRemainingUnusedSpotToUsed();
-
-  // Roll offers stay intact until confirm; vacate only unbinds the column.
   resetDominoSpotAllocationIfIdle();
-}
-
-/** @param {Set<number>} placedDieIds */
-function resolveUsedUnusedFromPlaced(placedDieIds) {
-  if (settings.nRoll === 4 && state.dominoPairGroups) {
-    const placed0 = state.dominoPairGroups[0].some(id => placedDieIds.has(id));
-    const placed1 = state.dominoPairGroups[1].some(id => placedDieIds.has(id));
-    if (placed0 && !placed1) syncUsedUnusedFromDie(state.dominoPairGroups[0][0]);
-    else if (placed1 && !placed0) syncUsedUnusedFromDie(state.dominoPairGroups[1][0]);
-    else if (placed0) syncUsedUnusedFromDie(state.dominoPairGroups[0][0]);
-  } else if (placedDieIds.size > 0) {
-    syncUsedUnusedFromDie(placedDieIds.values().next().value);
-  }
-}
-
-function boundOfferKeysThisTurn() {
-  const keys = new Set();
-  for (const col of state.dominoSpotsCreatedThisTurn) {
-    const key = getDominoKeyForCol(col);
-    if (key) keys.add(key);
-  }
-  return keys;
 }
 
 /** @param {Set<number>} placedDieIds */
@@ -304,13 +281,18 @@ export function settleDominoSpotsOnConfirm(placedDieIds) {
   if (!offered.length) return;
 
   if (!state.dominoUsedKey && placedDieIds.size > 0) {
-    resolveUsedUnusedFromPlaced(placedDieIds);
+    if (settings.nRoll === 4 && state.dominoPairGroups) {
+      const placed0 = state.dominoPairGroups[0].some(id => placedDieIds.has(id));
+      const placed1 = state.dominoPairGroups[1].some(id => placedDieIds.has(id));
+      if (placed0 && !placed1) syncUsedUnusedFromDie(state.dominoPairGroups[0][0]);
+      else if (placed1 && !placed0) syncUsedUnusedFromDie(state.dominoPairGroups[1][0]);
+      else if (placed0) syncUsedUnusedFromDie(state.dominoPairGroups[0][0]);
+    } else if (placedDieIds.size > 0) {
+      syncUsedUnusedFromDie(placedDieIds.values().next().value);
+    }
   }
 
-  const bound = boundOfferKeysThisTurn();
-  for (const key of offered) {
-    if (!bound.has(key)) discardDominoKey(key);
-  }
+  for (const key of offered) discardDominoKey(key);
 
   clearDominoSpotsOfferState();
   syncDominoDeckCount();
@@ -337,12 +319,6 @@ export function releaseDominoKeysForCols(cols) {
   }
 
   reshuffleDominoPoolAtSweep();
-}
-
-/** Active spot columns that still have a bound domino key. */
-export function getActiveDominoSpotCols() {
-  if (!isDominoSpotsActive()) return [];
-  return state.dominoSpotCols.filter(col => getDominoKeyForCol(col) != null);
 }
 
 /** @param {number} spotIndex @returns {string | null} */

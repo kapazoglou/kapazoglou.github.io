@@ -117,6 +117,11 @@
   z-index: 2;
 }
 
+.placement-col--stack:has(.die--drag-source) .placement-sweep-dup-mark,
+.placement-col--stack:has(.die--drag-pending) .placement-sweep-dup-mark {
+  display: none;
+}
+
 .placement-tile {
   width: var(--die-face);
   height: var(--tile-face-h);

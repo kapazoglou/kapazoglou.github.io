@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
-import { isDominoSpotsActive, getDominoKeyForCol, getActiveDominoSpotCols } from '../../logic/domino-spots.js';
+import { isDominoSpotsActive, getDominoKeyForCol, getRowDominoSpotCols } from '../../logic/domino-spots.js';
 import { parseDominoKey, getDominoDiscardKeys } from '../../logic/domino-roll.js';
 import { dominoStackHTML, DOMINO_SPOT_DIE } from '../../logic/dice-visual.js';
 import { isDominoDeckInActionBar } from '../../logic/deck-size.js';
@@ -229,7 +229,7 @@ export function positionDominoDiscardPile({ reveal = true } = {}) {
 }
 
 function stripSignature() {
-  return getActiveDominoSpotCols().map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`).join('|');
+  return getRowDominoSpotCols().map(col => `${col}:${getDominoKeyForCol(col) ?? ''}`).join('|');
 }
 
 function stripRenderKey() {
@@ -283,7 +283,7 @@ export function renderDominoSpotStrip() {
   const strip = document.getElementById('domino-spot-strip');
   if (!strip) return;
 
-  const spotCols = getActiveDominoSpotCols();
+  const spotCols = getRowDominoSpotCols();
   const active = isDominoSpotsActive() && spotCols.length > 0;
   strip.setAttribute('aria-hidden', active ? 'false' : 'true');
 

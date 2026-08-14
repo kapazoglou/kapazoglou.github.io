@@ -254,7 +254,9 @@ export function renderPlacementRow() {
         const stackValues = column.dice.map(id => state.dice[id].value);
         const switcherConverting = converting && column.dice.length === 3
           && isSwitcherTricolorStack(stackValues);
-        const stackDupCopy = settings.sweptSuits && column.dice.length === 3
+        const stackDragging = state.draggingDieId != null
+          && column.dice.includes(state.draggingDieId);
+        const stackDupCopy = settings.sweptSuits && column.dice.length === 3 && !stackDragging
           ? stackConvertSweepDuplicateNumber(stackValues)
           : 0;
         const stackDupMarkHTML = sweepDuplicateMarkHTML(stackDupCopy);

@@ -27,6 +27,7 @@ import {
   seedStartingDominoSpots,
   settleDominoSpotsOnConfirm,
   isDominoSpotsActive,
+  dominoSpotAssignmentGameOverReason,
 } from './domino-spots.js';
 import { suitTallyGameOverReason } from './suit-tally.js';
 import { getStarEligibleDieIds } from './stars.js';
@@ -53,7 +54,9 @@ export function resetGame() {
   clearDominoTrayState();
   clearAllDominoSpotBindings();
   seedStartingDice();
-  seedStartingDominoSpots();
+  if (!seedStartingDominoSpots()) {
+    triggerGameOver('domino pool exhausted');
+  }
 }
 
 /** nRoll=4 + dominoRoll: only N-place dice consumed net (unused pair returns on confirm). */
@@ -156,6 +159,8 @@ export function shouldWarnOnLeave() {
 /** @returns {string|null} reason string when a check fails */
 export function evaluateGameOver(context) {
   clampSettings();
+  const spotReason = dominoSpotAssignmentGameOverReason();
+  if (spotReason) return spotReason;
   const suitCapReason = suitTallyGameOverReason();
   if (suitCapReason && (context === 'post-confirm' || context === 'post-roll' || context === 'idle-roll')) {
     return suitCapReason;

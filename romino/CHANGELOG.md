@@ -10,13 +10,19 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.6, placement-anim.js v1.41, domino-spot-strip.js** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render (fixes flash/drops)
+
 - **game-over.js v2.7, game-over.css, index.html** — remove hero “X swept points” row from game-over sheet
 
 - **star-powers.js v1.15** — Bugger Singles: lone 1/6 push-below + pending gate derived from column shape (`isLoneBuggerOuterCol`); fixes push on singles when `buggerPendingCols` Set was stale
 
+- **domino-spots.js v1.18, row.js v1.88, starting-dice.js v1.5** — Bugger Singles + Domino Spots: pool-drawn domino on lone 1/6 and all-outer columns; starting odd singleton may seed 1/6 when bugger ON
+
 - **domino-roll.js v1.31, domino-spots.js v1.17, turn.js v2.51** — Starting Dice + Domino Spots ON: one random pool key per seeded column on reset; releases on sweep
 
 - **settings.js v2.40, settings-panel.js v1.43, turn.js v2.50** — `startingStars` Counts stepper (0–52, default 0) above Starting Dice; seeds HUD balance on reset (adds N-place reroll/domino-pair bonus)
+
+- **placement-row.js, placement-row.css** — hide stack duplicate −N mark as soon as a stack die drag starts (CSS + render guard)
 
 - **suit-tally.js v1.11, dice-visual.js, placement-row.js** — duplicate label −N where N = duplicate index (1st duplicate −1, 2nd −2, …)
 

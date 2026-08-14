@@ -33,6 +33,10 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.8, placement-anim.js v1.41** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render
+
+- **domino-spots.js v1.18, row.js v1.88, starting-dice.js v1.5** — Bugger Singles + Domino Spots: pool-drawn domino on lone 1/6 and all-outer columns
+
 - **star-powers.js v1.15** — Bugger Singles lone 1/6: push-below + pending top-stack gate from column shape (`isLoneBuggerOuterCol`), not stale `buggerPendingCols` Set
 
 - **domino-roll.js v1.31, domino-spots.js v1.17, turn.js v2.51** — Starting Dice + Domino Spots ON: random pool key per seeded column on reset; sweep release unchanged

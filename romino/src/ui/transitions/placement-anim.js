@@ -13,6 +13,15 @@ import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForSlot } from './pip-anim.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { playRepositionStarRefunds, peekStarPowerRepositionRefund } from './star-refund-anim.js';
+import { triggerGameOver } from '../../logic/turn.js';
+
+function handlePlaceDieResult(result) {
+  if (result === 'domino-exhausted') {
+    triggerGameOver('domino pool exhausted');
+    return false;
+  }
+  return result === true;
+}
 import { computeSpreadOffsets } from './placement-spread.js';
 import { promoteSnapGhostToFlyer, createCommitFlyerAtSlot, syncCommitFlyerToSlot } from './push-below-flyer.js';
 import { COL_SPREAD_MS, COL_DIE_IN_MS, PUSH_LIFT_MS } from './timing.js';
@@ -289,7 +298,7 @@ function runPushBelow(dieId, slot, onDone, existingFlyer = null) {
   const commit = () => {
     if (committed) return;
     committed = true;
-    if (placeDie(dieId, slot)) {
+    if (handlePlaceDieResult(placeDie(dieId, slot))) {
       addPushReminderCol(slot.col);
       syncStarMarkers();
     } else {
@@ -333,7 +342,7 @@ function syncStarMarkers() {
 function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) {
-    if (placeDie(dieId, slot)) render();
+    if (handlePlaceDieResult(placeDie(dieId, slot))) render();
     onDone();
     return;
   }
@@ -361,7 +370,10 @@ function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {
 
   const flyIn = () => {
     commitFlyer = animateDieFly(dieId, finalTarget, flyMs, () => {
-      placeDie(dieId, slot);
+      if (!handlePlaceDieResult(placeDie(dieId, slot))) {
+        finishPlacement();
+        return;
+      }
       if (isRowEdgeInsert(slot)) {
         finishPlacement();
         return;
@@ -438,7 +450,7 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
     resetInsertHoverSpread();
     state.draggingDieId = null;
     const repositionRefund = peekStarPowerRepositionRefund(dieId);
-    const ok = placeDie(dieId, slot);
+    const ok = handlePlaceDieResult(placeDie(dieId, slot));
     if (ok) {
       resetRepositionCollapse();
       render();
