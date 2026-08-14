@@ -53,6 +53,10 @@
   --col-width:    var(--die-size);
   --row-seam-gap: 40px;
   --t: 1;
+  /* Above all in-game flyers (convert cube max 650); below UI chrome (900+) */
+  --z-star-fly: 850;
+  /* Gap ⭐ markers between matching dice — above row dice/selection (max ~103) */
+  --z-row-stars: 150;
 }
 
 @media (orientation: landscape), (min-width: 825px) {

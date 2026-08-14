@@ -143,7 +143,7 @@ export function getTutorialSteps() {
       centered: true,
       final: true,
       title: 'You’re set',
-      body: 'Triple-tap the HUD score anytime to open Settings. Toggle Tutoria off when you don’t need this again — turn it back on to replay the walkthrough. Advanced rules: settings toggles change placement, star matching, tricolor jokers, reroll-outer, and more.',
+      body: 'Triple-tap the left score (points) anytime to open Settings. Toggle Tutoria off when you don’t need this again — turn it back on to replay the walkthrough. Advanced rules: settings toggles change placement, star matching, tricolor jokers, reroll-outer, and more.',
     },
   ];
 }

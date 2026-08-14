@@ -1,7 +1,7 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.41
+v: 2.45
 date: 2026-08-14
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input, stack-swap-anim]
 ---
@@ -16,14 +16,18 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 ## Die drag
 - Tap on returnable (this-turn, top-of-stack) placed die returns it to the tray and keeps it selected; tray die tap toggles selection (inactive tray 1/6 remain selectable when `rerollOuter` ON)
 - **Star Powers stack swap refund** — tap swapped stack (`.die--swap-refundable`) reverses order + refunds 1 star; return returnable die from swapped col also refunds star (see [[stack-swap-anim]])
-- **`rerollOuter` ON** — reroll via `#hud-star-pay` tap (selected outer) or star drag onto tray 1/6; see [[star-reroll-input]]
+- **`rerollOuter` ON** — reroll via `#hud-star-pay` tap (selected outer) or star drag onto tray 1/6; tap disabled when `starPowers` ON — see [[star-reroll-input]]
 - Drag to action bar still clears selection
 - Drag uses the same `.placement-die-flyer` as commit placement — spawns at the source die's exact position in `.viewport-inner`, then follows the pointer; hands off on drop (no separate `#drag-ghost`)
 - Tray die removed from action bar on drag start; cancelled / illegal drop restores bar via `renderActionBar()`
+- Cancelled row reposition (illegal drop / no valid slot) restores die via full `render()` — not `renderSelection()` (reposition collapse + drag-source hiding must be rebuilt from state)
+- **Cancel zone** — pointer below `#placement-row` and outside `#action-bar-dice` cancels the drag (no snap commit, no placement, no return); snap ghost + gap spread clear while dragging through this zone
+- Return-to-tray uses **dice-tray rect** (`#action-bar-dice`) only — not full `#action-bar` padding (40px band below row was falsely triggering push-below star refund + return)
+- Drag return clears `state.draggingDieId` before tray `render()` so the die is not omitted from `buildDiceTrayHTML`
 - Sole-die row reposition: source gap closes on drag via `reposition-collapse`
 - Push-below return drag: upper dice shift down one stack step on drag start via `beginPushReturnCollapse` (column height unchanged — row baseline preserved)
 - **`directPlacement` ON** — gap spread preview **during drag only**; drop resolves slot from pointer coordinates via `attemptPlacementAtPoint` (uses flyer top edge, not finger Y)
-- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; pointer flyer hidden while ghost has a slot (flyer only when no snap target); gap spread follows snap target; drop commits via `placeDieWithAnim` at last snap slot; `state.snapGhostSlot` drives star-marker suppression beside the ghost
+- **`snapping` ON + `directPlacement` ON** — semi-transparent `.placement-snap-ghost` at nearest valid slot during dice drag; pointer flyer hidden while ghost has a slot (flyer only when no snap target); gap spread follows snap target; drop **re-resolves** snap at release coordinates (never commits a stale ghost from the last move frame); `state.snapGhostSlot` drives star-marker suppression beside the ghost
 - **`directPlacement` OFF** — drop onto `.placement-hint` buttons
 - Dealt tile row drag drop uses coordinate placement in all modes (not hint hit-test); pointerdown matches any this-turn row tile via `isPlacedDealtTileCol`
 

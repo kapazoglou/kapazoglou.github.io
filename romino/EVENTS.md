@@ -52,4 +52,4 @@ Constraints: center-first column, nPlace cap, oneToOne rules.
 
 ## Settings
 
-Triple-click HUD score → settings panel (nDice, nRoll, nPlace, toggles). Changing counts/rules resets game.
+Triple-click left HUD points score → settings panel (nDice, nRoll, nPlace, toggles). Changing counts/rules resets game.

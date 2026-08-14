@@ -24,15 +24,19 @@ import {
 import {
   setDominoOfferedKeys,
   clearAllDominoSpotBindings,
+  seedStartingDominoSpots,
   settleDominoSpotsOnConfirm,
   isDominoSpotsActive,
 } from './domino-spots.js';
 import { suitTallyGameOverReason } from './suit-tally.js';
+import { getStarEligibleDieIds } from './stars.js';
 
-/** Starting star balance — rerollOuter seeds N-place; nRoll=2 domino pair seeds N-place for star-pay redraw. */
+/** Starting star balance — `startingStars` plus rerollOuter / nRoll=2 domino-pair seed (N-place each). */
 export function initialStarCount() {
-  if (settings.dominoRoll && settings.nRoll === 2 && settings.nPlace === 2) return settings.nPlace;
-  return settings.rerollOuter ? settings.nPlace : 0;
+  let count = settings.startingStars;
+  if (settings.dominoRoll && settings.nRoll === 2 && settings.nPlace === 2) count += settings.nPlace;
+  else if (settings.rerollOuter) count += settings.nPlace;
+  return count;
 }
 
 export function resetGame() {
@@ -49,6 +53,7 @@ export function resetGame() {
   clearDominoTrayState();
   clearAllDominoSpotBindings();
   seedStartingDice();
+  seedStartingDominoSpots();
 }
 
 /** nRoll=4 + dominoRoll: only N-place dice consumed net (unused pair returns on confirm). */
@@ -279,6 +284,8 @@ export function rollDice() {
   state.placedDieIds = new Set();
   state.pushBelowDieIds.clear();
   state.swapStackCols.clear();
+  state.pushReminderCols.clear();
+  state.swapReminderCols.clear();
   state.flippedDieIds.clear();
   state.selectedDieId = null;
 
@@ -329,11 +336,13 @@ export function confirmTurn() {
 
   state.dicePool += state.actionBar.length;
   state.actionBar = [];
-  state.starNewDieIds = new Set(state.placedDieIds);
+  state.starNewDieIds = getStarEligibleDieIds();
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
   state.pushBelowDieIds.clear();
   state.swapStackCols.clear();
+  state.pushReminderCols.clear();
+  state.swapReminderCols.clear();
   state.flippedDieIds.clear();
   state.selectedDieId = null;
   state.phase = 'animating';

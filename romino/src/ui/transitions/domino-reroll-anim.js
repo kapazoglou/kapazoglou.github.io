@@ -11,7 +11,7 @@ export function canDominoPairStarReroll(dieId) {
 }
 
 /** @returns {boolean} true when star-pay domino pair redraw animation started */
-export function tryDominoPairStarReroll(dieId) {
+export function tryDominoPairStarReroll(dieId, { skipStarFly = false } = {}) {
   if (!canDominoPairStarReroll(dieId)) return false;
 
   state.phase = 'animating';
@@ -30,7 +30,7 @@ export function tryDominoPairStarReroll(dieId) {
 
     state.phase = 'rolled';
     render();
-  });
+  }, { skipFly: skipStarFly });
 
   return true;
 }

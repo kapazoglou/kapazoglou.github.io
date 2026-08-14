@@ -1,7 +1,7 @@
 ---
 module: suit-tally
 layer: logic
-v: 1.7
+v: 1.11
 date: 2026-08-14
 deps: [state, settings, dice-visual, game-log]
 ---
@@ -20,4 +20,7 @@ Per-suit swept/converted counts in `state.suitTally` (Z X Y W). When `sweptSuits
 - `SWEPT_SUIT_UNIQUE_COMBO_CAP` — max combos counted (52)
 - `buildSessionSweepTiles()` — flat list of all session swept tiles
 - `buildSessionSweepTileCounts()` — suit:rank counts from `buildSessionSweepTiles()`
+- `sessionSweepPriorCount(suit, rank)` — prior session count for suit:rank
+- `sessionSweepDuplicateNumber(suit, rank)` — duplicate index if swept next (1 = −1 label, 2 = −2, …; 0 = first copy)
+- `stackConvertSweepDuplicateNumber(values)` — same for 3-dice convert stack
 - `SWEEP_DISCOVERY_RANKS` — 13 rank rows for discovery matrix

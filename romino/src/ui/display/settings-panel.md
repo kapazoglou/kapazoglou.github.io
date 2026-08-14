@@ -1,17 +1,17 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.41
+v: 1.43
 date: 2026-08-14
 deps: [state, settings, phase, render, game-log, lifetime-stats-view]
 ---
 # Settings Panel — User Story
 
-As a player, I want to access a hidden settings panel (triple-tap the HUD score) with iOS-style toggles for all game options, and have changes apply when I tap back — not after each toggle. Changes to counts or core rules restart the game; other changes re-render in place.
+As a player, I want to access a hidden settings panel (triple-tap the left HUD points score) with iOS-style toggles for all game options, and have changes apply when I tap back — not after each toggle. Changes to counts or core rules restart the game; other changes re-render in place.
 
 ## Exports
 - `renderSettingsPanel()` — builds toggle rows from `SETTINGS_CONFIG` into `#settings-toggles`
-- `initSettingsPanel()` — attaches triple-tap listener on `#hud-score-tap` and back-button listener
+- `initSettingsPanel()` — attaches triple-tap listener on `#hud-points` and back-button listener
 - `TUTORIAL_DONE_KEY` — localStorage key cleared when `tutoria` toggles OFF→ON on apply
 
 ## Lifetime block

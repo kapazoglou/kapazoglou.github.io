@@ -29,7 +29,7 @@ export function renderHUD() {
     <div class="hud-left">
       ${deckHTML}
     </div>
-    <div class="hud-score" id="hud-score-tap">
+    <div class="hud-score">
       <span class="hud-points" id="hud-points">${state.points}</span>
       ${suitBlockHTML}
       <div class="hud-score-after">

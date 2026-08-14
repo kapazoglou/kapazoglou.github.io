@@ -1,6 +1,13 @@
+#star-fly-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-star-fly);
+  overflow: visible;
+}
+
 .star-flyer {
   position: absolute;
-  z-index: 600;
   pointer-events: none;
   line-height: 0;
 }

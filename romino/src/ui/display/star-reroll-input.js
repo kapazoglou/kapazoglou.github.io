@@ -13,6 +13,7 @@ import { selectedOuterTrayDieId, tryRerollOuterPay } from '../transitions/reroll
 import { canDominoPairStarReroll, tryDominoPairStarReroll } from '../transitions/domino-reroll-anim.js';
 import { tryStarFlipTrayPay } from '../transitions/flip-tray-anim.js';
 import { tryStarSwapStackPay } from '../transitions/stack-swap-anim.js';
+import { starFlyLayer } from '../transitions/pip-anim.js';
 import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
 
 const DRAG_THRESHOLD = 8;
@@ -28,12 +29,8 @@ let dragStartX = 0;
 let dragStartY = 0;
 let capturedPointerId = null;
 
-function flyLayer() {
-  return document.querySelector('.viewport-inner');
-}
-
 function viewportScale() {
-  const root = flyLayer();
+  const root = starFlyLayer()?.parentElement ?? document.querySelector('.viewport-inner');
   if (!root?.offsetWidth) return 1;
   return root.getBoundingClientRect().width / root.offsetWidth;
 }
@@ -70,9 +67,9 @@ function selectedStarFlipTrayDieId() {
   return null;
 }
 
-function tryStarPayReroll(dieId) {
-  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId);
-  return tryRerollOuterPay(dieId);
+function tryStarPayReroll(dieId, { skipStarFly = false } = {}) {
+  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId, { skipStarFly });
+  return tryRerollOuterPay(dieId, { skipStarFly });
 }
 
 function trayDieTargetAt(clientX, clientY) {
@@ -91,10 +88,10 @@ function stackSwapTargetAt(clientX, clientY) {
   return { col, el };
 }
 
-function tryStarPowerOnTrayDie(dieId) {
-  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId);
-  if (settings.rerollOuter && isStarRerollTrayDie(dieId)) return tryRerollOuterPay(dieId);
-  if (canStarFlipTrayDie(dieId)) return tryStarFlipTrayPay(dieId);
+function tryStarPowerOnTrayDie(dieId, { skipStarFly = false } = {}) {
+  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId, { skipStarFly });
+  if (settings.rerollOuter && isStarRerollTrayDie(dieId)) return tryRerollOuterPay(dieId, { skipStarFly });
+  if (canStarFlipTrayDie(dieId)) return tryStarFlipTrayPay(dieId, { skipStarFly });
   return false;
 }
 
@@ -138,7 +135,7 @@ function clearStarDrag() {
 }
 
 function createStarFlyer(sourceRect) {
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!layer) return;
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
@@ -154,7 +151,7 @@ function createStarFlyer(sourceRect) {
 
 function moveStarFlyer(clientX, clientY) {
   if (!starFlyer) return;
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
   starFlyer.style.left = `${(clientX - layerRect.left) / scale - HUD_STAR_PX / 2}px`;
@@ -202,15 +199,15 @@ function updateStarDropHover(clientX, clientY) {
   }
 }
 
-function resolveStarDrop(clientX, clientY) {
+function resolveStarDrop(clientX, clientY, { skipStarFly = false } = {}) {
   const stackTarget = stackSwapTargetAt(clientX, clientY);
   if (stackTarget && canStarSwapStack(stackTarget.col)) {
-    return tryStarSwapStackPay(stackTarget.col);
+    return tryStarSwapStackPay(stackTarget.col, { skipStarFly });
   }
 
   const trayTarget = trayDieTargetAt(clientX, clientY);
   if (trayTarget) {
-    return tryStarPowerOnTrayDie(trayTarget.dieId);
+    return tryStarPowerOnTrayDie(trayTarget.dieId, { skipStarFly });
   }
 
   return false;
@@ -255,7 +252,7 @@ function onStarPointerUp(e) {
 
   if (starDragActive) {
     if (state.stars <= 0) flashStarShortagePlacement();
-    else resolveStarDrop(e.clientX, e.clientY);
+    else resolveStarDrop(e.clientX, e.clientY, { skipStarFly: true });
     clearStarDrag();
     return;
   }
@@ -263,6 +260,9 @@ function onStarPointerUp(e) {
   clearStarDrag();
 
   if (!isStarPayDraggable()) return;
+
+  // Star Powers: all HUD star-pay actions require drag (dice taps that spend stars unchanged).
+  if (starPowersEnabled()) return;
 
   if (state.stars <= 0) {
     flashStarShortagePlacement();

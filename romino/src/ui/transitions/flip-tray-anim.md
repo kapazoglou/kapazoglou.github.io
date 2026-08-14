@@ -1,7 +1,7 @@
 ---
 module: flip-tray-anim
 layer: ui/transitions
-v: 1.1
+v: 1.2
 date: 2026-08-14
 deps: [state, star-powers, pip-anim, game-log, render]
 ---

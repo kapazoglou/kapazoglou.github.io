@@ -137,16 +137,6 @@
   box-sizing: border-box;
 }
 
-.go-stat-row {
-  width: 100%;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 10px;
-}
-.go-stat-value { font-size: 40px; color: var(--text-primary); line-height: 1; }
-.go-stat-label { font-size: 15px; color: var(--text-dim); }
-
 .go-score-breakdown {
   width: 100%;
   max-width: 240px;

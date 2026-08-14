@@ -155,6 +155,14 @@ function drawRandomFromPool(pool) {
   return pool.splice(idx, 1)[0];
 }
 
+/** Draw one combo key from the active pool (removes it; refreshes deck counter). */
+export function drawDominoKeyFromPool(nRoll = settings.nRoll) {
+  if (!settings.dominoRoll) return null;
+  const key = drawRandomFromPool(activeDominoPool(nRoll));
+  syncDominoDeckCount(nRoll);
+  return key;
+}
+
 /** @param {string} key @returns {number[]} */
 export function parseDominoKey(key) {
   return key.split(',').map(Number);

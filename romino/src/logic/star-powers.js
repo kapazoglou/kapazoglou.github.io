@@ -81,7 +81,7 @@ export function passesPushBelowAtCol(col, pushValue) {
   const pair = stackTopBottomValues(column);
   if (!pair) return false;
   if (n === 1) {
-    if (!state.buggerPendingCols.has(col)) return false;
+    if (!isLoneBuggerOuterCol(col)) return false;
     return passesBuggerPendingPush(pair.bottom, pushValue);
   }
   if (isAllOuterStack(column)) {
@@ -165,8 +165,16 @@ export function clearBuggerPendingCol(col) {
   state.buggerPendingCols.delete(col);
 }
 
+/** Lone 1/6 column awaiting push-below — derived from row shape, not the pending Set alone. */
+export function isLoneBuggerOuterCol(col) {
+  if (!buggerSinglesEnabled()) return false;
+  const column = state.row[col] ?? null;
+  if (column?.kind !== 'stack' || column.dice.length !== 1) return false;
+  return isBuggerOuterValue(state.dice[column.dice[0]]?.value);
+}
+
 export function isBuggerPendingCol(col) {
-  return state.buggerPendingCols.has(col);
+  return isLoneBuggerOuterCol(col);
 }
 
 /** Stack column where every die is outer (1 or 6). */
@@ -212,4 +220,46 @@ export function isStarRerollTrayDie(dieId) {
   if (!state.actionBar.includes(dieId)) return false;
   const die = state.dice[dieId];
   return die != null && isOuterDieValue(die.value);
+}
+
+export function addPushReminderCol(col) {
+  if (starPowersEnabled()) state.pushReminderCols.add(col);
+}
+
+export function addSwapReminderCol(col) {
+  if (starPowersEnabled()) state.swapReminderCols.add(col);
+}
+
+export function clearPushReminderCol(col) {
+  state.pushReminderCols.delete(col);
+}
+
+export function clearSwapReminderCol(col) {
+  state.swapReminderCols.delete(col);
+}
+
+/** Swap ⭐ sits between the two swapped dice — row 1 only when a push die sits below them. */
+function swapReminderRow(column) {
+  if (!column?.dice || column.dice.length < 2) return null;
+  const pushBelow = state.pushBelowDieIds.has(column.dice[0]);
+  return pushBelow && column.dice.length >= 3 ? 1 : 0;
+}
+
+/** Vertical gap markers for star-paid push/swap — UI only, until confirm. */
+export function getStarPowerCostReminderMatches() {
+  const matches = [];
+  for (const col of state.pushReminderCols) {
+    const column = state.row[col] ?? null;
+    if (column?.kind === 'stack' && column.dice.length >= 2) {
+      matches.push({ axis: 'v', col, row: 0, costReminder: true });
+    }
+  }
+  for (const col of state.swapReminderCols) {
+    const column = state.row[col] ?? null;
+    if (column?.kind !== 'stack') continue;
+    const row = swapReminderRow(column);
+    if (row == null) continue;
+    matches.push({ axis: 'v', col, row, costReminder: true });
+  }
+  return matches;
 }

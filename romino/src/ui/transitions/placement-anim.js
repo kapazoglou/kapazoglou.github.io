@@ -8,8 +8,11 @@ import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js
 import { spreadColumnElement, flankStackColElement } from '../display/flank-stacks.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
 import { clearRepositionCollapse, clearPushReturnCollapse, resetRepositionCollapse } from './reposition-collapse.js';
-import { pushBelowStarCost } from '../../logic/star-powers.js';
+import { pushBelowStarCost, addPushReminderCol, clearPushReminderCol } from '../../logic/star-powers.js';
+import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForSlot } from './pip-anim.js';
+import { renderHUD } from '../display/hud-v2.js';
+import { playRepositionStarRefunds, peekStarPowerRepositionRefund } from './star-refund-anim.js';
 import { computeSpreadOffsets } from './placement-spread.js';
 import { promoteSnapGhostToFlyer, createCommitFlyerAtSlot, syncCommitFlyerToSlot } from './push-below-flyer.js';
 import { COL_SPREAD_MS, COL_DIE_IN_MS, PUSH_LIFT_MS } from './timing.js';
@@ -286,7 +289,14 @@ function runPushBelow(dieId, slot, onDone, existingFlyer = null) {
   const commit = () => {
     if (committed) return;
     committed = true;
-    placeDie(dieId, slot);
+    if (placeDie(dieId, slot)) {
+      addPushReminderCol(slot.col);
+      syncStarMarkers();
+    } else {
+      state.stars += pushCost;
+      clearPushReminderCol(slot.col);
+      renderHUD();
+    }
     onDone();
   };
 
@@ -296,8 +306,9 @@ function runPushBelow(dieId, slot, onDone, existingFlyer = null) {
     return;
   }
 
-  payStarForSlot(slot.col, undefined, pushBelowStarCost());
-  syncStarMarkers();
+  const pushCost = pushBelowStarCost();
+  payStarForSlot(slot.col, undefined, pushCost, { deductState: true });
+  recordStarSpent('push-below');
 
   // The pusher starts snapped under the stack — never a fly-in from tray or finger.
   if (!commitFlyer) {
@@ -426,10 +437,12 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
   if (!fromBar) {
     resetInsertHoverSpread();
     state.draggingDieId = null;
+    const repositionRefund = peekStarPowerRepositionRefund(dieId);
     const ok = placeDie(dieId, slot);
     if (ok) {
       resetRepositionCollapse();
       render();
+      playRepositionStarRefunds(repositionRefund, slot);
     } else {
       clearPushReturnCollapse();
       clearRepositionCollapse(false);

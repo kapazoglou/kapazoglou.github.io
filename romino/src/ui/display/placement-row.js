@@ -1,10 +1,11 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { findStarMatches } from '../../logic/stars.js';
-import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML, cubeTileHTML, isSwitcherTricolorStack } from '../../logic/dice-visual.js';
+import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML, cubeTileHTML, isSwitcherTricolorStack, sweepDuplicateMarkHTML } from '../../logic/dice-visual.js';
+import { sessionSweepDuplicateNumber, stackConvertSweepDuplicateNumber } from '../../logic/suit-tally.js';
 import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
-import { pushBelowEnabled } from '../../logic/star-powers.js';
+import { pushBelowEnabled, getStarPowerCostReminderMatches } from '../../logic/star-powers.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
   isPlacedThisTurn, isTopDieInStack, isReturnablePlacedDie, isSwapRefundableDie, getColumn, CENTER_COL, dieIdAt,
@@ -238,20 +239,29 @@ export function renderPlacementRow() {
           state.rowTileWarningCols.has(col) ? 'placement-tile--duplicate-warning' : '',
         ].filter(Boolean).join(' ');
         const suitFlown = Boolean(se?.suitFlownCols?.has(col));
+        const sweepDupCopy = settings.sweptSuits
+          ? sessionSweepDuplicateNumber(column.suit, column.rank)
+          : 0;
         const tileColClass = settings.diceAndCubes
           ? `${colClass} placement-col--tile placement-col--tile-cube`
           : `${colClass} placement-col--tile`;
         const tileMarkup = settings.diceAndCubes
-          ? cubeTileHTML(column, { classExtra, isNew: state.newTileCols?.has(col), suitFlown })
-          : tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col) });
+          ? cubeTileHTML(column, { classExtra, isNew: state.newTileCols?.has(col), suitFlown, sweepDuplicateCopy: sweepDupCopy })
+          : tileHTML(column, { classExtra, isNew: state.newTileCols?.has(col), sweepDuplicateCopy: sweepDupCopy });
         colsHTML += `<div class="${tileColClass}" data-col="${col}"${colStyle}>${tileMarkup}</div>`;
       } else {
         const converting = state.convertingCol === col;
+        const stackValues = column.dice.map(id => state.dice[id].value);
         const switcherConverting = converting && column.dice.length === 3
-          && isSwitcherTricolorStack(column.dice.map(id => state.dice[id].value));
+          && isSwitcherTricolorStack(stackValues);
+        const stackDupCopy = settings.sweptSuits && column.dice.length === 3
+          ? stackConvertSweepDuplicateNumber(stackValues)
+          : 0;
+        const stackDupMarkHTML = sweepDuplicateMarkHTML(stackDupCopy);
+        const sweepDupColClass = stackDupCopy >= 1 ? ' placement-col--sweep-dup-mark' : '';
         const pairClass = column.dice.length === 2 ? ' placement-col--stack-pair' : '';
         const dirClass = settings.stackBottomUp ? ' placement-col--stack-bottom-up' : '';
-        colsHTML += `<div class="${colClass} placement-col--stack${pairClass}${dirClass}${converting ? ' is-converting' : ''}${converting && settings.diceAndCubes && !switcherConverting ? ' is-cube-converting' : ''}${switcherConverting ? ' is-switcher-converting' : ''}" data-col="${col}"${colStyle}>${stackHTML(col, column)}</div>`;
+        colsHTML += `<div class="${colClass} placement-col--stack${pairClass}${dirClass}${sweepDupColClass}${converting ? ' is-converting' : ''}${converting && settings.diceAndCubes && !switcherConverting ? ' is-cube-converting' : ''}${switcherConverting ? ' is-switcher-converting' : ''}" data-col="${col}"${colStyle}>${stackDupMarkHTML}${stackHTML(col, column)}</div>`;
       }
     }
   }
@@ -488,13 +498,20 @@ function starAdjacentToSnapGhost(match, slot) {
 
 /** Hide stars involving the die being repositioned (still in state until drop). */
 function visibleStarMatches() {
-  const matches = findStarMatches();
+  const matchMap = new Map();
+  for (const match of findStarMatches()) {
+    matchMap.set(starMatchKey(match), match);
+  }
+  for (const match of getStarPowerCostReminderMatches()) {
+    matchMap.set(starMatchKey(match), match);
+  }
+  let visible = [...matchMap.values()];
   const dragId = state.draggingDieId;
   const snapSlot = state.snapGhostSlot;
 
-  let visible = matches;
   if (dragId != null && !state.actionBar.includes(dragId)) {
-    visible = matches.filter(m => {
+    visible = visible.filter(m => {
+      if (m.costReminder) return true;
       if (m.axis === 'v') {
         const topId = dieIdAt(m.col, m.row);
         const bottomId = dieIdAt(m.col, m.row + 1);
@@ -507,7 +524,7 @@ function visibleStarMatches() {
   }
 
   if (snapSlot) {
-    visible = visible.filter(m => !starAdjacentToSnapGhost(m, snapSlot));
+    visible = visible.filter(m => m.costReminder || !starAdjacentToSnapGhost(m, snapSlot));
   }
 
   return visible;
@@ -1021,9 +1038,12 @@ export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, di
   if (!validSlots.length) return null;
 
   const slots = dedupeOverlappingStackSlots(validSlots, dieId);
+  const onRow = isPointerOnPlacementRow(clientX, clientY);
 
-  const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
-  if (pushBelow) return pushBelow;
+  if (onRow) {
+    const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
+    if (pushBelow) return pushBelow;
+  }
 
   const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY, {
     validSlots: slots,
@@ -1033,7 +1053,7 @@ export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, di
     return pointerSlot;
   }
 
-  if (!isPointerOnPlacementRow(clientX, clientY)) return null;
+  if (!onRow) return null;
 
   let best = null;
   let bestDist = Infinity;

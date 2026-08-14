@@ -1,8 +1,8 @@
 ---
 module: domino-spots
 layer: logic
-v: 1.16
-date: 2026-08-03
+v: 1.17
+date: 2026-08-14
 deps: [state, settings, domino-roll, row]
 ---
 # Domino Spots
@@ -18,6 +18,7 @@ Logic-only relationship between offered domino combos and placement when `domino
 - **`dominoSpotKeys`** — authoritative col→key map until sweep; survives column recreate, convert, reposition
 
 ## Lifecycle
+- Reset: `seedStartingDominoSpots()` — when `startingDice` > 0, one random pool key per seeded column; registered in `dominoSpotCols` (not this-turn offers)
 - Roll: `dominoOfferedKeys` set; persistent spot cols + seam dominoes unchanged
 - First tray die on a column creates a spot and binds domino; further dice on same column reuse spot (domino locked)
 - Pre-confirm vacate: remove spot col; unbind column `dominoKey`; roll offers unchanged until confirm
@@ -27,6 +28,6 @@ Logic-only relationship between offered domino combos and placement when `domino
 - Sweep: bound `dominoKey` on swept column → discard; spot col removed; discard merged into pool and shuffled
 
 ## Exports
-- `isDominoSpotsActive()`, `setDominoOfferedKeys()`, `clearDominoSpotsRollState()`, `clearAllDominoSpotBindings()`
+- `isDominoSpotsActive()`, `setDominoOfferedKeys()`, `clearDominoSpotsRollState()`, `clearAllDominoSpotBindings()`, `seedStartingDominoSpots()`
 - `onTrayDiePlaced()`, `onColumnVacated()`, `onSpotColReposition()`, `shiftDominoSpotCols()`, `settleDominoSpotsOnConfirm()`, `releaseDominoKeysForCols()`
 - `syncDominoSpotKeysFromEngagement()`, `getActiveDominoSpotCols()`, `getDominoSpotKey()`, `getDominoKeyForCol()`, `getDominoKeyForDie()`, `isDieFromUsedDomino()`

@@ -10,6 +10,66 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **game-over.js v2.7, game-over.css, index.html** — remove hero “X swept points” row from game-over sheet
+
+- **star-powers.js v1.15** — Bugger Singles: lone 1/6 push-below + pending gate derived from column shape (`isLoneBuggerOuterCol`); fixes push on singles when `buggerPendingCols` Set was stale
+
+- **domino-roll.js v1.31, domino-spots.js v1.17, turn.js v2.51** — Starting Dice + Domino Spots ON: one random pool key per seeded column on reset; releases on sweep
+
+- **settings.js v2.40, settings-panel.js v1.43, turn.js v2.50** — `startingStars` Counts stepper (0–52, default 0) above Starting Dice; seeds HUD balance on reset (adds N-place reroll/domino-pair bonus)
+
+- **suit-tally.js v1.11, dice-visual.js, placement-row.js** — duplicate label −N where N = duplicate index (1st duplicate −1, 2nd −2, …)
+
+- **suit-tally.js v1.10, dice-visual.js, placement-row.js** — duplicate mark shows −N (next copy number: −2 second, −3 third, …)
+
+- **suit-tally.js v1.9, placement-row.js** — “−1” duplicate mark on all 3-dice convert stacks (not only Switcher) when post-convert tile identity already swept
+
+- **suit-tally.js v1.8, dice-visual.js, placement-row.js, placement-row.css** — swept duplicate “−1” warning-red label above row tiles + Switcher stacks when session suit:rank already swept; `sweptSuits` ON; shifted −2px Y
+
+- **pip-anim.js v1.16, placement-anim.js v1.42, stack-swap-anim.js v1.6** — reduce star pay flash: no full HUD rebuild on deduct; cost ⭐ reminder appears after push lift / swap cross settles (not when fly lands)
+
+- **row.js v1.87** — return-to-bar no longer auto-refunds swap on swap-paid columns
+
+- **star-powers.js v1.14, placement-row.js, row.js v1.86** — swap cost ⭐ stays at bottom↔middle; cost reminders persist while dragging top die
+
+- **pip-anim.js v1.15, star-refund-anim.js v1.2, row.js v1.85, stack-swap-anim.js** — push refund on swap+push stack: fly from push gap only, HUD balance correct, swap ⭐ reminder stays
+
+- **star-powers.js v1.13, state.js v2.32** — cost reminders split by action: push → row 0 only; swap → row 0 (2-die) or row 1 (after push)
+
+- **row.js v1.84, placement-anim.js v1.41** — fix swap→push: bar push no longer re-checks star balance at commit after `deductState`
+
+- **state.js v2.31, star-powers.js v1.11, pip-anim.js v1.14, stack-swap-anim.js v1.5, placement-anim.js v1.40, placement-row.js, row.js v1.83, star-refund-anim.js v1.1, turn.js v2.49** — push/swap: deduct star cost when HUD fly-in begins; vertical ⭐ reminder between bottom + second die until confirm
+
+- **stars.js v1.9** — `pushSwapStars` OFF: swap columns fully muted (no stars even for this-turn dice in swapped stack)
+
+- **stars.js v1.8** — `pushSwapStars` OFF: exclude push-below tray commits from eligibility; block matches that lean on push/swap-settled dice in muted columns
+
+- **pip-anim.js v1.15** — all star pip flies anchor to `#hud-star-pay` (pay, collect, refund, sweep bank origin)
+
+- **star-reroll-input.js v1.5** — `starPowers` ON: HUD star tap disabled; flip/swap/reroll pay via drag only (dice star-cost taps unchanged)
+
+- **hud-v2.js v1.13, hud-v2.css, settings-panel.js v1.42, tutorial-steps.js** — settings triple-tap moved to left points score only (stars / suit block no longer open settings)
+
+- **settings.js v2.39, stars.js v1.7** — `pushSwapStars` toggle (default OFF): push-below / stack-swap columns no longer earn placement stars unless ON
+
+- **drag-drop.js v2.45** — return-to-tray: dice-tray rect only (not action-bar padding gutter); clear `draggingDieId` before tray render so returned die is not hidden in bar
+
+- **drag-drop.js v2.44, placement-row.js** — cancel zone below row / outside action bar: no snap commit; snap re-resolved at release (not stale ghost); push-below snap gated to on-row pointer; return-to-tray uses action-bar rect
+
+- **drag-drop.js v2.43** — cancelled row reposition (illegal drop / no slot) calls full `render()` so dice cannot vanish after reposition-collapse or drag-source hiding
+
+- **pip-anim.js v1.13, star-reroll-input.js v1.4, flip-tray-anim.js v1.2, reroll-outer-anim.js v1.6, domino-reroll-anim.js v1.4, stack-swap-anim.js v1.4** — HUD star drag-drop skips redundant HUD→target fly-in (tap still flies)
+
+- **stars.js v1.6, turn.js v2.48** — star pairs after push-below or stack swap: all dice in the mutated column count as eligible (fixes row-0/row-1 horizontal matches when push shifts settled dice upward)
+
+- **row.js v1.82, star-refund-anim.js v1.0, drag-drop.js v2.42, placement-anim.js v1.39** — all star-power refunds trigger flying-star animations immediately (return-to-bar: push-below / swap / flip; push-below reposition credit)
+
+- **placement-row.css, base.css** — gap ⭐ markers (`--z-row-stars: 150`) paint above row dice; HUD unchanged
+
+- **pip-anim.js v1.12, pip-anim.css, star-reroll-input.js, base.css** — `#star-fly-layer` at `--z-star-fly: 850` so star animations always paint above in-game flyers (incl. convert cube 650)
+
+- **stack-swap-anim.js v1.3, convert-anim.css** — stack swap cross: isolated white backdrop wraps + `multiply` blend; skip pre-render unwrap (fixes end flash)
+
 - **game-over.js v2.6, suit-tally.js v1.7, suit-tally.md** — end bonus + score breakdown on every game over when `sweptSuits` ON (not suit-cap only)
 
 - **game-over.js v2.5, index.html** — suit-cap score breakdown: single box (no nested wrapper); hide redundant hero stat row when breakdown shows

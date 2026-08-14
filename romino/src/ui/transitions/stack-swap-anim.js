@@ -1,6 +1,15 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { canStarSwapStack, canRefundSwapStack, markSwapStackCol, clearSwapStackCol, swapStackDice } from '../../logic/star-powers.js';
+import {
+  canStarSwapStack,
+  canRefundSwapStack,
+  markSwapStackCol,
+  clearSwapStackCol,
+  swapStackDice,
+  addSwapReminderCol,
+  clearSwapReminderCol,
+} from '../../logic/star-powers.js';
+import { syncStarMarkersDuringMotion } from '../display/placement-row.js';
 import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForConvert, refundStarFromCol } from './pip-anim.js';
 import { DIE_OUTER, DIE_BORDER } from '../../logic/dice-visual.js';
@@ -21,12 +30,12 @@ function stackDiceEls(col) {
 }
 
 /** @returns {boolean} true when swap animation started */
-export function tryStarSwapStackPay(col) {
+export function tryStarSwapStackPay(col, { skipStarFly = false } = {}) {
   if (!canStarSwapStack(col)) return false;
-  return swapStackWithAnim(col);
+  return swapStackWithAnim(col, { skipStarFly });
 }
 
-export function swapStackWithAnim(col) {
+export function swapStackWithAnim(col, { skipStarFly = false } = {}) {
   if (!canStarSwapStack(col)) return false;
   const els = stackDiceEls(col);
   if (!els) return false;
@@ -35,33 +44,60 @@ export function swapStackWithAnim(col) {
   const mergeMs = spd(CUBE_MERGE_MS);
 
   payStarForConvert(col, () => {
+    syncStarMarkersDuringMotion(mergeMs);
     runSwapCrossAnim(els, mergeMs, () => {
       swapStackDice(col);
-      state.stars -= 1;
-      recordStarSpent('swap');
       markSwapStackCol(col);
+      addSwapReminderCol(col);
       state.phase = 'rolled';
       render();
     });
-  });
+  }, 1, { skipFly: skipStarFly, deductState: true });
+  recordStarSpent('swap');
 
   return true;
 }
 
+function wrapDieForSwapBlend(dieEl) {
+  const wrap = document.createElement('div');
+  wrap.className = 'die-swap-blend-wrap';
+  const backdrop = document.createElement('div');
+  backdrop.className = 'die-swap-blend-bg';
+  dieEl.parentNode.insertBefore(wrap, dieEl);
+  wrap.append(backdrop, dieEl);
+  return wrap;
+}
+
 function runSwapCrossAnim(els, mergeMs, onDone) {
   const { bottom, top } = els;
-  bottom.classList.add('die--cube-merge', 'die--cube-merge-blend');
-  top.classList.add('die--cube-merge', 'die--cube-merge-blend');
-  bottom.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
-  top.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
+  const colNode = bottom.closest('.placement-col');
+  if (!colNode) {
+    onDone();
+    return;
+  }
+
+  colNode.classList.add('placement-col--stack-swap-animating');
+  const bottomWrap = wrapDieForSwapBlend(bottom);
+  const topWrap = wrapDieForSwapBlend(top);
+  const wraps = [bottomWrap, topWrap];
+
+  const transition = `transform ${mergeMs}ms ${FLY_EASING}`;
+  for (const wrap of wraps) {
+    wrap.style.transition = transition;
+  }
+
+  bottom.classList.add('die--cube-merge', 'die--swap-blend');
+  top.classList.add('die--cube-merge', 'die--swap-blend');
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      bottom.style.transform = `translate(0, ${-DIE_STACK_STEP}px)`;
-      top.style.transform = `translate(0, ${DIE_STACK_STEP}px)`;
+      bottomWrap.style.transform = `translate(0, ${-DIE_STACK_STEP}px)`;
+      topWrap.style.transform = `translate(0, ${DIE_STACK_STEP}px)`;
     });
   });
 
+  // Commit state + render replaces the row — do not unwrap or clear transforms first
+  // (that snaps dice back one frame before render, causing a visible flash).
   setTimeout(onDone, mergeMs);
 }
 
@@ -83,8 +119,9 @@ export function refundSwapStackWithAnim(col) {
     swapStackDice(col);
     state.stars += 1;
     clearSwapStackCol(col);
+    clearSwapReminderCol(col);
     state.phase = 'rolled';
-    refundStarFromCol(col, () => render());
+    refundStarFromCol(col, () => render(), 1, { fromRow: 0 });
   });
 
   return true;

@@ -4,12 +4,14 @@ export const SETTINGS_CONFIG = [
     group: 'counts',
     label: 'Counts',
     items: [
-      { key: 'nSpots', label: 'N-spots',        default: 12, type: 'stepper', min: 1, max: 24 },
+      { key: 'startingStars', label: 'Starting Stars', default: 0, type: 'stepper', min: 0, max: 52 },
+      { key: 'startingDice', label: 'Starting Dice', default: 0, type: 'stepper', min: 0, max: 24 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 9, type: 'stepper', min: 1, max: 24 },
       { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 6 },
       { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 1, max: 6 },
-      { key: 'nineCubes',  label: 'Nine Cubes', default: 0, type: 'stepper', min: 0, max: 2 },
-      { key: 'startingDice', label: 'Starting Dice', default: 0, type: 'stepper', min: 0, max: 24 },
+      { key: 'nSpots', label: 'N-spots',        default: 12, type: 'stepper', min: 1, max: 24 },
+      { key: 'sweptLowSuitBonus',   label: 'Low suit bonus',        default: 2, type: 'stepper', min: 0, max: 10 },
+      { key: 'sweptDuplicatePenalty', label: 'Duplicate penalty',   default: 1, type: 'stepper', min: 0, max: 10 },
     ],
   },
   {
@@ -18,34 +20,30 @@ export const SETTINGS_CONFIG = [
     items: [
       { key: 'dominoRoll',          label: 'Domino Roll',               default: true, type: 'toggle' },
       { key: 'dominoSpots',         label: 'Domino spots',              default: false, type: 'toggle' },
-      { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: true, type: 'toggle' },
-      { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
-      { key: 'rerollOuter',         label: 'Reroll Outer',              default: true, type: 'toggle' },
-      { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
-      { key: 'nextMustFollow',      label: 'Next Must Follow',      default: true, type: 'toggle' },
-      { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
-      { key: 'switcherJokers',      label: 'Switcher Jokers',         default: true, type: 'toggle' },
-      { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
-      { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
-      { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
       { key: 'starPowers',          label: 'Star Powers',             default: false, type: 'toggle' },
       { key: 'pushBelowCost',       label: 'Bugger',                  default: 0, type: 'stepper', min: 0, max: 5 },
       { key: 'buggerSingles',       label: 'Bugger Singles',          default: false, type: 'toggle' },
+      { key: 'aceJokerStarCost',    label: 'Ace/joker star cost',       default: true,  type: 'toggle' },
+      { key: 'rerollOuter',         label: 'Reroll Outer',              default: true, type: 'toggle' },
+      { key: 'nextMustFollow',      label: 'Next Must Follow',      default: true, type: 'toggle' },
+      { key: 'tricolors',           label: 'Tricolors',               default: true, type: 'toggle' },
+      { key: 'switcherJokers',      label: 'Switcher Jokers',         default: true, type: 'toggle' },
+      { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
     ],
   },
   {
     group: 'keep',
     label: 'Keep',
     items: [
+      { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'diceAndCubes',        label: 'Dice & Cubes',          default: true, type: 'toggle' },
-      { key: 'monotonic',           label: 'Monotonic',             default: true, type: 'toggle' },      
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'snapping',            label: 'Snapping',              default: true, type: 'toggle' },
-      { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
+      { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: true, type: 'toggle' },
       { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
-      { key: 'sweptLowSuitBonus',   label: 'Low suit bonus',        default: 2, type: 'stepper', min: 0, max: 10 },
-      { key: 'sweptDuplicatePenalty', label: 'Duplicate penalty',   default: 1, type: 'stepper', min: 0, max: 10 },
+      { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
+      { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },
@@ -53,6 +51,10 @@ export const SETTINGS_CONFIG = [
     group: 'deprecated',
     label: 'Deprecated',
     items: [
+      { key: 'nineCubes',  label: 'Nine Cubes', default: 0, type: 'stepper', min: 0, max: 2 },
+      { key: 'monotonic',           label: 'Monotonic',             default: true, type: 'toggle' },
+      { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
+      { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },      
       { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 6 },
       { key: 'deckSize',       label: 'Deck Size',        default: 0, type: 'stepper', min: 0, max: 108 },
       { key: 'deckFlank',             label: 'Deck Flank',              default: false, type: 'toggle' },
@@ -87,6 +89,8 @@ export function clampSettings() {
   if (!settings.tricolors) settings.switcherJokers = false;
   if (settings.switcherJokers) settings.tricolorSevens = false;
   if (settings.tricolorSevens) settings.switcherJokers = false;
+  if (settings.startingStars < 0) settings.startingStars = 0;
+  if (settings.startingStars > 52) settings.startingStars = 52;
   if (settings.startingDice < 0) settings.startingDice = 0;
   const startingDiceCap = Math.min(settings.nDice, settings.nSpots * 2, 24);
   if (settings.startingDice > startingDiceCap) settings.startingDice = startingDiceCap;

@@ -17,8 +17,18 @@ function toDesignPx(screenPx, scale) {
   return screenPx / scale;
 }
 
-function flyLayer() {
-  return document.querySelector('.viewport-inner');
+/** Dedicated top layer for all star pip animations (see --z-star-fly). */
+export function starFlyLayer() {
+  const root = document.querySelector('.viewport-inner');
+  if (!root) return null;
+  let layer = document.getElementById('star-fly-layer');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.id = 'star-fly-layer';
+    layer.setAttribute('aria-hidden', 'true');
+    root.appendChild(layer);
+  }
+  return layer;
 }
 
 /** Rect centre in viewport-inner design px. */
@@ -27,6 +37,13 @@ function rectCenterInLayer(rect, layerRect, scale) {
     left: toDesignPx(rect.left + rect.width / 2 - layerRect.left, scale),
     top: toDesignPx(rect.top + rect.height / 2 - layerRect.top, scale),
   };
+}
+
+/** HUD star icon centre — canonical origin/destination for all star pip flies. */
+function hudStarPayCenter(layerRect, scale) {
+  const starPayEl = document.getElementById('hud-star-pay');
+  if (!starPayEl) return null;
+  return rectCenterInLayer(starPayEl.getBoundingClientRect(), layerRect, scale);
 }
 
 /** Convert-style star fly (no pop/stagger). */
@@ -75,7 +92,7 @@ export function collectStarsToHUD(count, fromRects, onDone) {
   }
 
   const starsEl = document.getElementById('hud-stars');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !layer) {
     onDone?.();
     return;
@@ -83,7 +100,7 @@ export function collectStarsToHUD(count, fromRects, onDone) {
 
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
-  const end = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const end = hudStarPayCenter(layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
   const fromCenters = fromRects
     .filter(Boolean)
@@ -91,7 +108,7 @@ export function collectStarsToHUD(count, fromRects, onDone) {
 
   starsEl.textContent = String(state.stars - count);
 
-  if (!fromCenters.length) {
+  if (!fromCenters.length || !end) {
     starsEl.textContent = String(state.stars);
     renderHUD();
     onDone?.();
@@ -115,6 +132,23 @@ function convertColCenter(col, layerRect, scale) {
   return rectCenterInLayer(colNode.getBoundingClientRect(), layerRect, scale);
 }
 
+/** Vertical die-gap centre in viewport-inner design px (matches placement-row ⭐ markers). */
+function verticalGapCenter(col, row, layerRect, scale) {
+  const inner = document.querySelector('.placement-row-inner');
+  const colNode = inner?.querySelector(`.placement-col[data-col="${col}"]`);
+  if (!colNode) return null;
+  const dice = colNode.querySelectorAll('.die--placed');
+  const topDie = dice[row];
+  const bottomDie = dice[row + 1];
+  if (!topDie || !bottomDie) return null;
+  const tr = topDie.getBoundingClientRect();
+  const br = bottomDie.getBoundingClientRect();
+  return {
+    left: toDesignPx((tr.left + tr.right) / 2 - layerRect.left, scale),
+    top: toDesignPx((tr.top + tr.bottom + br.top + br.bottom) / 4 - layerRect.top, scale),
+  };
+}
+
 /** Action-bar tray die centre in viewport-inner design px — star payment target. */
 function trayDieCenter(dieId, layerRect, scale) {
   const dieEl = document.querySelector(`.die--action[data-die-id="${dieId}"]`);
@@ -123,14 +157,14 @@ function trayDieCenter(dieId, layerRect, scale) {
 }
 
 /** Visual-only HUD → stack column before push-from-below placement. */
-export function payStarForSlot(col, onDone, count = 1) {
-  payStarForConvert(col, onDone, count);
+export function payStarForSlot(col, onDone, count = 1, options = {}) {
+  payStarForConvert(col, onDone, count, options);
 }
 
 /** Visual-only stack column → HUD after state.stars was already updated (mirror of payStarForConvert). */
-export function refundStarFromCol(col, onDone, count = 1) {
+export function refundStarFromCol(col, onDone, count = 1, { fromRow = null } = {}) {
   const starsEl = document.getElementById('hud-stars');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !layer) {
     onDone?.();
     return;
@@ -138,18 +172,20 @@ export function refundStarFromCol(col, onDone, count = 1) {
 
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
-  const start = convertColCenter(col, layerRect, scale);
-  const end = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const start = fromRow != null
+    ? verticalGapCenter(col, fromRow, layerRect, scale)
+    : convertColCenter(col, layerRect, scale);
+  const end = hudStarPayCenter(layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
 
-  if (!start) {
+  if (!start || !end) {
     starsEl.textContent = String(state.stars);
     renderHUD();
     onDone?.();
     return;
   }
 
-  starsEl.textContent = String(state.stars - count);
+  starsEl.textContent = String(state.stars);
   const toCenters = Array.from({ length: count }, () => end);
   for (let i = 0; i < count; i++) {
     launchStarFlyer(start, toCenters[i], layer, flyMs);
@@ -163,9 +199,9 @@ export function refundStarFromCol(col, onDone, count = 1) {
 }
 
 /** Visual-only HUD → ace/joker stack before convert (mirror of collectStarsToHUD). */
-export function payStarForConvert(col, onDone, count = 1) {
+export function payStarForConvert(col, onDone, count = 1, { skipFly = false, deductState = false } = {}) {
   const starsEl = document.getElementById('hud-stars');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !layer || state.stars < count) {
     onDone?.();
     return;
@@ -173,7 +209,6 @@ export function payStarForConvert(col, onDone, count = 1) {
 
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
-  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
   const end = convertColCenter(col, layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
 
@@ -182,7 +217,19 @@ export function payStarForConvert(col, onDone, count = 1) {
     return;
   }
 
-  starsEl.textContent = String(state.stars - count);
+  if (deductState) {
+    state.stars -= count;
+  }
+
+  const start = hudStarPayCenter(layerRect, scale);
+
+  starsEl.textContent = String(deductState ? state.stars : state.stars - count);
+
+  if (skipFly || !start) {
+    onDone?.();
+    return;
+  }
+
   const fromCenters = Array.from({ length: count }, () => start);
   launchStarFlyers(fromCenters, end, layer, flyMs);
 
@@ -204,9 +251,9 @@ function dominoPairCenter(layerRect, scale) {
 }
 
 /** Visual-only HUD → domino pair midpoint before star-pay pair redraw. */
-export function payStarForDominoPair(onDone) {
+export function payStarForDominoPair(onDone, { skipFly = false } = {}) {
   const starsEl = document.getElementById('hud-stars');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !layer || state.stars <= 0) {
     onDone?.();
     return;
@@ -214,16 +261,22 @@ export function payStarForDominoPair(onDone) {
 
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
-  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const start = hudStarPayCenter(layerRect, scale);
   const end = dominoPairCenter(layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
 
-  if (!end) {
+  if (!end || !start) {
     onDone?.();
     return;
   }
 
   starsEl.textContent = String(state.stars - 1);
+
+  if (skipFly) {
+    onDone?.();
+    return;
+  }
+
   launchStarFlyer(start, end, layer, flyMs);
 
   setTimeout(() => {
@@ -232,9 +285,9 @@ export function payStarForDominoPair(onDone) {
 }
 
 /** Visual-only HUD → tray die before outer reroll (mirror of payStarForConvert). */
-export function payStarForTrayDie(dieId, onDone) {
+export function payStarForTrayDie(dieId, onDone, { skipFly = false } = {}) {
   const starsEl = document.getElementById('hud-stars');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !layer || state.stars <= 0) {
     onDone?.();
     return;
@@ -242,16 +295,22 @@ export function payStarForTrayDie(dieId, onDone) {
 
   const scale = viewportScale();
   const layerRect = layer.getBoundingClientRect();
-  const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const start = hudStarPayCenter(layerRect, scale);
   const end = trayDieCenter(dieId, layerRect, scale);
   const flyMs = spd(CONVERT_FLY_MS);
 
-  if (!end) {
+  if (!end || !start) {
     onDone?.();
     return;
   }
 
   starsEl.textContent = String(state.stars - 1);
+
+  if (skipFly) {
+    onDone?.();
+    return;
+  }
+
   launchStarFlyer(start, end, layer, flyMs);
 
   setTimeout(() => {
@@ -265,7 +324,7 @@ export function bankStarsToPoints(starsBeforeBank, lengthFactor, onDone) {
 
   const starsEl = document.getElementById('hud-stars');
   const pointsEl = document.getElementById('hud-points');
-  const layer = flyLayer();
+  const layer = starFlyLayer();
   if (!starsEl || !pointsEl || !layer) {
     onDone?.();
     return;
@@ -288,11 +347,20 @@ export function bankStarsToPoints(starsBeforeBank, lengthFactor, onDone) {
     setTimeout(() => {
       const scale = viewportScale();
       const layerRect = layer.getBoundingClientRect();
-      const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+      const start = hudStarPayCenter(layerRect, scale);
       const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
 
       starsEl.textContent = starsBeforeBank > 0 ? String(starsBeforeBank) : '0';
       pointsEl.textContent = String(oldPoints);
+
+      if (!start || !end) {
+        starsEl.classList.remove('is-sweep-mult');
+        starsEl.textContent = String(state.stars);
+        pointsEl.textContent = String(state.points);
+        renderHUD();
+        onDone?.();
+        return;
+      }
 
       const fromCenters = Array.from({ length: effectiveStars }, () => start);
       launchStarFlyers(fromCenters, end, layer, flyMs);

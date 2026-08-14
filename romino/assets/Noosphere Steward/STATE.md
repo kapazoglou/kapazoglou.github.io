@@ -16,7 +16,7 @@ lastVerified: 2026-08-14
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `buggerSingles`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingStars`, `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `pushSwapStars`, `buggerSingles`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,42 @@ lastVerified: 2026-08-14
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **star-powers.js v1.15** — Bugger Singles lone 1/6: push-below + pending top-stack gate from column shape (`isLoneBuggerOuterCol`), not stale `buggerPendingCols` Set
+
+- **domino-roll.js v1.31, domino-spots.js v1.17, turn.js v2.51** — Starting Dice + Domino Spots ON: random pool key per seeded column on reset; sweep release unchanged
+
+- **settings.js v2.40, settings-panel.js v1.43, turn.js v2.50** — `startingStars` Counts stepper (0–52, default 0) above Starting Dice; seeds HUD balance on reset (adds N-place reroll/domino-pair bonus)
+
+- **suit-tally.js v1.9, placement-row.js** — “−1” on all 3-dice convert stacks when post-convert identity already swept (standard + Switcher)
+
+- **suit-tally.js v1.8, dice-visual.js, placement-row.js, placement-row.css** — swept duplicate “−1” warning-red label on row tiles + stacks; `sweptSuits` ON
+
+- **state.js v2.31, star-powers.js v1.11, pip-anim.js v1.14, stack-swap-anim.js v1.5, placement-anim.js v1.40, placement-row.js, row.js v1.83, star-refund-anim.js v1.1, turn.js v2.49** — push/swap: star cost debited when HUD fly-in begins (`deductState`); vertical ⭐ cost reminder between bottom + second die until confirm (`starPowerReminderCols`)
+
+- **pip-anim.js v1.15** — star pip fly anchor unified on `#hud-star-pay` (not `#hud-stars` count / left points)
+
+- **star-reroll-input.js v1.5** — `starPowers` ON: HUD star tap no-op; drag-only for star-pay actions
+
+- **hud-v2.js v1.13, hud-v2.css, settings-panel.js v1.42, tutorial-steps.js** — settings triple-tap on `#hud-points` only (left score)
+
+- **stars.js v1.9** — `pushSwapStars` OFF: swap columns fully muted — no placement stars even when swapped die was placed this turn
+
+- **stars.js v1.8** — `pushSwapStars` OFF: push-below tray commits excluded from eligibility; matches involving push/swap-settled dice in muted columns blocked
+
+- **settings.js v2.39, stars.js v1.7** — `pushSwapStars` toggle (default OFF): push-below / stack-swap columns excluded from star eligibility unless ON
+
+- **drag-drop.js v2.45** — dice-tray-only return hit-test (padding gutter no longer returns); clear draggingDieId before tray render (fixes die hidden in bar)
+
+- **drag-drop.js v2.44, placement-row.js** — cancel zone (below row, outside action bar): no stale snap commit; snap re-resolved at release; push-below snap on-row only
+
+- **drag-drop.js v2.43** — cancelled row reposition calls full `render()` (fixes dice vanishing on illegal drop after reposition-collapse / drag-source hide)
+
+- **pip-anim.js v1.13, star-reroll-input.js v1.4, flip-tray-anim.js v1.2, reroll-outer-anim.js v1.6, domino-reroll-anim.js v1.4, stack-swap-anim.js v1.4** — HUD star drag-drop skips redundant HUD→target fly-in; tap still flies
+
+- **stars.js v1.6, turn.js v2.48** — push-below / stack-swap columns: all stack dice eligible for star pairs (fixes row-0/row-1 horizontal matches after push shifts or swap reorder)
+
+- **row.js v1.82, star-refund-anim.js v1.0, drag-drop.js v2.42, placement-anim.js v1.39** — star-power refund fly on every refund path (return-to-bar + push-below reposition credit)
 
 - **handlers.js v2.14** — tap-to-return a pushed die parity with drag: `consumeRowClickBlock()` hoisted to top of click handler (all modes, before push-below re-attempt); trailing click after a tap-return/refund no longer re-pushes the just-returned die
 

@@ -66,6 +66,8 @@ function clampDraft() {
   if (!draftSettings.tricolors) draftSettings.switcherJokers = false;
   if (draftSettings.switcherJokers) draftSettings.tricolorSevens = false;
   if (draftSettings.tricolorSevens) draftSettings.switcherJokers = false;
+  if (draftSettings.startingStars < 0) draftSettings.startingStars = 0;
+  if (draftSettings.startingStars > 52) draftSettings.startingStars = 52;
   if (draftSettings.startingDice < 0) draftSettings.startingDice = 0;
   const startingDiceCap = Math.min(draftSettings.nDice, draftSettings.nSpots * 2, 24);
   if (draftSettings.startingDice > startingDiceCap) draftSettings.startingDice = startingDiceCap;
@@ -255,7 +257,7 @@ export function initSettingsPanel() {
   let tapTimer = null;
 
   document.getElementById('app').addEventListener('click', e => {
-    if (!e.target.closest('#hud-score-tap')) return;
+    if (!e.target.closest('#hud-points')) return;
     tapCount++;
     clearTimeout(tapTimer);
     tapTimer = setTimeout(() => { tapCount = 0; }, 600);

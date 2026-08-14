@@ -5,12 +5,12 @@ import { payStarForTrayDie } from './pip-anim.js';
 import { render } from '../display/render.js';
 
 /** Star pay fly → deduct → flip tray die to opposite face (all faces; outer gated by rerollOuter). */
-export function tryStarFlipTrayPay(dieId) {
+export function tryStarFlipTrayPay(dieId, { skipStarFly = false } = {}) {
   if (!canStarFlipTrayDie(dieId)) return false;
-  return flipTrayDieWithAnim(dieId);
+  return flipTrayDieWithAnim(dieId, { skipStarFly });
 }
 
-export function flipTrayDieWithAnim(dieId) {
+export function flipTrayDieWithAnim(dieId, { skipStarFly = false } = {}) {
   if (!canStarFlipTrayDie(dieId)) return false;
 
   state.phase = 'animating';
@@ -31,7 +31,7 @@ export function flipTrayDieWithAnim(dieId) {
 
     state.phase = 'rolled';
     render();
-  });
+  }, { skipFly: skipStarFly });
 
   return true;
 }

@@ -1,7 +1,7 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
 import { tileCountKey } from './game-log.js';
-import { DISCARD_RANKS, JOKER_RANK, SWEPT_SUIT_ORDER, missingInnerDieFromTricolor, suitFromValue } from './dice-visual.js';
+import { DISCARD_RANKS, JOKER_RANK, SWEPT_SUIT_ORDER, missingInnerDieFromTricolor, suitFromValue, isSwitcherTricolorStack, tileIdentityFromStackValues } from './dice-visual.js';
 
 /** 13 rank rows: A + 2–12 + joker (discovery grid). */
 export const SWEEP_DISCOVERY_RANKS = ['A', ...DISCARD_RANKS.slice(2, 13), JOKER_RANK];
@@ -109,4 +109,56 @@ export function buildSessionSweepTileCounts() {
     counts[key] = (counts[key] ?? 0) + 1;
   }
   return counts;
+}
+
+/** Prior session sweeps + Switcher converts for this suit:rank. */
+export function sessionSweepPriorCount(suit, rank) {
+  return buildSessionSweepTileCounts()[tileCountKey(suit, rank)] ?? 0;
+}
+
+/** Duplicate index if swept/converted next (1 = first duplicate, 2 = second, …); 0 = not yet duplicated. */
+export function sessionSweepDuplicateNumber(suit, rank) {
+  return sessionSweepPriorCount(suit, rank);
+}
+
+/** @deprecated alias — use sessionSweepDuplicateNumber */
+export function sessionSweepNextCopyNumber(suit, rank) {
+  return sessionSweepDuplicateNumber(suit, rank);
+}
+
+/** True when a prior session sweep or Switcher convert already recorded this suit:rank. */
+export function isSessionSweepDuplicateIdentity(suit, rank) {
+  return sessionSweepPriorCount(suit, rank) >= 1;
+}
+
+/** Switcher Jokers: joker identity tallied on convert (missing inner suit). */
+export function isSwitcherStackSweepDuplicate(values) {
+  const missing = missingInnerDieFromTricolor(values);
+  if (missing == null) return false;
+  return isSessionSweepDuplicateIdentity(suitFromValue(missing), JOKER_RANK);
+}
+
+/** 3-dice stack would convert to a session-duplicated tile (Switcher or standard convert). */
+export function isStackConvertSweepDuplicate(values) {
+  return stackConvertSweepDuplicateNumber(values) > 0;
+}
+
+/** Duplicate index if this 3-dice stack converts (1 = first duplicate, …); 0 = first copy. */
+export function stackConvertSweepDuplicateNumber(values) {
+  if (values.length !== 3) return 0;
+  if (isSwitcherTricolorStack(values)) {
+    const missing = missingInnerDieFromTricolor(values);
+    if (missing == null) return 0;
+    return sessionSweepDuplicateNumber(suitFromValue(missing), JOKER_RANK);
+  }
+  const tile = tileIdentityFromStackValues(values, {
+    tricolors: settings.tricolors,
+    tricolorSevens: settings.tricolorSevens,
+  });
+  return sessionSweepDuplicateNumber(tile.suit, tile.rank);
+}
+
+/** @deprecated alias — use stackConvertSweepDuplicateNumber */
+export function stackConvertSweepNextCopyNumber(values) {
+  return stackConvertSweepDuplicateNumber(values);
 }

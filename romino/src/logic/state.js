@@ -96,6 +96,10 @@ export function createInitialState() {
     pushBelowDieIds: new Set(),
     /** Columns star-paid stack swap this turn — tap refunds star (reverse swap). */
     swapStackCols: new Set(),
+    /** Columns with a push-below cost ⭐ reminder (gap at row 0) until confirm/refund. */
+    pushReminderCols: new Set(),
+    /** Columns with a stack-swap cost ⭐ reminder until confirm/refund. */
+    swapReminderCols: new Set(),
     /** Tray dice star-flipped this turn (odd flips) — return to bar refunds star + reverts face. */
     flippedDieIds: new Set(),
     /** UI — seam domino spot glyphs visible (toggle via deck badge tap). */

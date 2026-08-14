@@ -109,21 +109,16 @@ function scoreBreakdownHTML(sweptScore, breakdown) {
 
 function renderScoreBreakdown(sweptScore, breakdown) {
   const el = document.getElementById('go-score-breakdown');
-  const statRow = document.getElementById('go-stat-row');
   if (!el) return;
   el.innerHTML = scoreBreakdownHTML(sweptScore, breakdown);
   el.hidden = false;
-  if (statRow) statRow.hidden = true;
 }
 
 function hideScoreBreakdown() {
   const el = document.getElementById('go-score-breakdown');
-  const statRow = document.getElementById('go-stat-row');
-  if (el) {
-    el.innerHTML = '';
-    el.hidden = true;
-  }
-  if (statRow) statRow.hidden = false;
+  if (!el) return;
+  el.innerHTML = '';
+  el.hidden = true;
 }
 
 export function showGameOver(reason = '') {
@@ -156,9 +151,6 @@ export function showGameOver(reason = '') {
   const record = buildGameRecord({ reason });
   appendGameRecord(record);
   updateLifetimeStats(record);
-
-  const scoreEl = document.getElementById('go-score-value');
-  if (scoreEl) scoreEl.textContent = String(score);
 
   const rollsEl = document.getElementById('go-rolls-value');
   if (rollsEl) rollsEl.textContent = String(rolls);

@@ -1,8 +1,8 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.30
-date: 2026-08-12
+v: 1.31
+date: 2026-08-14
 deps: [state, settings, deck-size, game-log]
 ---
 # Domino Roll
@@ -48,7 +48,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 2, 3, or 4.
 - `onDominoDieReturnedToTray(dieId)` — clears selection on tray return; idle unlock when all quad dice in tray
 
 ## Exports
-- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `canDrawDominoRoll(nRoll)`, `settleDominoRollOnConfirm()`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
+- `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `drawDominoKeyFromPool(nRoll)`, `canDrawDominoRoll(nRoll)`, `settleDominoRollOnConfirm()`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)`, `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
 - `canApplyDominoPairReroll()`, `canShowDominoPairReroll()`, `discardOfferedDominoKeys()`
 - `isDominoPairRollTray()`, `isDominoPairTraySeamless()`
 - `isDominoQuadRollActive()`, `getDominoPairIndex()`, `setDominoChosenPairFromDie()`, `clearDominoChosenPair()`, `getDominoEngagedPairIndex()`, `syncDominoTrayIdleUnlock()`, `onDominoDieReturnedToTray()`, `isDominoPairLocked()`

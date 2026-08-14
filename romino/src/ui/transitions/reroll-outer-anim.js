@@ -24,13 +24,13 @@ export function selectedOuterTrayDieId() {
 }
 
 /** @returns {boolean} true when reroll animation started */
-export function tryRerollOuterPay(dieId) {
+export function tryRerollOuterPay(dieId, { skipStarFly = false } = {}) {
   if (dieId == null || !canRerollOuterDie(dieId)) return false;
-  return rerollOuterDieWithAnim(dieId);
+  return rerollOuterDieWithAnim(dieId, { skipStarFly });
 }
 
 /** Star pay fly → deduct → reroll → is-new tray pop. */
-export function rerollOuterDieWithAnim(dieId) {
+export function rerollOuterDieWithAnim(dieId, { skipStarFly = false } = {}) {
   if (!canRerollOuterDie(dieId)) return false;
 
   state.phase = 'animating';
@@ -51,7 +51,7 @@ export function rerollOuterDieWithAnim(dieId) {
 
     state.phase = 'rolled';
     render();
-  });
+  }, { skipFly: skipStarFly });
 
   return true;
 }

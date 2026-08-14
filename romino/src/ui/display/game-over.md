@@ -1,7 +1,7 @@
 ---
 module: game-over
 layer: ui/display
-v: 2.6
+v: 2.7
 date: 2026-08-14
 deps: [dice-visual, highscores, game-log, turn, end-game-prompt, render, lifetime-stats-view, suit-tally, settings]
 ---
@@ -16,8 +16,6 @@ Bottom sheet when the dice pool cannot fill a full roll (`dicePool < nRoll`), ti
 - `leaderboardHTML(currentId?)` — top-10 highscore rows
 
 ## DOM
-- `#go-stat-row` — hero swept points (hidden when `sweptSuits` breakdown shows)
-- `#go-score-value` — swept total in stat row (final total still used for highscore)
 - `#go-score-breakdown` — when `sweptSuits` ON: swept + unique − duplicates + lowest suit → total
 - `#go-rolls-value`, `#go-sweeps-count-value` — session roll / sweep counts
 - `#go-sweeps` — wrapped sweep groups within sheet width

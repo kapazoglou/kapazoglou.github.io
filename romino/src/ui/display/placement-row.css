@@ -12,6 +12,7 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   position: relative;
+  --pip-diameter: calc(var(--die-size) * 10 / 48);
 }
 
 .placement-row::-webkit-scrollbar {
@@ -94,6 +95,26 @@
 /* First placed die anchors at bottom; later dice stack upward */
 .placement-col--stack-bottom-up {
   flex-direction: column-reverse;
+}
+
+.placement-tile,
+.placement-tile-cube,
+.placement-col--sweep-dup-mark {
+  position: relative;
+}
+
+.placement-sweep-dup-mark {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, calc(-100% - 2px));
+  font-family: 'Averia Libre', serif;
+  font-size: 12px;
+  line-height: normal;
+  color: var(--warning-red);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .placement-tile {
@@ -238,7 +259,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 4;
+  z-index: var(--z-row-stars);
 }
 
 .placement-star {

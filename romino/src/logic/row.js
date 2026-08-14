@@ -12,7 +12,9 @@ import {
   buggerSinglesEnabled,
   clearBuggerPendingCol,
   clearBuggerOuterStackLockedCol,
-  clearSwapStackCol,
+  clearPushReminderCol,
+  clearSwapReminderCol,
+  addSwapReminderCol,
   clearFlippedDie,
   isAllOuterStack,
   isBuggerOuterValue,
@@ -802,9 +804,11 @@ export function placeDie(dieId, slot) {
 
   if (slot.kind === 'stack-below') {
     const cost = pushBelowStarCost();
-    const credit = fromRow && isPushBelowPlacedDie(dieId) ? cost : 0;
-    if (state.stars + credit < cost || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
-      return false;
+    if (!pushBelowRulesPass(slot.col, state.dice[dieId].value)) return false;
+    // Bar push: stars debited in placement-anim before lift commit (`deductState`).
+    if (fromRow) {
+      const credit = isPushBelowPlacedDie(dieId) ? cost : 0;
+      if (state.stars + credit < cost) return false;
     }
   } else {
     const valid = getValidSlotsForDie(dieId);
@@ -826,6 +830,7 @@ export function placeDie(dieId, slot) {
     if (wasPushBelow) {
       state.pushBelowDieIds.delete(dieId);
       state.stars += pushBelowStarCost();
+      if (sourceCol != null) clearPushReminderCol(sourceCol);
     }
     if (typeof removeResult === 'number') vacatedCol = removeResult;
     else if (wasPushBelow && sourceCol != null) {
@@ -864,9 +869,11 @@ export function placeDie(dieId, slot) {
     column.dice.unshift(dieId);
     clearBuggerPendingCol(targetCol);
     clearBuggerOuterStackLockedCol(targetCol);
-    state.stars -= pushBelowStarCost();
+    if (!fromBar) {
+      state.stars -= pushBelowStarCost();
+      recordStarSpent('push-below');
+    }
     state.pushBelowDieIds.add(dieId);
-    recordStarSpent('push-below');
   } else {
     targetCol = slot.col;
     const column = state.row[slot.col];
@@ -896,6 +903,34 @@ export function placeDie(dieId, slot) {
   return true;
 }
 
+/** Star-power refund due when returning a placed die — call before `returnDieToBar`. */
+export function peekStarPowerReturnRefund(dieId) {
+  const loc = findDieColumn(dieId);
+  const col = loc?.col ?? null;
+  if (col == null) return null;
+
+  let count = 0;
+  let fromRow = null;
+  if (isPushBelowPlacedDie(dieId)) {
+    count += pushBelowStarCost();
+    fromRow = 0;
+  }
+  if (isFlippedDie(dieId)) count += 1;
+
+  if (count <= 0) return null;
+  return { col, count, fromRow };
+}
+
+/** Push-below credit on leave — call before reposition `placeDie`. */
+export function peekStarPowerRepositionRefund(dieId) {
+  if (!isPushBelowPlacedDie(dieId)) return null;
+  const loc = findDieColumn(dieId);
+  if (!loc) return null;
+  const count = pushBelowStarCost();
+  if (count <= 0) return null;
+  return { col: loc.col, count };
+}
+
 export function returnDieToBar(dieId, keepSelected = false) {
   if (!canReturnDieToBar(dieId)) return false;
 
@@ -903,14 +938,14 @@ export function returnDieToBar(dieId, keepSelected = false) {
   const loc = findDieColumn(dieId);
   const boundKey = loc ? getDominoKeyForCol(loc.col) : null;
   const col = loc?.col ?? null;
-  const swapPaid = col != null && isSwapPaidCol(col);
 
   if (pushBelow) {
     state.pushBelowDieIds.delete(dieId);
     state.stars += pushBelowStarCost();
-  } else if (swapPaid) {
-    state.stars += 1;
-    clearSwapStackCol(col);
+    if (col != null) {
+      clearPushReminderCol(col);
+      if (isSwapPaidCol(col)) addSwapReminderCol(col);
+    }
   }
 
   const removeResult = removeDieFromRow(dieId);
@@ -918,9 +953,6 @@ export function returnDieToBar(dieId, keepSelected = false) {
     if (pushBelow) {
       state.pushBelowDieIds.add(dieId);
       state.stars -= pushBelowStarCost();
-    } else if (swapPaid) {
-      state.stars -= 1;
-      if (col != null) state.swapStackCols.add(col);
     }
     return false;
   }

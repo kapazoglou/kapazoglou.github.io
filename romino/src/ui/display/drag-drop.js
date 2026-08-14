@@ -1,6 +1,7 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, isReturnablePlacedDie, isSwapRefundableDie, findDieColumn } from '../../logic/row.js';
+import { slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, isReturnablePlacedDie, isSwapRefundableDie, findDieColumn } from '../../logic/row.js';
+import { returnDieToBarWithStarRefund } from '../transitions/star-refund-anim.js';
 import {
   setDominoChosenPairFromDie,
   clearDominoChosenPair,
@@ -12,7 +13,7 @@ import {
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY, syncPushBelowTargets } from './placement-row.js';
+import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY, syncPushBelowTargets, isPointerOnPlacementRow } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
@@ -41,6 +42,21 @@ let snapGhostEl = null;
 
 function snappingActive() {
   return settings.snapping && settings.directPlacement;
+}
+
+/** Rect hit-test on the dice tray only — not roll-btn padding (flyer/ghost must not block). */
+function isPointerOnDiceTray(clientX, clientY) {
+  const tray = document.getElementById('action-bar-dice');
+  if (!tray) return false;
+  const r = tray.getBoundingClientRect();
+  return clientX >= r.left && clientX <= r.right
+    && clientY >= r.top && clientY <= r.bottom;
+}
+
+/** Below the row and not on the dice tray — cancel drag (no snap commit, no return). */
+function isDropCancelZone(clientX, clientY) {
+  return !isPointerOnPlacementRow(clientX, clientY)
+    && !isPointerOnDiceTray(clientX, clientY);
 }
 
 export function consumeRowClickBlock() {
@@ -202,7 +218,7 @@ function handleDieTap(dieEl) {
       if (loc && tryRefundSwapStack(loc.col)) return 'refund-swap';
     }
 
-    if (returnDieToBar(dieId, !isDominoQuadRollActive())) {
+    if (returnDieToBarWithStarRefund(dieId, !isDominoQuadRollActive())) {
       if (isDominoQuadRollActive()) onDominoDieReturnedToTray(dieId);
       else state.selectedDieId = dieId;
       return 'return';
@@ -320,7 +336,11 @@ function onPointerMove(e) {
     }
     if (settings.directPlacement) {
       const validSlots = getValidSlotsForDie(dragDieId);
-      if (snappingActive()) {
+      if (isDropCancelZone(e.clientX, e.clientY)) {
+        activeSnapSlot = null;
+        updateSnapGhost(null);
+        clearInsertHoverSpread(false);
+      } else if (snappingActive()) {
         const stackY = flyerResolvePoint()?.y ?? e.clientY;
         activeSnapSlot = resolveNearestValidSlot(
           e.clientX, e.clientY, stackY, validSlots, dragDieId,
@@ -372,19 +392,28 @@ function onPointerUp(e) {
 
 function resolveDrop(e) {
   if (isDragging) {
-    const target = document.elementFromPoint(e.clientX, e.clientY);
     let animHandled = false;
     let returnedToBar = false;
+    const cancelDrop = isDropCancelZone(e.clientX, e.clientY);
 
     if (
-      target?.closest('#action-bar, #action-bar-dice')
+      !cancelDrop
       && state.placedDieIds.has(dragDieId)
+      && isPointerOnDiceTray(e.clientX, e.clientY)
     ) {
-      returnedToBar = returnDieToBar(dragDieId);
+      // Clear before render — buildDiceTrayHTML hides state.draggingDieId.
+      state.draggingDieId = null;
+      returnedToBar = returnDieToBarWithStarRefund(dragDieId);
       if (returnedToBar) onDominoDieReturnedToTray(dragDieId);
-    } else if (settings.directPlacement) {
+    } else if (settings.directPlacement && !cancelDrop) {
       if (snappingActive()) {
-        const commitSlot = activeSnapSlot;
+        const validSlots = getValidSlotsForDie(dragDieId);
+        const flyerPt = flyerResolvePoint();
+        const stackY = flyerPt?.y ?? e.clientY;
+        // Re-resolve at release — never commit a stale ghost from the last move frame.
+        const commitSlot = resolveNearestValidSlot(
+          e.clientX, e.clientY, stackY, validSlots, dragDieId,
+        );
         if (commitSlot) {
           let commitFlyer = dragFlyer;
           if (commitSlot.kind === 'stack-below') {
@@ -413,7 +442,10 @@ function resolveDrop(e) {
           animHandled = true;
         }
       }
-    } else {
+    } else if (settings.directPlacement && cancelDrop) {
+      clearSnapGhost();
+    } else if (!cancelDrop) {
+      const target = document.elementFromPoint(e.clientX, e.clientY);
       const hint = target?.closest('.placement-hint');
       if (hint) {
         animHandled = placeDieWithAnim(
@@ -429,10 +461,16 @@ function resolveDrop(e) {
 
     if (!animHandled) {
       if (returnedToBar) {
-        render();
+        /* render handled in returnDieToBarWithStarRefund */
+        dragFlyer?.remove();
+        dragFlyer = null;
       } else if (dragDieId != null && state.actionBar.includes(dragDieId)) {
         syncDominoTrayIdleUnlock();
         renderActionBar();
+      } else if (dragDieId != null && state.placedDieIds.has(dragDieId)) {
+        // Full row rebuild — selection-only refresh leaves reposition collapse /
+        // die--drag-source chrome and the die can vanish while still in state.
+        render();
       } else {
         requestAnimationFrame(() => renderSelection());
       }
@@ -442,7 +480,7 @@ function resolveDrop(e) {
     const tapResult = handleDieTap(dragDieEl);
     if (tapResult === 'return' || tapResult === 'refund-swap') {
       blockNextRowClick = true;
-      render();
+      if (tapResult === 'refund-swap') render();
     } else if (tapResult === 'selection') renderSelection();
   }
 }

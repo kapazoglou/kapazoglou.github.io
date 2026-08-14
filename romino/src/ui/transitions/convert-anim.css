@@ -78,6 +78,47 @@
   mix-blend-mode: overlay;
 }
 
+/* ─── Stack swap cross — white backdrops for multiply blend ─── */
+.placement-col--stack-swap-animating {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+}
+
+.die-swap-blend-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: #fff;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.die-swap-blend-wrap {
+  position: relative;
+  width: var(--die-size);
+  height: var(--die-size);
+  flex-shrink: 0;
+  line-height: 0;
+  isolation: isolate;
+}
+
+.placement-col--stack-swap-animating.placement-col--stack:not(.placement-col--stack-bottom-up) > .die-swap-blend-wrap + .die-swap-blend-wrap {
+  margin-top: calc(-1 * var(--die-border));
+}
+
+.placement-col--stack-swap-animating.placement-col--stack-bottom-up > .die-swap-blend-wrap + .die-swap-blend-wrap {
+  margin-bottom: calc(-1 * var(--die-border));
+}
+
+.placement-col--stack-swap-animating .die-swap-blend-wrap .die--cube-merge {
+  z-index: 1;
+}
+
+.placement-col--stack-swap-animating .die--swap-blend {
+  mix-blend-mode: multiply;
+}
+
 .die--cube-convert-hidden {
   visibility: hidden;
   pointer-events: none;

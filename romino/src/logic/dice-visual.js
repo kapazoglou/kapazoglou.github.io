@@ -33,13 +33,20 @@ export const SUIT_COLOR = {
   V: '#E5B800', Z: '#906BFF', X: '#E56700', Y: '#71BD00', W: '#00B6D6',
 };
 
+/** Session duplicate penalty hint — “−N” label (styled in placement-row.css). */
+export function sweepDuplicateMarkHTML(duplicateNumber) {
+  if (!duplicateNumber || duplicateNumber < 1) return '';
+  return `<span class="placement-sweep-dup-mark" aria-hidden="true">-${duplicateNumber}</span>`;
+}
+
 /** Shared tile face markup — converted row tiles and dealt strip tiles. */
-export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '', stripFace = false, styleVars = null } = {}) {
+export function tileHTML(tile, { classExtra = '', isNew = false, attrs = '', stripFace = false, styleVars = null, sweepDuplicateCopy = 0 } = {}) {
   const color = SUIT_COLOR[tile.suit] ?? '#404A59';
   const classes = ['placement-tile', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
   const style = styleVars ?? (stripFace ? `--strip-tile-bg:${color}` : `color:${color}`);
+  const mark = sweepDuplicateMarkHTML(sweepDuplicateCopy);
   return `<div class="${classes}"${attrs} style="${style}">
-    <span class="placement-tile-rank">${tile.rank}</span>
+    ${mark}<span class="placement-tile-rank">${tile.rank}</span>
     <span class="placement-tile-suit">${tile.suit}</span>
   </div>`;
 }
@@ -61,7 +68,7 @@ export function rankCubeShellSVG(size = DIE_OUTER) {
 }
 
 /** Dice & Cubes row tile — rank cube + bottom-value suit die in conjoined wrapper. */
-export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '', glyphMuted = false, suitFlown = false } = {}) {
+export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '', glyphMuted = false, suitFlown = false, sweepDuplicateCopy = 0 } = {}) {
   const color = SUIT_COLOR[tile.suit] ?? '#404A59';
   const glyph = cubeTileRankGlyph(tile);
   const classes = ['placement-tile-cube', isNew ? 'is-new' : '', classExtra].filter(Boolean).join(' ');
@@ -69,8 +76,9 @@ export function cubeTileHTML(tile, { classExtra = '', isNew = false, attrs = '',
   const bottomMarkup = suitFlown
     ? `<div class="rank-cube cube-sweep-suit-cube">${rankCubeShellSVG()}<span class="rank-cube-glyph">${tile.suit}</span></div>`
     : `<div class="suit-die">${dieSVG(tile.bottomValue, DIE_OUTER)}</div>`;
+  const mark = sweepDuplicateMarkHTML(sweepDuplicateCopy);
   return `<div class="${classes}"${attrs} style="--cube-suit-color:${color}">
-    <div class="rank-cube">${rankCubeShellSVG()}<span class="${glyphClass}">${glyph}</span></div>
+    ${mark}<div class="rank-cube">${rankCubeShellSVG()}<span class="${glyphClass}">${glyph}</span></div>
     ${bottomMarkup}
   </div>`;
 }
@@ -223,6 +231,8 @@ export function dieFaceBorderColor(value) {
 export const DIE_FACE = 40;
 export const DIE_BORDER = 4;
 export const DIE_OUTER = DIE_FACE + DIE_BORDER * 2;
+/** Pip diameter at full die scale (SVG r=5 in DIE_OUTER viewBox). */
+export const PIP_DIAMETER = 10;
 
 /** Tile outer box — mirrors base.css `--die-face` / `--tile-face-h` + border. */
 export const TILE_OUTER_W = DIE_OUTER;

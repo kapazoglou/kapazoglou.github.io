@@ -3,6 +3,7 @@ import { settings } from './settings.js';
 import {
   getDominoPairIndex,
   discardDominoKey,
+  drawDominoKeyFromPool,
   getDominoEngagedPairIndex,
   setCurrentRollOfferedKeys,
   syncDominoDeckCount,
@@ -43,6 +44,21 @@ export function clearAllDominoSpotBindings() {
   }
   state.dominoSpotKeys = {};
   clearDominoSpotsRollState();
+}
+
+/** One random pool key per starting-dice column; persistent spot cols until sweep. */
+export function seedStartingDominoSpots() {
+  if (!isDominoSpotsActive() || settings.startingDice <= 0) return;
+
+  for (const colStr of Object.keys(state.row)) {
+    const col = Number(colStr);
+    const key = drawDominoKeyFromPool();
+    if (!key) break;
+    state.dominoSpotKeys[col] = key;
+    const column = state.row[col];
+    if (column) column.dominoKey = key;
+    if (!state.dominoSpotCols.includes(col)) state.dominoSpotCols.push(col);
+  }
 }
 
 /** @param {number} dieId @returns {boolean} */
