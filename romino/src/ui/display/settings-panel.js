@@ -1,4 +1,4 @@
-import { settings, SETTINGS_CONFIG, clampSettings } from '../../logic/settings.js';
+import { settings, SETTINGS_CONFIG, clampSettings, spd } from '../../logic/settings.js';
 import { clearHighscores } from '../../logic/highscores.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 
@@ -293,19 +293,55 @@ export function initSettingsPanel() {
 
 const CLEAR_HS_THUMB_PAD = 4;
 const CLEAR_HS_COMPLETE_RATIO = 0.98;
+const CLEAR_HS_LABEL = 'Clear high scores';
+const CLEAR_HS_DELETED_FLASH_MS = 520;
+
+let clearHighscoresFlashTimer = null;
 
 function resetClearHighscoresSlider() {
   const track = document.getElementById('settings-clear-highscores');
   const thumb = track?.querySelector('.settings-clear-highscores-thumb');
-  if (!track || !thumb) return;
-  track.classList.remove('is-armed');
+  const label = track?.querySelector('.settings-clear-highscores-label');
+  if (!track || !thumb || !label) return;
+  if (clearHighscoresFlashTimer != null) {
+    clearTimeout(clearHighscoresFlashTimer);
+    clearHighscoresFlashTimer = null;
+  }
+  track.classList.remove('is-armed', 'is-deleted-flash');
+  track.style.pointerEvents = '';
   track.setAttribute('role', 'button');
-  track.setAttribute('aria-label', 'Clear high scores');
+  track.setAttribute('aria-label', CLEAR_HS_LABEL);
   track.removeAttribute('aria-valuemin');
   track.removeAttribute('aria-valuemax');
   track.removeAttribute('aria-valuenow');
+  label.textContent = CLEAR_HS_LABEL;
   thumb.classList.remove('is-dragging');
-  thumb.style.transform = 'translateX(0)';
+  thumb.style.transform = 'translateY(-50%) translateX(0)';
+}
+
+function confirmClearHighscores() {
+  const track = document.getElementById('settings-clear-highscores');
+  const thumb = track?.querySelector('.settings-clear-highscores-thumb');
+  const label = track?.querySelector('.settings-clear-highscores-label');
+  if (!track || !thumb || !label) return;
+
+  clearHighscores();
+  track.classList.remove('is-armed');
+  track.removeAttribute('aria-valuemin');
+  track.removeAttribute('aria-valuemax');
+  track.removeAttribute('aria-valuenow');
+  track.setAttribute('role', 'status');
+  track.setAttribute('aria-label', 'High scores deleted');
+  thumb.classList.remove('is-dragging');
+  thumb.style.transform = 'translateY(-50%) translateX(0)';
+  label.textContent = 'DELETED';
+  track.classList.add('is-deleted-flash');
+  track.style.pointerEvents = 'none';
+
+  clearHighscoresFlashTimer = window.setTimeout(() => {
+    clearHighscoresFlashTimer = null;
+    resetClearHighscoresSlider();
+  }, spd(CLEAR_HS_DELETED_FLASH_MS));
 }
 
 function getClearHighscoresMaxTravel(track, thumb) {
@@ -323,12 +359,15 @@ function initClearHighscoresSlider() {
   let dragStartOffset = 0;
   let currentOffset = 0;
 
+  const thumbTransform = offset =>
+    `translateY(-50%) translateX(${offset}px)`;
+
   const setThumbOffset = (offset, animate = false) => {
     const max = getClearHighscoresMaxTravel(track, thumb);
     currentOffset = Math.min(max, Math.max(0, offset));
     if (!animate) thumb.classList.add('is-dragging');
     else thumb.classList.remove('is-dragging');
-    thumb.style.transform = `translateX(${currentOffset}px)`;
+    thumb.style.transform = thumbTransform(currentOffset);
     if (track.classList.contains('is-armed')) {
       track.setAttribute('aria-valuenow', String(Math.round(max ? (currentOffset / max) * 100 : 0)));
     }
@@ -343,7 +382,7 @@ function initClearHighscoresSlider() {
     track.setAttribute('aria-valuemax', '100');
     thumb.classList.remove('is-dragging');
     currentOffset = 0;
-    thumb.style.transform = 'translateX(0)';
+    thumb.style.transform = thumbTransform(0);
     track.setAttribute('aria-valuenow', '0');
   };
 
@@ -358,8 +397,7 @@ function initClearHighscoresSlider() {
 
     const max = getClearHighscoresMaxTravel(track, thumb);
     if (max > 0 && currentOffset >= max * CLEAR_HS_COMPLETE_RATIO) {
-      clearHighscores();
-      resetClearHighscoresSlider();
+      confirmClearHighscores();
       return;
     }
     setThumbOffset(0, true);

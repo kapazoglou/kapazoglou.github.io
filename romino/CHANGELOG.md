@@ -12,6 +12,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **settings-panel.js v1.48, settings-panel.css** — clear high scores: warning-red DELETED flash on successful slide confirm
+
+- **settings-panel.js v1.47, settings-panel.css** — clear high scores: restore original button look; square thumb on left after tap
+
 - **settings-panel.js v1.46, settings-panel.css, index.html** — clear high scores: tap → slide-to-confirm thumb; delete only on full-right release
 
 - **highscores.js v1.1, settings-panel.js v1.45, settings-panel.css, index.html** — settings panel: “Clear high scores” button below lifetime block; `clearHighscores()` removes local top-10

@@ -1,7 +1,7 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.46
+v: 1.48
 date: 2026-08-15
 deps: [state, settings, phase, render, game-log, lifetime-stats-view, highscores]
 ---
@@ -19,7 +19,7 @@ As a player, I want to access a hidden settings panel (triple-tap the left HUD p
 - Updates on every stepper/toggle edit while panel is open; matrix seg toggles converted vs swept counts
 
 ## High scores
-- `#settings-clear-highscores` — below lifetime block; tap arms slide-to-confirm; label stays behind thumb; release at full right clears `romino-v2-highscores`; resets on panel close/open
+- `#settings-clear-highscores` — below lifetime block; idle = padded warning-red button; tap → slide thumb; full-right release clears scores and flashes solid warning red with **DELETED**, then resets
 
 ## Toggle behaviour
 - Edits buffer in a draft while the panel is open; **back** applies all, saves to localStorage, then reloads the page when anything changed
