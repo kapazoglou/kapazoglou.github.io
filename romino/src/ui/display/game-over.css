@@ -45,17 +45,18 @@
 }
 
 .game-over-overlay.is-visible.is-minimized .game-over-dialog {
-  transform: translateY(calc(100% - 84px));
+  transform: translateY(calc(100% - var(--go-sheet-minimized-peek)));
 }
 
 .go-handle {
+  --go-play-again-inset: calc(12px + 4px + 10px); /* handle padding-top + bar + gap = button top offset */
   width: 100%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px 40px;
+  padding: 12px var(--go-play-again-inset) 0;
   cursor: pointer;
   user-select: none;
   box-sizing: border-box;
@@ -71,21 +72,68 @@
 
 .go-handle-row {
   width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
-.go-handle-row .game-over-btn { pointer-events: auto; }
+.go-handle-row .game-over-btn {
+  pointer-events: auto;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  position: relative;
+  z-index: 1;
+}
 
-.game-over-title  { font-size: 28px; color: var(--text-primary); line-height: 1; }
+.game-over-title {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  justify-self: center;
+  font-size: 28px;
+  color: var(--text-primary);
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
 .game-over-reason {
+  grid-row: 2;
   width: 100%;
   font-size: 14px;
   color: var(--text-dim);
   text-align: center;
   line-height: 1.3;
+}
+
+/* Title → reason inset locked; reason → table uses a separate tighter gap. */
+.go-summary-head {
+  --go-title-reason-gap: 8px;
+  --go-reason-table-gap: 32px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.go-summary-lead {
+  display: grid;
+  grid-template-rows: var(--go-title-reason-gap) auto;
+  align-items: center;
+}
+
+.go-summary-head:has(.go-score-breakdown:not([hidden])) .go-score-breakdown {
+  margin-top: var(--go-reason-table-gap);
+}
+
+/* No score table — keep original title→reason inset only. */
+.go-summary-head:not(:has(.go-score-breakdown:not([hidden]))) .go-summary-lead {
+  display: block;
+  padding-top: calc(40px + 4px);
+}
+
+.go-summary-head:not(:has(.go-score-breakdown:not([hidden]))) .go-score-breakdown {
+  margin-top: 0;
 }
 
 .go-inner {

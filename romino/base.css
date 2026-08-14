@@ -31,6 +31,10 @@
 
 :root {
   --bg:           #242835;
+  --action-bar-height: 140px;
+  --roll-btn-wrap-inset-top: 24px;
+  /* Collapsed game-over sheet top aligns with .roll-btn-wrap top */
+  --go-sheet-minimized-peek: calc(var(--action-bar-height) - var(--roll-btn-wrap-inset-top));
   --accent:       #ffe500;
   --tile-border:  #DEE2E6;
   --overlay:      #545454;

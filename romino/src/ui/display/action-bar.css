@@ -1,6 +1,6 @@
 .action-bar {
   flex-shrink: 0;
-  height: 140px;
+  height: var(--action-bar-height);
   position: relative;
   display: flex;
   align-items: center;
@@ -107,7 +107,7 @@
 .roll-btn-wrap {
   position: absolute;
   right: 0;
-  top: 24px;
+  top: var(--roll-btn-wrap-inset-top);
   z-index: 2;
   pointer-events: auto;
   width: 72px;

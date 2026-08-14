@@ -1,7 +1,7 @@
 ---
 module: game-over
 layer: ui/display
-v: 2.12
+v: 2.22
 date: 2026-08-14
 deps: [dice-visual, highscores, game-log, turn, end-game-prompt, render, suit-tally, settings, sweeps-row]
 ---

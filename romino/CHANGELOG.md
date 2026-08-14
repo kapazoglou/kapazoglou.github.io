@@ -16,6 +16,26 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 - **base.css** — phone portrait letterbox: 16:9 frame width-first contain (`min(100vw, 100dvh×16/9)`); full-screen unchanged
 
+- **game-over.css v2.22** — PLAY AGAIN right inset 26px matches button top offset
+
+- **game-over.css v2.21** — title→reason 8px, reason→table 32px
+
+- **game-over.css v2.20** — reason→table gap 24px (was 16px); title→reason unchanged
+
+- **game-over.css v2.19** — tighter reason→table gap (16px); title→reason inset unchanged (fixed `--go-title-reason-gap`)
+
+- **game-over.css v2.18** — reason→table gap widened (grid 1fr / auto / 4fr)
+
+- **game-over.css v2.17** — reason→table gap widened (grid 1fr / auto / 3fr)
+
+- **game-over.css v2.16** — reason→score table gap 2× title→reason (grid 1fr / auto / 2fr); total title→table span unchanged
+
+- **game-over.css v2.15, index.html** — reason text vertically centered between title and score breakdown; title→table span preserved
+
+- **game-over.css, base.css, action-bar.css** — collapsed sheet peek `--go-sheet-minimized-peek` (116px): top aligns with `.roll-btn-wrap` top
+
+- **game-over.css v2.13** — sheet title center-aligned in handle row; PLAY AGAIN stays right
+
 - **turn.js v2.54, render.js v1.9, game-over.js v2.12, action-bar.js v1.67, placement-anim.js v1.43** — fix domino-spot game over loop: render no longer auto-triggers overlay; spot assignment → warning-red roll + KO (not post-confirm auto-end); guard repeated `showGameOver` / `triggerGameOver`
 
 - **game-over.js v2.11** — discovery win titles FULL DECK / FLAWLESS DECK (was WINNER / FLAWLESS)
