@@ -43,6 +43,9 @@ export const COL_SPREAD_MS = 110;
 /** Die flies from the tray into the opened gap. */
 export const COL_DIE_IN_MS = 95;
 
+/** Existing stack lifts when a die pushes in from below. */
+export const PUSH_LIFT_MS = 110;
+
 /** Stagger between each tray die sliding in. */
 export const TRAY_STAGGER_MS = 60;
 

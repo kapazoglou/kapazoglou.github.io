@@ -4,7 +4,7 @@ import { slotsEqual, gapInsertAnimationsAllowed } from '../../logic/row.js';
 import { resolveInsertSlotFromPointer, syncStarMarkersDuringMotion } from '../display/placement-row.js';
 import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
 import { spreadColumnElement } from '../display/flank-stacks.js';
-import { computeSpreadOffsets } from './placement-anim.js';
+import { computeSpreadOffsets } from './placement-spread.js';
 import { COL_SPREAD_MS } from './timing.js';
 
 const SPREAD_EASING = 'ease-out';

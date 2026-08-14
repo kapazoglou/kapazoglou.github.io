@@ -1,13 +1,13 @@
 ---
 module: placement-anim
 layer: ui/transitions
-v: 1.27
-date: 2026-08-03
-deps: [state, settings, row, render, timing, dice-visual]
+v: 1.33
+date: 2026-08-14
+deps: [state, settings, row, render, timing, dice-visual, pip-anim]
 ---
 # Placement Anim
 
-Gap inserts spread the row when `gapInsertAnimationsAllowed()`; fly-in starts at 25% of spread and overlaps through landing. Commit anim handoffs from hover spread (no collapse-then-re-spread). Row-edge inserts: fly-in only when `deckFlank` OFF — columns stay put until `render()`. With `deckFlank` ON, edge inserts spread **player columns**; adjacent flank stacks are **pushed** by the edge column (opposite transform on row-edge inserts so the snap gap opens between stack and die, same direction on interior gap spreads). Snap anchor is the gap between flank stack and adjacent die column. Stack / new-column fly only (no spread). Row reposition stays instant. Flyer stays visible until after `render()`.
+Gap inserts spread the row when `gapInsertAnimationsAllowed()`; fly-in starts at 25% of spread and overlaps through landing. `stack-below`: no fly-in — the pusher always starts at the snap anchor (ghost promoted on release, or a flyer spawned there for tap). Star fly runs in parallel while stack + pusher lift together (`PUSH_LIFT_MS`), then `placeDie` unshift. Return push die this turn → star refund. Row-edge inserts: fly-in only when `deckFlank` OFF — columns stay put until `render()`. With `deckFlank` ON, edge inserts spread **player columns**; adjacent flank stacks are **pushed** by the edge column (opposite transform on row-edge inserts so the snap gap opens between stack and die, same direction on interior gap spreads). Snap anchor is the gap between flank stack and adjacent die column. Stack / new-column fly only (no spread). Row reposition stays instant. Flyer stays visible until after `render()`.
 
 ## Exports
 - `placeDieWithAnim(dieId, slot, existingFlyer?)` — validates, sets `phase: animating`, restores `phase: rolled` + `render()` on done; optional flyer handoff from drag (starts fly from current position)

@@ -75,6 +75,10 @@
   margin-top: calc(-1 * var(--die-border));
 }
 
+.placement-col--push-lifting > .die--placed {
+  will-change: transform;
+}
+
 .placement-col--stack-bottom-up > .die--placed + .die--placed {
   margin-bottom: calc(-1 * var(--die-border));
 }
@@ -214,7 +218,12 @@
   pointer-events: none;
 }
 
+.die--push-below-target .die-border-ring {
+  fill: var(--accent);
+}
+
 .die--placed-selected,
+.die--star-power-hover,
 .die--action-selected {
   position: relative;
   z-index: calc(var(--stack-z, 1) + 100);

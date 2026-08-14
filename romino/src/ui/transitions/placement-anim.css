@@ -50,3 +50,12 @@
   width: var(--die-size);
   height: var(--die-size);
 }
+
+.placement-snap-ghost--push-below {
+  opacity: 0.6;
+  z-index: 450;
+}
+
+.placement-snap-ghost--push-below svg .die-border-ring {
+  stroke: var(--accent, #f5a623);
+}

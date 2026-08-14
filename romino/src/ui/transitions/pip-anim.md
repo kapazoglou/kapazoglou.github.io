@@ -1,8 +1,7 @@
 ---
 module: pip-anim
 layer: ui/transitions
-v: 1.7
-date: 2026-07-23
+v: 1.8
 deps: [state, settings, hud-v2, timing, dice-visual]
 ---
 # Pip Anim
@@ -13,7 +12,8 @@ Row gap → HUD and HUD stars → swept points. Uses convert-style fly (`CONVERT
 - `bankStarsToPoints(stars, multiplier, onDone)` — accent `stars×mult` (520ms) → product (520ms) with score held at pre-bank total; pip fly (587ms) then score updates
 - `collectStarsToHUD(count, fromRects, onDone)` — row gap → `#hud-stars` after confirm
 - `payStarForConvert(col, onDone)` — `#hud-stars` → ace/joker stack before convert (mirror of collect)
-- `payStarForTrayDie(dieId, onDone)` — `#hud-stars` → tray die before outer reroll
+- `payStarForSlot(col, onDone)` — alias for push-from-below star fly
+- `payStarForTrayDie(dieId, onDone)` — `#hud-stars` → tray die before outer reroll / flip
 
 ## CSS
 - `.star-flyer` — in-viewport star pip (see `pip-anim.css`)

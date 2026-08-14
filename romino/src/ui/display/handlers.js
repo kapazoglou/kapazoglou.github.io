@@ -16,7 +16,7 @@ import {
 } from './end-game-prompt.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { attemptPlacementAtPoint } from './placement-input.js';
+import { attemptPlacementAtPoint, attemptPushBelowOnBottomDie } from './placement-input.js';
 import { consumeRowClickBlock } from './drag-drop.js';
 import { startPairSweepAnimation } from './dealt-strip.js';
 import { stripTileHasRowDuplicate } from '../../logic/dealt-strip.js';
@@ -30,6 +30,17 @@ export function initHandlers() {
     }
 
     if (state.phase === 'animating' || state.phase === 'replay') return;
+
+    const placedDie = e.target.closest('.die--placed');
+    if (
+      placedDie
+      && state.selectedDieId != null
+      && state.actionBar.includes(state.selectedDieId)
+      && state.phase === 'rolled'
+    ) {
+      const pushResult = attemptPushBelowOnBottomDie(state.selectedDieId, placedDie);
+      if (pushResult !== 'none') return;
+    }
 
     const stripTile = e.target.closest('.dealt-strip-tile--accent[data-strip-id]');
     if (stripTile) {

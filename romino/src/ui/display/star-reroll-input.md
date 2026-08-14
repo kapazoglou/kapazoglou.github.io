@@ -1,23 +1,26 @@
 ---
 module: star-reroll-input
 layer: ui/display
-v: 1.2
-date: 2026-08-10
-deps: [state, settings, dice-visual, reroll-outer-anim, invalid-flash, game-over, render]
+v: 1.3
+date: 2026-08-14
+deps: [state, settings, domino-roll, star-powers, dice-visual, reroll-outer-anim, domino-reroll-anim, flip-tray-anim, stack-swap-anim, invalid-flash]
 ---
 # Star Reroll Input
 
-When `rerollOuter` is ON: pay a star from `#hud-star-pay` to reroll a tray 1 or 6. When nRoll=2 domino offer is active: pay a star to redraw **both** dice as a new pair (drag/tap either die; both highlight on hover).
+HUD `#hud-star-pay` tap/drag routing:
+
+| Target | Action |
+|--------|--------|
+| Tray 1/6 | Reroll outer (when `rerollOuter` / domino pair reroll) |
+| Tray 2–5 | Flip to opposite face (`starPowers`) |
+| 2-dice stack, two different inner faces | Swap top/bottom (`starPowers`) — an outer 1/6 or a matching pair blocks the swap |
+
+Reroll wins over flip on tray 1/6 when both available.
 
 ## Exports
 - `initStarRerollInput()` — pointer handlers for HUD star tap + drag
-- `isHudStarPayDraggable()` — HUD star icon draggable when outer reroll or domino pair reroll is available
+- `isHudStarPayDraggable()` — when reroll, domino reroll, or star powers available
 
-## Interaction
-- Select tray 1/6, then **tap** `#hud-star-pay` → reroll selected die
-- **Domino offer:** drag/tap star onto either pair die → whole pair redraw; both dice accent on hover
-- **Drag** star onto `.die--rerollable` (outer) or `.die--domino-rerollable` (pair)
-- Zero stars → `flashStarShortagePlacement`
-
-## Related
-[[hud-v2]] · [[reroll-outer-anim]] · [[domino-reroll-anim]] · [[drag-drop]] · [[action-bar]]
+## Tap (no drag)
+- Selected tray 2–5 → flip
+- Else selected tray 1/6 / domino → reroll

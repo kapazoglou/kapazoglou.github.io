@@ -2,8 +2,17 @@ import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
 import { canShowDominoPairReroll } from '../../logic/domino-roll.js';
 import { starSVG } from '../../logic/dice-visual.js';
+import {
+  canStarFlipTrayDie,
+  canStarSwapStack,
+  canSpendStarPower,
+  isStarRerollTrayDie,
+  starPowersEnabled,
+} from '../../logic/star-powers.js';
 import { selectedOuterTrayDieId, tryRerollOuterPay } from '../transitions/reroll-outer-anim.js';
 import { canDominoPairStarReroll, tryDominoPairStarReroll } from '../transitions/domino-reroll-anim.js';
+import { tryStarFlipTrayPay } from '../transitions/flip-tray-anim.js';
+import { tryStarSwapStackPay } from '../transitions/stack-swap-anim.js';
 import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
 
 const DRAG_THRESHOLD = 8;
@@ -31,7 +40,7 @@ function viewportScale() {
 
 function isStarPayDraggable() {
   if (state.phase !== 'rolled' || state.stars <= 0) return false;
-  return settings.rerollOuter || canShowDominoPairReroll();
+  return settings.rerollOuter || canShowDominoPairReroll() || starPowersEnabled();
 }
 
 export function isHudStarPayDraggable() {
@@ -53,9 +62,40 @@ function selectedStarPayTrayDieId() {
   return selectedOuterTrayDieId();
 }
 
+function selectedStarFlipTrayDieId() {
+  if (!canSpendStarPower()) return null;
+  if (state.selectedDieId != null && canStarFlipTrayDie(state.selectedDieId)) {
+    return state.selectedDieId;
+  }
+  return null;
+}
+
 function tryStarPayReroll(dieId) {
   if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId);
   return tryRerollOuterPay(dieId);
+}
+
+function trayDieTargetAt(clientX, clientY) {
+  const el = document.elementFromPoint(clientX, clientY)?.closest('.die--action');
+  if (!el) return null;
+  const dieId = Number(el.dataset.dieId);
+  if (Number.isNaN(dieId) || !state.actionBar.includes(dieId)) return null;
+  return { el, dieId };
+}
+
+function stackSwapTargetAt(clientX, clientY) {
+  const el = document.elementFromPoint(clientX, clientY)?.closest('.die--placed');
+  if (!el) return null;
+  const col = Number(el.dataset.col);
+  if (Number.isNaN(col)) return null;
+  return { col, el };
+}
+
+function tryStarPowerOnTrayDie(dieId) {
+  if (canDominoPairStarReroll(dieId)) return tryDominoPairStarReroll(dieId);
+  if (settings.rerollOuter && isStarRerollTrayDie(dieId)) return tryRerollOuterPay(dieId);
+  if (canStarFlipTrayDie(dieId)) return tryStarFlipTrayPay(dieId);
+  return false;
 }
 
 function dominoPairHoverEls() {
@@ -82,6 +122,7 @@ function clearHoverTarget() {
     if (state.selectedDieId !== id) {
       el.classList.remove('die--action-selected');
     }
+    el.classList.remove('die--star-power-hover');
   }
   hoverDieEls = [];
 }
@@ -120,30 +161,59 @@ function moveStarFlyer(clientX, clientY) {
   starFlyer.style.top = `${(clientY - layerRect.top) / scale - HUD_STAR_PX / 2}px`;
 }
 
-function trayRerollTargetAt(clientX, clientY) {
-  const el = document.elementFromPoint(clientX, clientY)?.closest(
-    '.die--action.die--domino-rerollable, .die--action.die--rerollable',
-  );
-  if (!el) return null;
-  const dieId = Number(el.dataset.dieId);
-  if (Number.isNaN(dieId)) return null;
-  return { el, dieId };
-}
-
 function updateStarDropHover(clientX, clientY) {
-  const target = trayRerollTargetAt(clientX, clientY);
-  const nextEls = target && canDominoPairStarReroll(target.dieId)
-    ? dominoPairHoverEls()
-    : (target ? [target.el] : []);
-  if (nextEls.length === hoverDieEls.length
-    && nextEls.every((el, i) => el === hoverDieEls[i])) {
+  const stackTarget = stackSwapTargetAt(clientX, clientY);
+  if (stackTarget && canStarSwapStack(stackTarget.col)) {
+    const colNode = stackTarget.el.closest('.placement-col');
+    const nextEls = colNode ? [...colNode.querySelectorAll('.die--placed')] : [];
+    if (nextEls.length === hoverDieEls.length && nextEls.every((el, i) => el === hoverDieEls[i])) {
+      return;
+    }
+    clearHoverTarget();
+    hoverDieEls = nextEls;
+    for (const el of hoverDieEls) el.classList.add('die--star-power-hover');
+    return;
+  }
+
+  const trayTarget = trayDieTargetAt(clientX, clientY);
+  let nextEls = [];
+  if (trayTarget) {
+    if (canDominoPairStarReroll(trayTarget.dieId)) {
+      nextEls = dominoPairHoverEls();
+    } else if (
+      (settings.rerollOuter && isStarRerollTrayDie(trayTarget.dieId))
+      || canStarFlipTrayDie(trayTarget.dieId)
+    ) {
+      nextEls = [trayTarget.el];
+    }
+  }
+
+  if (nextEls.length === hoverDieEls.length && nextEls.every((el, i) => el === hoverDieEls[i])) {
     return;
   }
   clearHoverTarget();
   hoverDieEls = nextEls;
   for (const el of hoverDieEls) {
-    el.classList.add('die--action-selected');
+    if (el.classList.contains('die--action')) {
+      el.classList.add('die--action-selected');
+    } else {
+      el.classList.add('die--star-power-hover');
+    }
   }
+}
+
+function resolveStarDrop(clientX, clientY) {
+  const stackTarget = stackSwapTargetAt(clientX, clientY);
+  if (stackTarget && canStarSwapStack(stackTarget.col)) {
+    return tryStarSwapStackPay(stackTarget.col);
+  }
+
+  const trayTarget = trayDieTargetAt(clientX, clientY);
+  if (trayTarget) {
+    return tryStarPowerOnTrayDie(trayTarget.dieId);
+  }
+
+  return false;
 }
 
 function onStarPointerDown(e) {
@@ -184,11 +254,8 @@ function onStarPointerUp(e) {
   if (!dragStarPay) return;
 
   if (starDragActive) {
-    const target = trayRerollTargetAt(e.clientX, e.clientY);
-    if (target) {
-      if (state.stars <= 0) flashStarShortagePlacement();
-      else tryStarPayReroll(target.dieId);
-    }
+    if (state.stars <= 0) flashStarShortagePlacement();
+    else resolveStarDrop(e.clientX, e.clientY);
     clearStarDrag();
     return;
   }
@@ -197,12 +264,19 @@ function onStarPointerUp(e) {
 
   if (!isStarPayDraggable()) return;
 
-  const dieId = selectedStarPayTrayDieId();
-  if (dieId == null) return;
   if (state.stars <= 0) {
     flashStarShortagePlacement();
     return;
   }
+
+  const flipDieId = selectedStarFlipTrayDieId();
+  if (flipDieId != null) {
+    tryStarFlipTrayPay(flipDieId);
+    return;
+  }
+
+  const dieId = selectedStarPayTrayDieId();
+  if (dieId == null) return;
   tryStarPayReroll(dieId);
 }
 

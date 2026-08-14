@@ -1,8 +1,8 @@
 ---
 module: state
 layer: logic
-v: 2.26
-date: 2026-08-13
+v: 2.27
+date: 2026-08-14
 deps: []
 ---
 # State
@@ -23,6 +23,8 @@ Single source of truth for v2 row game.
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
 - `dominoPairRerollAvailable` — nRoll=2 ↺ reroll once per roll
 - `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
+- `pushBelowDieIds` — dies placed via push-below this turn (return refunds star)
+- `buggerPendingCols` — lone 1/6 columns awaiting push-below when `buggerSingles` ON
 - Column `dominoKey` — mirror of `dominoSpotKeys[col]` on stack/tile until sweep
 - `row` — `Record<colIndex, Column>` (0 = center)
 - `stars`, `points`, `suitTally`

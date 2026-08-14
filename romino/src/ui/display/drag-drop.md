@@ -1,8 +1,8 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.36
-date: 2026-08-10
+v: 2.38
+date: 2026-08-14
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input]
 ---
 # Drag-Drop — User Story

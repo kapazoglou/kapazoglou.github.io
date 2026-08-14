@@ -6,7 +6,7 @@ import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
-  isPlacedThisTurn, isTopDieInStack, getColumn, CENTER_COL, dieIdAt,
+  isPlacedThisTurn, isTopDieInStack, isReturnablePlacedDie, getColumn, CENTER_COL, dieIdAt,
   slotsEqual, stackHeight, spreadContextForDie,
 } from '../../logic/row.js';
 
@@ -14,7 +14,7 @@ function stackHTML(col, column) {
   return column.dice.map((dieId, i) => {
     const die = state.dice[dieId];
     const sel = state.selectedDieId === dieId && state.draggingDieId !== dieId;
-    const ret = isPlacedThisTurn(dieId) && isTopDieInStack(dieId);
+    const ret = isReturnablePlacedDie(dieId);
     const dragging = state.draggingDieId === dieId;
     const z = i + 1;
     const style = ret
@@ -299,6 +299,41 @@ function edgeGhostsMarkup() {
       </div>`;
 }
 
+/** True when el is the visually bottom die in its column. */
+export function isVisualBottomDie(el) {
+  if (!el?.classList?.contains('die--placed')) return false;
+  const col = Number(el.dataset.col);
+  if (Number.isNaN(col)) return false;
+  const inner = document.querySelector('.placement-row-inner');
+  const colNode = inner ? colElement(inner, col) : null;
+  if (!colNode) return false;
+  return bottomDieInCol(colNode) === el;
+}
+
+function updatePushBelowTargets(inner) {
+  inner.querySelectorAll('.die--push-below-target').forEach(el => {
+    el.classList.remove('die--push-below-target');
+  });
+  if (!settings.starPowers || state.phase !== 'rolled') return;
+
+  const dieId = state.draggingDieId ?? state.selectedDieId;
+  if (dieId == null || !state.actionBar.includes(dieId)) return;
+
+  const valid = getValidSlotsForDie(dieId);
+  for (const slot of valid) {
+    if (slot.kind !== 'stack-below') continue;
+    const colNode = colElement(inner, slot.col);
+    const bottom = colNode ? bottomDieInCol(colNode) : null;
+    bottom?.classList.add('die--push-below-target');
+  }
+}
+
+/** Accent valid bottom dice for push-from-below (selection or drag). */
+export function syncPushBelowTargets() {
+  const inner = document.querySelector('.placement-row-inner');
+  if (inner) updatePushBelowTargets(inner);
+}
+
 /** Sync selection chrome without rebuilding columns (keeps tile text stable). */
 export function updatePlacementSelection() {
   const inner = document.querySelector('.placement-row-inner');
@@ -327,10 +362,12 @@ export function updatePlacementSelection() {
 
   if (!showEdgeGhosts) {
     layer?.remove();
+    updatePushBelowTargets(inner);
     return;
   }
 
   if (!layer) inner.insertAdjacentHTML('beforeend', edgeGhostsMarkup());
+  updatePushBelowTargets(inner);
 }
 
 /** Position hint triangles after layout (Figma Group 3) */
@@ -366,6 +403,7 @@ export function positionHints() {
     btn.type = 'button';
     btn.tabIndex = -1;
     const stackHint = slot.kind === 'stack';
+    const belowHint = slot.kind === 'stack-below';
     const hintDir = stackHint ? 'down' : 'up';
     btn.className = `placement-hint placement-hint--${hintDir}`;
     btn.setAttribute('aria-label', 'Place here');
@@ -389,6 +427,16 @@ export function positionHints() {
       const colRect = colNode.getBoundingClientRect();
       btn.style.left = `${toDesignPx(colRect.left - innerRect.left, scale) + (toDesignPx(colRect.width, scale) - DIE_OUTER) / 2}px`;
       btn.style.top = `${toDesignPx(colRect.bottom - innerRect.top, scale) - TIP_UP_Y}px`;
+    } else if (belowHint) {
+      btn.dataset.col = String(slot.col);
+      btn.dataset.kind = slot.kind;
+      const colNode = colElement(inner, slot.col);
+      if (!colNode) continue;
+      const bottomDie = bottomDieInCol(colNode);
+      if (!bottomDie) continue;
+      const bottomRect = bottomDie.getBoundingClientRect();
+      btn.style.left = `${toDesignPx(bottomRect.left - innerRect.left, scale) + (toDesignPx(bottomRect.width, scale) - DIE_OUTER) / 2}px`;
+      btn.style.top = `${toDesignPx(bottomRect.bottom - innerRect.top, scale) - TIP_UP_Y}px`;
     } else {
       btn.dataset.col = String(slot.col);
       btn.dataset.kind = slot.kind;
@@ -422,7 +470,7 @@ function starAdjacentToSnapGhost(match, slot) {
     return false;
   }
 
-  if (slot.kind === 'stack') {
+  if (slot.kind === 'stack' || slot.kind === 'stack-below') {
     const row = stackHeight(slot.col);
     if (match.axis === 'h') {
       return match.row === row && (match.leftCol === slot.col || match.rightCol === slot.col);
@@ -618,9 +666,34 @@ function stackableColumnAtCol(col) {
   return column?.kind === 'stack' && column.dice.length < 3 ? column : null;
 }
 
-/** Stack slot when pointer/flyer targets the stack band (incl. dropping onto a placed die). */
-function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY) {
+/** Push-from-below zone: lower part of bottom die + strip below the stack. */
+function pushBelowZoneAtCol(colNode, clientX, clientY) {
+  const colRect = colNode.getBoundingClientRect();
+  if (clientX < colRect.left || clientX > colRect.right) return false;
+  const bottomDie = bottomDieInCol(colNode);
+  if (!bottomDie) return false;
   const dieH = DIE_OUTER * viewportScale();
+  const br = bottomDie.getBoundingClientRect();
+  const zoneTop = br.top + br.height * 0.4;
+  return clientY >= zoneTop && clientY <= br.bottom + dieH * 2;
+}
+
+function resolvePushBelowSlotFromPointer(clientX, clientY, validSlots) {
+  const inner = document.querySelector('.placement-row-inner');
+  if (!inner) return null;
+  for (const slot of validSlots) {
+    if (slot.kind !== 'stack-below') continue;
+    const colNode = colElement(inner, slot.col);
+    if (!colNode) continue;
+    if (pushBelowZoneAtCol(colNode, clientX, clientY)) return slot;
+  }
+  return null;
+}
+
+/** Stack slot when pointer/flyer targets the stack band (incl. dropping onto a placed die). */
+function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, validSlots = []) {
+  const dieH = DIE_OUTER * viewportScale();
+  const slotOk = slot => validSlots.some(s => slotsEqual(s, slot));
 
   for (const col of occupied) {
     if (!stackableColumnAtCol(col)) continue;
@@ -635,27 +708,43 @@ function stackSlotAtPointer(inner, occupied, clientX, clientY, stackY) {
 
     const topRect = topDie.getBoundingClientRect();
     const bottomRect = bottomDie.getBoundingClientRect();
+    const belowSlot = { kind: 'stack-below', col };
+    const topSlot = { kind: 'stack', col };
+
+    if (pushBelowZoneAtCol(colNode, clientX, clientY) && slotOk(belowSlot)) {
+      return belowSlot;
+    }
+
     const pointerOnStack =
-      clientY >= topRect.top && clientY <= bottomRect.bottom;
+      clientY >= topRect.top && clientY < bottomRect.top + bottomRect.height * 0.4;
     const flyerAboveStack = stackY <= topRect.top + 2;
     const slotAboveStack =
       clientY >= topRect.top - dieH && clientY < topRect.top;
 
     if (pointerOnStack || flyerAboveStack || slotAboveStack) {
-      return { kind: 'stack', col };
+      if (slotOk(topSlot)) return topSlot;
+      if (slotOk(belowSlot)) return belowSlot;
     }
   }
   return null;
 }
 
 /** Drag flyer sits above the row — peek through it for a stack target die. */
-function stackSlotThroughFlyer(clientX, clientY, inner, occupied) {
+function stackSlotThroughFlyer(clientX, clientY, inner, occupied, validSlots = []) {
   for (const el of document.elementsFromPoint(clientX, clientY)) {
     const die = el.closest?.('.die--placed');
     if (!die || !inner.contains(die)) continue;
     const col = Number(die.dataset.col);
     if (!occupied.includes(col) || !stackableColumnAtCol(col)) continue;
-    return { kind: 'stack', col };
+    const colNode = colElement(inner, col);
+    const topSlot = { kind: 'stack', col };
+    const belowSlot = { kind: 'stack-below', col };
+    const belowOk = validSlots.some(s => slotsEqual(s, belowSlot));
+    const topOk = validSlots.some(s => slotsEqual(s, topSlot));
+    if (belowOk && colNode && pushBelowZoneAtCol(colNode, clientX, clientY)) return belowSlot;
+    if (topOk) return topSlot;
+    if (belowOk) return belowSlot;
+    return null;
   }
   return null;
 }
@@ -720,7 +809,12 @@ export function isPointerOnPlacementRow(clientX, clientY) {
 }
 
 /** Map pointer coordinates to an intended placement slot (direct-placement mode). */
-export function resolveSlotFromPointer(clientX, clientY, stackY = clientY, { allowStack = true } = {}) {
+export function resolveSlotFromPointer(
+  clientX,
+  clientY,
+  stackY = clientY,
+  { allowStack = true, validSlots = null, dieId = null } = {},
+) {
   if (!isPointerOnPlacementRow(clientX, clientY)) return null;
 
   const occupied = getOccupiedCols();
@@ -731,13 +825,18 @@ export function resolveSlotFromPointer(clientX, clientY, stackY = clientY, { all
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) return null;
 
+  const slots = validSlots ?? (dieId != null ? getValidSlotsForDie(dieId) : []);
+
+  const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
+  if (pushBelow) return pushBelow;
+
   const insert = resolveInsertSlotFromPointer(clientX, clientY);
-  if (insert) return insert;
+  if (insert && slots.some(s => slotsEqual(s, insert))) return insert;
 
   if (!allowStack) return null;
 
-  const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY)
-    ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied);
+  const stack = stackSlotAtPointer(inner, occupied, clientX, clientY, stackY, slots)
+    ?? stackSlotThroughFlyer(clientX, clientY, inner, occupied, slots);
   if (stack) return stack;
 
   return null;
@@ -794,6 +893,18 @@ export function slotAnchorRowXY(slot, dieId = null) {
     return {
       left: toDesignPx(tr.left - innerRect.left, scale),
       top: toDesignPx(tr.top - innerRect.top, scale) - DIE_OUTER + border,
+    };
+  }
+
+  if (slot.kind === 'stack-below') {
+    const colNode = colElement(inner, slot.col);
+    if (!colNode) return null;
+    const bottomDie = bottomDieInCol(colNode);
+    if (!bottomDie) return null;
+    const br = bottomDie.getBoundingClientRect();
+    return {
+      left: toDesignPx(br.left - innerRect.left, scale),
+      top: toDesignPx(br.bottom - innerRect.top, scale),
     };
   }
 
@@ -880,12 +991,42 @@ function slotAnchorScreenTopLeft(slot, dieId = null) {
   };
 }
 
+/** Drop stack-below when its snap anchor overlaps the top-stack anchor on the same column. */
+function dedupeOverlappingStackSlots(validSlots, dieId) {
+  const topByCol = new Map();
+  for (const slot of validSlots) {
+    if (slot.kind === 'stack') topByCol.set(slot.col, slot);
+  }
+  const scale = viewportScale();
+  const threshold = DIE_OUTER * scale * 0.35;
+
+  return validSlots.filter(slot => {
+    if (slot.kind !== 'stack-below') return true;
+    const topSlot = topByCol.get(slot.col);
+    if (!topSlot) return true;
+    const topAnchor = slotAnchorScreenTopLeft(topSlot, dieId);
+    const belowAnchor = slotAnchorScreenTopLeft(slot, dieId);
+    if (!topAnchor || !belowAnchor) return true;
+    const dx = topAnchor.x - belowAnchor.x;
+    const dy = topAnchor.y - belowAnchor.y;
+    return dx * dx + dy * dy > threshold * threshold;
+  });
+}
+
 /** Nearest valid slot for snap ghost — pointer hit first, else minimum screen distance. */
 export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, dieId = null) {
   if (!validSlots.length) return null;
 
-  const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY);
-  if (pointerSlot && validSlots.some(s => slotsEqual(s, pointerSlot))) {
+  const slots = dedupeOverlappingStackSlots(validSlots, dieId);
+
+  const pushBelow = resolvePushBelowSlotFromPointer(clientX, clientY, slots);
+  if (pushBelow) return pushBelow;
+
+  const pointerSlot = resolveSlotFromPointer(clientX, clientY, stackY, {
+    validSlots: slots,
+    dieId,
+  });
+  if (pointerSlot && slots.some(s => slotsEqual(s, pointerSlot))) {
     return pointerSlot;
   }
 
@@ -895,11 +1036,12 @@ export function resolveNearestValidSlot(clientX, clientY, stackY, validSlots, di
   let bestDist = Infinity;
   const refY = stackY ?? clientY;
 
-  for (const slot of validSlots) {
+  for (const slot of slots) {
     const anchor = slotAnchorScreenTopLeft(slot, dieId);
     if (!anchor) continue;
+    const sampleY = slot.kind === 'stack-below' ? clientY : refY;
     const dx = clientX - (anchor.x + (DIE_OUTER * viewportScale()) / 2);
-    const dy = refY - anchor.y;
+    const dy = sampleY - anchor.y;
     const dist = dx * dx + dy * dy;
     if (dist < bestDist) {
       bestDist = dist;

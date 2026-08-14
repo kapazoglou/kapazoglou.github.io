@@ -122,6 +122,11 @@ function trayDieCenter(dieId, layerRect, scale) {
   return rectCenterInLayer(dieEl.getBoundingClientRect(), layerRect, scale);
 }
 
+/** Visual-only HUD → stack column before push-from-below placement. */
+export function payStarForSlot(col, onDone) {
+  payStarForConvert(col, onDone);
+}
+
 /** Visual-only HUD → ace/joker stack before convert (mirror of collectStarsToHUD). */
 export function payStarForConvert(col, onDone) {
   const starsEl = document.getElementById('hud-stars');

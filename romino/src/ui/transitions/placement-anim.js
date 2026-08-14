@@ -1,24 +1,23 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { placeDie, getValidSlotsForDie, slotsEqual, getOccupiedCols, gapInsertAnimationsAllowed, spreadContextForDie } from '../../logic/row.js';
+import { placeDie, getValidSlotsForDie, slotsEqual, getOccupiedCols, gapInsertAnimationsAllowed } from '../../logic/row.js';
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion, slotAnchorRowXY } from '../display/placement-row.js';
 import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
-import { spreadColumnElement, flankStackColElement, FLANK_SPREAD_LEFT, FLANK_SPREAD_RIGHT } from '../display/flank-stacks.js';
-import { flankStackTop } from '../../logic/deck-flank.js';
+import { spreadColumnElement, flankStackColElement } from '../display/flank-stacks.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
 import { clearRepositionCollapse, resetRepositionCollapse } from './reposition-collapse.js';
-import { COL_SPREAD_MS, COL_DIE_IN_MS } from './timing.js';
+import { payStarForSlot } from './pip-anim.js';
+import { computeSpreadOffsets } from './placement-spread.js';
+import { promoteSnapGhostToFlyer, createCommitFlyerAtSlot } from './push-below-flyer.js';
+import { COL_SPREAD_MS, COL_DIE_IN_MS, PUSH_LIFT_MS } from './timing.js';
+
+export { computeSpreadOffsets } from './placement-spread.js';
 
 const SPREAD_EASING = 'ease-out';
 /** Fast departure, pronounced deceleration into the gap. */
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
-
-const gapH = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-gap-h')) || 6;
-const colW = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--col-width')) || 48;
-/** Horizontal space a new column consumes in the flex row (margin + die + margin). */
-const openWidth = () => colW() + gapH();
 
 function viewportScale() {
   const root = document.querySelector('.viewport-inner');
@@ -32,78 +31,6 @@ function toDesignPx(screenPx, scale) {
 
 function colEl(inner, col) {
   return spreadColumnElement(inner, col);
-}
-
-/** Column box in placement-row-inner design px (live layout incl. spread transform). */
-function colBoxFromRect(el, innerRect, scale) {
-  const r = el.getBoundingClientRect();
-  return {
-    left: toDesignPx(r.left - innerRect.left, scale),
-    right: toDesignPx(r.right - innerRect.left, scale),
-    bottom: toDesignPx(r.bottom - innerRect.top, scale),
-  };
-}
-
-/** Column box in placement-row-inner design px (pre-spread layout). */
-function colBoxInInner(el, innerRect, scale) {
-  const r = el.getBoundingClientRect();
-  return {
-    left: el.offsetLeft,
-    right: el.offsetLeft + el.offsetWidth,
-    bottom: toDesignPx(r.bottom - innerRect.top, scale),
-  };
-}
-
-/** Symmetric spread from gap centre — entire left block −half, entire right block +half. */
-export function computeSpreadOffsets(slot, dieId = null) {
-  const offsets = new Map();
-  if (slot.kind !== 'insert') return offsets;
-
-  const { slot: effSlot, occupied, excludeCols } = spreadContextForDie(slot, dieId);
-  const half = openWidth() / 2;
-  const { leftCol, rightCol } = effSlot;
-
-  if (leftCol == null) {
-    for (const col of occupied) {
-      if (!excludeCols.has(col)) offsets.set(col, half);
-    }
-    addFlankPushOffsets(offsets, effSlot, occupied);
-    return offsets;
-  }
-
-  if (rightCol == null) {
-    for (const col of occupied) {
-      if (!excludeCols.has(col)) offsets.set(col, -half);
-    }
-    addFlankPushOffsets(offsets, effSlot, occupied);
-    return offsets;
-  }
-
-  for (const col of occupied) {
-    if (excludeCols.has(col)) continue;
-    if (col <= leftCol) offsets.set(col, -half);
-    else if (col >= rightCol) offsets.set(col, half);
-  }
-
-  addFlankPushOffsets(offsets, effSlot, occupied);
-  return offsets;
-}
-
-/** Adjacent flank stacks follow edge column spread; row-edge inserts use opposite dx to open the gap. */
-function addFlankPushOffsets(offsets, slot, occupied) {
-  if (!settings.deckFlank || !occupied.length) return;
-
-  const leftmost = occupied[0];
-  const rightmost = occupied[occupied.length - 1];
-
-  if (flankStackTop('left') && offsets.has(leftmost)) {
-    const dx = offsets.get(leftmost);
-    offsets.set(FLANK_SPREAD_LEFT, slot.leftCol == null ? -dx : dx);
-  }
-  if (flankStackTop('right') && offsets.has(rightmost)) {
-    const dx = offsets.get(rightmost);
-    offsets.set(FLANK_SPREAD_RIGHT, slot.rightCol == null ? -dx : dx);
-  }
 }
 
 /** Row-edge insert — no spread when deckFlank OFF (columns stay put until render). */
@@ -199,7 +126,7 @@ function flyStartXY(dieId, layerRect, scale) {
   };
 }
 
-function animateDieFly(dieId, finalTarget, duration, onDone, existingFlyer = null, retainFlyer = false) {
+function animateDieFly(dieId, finalTarget, duration, onDone, existingFlyer = null) {
   const layer = flyLayer();
   const inner = document.querySelector('.placement-row-inner');
   if (!layer || !inner || !finalTarget) {
@@ -241,20 +168,145 @@ function animateDieFly(dieId, finalTarget, duration, onDone, existingFlyer = nul
 
   const dx = end.left - start.left;
   const dy = end.top - start.top;
+  const dist = Math.hypot(dx, dy);
+  const effectiveMs = dist < 0.5 ? 0 : duration;
+
+  const runDone = () => {
+    onDone();
+    flyer.remove();
+  };
+
+  if (effectiveMs <= 0) {
+    flyer.style.left = `${end.left}px`;
+    flyer.style.top = `${end.top}px`;
+    flyer.style.transform = 'translate(0, 0)';
+    runDone();
+    return flyer;
+  }
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      flyer.style.transition = `transform ${duration}ms ${FLY_EASING}`;
+      flyer.style.transition = `transform ${effectiveMs}ms ${FLY_EASING}`;
       flyer.style.transform = `translate(${dx}px, ${dy}px)`;
     });
   });
 
-  setTimeout(() => {
-    onDone();
-    if (!retainFlyer) flyer.remove();
-  }, duration);
+  setTimeout(runDone, effectiveMs);
 
   return flyer;
+}
+
+function isCommitFlyerAtTarget(flyer, rowTarget) {
+  if (!flyer || !rowTarget) return false;
+  const layer = flyLayer();
+  const inner = document.querySelector('.placement-row-inner');
+  if (!layer || !inner) return false;
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const innerRect = inner.getBoundingClientRect();
+  const end = pointInFlyLayer(rowTarget, innerRect, layerRect, scale);
+  const left = parseFloat(flyer.style.left) || 0;
+  const top = parseFloat(flyer.style.top) || 0;
+  return Math.hypot(end.left - left, end.top - top) < 4;
+}
+
+function dieBorder() {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-border')) || 4;
+}
+
+/** One stack step in design px (die size minus overlap). */
+function stackLiftDesignPx() {
+  return DIE_OUTER - dieBorder();
+}
+
+/** Lift stack + pusher together, then commit. */
+function animatePushBelowLift(col, duration, onDone, flyer = null) {
+  const inner = document.querySelector('.placement-row-inner');
+  const colNode = colEl(inner, col);
+
+  if (!colNode) {
+    flyer?.remove();
+    onDone();
+    return;
+  }
+
+  const dice = [...colNode.querySelectorAll('.die--placed')];
+  const lift = stackLiftDesignPx();
+  const liftY = settings.stackBottomUp ? lift : -lift;
+
+  const finish = () => {
+    colNode.classList.remove('placement-col--push-lifting');
+    for (const die of dice) {
+      die.style.transition = '';
+      die.style.transform = '';
+    }
+    if (flyer) {
+      flyer.style.transition = '';
+      flyer.style.transform = '';
+    }
+    onDone();
+    flyer?.remove();
+  };
+
+  const applyLift = () => {
+    colNode.classList.add('placement-col--push-lifting');
+    for (const die of dice) {
+      die.style.transition = `transform ${duration}ms ${FLY_EASING}`;
+      die.style.transform = `translateY(${liftY}px)`;
+    }
+    if (flyer) {
+      flyer.style.transition = `transform ${duration}ms ${FLY_EASING}`;
+      flyer.style.transform = `translateY(${liftY}px)`;
+    }
+  };
+
+  syncStarMarkersDuringMotion();
+  syncDominoSpotStripDuringMotion();
+
+  if (duration <= 0) {
+    applyLift();
+    finish();
+    return;
+  }
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(applyLift);
+  });
+
+  setTimeout(finish, duration);
+}
+
+function runPushBelow(dieId, slot, onDone, existingFlyer = null) {
+  const finalTarget = slotAnchorRowXY(slot);
+  const liftMs = spd(PUSH_LIFT_MS);
+
+  let commitFlyer = existingFlyer;
+  let committed = false;
+
+  /** Commit exactly once, whatever path the animation took. */
+  const commit = () => {
+    if (committed) return;
+    committed = true;
+    placeDie(dieId, slot);
+    onDone();
+  };
+
+  if (!finalTarget) {
+    commitFlyer?.remove();
+    commit();
+    return;
+  }
+
+  payStarForSlot(slot.col);
+  syncStarMarkers();
+
+  // The pusher starts snapped under the stack — never a fly-in from tray or finger.
+  if (!commitFlyer || !isCommitFlyerAtTarget(commitFlyer, finalTarget)) {
+    commitFlyer?.remove();
+    commitFlyer = createCommitFlyerAtSlot(dieId, slot);
+  }
+
+  animatePushBelowLift(slot.col, liftMs, commit, commitFlyer);
 }
 
 function syncStarMarkers() {
@@ -360,6 +412,11 @@ function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {
 
 /** Place from the bar: columns spread (gap inserts), then die flies to the slot. */
 export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
+  if (!slot?.kind) {
+    existingFlyer?.remove();
+    return false;
+  }
+
   const fromBar = state.actionBar.includes(dieId);
   if (!fromBar) {
     resetInsertHoverSpread();
@@ -373,15 +430,37 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
 
   const valid = getValidSlotsForDie(dieId);
   if (!valid.some(s => slotsEqual(s, slot))) {
+    existingFlyer?.remove();
     return false;
   }
 
+  if (slot.kind === 'stack-below' && state.stars <= 0) {
+    existingFlyer?.remove();
+    return false;
+  }
+
+  let commitFlyer = existingFlyer;
+  if (commitFlyer?.classList.contains('placement-snap-ghost')) {
+    commitFlyer = promoteSnapGhostToFlyer(commitFlyer);
+  }
+  if (commitFlyer) commitFlyer.style.visibility = '';
+
+  if (fromBar) state.draggingDieId = dieId;
+
   pinRowScroll();
   state.phase = 'animating';
-  runSpreadThenFly(dieId, slot, () => {
+  const finish = () => {
+    state.draggingDieId = null;
     state.phase = 'rolled';
     render();
     requestAnimationFrame(() => unpinRowScroll());
-  }, existingFlyer);
+  };
+
+  if (slot.kind === 'stack-below') {
+    runPushBelow(dieId, slot, finish, commitFlyer);
+    return true;
+  }
+
+  runSpreadThenFly(dieId, slot, finish, commitFlyer);
   return true;
 }

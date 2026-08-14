@@ -277,6 +277,7 @@ export function rollDice() {
   }
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
+  state.pushBelowDieIds.clear();
   state.selectedDieId = null;
 
   if (settings.tileDealtEvery > 0 && !settings.deckFlank && state.rollCount % settings.tileDealtEvery === 0) {
@@ -329,6 +330,7 @@ export function confirmTurn() {
   state.starNewDieIds = new Set(state.placedDieIds);
   state.placedThisTurn = 0;
   state.placedDieIds = new Set();
+  state.pushBelowDieIds.clear();
   state.selectedDieId = null;
   state.phase = 'animating';
 

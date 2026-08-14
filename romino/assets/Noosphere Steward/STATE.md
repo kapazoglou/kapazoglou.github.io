@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-08-13
+lastVerified: 2026-08-14
 ---
 
 # römino — Verified Pattern State
@@ -16,7 +16,7 @@ lastVerified: 2026-08-13
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `starPowers`, `buggerSingles`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +32,8 @@ lastVerified: 2026-08-13
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **star-powers.js v1.0, settings.js v2.36, settings-panel.js, state.js v2.27, row.js v1.67, star-reroll-input.js v1.3, flip-tray-anim.js v1.0, stack-swap-anim.js v1.0, placement-anim.js v1.28, pip-anim.js v1.8, placement-row.js, placement-row.css** — `starPowers` + clamped `buggerSingles`: tray flip (2–5), 2-dice swap, push-from-below, bugger 1/6 column gate
 
 - **turn.js v2.45** — suit-cap game over via `evaluateGameOver('post-confirm')` + `tryContinueAfterConfirm` safety net
 

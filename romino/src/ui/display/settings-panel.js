@@ -66,6 +66,7 @@ function clampDraft() {
   if (draftSettings.startingDice < 0) draftSettings.startingDice = 0;
   const startingDiceCap = Math.min(draftSettings.nDice, draftSettings.nSpots * 2, 24);
   if (draftSettings.startingDice > startingDiceCap) draftSettings.startingDice = startingDiceCap;
+  if (!draftSettings.starPowers) draftSettings.buggerSingles = false;
 }
 
 function isDraftControlDisabled(item) {
@@ -74,6 +75,7 @@ function isDraftControlDisabled(item) {
   if (item.key === 'dominoSpots') return !draftSettings.dominoRoll || draftSettings.tileDealtEvery > 0;
   if (item.key === 'switcherJokers') return !draftSettings.tricolors || draftSettings.tricolorSevens;
   if (item.key === 'tricolorSevens') return draftSettings.switcherJokers;
+  if (item.key === 'buggerSingles') return !draftSettings.starPowers;
   return false;
 }
 

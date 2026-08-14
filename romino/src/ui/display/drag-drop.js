@@ -12,7 +12,7 @@ import {
 import { dieSVG, DIE_OUTER } from '../../logic/dice-visual.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
 import { render, renderSelection } from './render.js';
-import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY } from './placement-row.js';
+import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY, syncPushBelowTargets } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
@@ -135,6 +135,7 @@ function createSnapGhost(dieId) {
 function updateSnapGhost(slot) {
   state.snapGhostSlot = slot ?? null;
   if (!snapGhostEl) return;
+  snapGhostEl.classList.toggle('placement-snap-ghost--push-below', slot?.kind === 'stack-below');
   if (!slot) {
     snapGhostEl.style.display = 'none';
     syncDragPreviewVisibility();
@@ -157,6 +158,16 @@ function clearSnapGhost() {
   snapGhostEl?.remove();
   snapGhostEl = null;
   activeSnapSlot = null;
+  syncPushBelowTargets();
+}
+
+function takeSnapGhostForCommit() {
+  if (!snapGhostEl || snapGhostEl.style.display === 'none') return null;
+  const el = snapGhostEl;
+  snapGhostEl = null;
+  state.snapGhostSlot = null;
+  activeSnapSlot = null;
+  return el;
 }
 
 function moveFlyer(clientX, clientY) {
@@ -307,6 +318,7 @@ function onPointerMove(e) {
           e.clientX, e.clientY, stackY, validSlots, dragDieId,
         );
         updateSnapGhost(activeSnapSlot);
+        syncPushBelowTargets();
         updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dragDieId, activeSnapSlot);
       } else {
         updateInsertHoverSpread(e.clientX, e.clientY, validSlots, dragDieId);
@@ -329,7 +341,27 @@ function clearDragVisuals() {
 
 function onPointerUp(e) {
   if (!isDragSessionActive()) return;
+  try {
+    resolveDrop(e);
+  } catch (err) {
+    console.error('[drag-drop] drop failed', err);
+    if (state.phase === 'animating') state.phase = 'rolled';
+    clearDragVisuals();
+    render();
+  }
 
+  if (capturedPointerId != null) {
+    releasePointer();
+  }
+  dragDieId = null;
+  dragDieEl = null;
+  isDragging = false;
+  skipNextFlyerMove = false;
+  setDragPending(false);
+  setDragActive(false);
+}
+
+function resolveDrop(e) {
   if (isDragging) {
     const target = document.elementFromPoint(e.clientX, e.clientY);
     let animHandled = false;
@@ -343,12 +375,25 @@ function onPointerUp(e) {
       if (returnedToBar) onDominoDieReturnedToTray(dragDieId);
     } else if (settings.directPlacement) {
       if (snappingActive()) {
-        if (activeSnapSlot) {
-          animHandled = placeDieWithAnim(dragDieId, activeSnapSlot, dragFlyer);
+        const commitSlot = activeSnapSlot;
+        if (commitSlot) {
+          let commitFlyer = dragFlyer;
+          let snapHandoff = null;
+          if (commitSlot.kind === 'stack-below' && snapGhostEl?.style.display !== 'none') {
+            snapHandoff = takeSnapGhostForCommit();
+            if (snapHandoff) {
+              dragFlyer?.remove();
+              dragFlyer = null;
+              commitFlyer = snapHandoff;
+            }
+          }
+          animHandled = placeDieWithAnim(dragDieId, commitSlot, commitFlyer);
           if (animHandled) {
             dragFlyer = null;
-            clearSnapGhost();
+          } else {
+            snapHandoff?.remove();
           }
+          clearSnapGhost();
         }
       } else {
         const flyerPt = flyerResolvePoint();
@@ -373,8 +418,6 @@ function onPointerUp(e) {
 
     if (!animHandled) {
       clearDragVisuals();
-    } else {
-      state.draggingDieId = null;
     }
 
     if (!animHandled) {
@@ -395,14 +438,4 @@ function onPointerUp(e) {
       render();
     } else if (tapResult === 'selection') renderSelection();
   }
-
-  if (capturedPointerId != null) {
-    releasePointer();
-  }
-  dragDieId = null;
-  dragDieEl = null;
-  isDragging = false;
-  skipNextFlyerMove = false;
-  setDragPending(false);
-  setDragActive(false);
 }

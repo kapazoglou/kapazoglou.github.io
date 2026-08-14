@@ -10,6 +10,36 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **placement-anim.js v1.33** — push starts snapped: no fly-in leg, pusher spawns at the snap anchor and only the lift animates (drops the transform bake that displaced the start in Y)
+
+- **row.js v1.72** — an outer 1/6 bottom die accepts nothing on top (`passesOuterBottomGuard`), so no stack has an outer bottom; push placements run the duplicate-tile gate on the resulting `[push, v0, v1]` stack
+
+- **star-powers.js v1.5** — stacks of two equal faces may not be swapped (flipped); stacks containing any outer 1/6 may not be swapped
+
+- **drag-drop.js v2.38, placement-anim.js v1.32** — fix push-below drop throwing: snap slot captured before `takeSnapGhostForCommit` nulls it (caused stall, leftover accent ghost, tray duplicate); drop path wrapped in recovery net; push-below commits exactly once even without a flyer
+
+- **row.js v1.71, placement-anim.js v1.31, drag-drop.js, placement-row.js** — push-below commit bypasses rolled-phase gate in placeDie; keep bar die hidden until anim finishes; bake flyer transform before lift; fix stack-through-flyer zone bias
+
+- **placement-anim.js, row.js** — fix broken push-below anim (duplicate fn syntax), lift pusher+stack together, validate before state mutate in placeDie
+
+- **row.js, placement-anim.js, drag-drop.js, placement-input.js** — push-below snap requires stars; fix stuck flyer + animating phase when commit fails; promote ghost after validation
+
+- **push-below-flyer.js, placement-spread.js** — break import cycles: flyer helpers leaf module; `computeSpreadOffsets` out of placement-anim ↔ placement-hover loop; star-powers never imports row
+
+- **placement-anim.js v1.30, drag-drop.js, placement-input.js, row.js, state.js, turn.js** — push-below: star fly + die move parallel; snap ghost promotes to commit flyer; return push die refunds star
+
+- **star-powers.js v1.2** — restore outer-top push: top 6 → push ≤ bottom; top 1 → push ≥ bottom (tray still 2–5 only; uniform stacks blocked)
+
+- **star-powers.js v1.1, placement-anim.js, placement-row.css, timing.js** — push rules: tray 1/6 cannot push; block uniform stacks and outer-topped stacks; lift anim on commit
+
+- **row.js, star-powers.js, placement-row.js, drag-drop.js, placement-anim.js, placement-anim.css** — push-from-below snap: preview without star balance; ghost anchors below stack; below-zone pointer bias; drag highlights; star gate on commit anim
+
+- **handlers.js, placement-input.js, placement-row.js, placement-row.css** — tap-to-push: select tray die → tap bottom die of stack; bottom dice highlight accent when push valid
+
+- **row.js v1.68, placement-row.js, placement-input.js, drag-drop.js, placement-anim.css** — fix push-from-below: stop hiding `stack-below` whenever top-stack also valid; snap resolves below-zone + overlapping-anchor dedupe only
+
+- **star-powers.js v1.0, settings.js v2.36, settings-panel.js, state.js v2.27, row.js v1.67, star-reroll-input.js v1.3, flip-tray-anim.js v1.0, stack-swap-anim.js v1.0, placement-anim.js v1.28, pip-anim.js v1.8, placement-row.js, placement-row.css** — `starPowers` + clamped `buggerSingles`: tray flip (2–5), 2-dice swap, push-from-below (`stack-below` slot + star fly), bugger 1/6 columns gated until push-below
+
 - **hud-v2.css v1.12** — star score count uses accent color (warning flash returns to accent)
 
 - **viewport-controls.css v1.4** — full-screen button pinned bottom-left (was bottom-right)

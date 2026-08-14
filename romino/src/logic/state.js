@@ -88,6 +88,10 @@ export function createInitialState() {
     dominoSpotsCreatedThisTurn: [],
     /** Domino spot strip — cols that just gained a seam domino (enter anim). */
     newDominoSpotCols: new Set(),
+    /** Bugger Singles — lone 1/6 columns awaiting push-below before top-stack. */
+    buggerPendingCols: new Set(),
+    /** Dies placed via push-from-below this turn — return refunds star. */
+    pushBelowDieIds: new Set(),
     /** UI — seam domino spot glyphs visible (toggle via deck badge tap). */
     dominoSpotsVisible: true,
     /** Domino spots — authoritative col→combo key until sweep (survives column recreate). */

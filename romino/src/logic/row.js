@@ -2,11 +2,22 @@ import { state } from './state.js';
 import { settings } from './settings.js';
 import { isDominoPairLocked } from './domino-roll.js';
 import { onTrayDiePlaced, onColumnVacated, onSpotColReposition, shiftDominoSpotCols, getDominoKeyForCol } from './domino-spots.js';
+import { recordStarSpent } from './game-log.js';
 import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
 import { isCubeLockedForIdentity, getCubeLockColForBlockedAttempt } from './nine-cubes.js';
 import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryColsForCol } from './monotonic.js';
+import {
+  buggerSinglesEnabled,
+  clearBuggerPendingCol,
+  isBuggerOuterValue,
+  isBuggerPendingCol,
+  markBuggerPendingCol,
+  canPushBelowAtCol,
+  passesPushBelowAtCol,
+  starPowersEnabled,
+} from './star-powers.js';
 
 function tricolorJokersEnabled() {
   return settings.tricolors || settings.tricolorSevens;
@@ -151,6 +162,7 @@ function canPlaceMoreDiceFromBar() {
 
 function passesOneToOneNewColumn(value) {
   if (!settings.oneToOne) return true;
+  if (buggerSinglesEnabled() && isBuggerOuterValue(value)) return true;
   return value >= 2 && value <= 5;
 }
 
@@ -342,6 +354,13 @@ function passesNextMustFollowNewColumn(value, excludeDieId = null) {
 
 function shiftColumnsFrom(fromCol, delta) {
   shiftDominoSpotCols(fromCol, delta);
+  if (delta) {
+    const remapped = new Set();
+    for (const col of state.buggerPendingCols) {
+      remapped.add(col >= fromCol ? col + delta : col);
+    }
+    state.buggerPendingCols = remapped;
+  }
   for (const k of Object.keys(state.row).map(Number).filter(c => c >= fromCol).sort((a, b) => b - a)) {
     state.row[k + delta] = state.row[k];
     delete state.row[k];
@@ -551,9 +570,31 @@ export function isStarBlockedPlacement(dieId, slot) {
 
 export function slotsEqual(a, b) {
   if (a.kind !== b.kind) return false;
-  if (a.kind === 'stack' || a.kind === 'new-column') return a.col === b.col;
+  if (a.kind === 'stack' || a.kind === 'stack-below' || a.kind === 'new-column') return a.col === b.col;
   if (a.kind === 'insert') return a.leftCol === b.leftCol && a.rightCol === b.rightCol;
   return false;
+}
+
+/** Star powers: an outer 1/6 bottom takes nothing on top — the only way on is a push underneath. */
+function passesOuterBottomGuard(col) {
+  if (!starPowersEnabled()) return true;
+  const column = getColumn(col);
+  if (column?.kind !== 'stack' || !column.dice.length) return true;
+  return !isBuggerOuterValue(state.dice[column.dice[0]].value);
+}
+
+/** Push lands at index 0, so the would-be stack reads [push, v0, v1]. */
+function passesPushBelowNoDuplicate(col, value) {
+  const column = getColumn(col);
+  if (column?.kind !== 'stack' || column.dice.length !== 2) return true;
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  return passesNoDuplicateTile(value, v0, v1, col);
+}
+
+/** Rules only — no star balance, no phase. Shared by slot listing and commit. */
+function pushBelowRulesPass(col, value) {
+  return passesPushBelowAtCol(col, value) && passesPushBelowNoDuplicate(col, value);
 }
 
 function canPlaceValueAt(col, kind, value) {
@@ -568,7 +609,9 @@ function canPlaceValueAt(col, kind, value) {
 
   if (kind === 'stack') {
     if (!column || column.kind === 'tile') return false;
+    if (isBuggerPendingCol(col)) return false;
     if (column.dice.length >= 3) return false;
+    if (!passesOuterBottomGuard(col)) return false;
     if (column.dice.length === 2) {
       const v0 = state.dice[column.dice[0]].value;
       const v1 = state.dice[column.dice[1]].value;
@@ -577,6 +620,10 @@ function canPlaceValueAt(col, kind, value) {
       return passesNoDuplicateTile(v0, v1, value, col);
     }
     return true;
+  }
+
+  if (kind === 'stack-below') {
+    return canPushBelowAtCol(col, value) && passesPushBelowNoDuplicate(col, value);
   }
 
   return false;
@@ -614,6 +661,9 @@ export function getValidSlotsForDie(dieId) {
       if (canPlaceValueAt(col, 'stack', value)) {
         slots.push({ col, kind: 'stack' });
       }
+      if (fromBar && canPlaceValueAt(col, 'stack-below', value)) {
+        slots.push({ col, kind: 'stack-below' });
+      }
     }
   }
 
@@ -634,7 +684,7 @@ export function getValidSlotsForDie(dieId) {
   }
 
   if (isAtSpotCap()) {
-    slots = slots.filter(slot => slot.kind === 'stack');
+    slots = slots.filter(slot => slot.kind === 'stack' || slot.kind === 'stack-below');
   }
 
   return slots;
@@ -657,6 +707,28 @@ export function isTopDieInStack(dieId) {
   return false;
 }
 
+function isBottomDieInStack(dieId) {
+  for (const [, column] of Object.entries(state.row)) {
+    if (column.kind !== 'stack' || !column.dice.includes(dieId)) continue;
+    return column.dice[0] === dieId;
+  }
+  return false;
+}
+
+export function isPushBelowPlacedDie(dieId) {
+  return state.pushBelowDieIds.has(dieId);
+}
+
+export function canReturnDieToBar(dieId) {
+  if (!state.placedDieIds.has(dieId)) return false;
+  if (isPushBelowPlacedDie(dieId)) return isBottomDieInStack(dieId);
+  return isTopDieInStack(dieId);
+}
+
+export function isReturnablePlacedDie(dieId) {
+  return state.placedDieIds.has(dieId) && canReturnDieToBar(dieId);
+}
+
 /** @returns {number | false | null} vacated col, null if removed but column remains, false if die not found */
 function removeDieFromRow(dieId) {
   for (const [colKey, column] of Object.entries(state.row)) {
@@ -667,6 +739,7 @@ function removeDieFromRow(dieId) {
     const col = Number(colKey);
     if (column.dice.length === 0) {
       delete state.row[col];
+      clearBuggerPendingCol(col);
       if (isRowEmpty()) state.hasPlacedFirstDie = false;
       return col;
     }
@@ -682,8 +755,14 @@ export function placeDie(dieId, slot) {
   if (!fromBar && !fromRow) return false;
   if (fromBar && !canPlaceMoreDiceFromBar()) return false;
 
-  const valid = getValidSlotsForDie(dieId);
-  if (!valid.some(s => slotsEqual(s, slot))) return false;
+  if (slot.kind === 'stack-below') {
+    if (state.stars <= 0 || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
+      return false;
+    }
+  } else {
+    const valid = getValidSlotsForDie(dieId);
+    if (!valid.some(s => slotsEqual(s, slot))) return false;
+  }
 
   let vacatedCol = null;
   let vacatedDominoKey = null;
@@ -703,10 +782,24 @@ export function placeDie(dieId, slot) {
     state.row[slot.col] = { kind: 'stack', dice: [dieId] };
     targetCol = slot.col;
     state.hasPlacedFirstDie = true;
+    if (buggerSinglesEnabled() && isBuggerOuterValue(state.dice[dieId].value)) {
+      markBuggerPendingCol(targetCol);
+    }
   } else if (slot.kind === 'insert') {
     targetCol = resolveInsertCol(slot.leftCol, slot.rightCol);
     state.row[targetCol] = { kind: 'stack', dice: [dieId] };
     state.hasPlacedFirstDie = true;
+    if (buggerSinglesEnabled() && isBuggerOuterValue(state.dice[dieId].value)) {
+      markBuggerPendingCol(targetCol);
+    }
+  } else if (slot.kind === 'stack-below') {
+    targetCol = slot.col;
+    const column = state.row[slot.col];
+    column.dice.unshift(dieId);
+    clearBuggerPendingCol(targetCol);
+    state.stars -= 1;
+    state.pushBelowDieIds.add(dieId);
+    recordStarSpent('push-below');
   } else {
     targetCol = slot.col;
     const column = state.row[slot.col];
@@ -732,13 +825,37 @@ export function placeDie(dieId, slot) {
 }
 
 export function returnDieToBar(dieId, keepSelected = false) {
-  if (!state.placedDieIds.has(dieId)) return false;
-  if (!isTopDieInStack(dieId)) return false;
+  if (!canReturnDieToBar(dieId)) return false;
+
+  const pushBelow = isPushBelowPlacedDie(dieId);
   const loc = findDieColumn(dieId);
   const boundKey = loc ? getDominoKeyForCol(loc.col) : null;
+  const col = loc?.col ?? null;
+
+  if (pushBelow) {
+    state.pushBelowDieIds.delete(dieId);
+    state.stars += 1;
+  }
+
   const removeResult = removeDieFromRow(dieId);
-  if (removeResult === false) return false;
+  if (removeResult === false) {
+    if (pushBelow) {
+      state.pushBelowDieIds.add(dieId);
+      state.stars -= 1;
+    }
+    return false;
+  }
   if (typeof removeResult === 'number') onColumnVacated(removeResult, boundKey);
+
+  if (pushBelow && col != null) {
+    const column = getColumn(col);
+    if (column?.kind === 'stack' && column.dice.length === 1) {
+      const outerVal = state.dice[column.dice[0]].value;
+      if (buggerSinglesEnabled() && isBuggerOuterValue(outerVal)) {
+        markBuggerPendingCol(col);
+      }
+    }
+  }
 
   state.actionBar.push(dieId);
   state.placedThisTurn--;

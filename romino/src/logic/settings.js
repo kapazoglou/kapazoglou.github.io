@@ -28,6 +28,8 @@ export const SETTINGS_CONFIG = [
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
+      { key: 'starPowers',          label: 'Star Powers',             default: false, type: 'toggle' },
+      { key: 'buggerSingles',       label: 'Bugger Singles',          default: false, type: 'toggle' },
     ],
   },
   {
@@ -85,4 +87,5 @@ export function clampSettings() {
   if (settings.startingDice < 0) settings.startingDice = 0;
   const startingDiceCap = Math.min(settings.nDice, settings.nSpots * 2, 24);
   if (settings.startingDice > startingDiceCap) settings.startingDice = startingDiceCap;
+  if (!settings.starPowers) settings.buggerSingles = false;
 }
