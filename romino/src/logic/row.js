@@ -11,12 +11,22 @@ import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryColsForCol } f
 import {
   buggerSinglesEnabled,
   clearBuggerPendingCol,
+  clearBuggerOuterStackLockedCol,
+  clearSwapStackCol,
+  clearFlippedDie,
+  isAllOuterStack,
   isBuggerOuterValue,
   isBuggerPendingCol,
+  isSwapPaidCol,
+  isSwapRefundableDie,
+  isFlippedDie,
   markBuggerPendingCol,
+  oppositeDieValue,
   canPushBelowAtCol,
   passesPushBelowAtCol,
-  starPowersEnabled,
+  pushBelowEnabled,
+  pushBelowStarCost,
+  syncBuggerOuterStackLock,
 } from './star-powers.js';
 
 function tricolorJokersEnabled() {
@@ -355,11 +365,16 @@ function passesNextMustFollowNewColumn(value, excludeDieId = null) {
 function shiftColumnsFrom(fromCol, delta) {
   shiftDominoSpotCols(fromCol, delta);
   if (delta) {
-    const remapped = new Set();
+    const remappedPending = new Set();
     for (const col of state.buggerPendingCols) {
-      remapped.add(col >= fromCol ? col + delta : col);
+      remappedPending.add(col >= fromCol ? col + delta : col);
     }
-    state.buggerPendingCols = remapped;
+    state.buggerPendingCols = remappedPending;
+    const remappedLocked = new Set();
+    for (const col of state.buggerOuterStackLockedCols) {
+      remappedLocked.add(col >= fromCol ? col + delta : col);
+    }
+    state.buggerOuterStackLockedCols = remappedLocked;
   }
   for (const k of Object.keys(state.row).map(Number).filter(c => c >= fromCol).sort((a, b) => b - a)) {
     state.row[k + delta] = state.row[k];
@@ -575,12 +590,18 @@ export function slotsEqual(a, b) {
   return false;
 }
 
-/** Star powers: an outer 1/6 bottom takes nothing on top — the only way on is a push underneath. */
-function passesOuterBottomGuard(col) {
-  if (!starPowersEnabled()) return true;
+/** Star powers: outer bottom blocks top-stack unless Bugger Singles outer-on-outer. */
+function passesOuterBottomGuard(col, placingValue = null) {
+  if (!pushBelowEnabled()) return true;
   const column = getColumn(col);
   if (column?.kind !== 'stack' || !column.dice.length) return true;
-  return !isBuggerOuterValue(state.dice[column.dice[0]].value);
+  const bottomOuter = isBuggerOuterValue(state.dice[column.dice[0]].value);
+  if (!bottomOuter) return true;
+  if (buggerSinglesEnabled() && placingValue != null && isBuggerOuterValue(placingValue)
+      && isAllOuterStack(column)) {
+    return true;
+  }
+  return false;
 }
 
 /** Push lands at index 0, so the would-be stack reads [push, v0, v1]. */
@@ -609,9 +630,11 @@ function canPlaceValueAt(col, kind, value) {
 
   if (kind === 'stack') {
     if (!column || column.kind === 'tile') return false;
-    if (isBuggerPendingCol(col)) return false;
+    if (isBuggerPendingCol(col) && !(buggerSinglesEnabled() && isBuggerOuterValue(value))) {
+      return false;
+    }
     if (column.dice.length >= 3) return false;
-    if (!passesOuterBottomGuard(col)) return false;
+    if (!passesOuterBottomGuard(col, value)) return false;
     if (column.dice.length === 2) {
       const v0 = state.dice[column.dice[0]].value;
       const v1 = state.dice[column.dice[1]].value;
@@ -715,6 +738,8 @@ function isBottomDieInStack(dieId) {
   return false;
 }
 
+export { isSwapRefundableDie } from './star-powers.js';
+
 export function isPushBelowPlacedDie(dieId) {
   return state.pushBelowDieIds.has(dieId);
 }
@@ -722,7 +747,11 @@ export function isPushBelowPlacedDie(dieId) {
 export function canReturnDieToBar(dieId) {
   if (!state.placedDieIds.has(dieId)) return false;
   if (isPushBelowPlacedDie(dieId)) return isBottomDieInStack(dieId);
-  return isTopDieInStack(dieId);
+  if (isTopDieInStack(dieId)) return true;
+  // A die placed this turn can also be pulled from the bottom of a 2-die stack
+  // (e.g. a stack swap moved it under a settled die).
+  const loc = findDieColumn(dieId);
+  return !!loc && loc.column.dice.length === 2 && loc.column.dice[0] === dieId;
 }
 
 export function isReturnablePlacedDie(dieId) {
@@ -740,6 +769,7 @@ function removeDieFromRow(dieId) {
     if (column.dice.length === 0) {
       delete state.row[col];
       clearBuggerPendingCol(col);
+      clearBuggerOuterStackLockedCol(col);
       if (isRowEmpty()) state.hasPlacedFirstDie = false;
       return col;
     }
@@ -756,7 +786,8 @@ export function placeDie(dieId, slot) {
   if (fromBar && !canPlaceMoreDiceFromBar()) return false;
 
   if (slot.kind === 'stack-below') {
-    if (state.stars <= 0 || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
+    const cost = pushBelowStarCost();
+    if (state.stars < cost || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
       return false;
     }
   } else {
@@ -772,9 +803,11 @@ export function placeDie(dieId, slot) {
     if (!isTopDieInStack(dieId)) return false;
     const loc = findDieColumn(dieId);
     vacatedDominoKey = loc ? getDominoKeyForCol(loc.col) : null;
+    const sourceCol = loc?.col ?? null;
     const removeResult = removeDieFromRow(dieId);
     if (removeResult === false) return false;
     if (typeof removeResult === 'number') vacatedCol = removeResult;
+    else if (sourceCol != null) syncBuggerOuterStackLock(sourceCol);
   }
 
   let targetCol;
@@ -797,13 +830,19 @@ export function placeDie(dieId, slot) {
     const column = state.row[slot.col];
     column.dice.unshift(dieId);
     clearBuggerPendingCol(targetCol);
-    state.stars -= 1;
+    clearBuggerOuterStackLockedCol(targetCol);
+    state.stars -= pushBelowStarCost();
     state.pushBelowDieIds.add(dieId);
     recordStarSpent('push-below');
   } else {
     targetCol = slot.col;
     const column = state.row[slot.col];
     column.dice.push(dieId);
+    if (isBuggerPendingCol(targetCol) && buggerSinglesEnabled()
+        && isBuggerOuterValue(state.dice[dieId].value)) {
+      clearBuggerPendingCol(targetCol);
+    }
+    syncBuggerOuterStackLock(targetCol);
   }
 
   if (fromBar) {
@@ -831,17 +870,24 @@ export function returnDieToBar(dieId, keepSelected = false) {
   const loc = findDieColumn(dieId);
   const boundKey = loc ? getDominoKeyForCol(loc.col) : null;
   const col = loc?.col ?? null;
+  const swapPaid = col != null && isSwapPaidCol(col);
 
   if (pushBelow) {
     state.pushBelowDieIds.delete(dieId);
+    state.stars += pushBelowStarCost();
+  } else if (swapPaid) {
     state.stars += 1;
+    clearSwapStackCol(col);
   }
 
   const removeResult = removeDieFromRow(dieId);
   if (removeResult === false) {
     if (pushBelow) {
       state.pushBelowDieIds.add(dieId);
+      state.stars -= pushBelowStarCost();
+    } else if (swapPaid) {
       state.stars -= 1;
+      if (col != null) state.swapStackCols.add(col);
     }
     return false;
   }
@@ -849,12 +895,25 @@ export function returnDieToBar(dieId, keepSelected = false) {
 
   if (pushBelow && col != null) {
     const column = getColumn(col);
-    if (column?.kind === 'stack' && column.dice.length === 1) {
-      const outerVal = state.dice[column.dice[0]].value;
-      if (buggerSinglesEnabled() && isBuggerOuterValue(outerVal)) {
-        markBuggerPendingCol(col);
+    if (column?.kind === 'stack') {
+      if (column.dice.length === 1) {
+        const outerVal = state.dice[column.dice[0]].value;
+        if (buggerSinglesEnabled() && isBuggerOuterValue(outerVal)) {
+          markBuggerPendingCol(col);
+        }
+      } else {
+        syncBuggerOuterStackLock(col);
       }
     }
+  } else if (col != null) {
+    syncBuggerOuterStackLock(col);
+  }
+
+  if (isFlippedDie(dieId)) {
+    state.stars += 1;
+    const die = state.dice[dieId];
+    if (die) die.value = oppositeDieValue(die.value);
+    clearFlippedDie(dieId);
   }
 
   state.actionBar.push(dieId);

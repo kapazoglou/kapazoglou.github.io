@@ -90,8 +90,14 @@ export function createInitialState() {
     newDominoSpotCols: new Set(),
     /** Bugger Singles — lone 1/6 columns awaiting push-below before top-stack. */
     buggerPendingCols: new Set(),
+    /** Bugger Singles — 2+ all-outer stacks that need push-below before convert. */
+    buggerOuterStackLockedCols: new Set(),
     /** Dies placed via push-from-below this turn — return refunds star. */
     pushBelowDieIds: new Set(),
+    /** Columns star-paid stack swap this turn — tap refunds star (reverse swap). */
+    swapStackCols: new Set(),
+    /** Tray dice star-flipped this turn (odd flips) — return to bar refunds star + reverts face. */
+    flippedDieIds: new Set(),
     /** UI — seam domino spot glyphs visible (toggle via deck badge tap). */
     dominoSpotsVisible: true,
     /** Domino spots — authoritative col→combo key until sweep (survives column recreate). */

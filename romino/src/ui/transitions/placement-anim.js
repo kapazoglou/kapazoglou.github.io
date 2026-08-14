@@ -8,9 +8,10 @@ import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js
 import { spreadColumnElement, flankStackColElement } from '../display/flank-stacks.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
 import { clearRepositionCollapse, resetRepositionCollapse } from './reposition-collapse.js';
+import { pushBelowStarCost } from '../../logic/star-powers.js';
 import { payStarForSlot } from './pip-anim.js';
 import { computeSpreadOffsets } from './placement-spread.js';
-import { promoteSnapGhostToFlyer, createCommitFlyerAtSlot } from './push-below-flyer.js';
+import { promoteSnapGhostToFlyer, createCommitFlyerAtSlot, syncCommitFlyerToSlot } from './push-below-flyer.js';
 import { COL_SPREAD_MS, COL_DIE_IN_MS, PUSH_LIFT_MS } from './timing.js';
 
 export { computeSpreadOffsets } from './placement-spread.js';
@@ -196,20 +197,6 @@ function animateDieFly(dieId, finalTarget, duration, onDone, existingFlyer = nul
   return flyer;
 }
 
-function isCommitFlyerAtTarget(flyer, rowTarget) {
-  if (!flyer || !rowTarget) return false;
-  const layer = flyLayer();
-  const inner = document.querySelector('.placement-row-inner');
-  if (!layer || !inner) return false;
-  const scale = viewportScale();
-  const layerRect = layer.getBoundingClientRect();
-  const innerRect = inner.getBoundingClientRect();
-  const end = pointInFlyLayer(rowTarget, innerRect, layerRect, scale);
-  const left = parseFloat(flyer.style.left) || 0;
-  const top = parseFloat(flyer.style.top) || 0;
-  return Math.hypot(end.left - left, end.top - top) < 4;
-}
-
 function dieBorder() {
   return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-border')) || 4;
 }
@@ -232,7 +219,9 @@ function animatePushBelowLift(col, duration, onDone, flyer = null) {
 
   const dice = [...colNode.querySelectorAll('.die--placed')];
   const lift = stackLiftDesignPx();
-  const liftY = settings.stackBottomUp ? lift : -lift;
+  // Columns are bottom-anchored and grow upward, so the pushed die (ghost sits
+  // below the baseline) and the existing stack both rise one step to settle.
+  const liftY = settings.stackBottomUp ? -lift : lift;
 
   const finish = () => {
     colNode.classList.remove('placement-col--push-lifting');
@@ -262,6 +251,16 @@ function animatePushBelowLift(col, duration, onDone, flyer = null) {
 
   syncStarMarkersDuringMotion();
   syncDominoSpotStripDuringMotion();
+
+  for (const die of dice) {
+    die.style.transition = 'none';
+    die.style.transform = '';
+  }
+  if (flyer) {
+    flyer.style.transition = 'none';
+    flyer.style.transform = 'translate(0, 0)';
+  }
+  colNode.offsetHeight;
 
   if (duration <= 0) {
     applyLift();
@@ -297,13 +296,19 @@ function runPushBelow(dieId, slot, onDone, existingFlyer = null) {
     return;
   }
 
-  payStarForSlot(slot.col);
+  payStarForSlot(slot.col, undefined, pushBelowStarCost());
   syncStarMarkers();
 
   // The pusher starts snapped under the stack — never a fly-in from tray or finger.
-  if (!commitFlyer || !isCommitFlyerAtTarget(commitFlyer, finalTarget)) {
-    commitFlyer?.remove();
+  if (!commitFlyer) {
     commitFlyer = createCommitFlyerAtSlot(dieId, slot);
+  } else {
+    syncCommitFlyerToSlot(commitFlyer, dieId, slot);
+  }
+
+  if (!commitFlyer) {
+    commit();
+    return;
   }
 
   animatePushBelowLift(slot.col, liftMs, commit, commitFlyer);
@@ -434,13 +439,20 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
     return false;
   }
 
-  if (slot.kind === 'stack-below' && state.stars <= 0) {
+  if (slot.kind === 'stack-below' && state.stars < pushBelowStarCost()) {
     existingFlyer?.remove();
     return false;
   }
 
   let commitFlyer = existingFlyer;
-  if (commitFlyer?.classList.contains('placement-snap-ghost')) {
+  if (slot.kind === 'stack-below') {
+    if (commitFlyer?.classList.contains('placement-snap-ghost')) {
+      commitFlyer = promoteSnapGhostToFlyer(commitFlyer);
+    } else {
+      commitFlyer?.remove();
+      commitFlyer = createCommitFlyerAtSlot(dieId, slot);
+    }
+  } else if (commitFlyer?.classList.contains('placement-snap-ghost')) {
     commitFlyer = promoteSnapGhostToFlyer(commitFlyer);
   }
   if (commitFlyer) commitFlyer.style.visibility = '';
@@ -449,6 +461,11 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
 
   pinRowScroll();
   state.phase = 'animating';
+
+  if (slot.kind === 'stack-below' && commitFlyer) {
+    syncCommitFlyerToSlot(commitFlyer, dieId, slot);
+  }
+
   const finish = () => {
     state.draggingDieId = null;
     state.phase = 'rolled';

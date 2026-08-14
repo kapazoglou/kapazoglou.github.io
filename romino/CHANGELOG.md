@@ -10,6 +10,28 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **sweeps-row.js v1.21, sweep-anim.js v1.17, pip-anim.js v1.11, game-log.js v1.3, suit-tally.js v1.5, settings.js v2.38, settings-panel.js, tutorial-steps.js** — sweep bank `(length − 2) × effectiveStars` (0 stars → 1); tricolor flush ×1 cap kept; end bonus `sweptLowSuitBonus` + unique discovery − `sweptDuplicatePenalty` per extra suit:rank copy
+
+- **state.js v2.30, star-powers.js v1.10, flip-tray-anim.js v1.1, row.js v1.76, turn.js v2.47, placement-row.js, base.css** — Star flip (Action A) refund: `flippedDieIds` tracks odd flips this turn; returning a flipped die to the tray refunds 1 star + reverts its face; active suit-tint stroke limited to just-placed (returnable) dice only (swap-refundable no longer tinted)
+
+- **state.js v2.29, star-powers.js v1.9, row.js v1.75, turn.js v2.46, stack-swap-anim.js v1.1, pip-anim.js v1.10, drag-drop.js v2.41, placement-row.js, placement-row.css** — Star Powers stack swap (Action B) refund: track `swapStackCols` this turn; tap swapped stack reverses order + star fly to HUD; return returnable die from swapped col also refunds star; block re-swap until refunded
+
+- **placement-anim.js v1.37** — fix push-below lift direction: pusher + stack rise one step from the ghost (bottom-anchored columns grow upward), was driving them down before render snap
+
+- **placement-anim.js v1.36, drag-drop.js v2.40, placement-input.js** — push-below: never commit from pointer drag flyer; always ghost handoff or snap-anchor spawn; re-sync after scroll pin
+
+- **placement-anim.js v1.35, push-below-flyer.js** — fix push-below lift start pose: re-sync promoted ghost to live snap anchor; reset stack/flyer transforms before lift anim
+
+- **reposition-collapse.js v1.8, placement-row.css** — fix push-return drag: translate upper dice one stack step instead of flex-vacate (was dropping column below row baseline)
+
+- **reposition-collapse.js v1.7, drag-drop.js v2.39, placement-row.css** — push-return drag: vacate bottom pushed die from flex on drag start so upper dice collapse to column bottom instantly; restore on cancel
+
+- **state.js v2.28, star-powers.js v1.8, row.js v1.74, convert.js v1.15** — Bugger Singles: outer-on-outer stacks (any 1/6 pair); `buggerOuterStackLockedCols` gates convert until push-below unlocks; permissive inner push on 2-die all-outer stacks
+
+- **star-powers.js v1.7** — tray flip extends to outer 1/6 when `rerollOuter` OFF; reroll still wins when both toggles ON
+
+- **settings.js v2.37, settings-panel.js v1.40, star-powers.js v1.6, row.js v1.73, placement-row.js, placement-input.js, placement-anim.js v1.34, pip-anim.js v1.9** — `pushBelowCost` Bugger stepper (0=off, 1–5=star cost per push); requires `starPowers` ON; migrates saved `starPowers:true` → cost 1; `buggerSingles` + outer-bottom guard gated on cost > 0; variable deduct/refund + multi-star fly
+
 - **placement-anim.js v1.33** — push starts snapped: no fly-in leg, pusher spawns at the snap anchor and only the lift animates (drops the transform bake that displaced the start in Y)
 
 - **row.js v1.72** — an outer 1/6 bottom die accepts nothing on top (`passesOuterBottomGuard`), so no stack has an outer bottom; push placements run the duplicate-tile gate on the resulting `[push, v0, v1]` stack

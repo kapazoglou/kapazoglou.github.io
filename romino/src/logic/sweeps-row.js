@@ -201,9 +201,9 @@ export function findSweepRuns() {
   return findSweepRunsFromEntries(tileEntries);
 }
 
-/** ×1 at 3 cards; +1 per card above 3. */
-export function sweepStarMultiplier(cardCount) {
-  return 1 + Math.max(0, cardCount - 3);
+/** Stars used when banking sweeps; 0 stars score as 1. */
+export function effectiveSweepStars(stars) {
+  return stars > 0 ? stars : 1;
 }
 
 /** Joker-inclusive same-suit flush (tricolor joker tiles). */
@@ -211,10 +211,20 @@ function isTricolorFlush(tiles) {
   return runHasJoker(tiles) && isFlushRunWithJokers(tiles);
 }
 
-/** Run-length multiplier; tricolor flushes always ×1. */
-export function sweepStarMultiplierForRun(tiles) {
+/** Per-run length factor: (length − 2); tricolor flushes always ×1. */
+export function sweepLengthFactor(tiles) {
   if (isTricolorFlush(tiles)) return 1;
-  return sweepStarMultiplier(tiles.length);
+  return Math.max(1, tiles.length - 2);
+}
+
+/** @deprecated alias — use sweepLengthFactor */
+export function sweepStarMultiplierForRun(tiles) {
+  return sweepLengthFactor(tiles);
+}
+
+/** Points banked for one confirm-cycle: effectiveStars × sum of run length factors. */
+export function computeSweepBankPoints(stars, totalLengthFactor) {
+  return effectiveSweepStars(stars) * totalLengthFactor;
 }
 
 export function applySweepRun(run) {
@@ -255,21 +265,21 @@ export function checkFlankWellDone() {
 export function resolveSweeps() {
   const sweptCols = new Set();
   let anySwept = false;
-  let totalMult = 0;
+  let totalLengthFactor = 0;
 
   while (true) {
     const runs = findSweepRuns();
     if (!runs.length) break;
     anySwept = true;
     for (const run of runs) {
-      totalMult += sweepStarMultiplierForRun(run.map(([, t]) => t));
+      totalLengthFactor += sweepLengthFactor(run.map(([, t]) => t));
       applySweepRun(run);
       for (const [col] of run) sweptCols.add(col);
     }
   }
 
   if (anySwept) {
-    state.points += state.stars * totalMult;
+    state.points += computeSweepBankPoints(state.stars, totalLengthFactor);
     state.stars = 0;
   }
 

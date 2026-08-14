@@ -9,7 +9,7 @@ import {
   wouldCompleteBlockedMonotonic,
   monotonicBoundaryColsForBlockedAttempt,
 } from '../../logic/row.js';
-import { settings } from '../../logic/settings.js';
+import { pushBelowEnabled, pushBelowStarCost } from '../../logic/star-powers.js';
 import { state } from '../../logic/state.js';
 import { resolveSlotFromPointer, isPointerOnPlacementRow, isVisualBottomDie } from './placement-row.js';
 import { placeDieWithAnim } from '../transitions/placement-anim.js';
@@ -49,7 +49,7 @@ export function attemptPushBelowOnBottomDie(dieId, bottomDieEl) {
   const slot = { kind: 'stack-below', col };
   const valid = getValidSlotsForDie(dieId);
   if (!valid.some(s => slotsEqual(s, slot))) {
-    if (settings.starPowers && state.stars <= 0) flashStarShortagePlacement();
+    if (pushBelowEnabled() && state.stars < pushBelowStarCost()) flashStarShortagePlacement();
     else flashInvalidPlacement();
     return 'invalid';
   }
@@ -73,7 +73,8 @@ export function attemptPlacementAtPoint(dieId, clientX, clientY, stackY = client
   }
 
   if (validSlots.some(s => slotsEqual(s, slot))) {
-    if (placeDieWithAnim(dieId, slot, existingFlyer)) return 'placed';
+    const flyer = slot.kind === 'stack-below' ? null : existingFlyer;
+    if (placeDieWithAnim(dieId, slot, flyer)) return 'placed';
     flashInvalidPlacement();
     return 'invalid';
   }

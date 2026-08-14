@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie } from '../../logic/row.js';
+import { returnDieToBar, slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, isReturnablePlacedDie, isSwapRefundableDie, findDieColumn } from '../../logic/row.js';
 import {
   setDominoChosenPairFromDie,
   clearDominoChosenPair,
@@ -16,7 +16,8 @@ import { syncStarMarkersDuringMotion, resolveNearestValidSlot, slotAnchorXY, syn
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
-import { beginRepositionCollapse, clearRepositionCollapse } from '../transitions/reposition-collapse.js';
+import { beginRepositionCollapse, clearRepositionCollapse, beginPushReturnCollapse, clearPushReturnCollapse } from '../transitions/reposition-collapse.js';
+import { tryRefundSwapStack } from '../transitions/stack-swap-anim.js';
 
 const DRAG_THRESHOLD = 8;
 /** Gap between pointer and bottom edge of drag die (screen px). */
@@ -190,11 +191,17 @@ function isDragSessionActive() {
   return dragDieId != null;
 }
 
-/** @returns {'return' | 'selection' | null} */
+/** @returns {'return' | 'refund-swap' | 'selection' | null} */
 function handleDieTap(dieEl) {
   if (dieEl.classList.contains('die--placed')) {
     const dieId = Number(dieEl.dataset.dieId);
     if (!state.placedDieIds.has(dieId)) return null;
+
+    if (isSwapRefundableDie(dieId) && !isReturnablePlacedDie(dieId)) {
+      const loc = findDieColumn(dieId);
+      if (loc && tryRefundSwapStack(loc.col)) return 'refund-swap';
+    }
+
     if (returnDieToBar(dieId, !isDominoQuadRollActive())) {
       if (isDominoQuadRollActive()) onDominoDieReturnedToTray(dieId);
       else state.selectedDieId = dieId;
@@ -231,7 +238,7 @@ export function initDragDrop() {
 function onPointerDown(e) {
   if (state.phase === 'animating' || state.phase === 'replay') return;
 
-  const dieEl = e.target.closest('.die--action, .die--placed.die--returnable');
+  const dieEl = e.target.closest('.die--action, .die--placed.die--returnable, .die--placed.die--swap-refundable');
   if (!dieEl || e.button !== 0) return;
   const dieId = Number(dieEl.dataset.dieId);
   if (!dieId && dieId !== 0) return;
@@ -288,6 +295,7 @@ function beginDrag(e) {
   } else {
     dragDieEl.classList.add('die--drag-source');
     beginRepositionCollapse(dragDieId);
+    beginPushReturnCollapse(dragDieId);
   }
 
   syncStarMarkersDuringMotion();
@@ -331,6 +339,7 @@ function clearDragVisuals() {
   state.draggingDieId = null;
   clearInsertHoverSpread(false);
   clearRepositionCollapse(false);
+  clearPushReturnCollapse();
   clearSnapGhost();
   dragFlyer?.remove();
   dragFlyer = null;
@@ -378,20 +387,18 @@ function resolveDrop(e) {
         const commitSlot = activeSnapSlot;
         if (commitSlot) {
           let commitFlyer = dragFlyer;
-          let snapHandoff = null;
-          if (commitSlot.kind === 'stack-below' && snapGhostEl?.style.display !== 'none') {
-            snapHandoff = takeSnapGhostForCommit();
-            if (snapHandoff) {
-              dragFlyer?.remove();
-              dragFlyer = null;
-              commitFlyer = snapHandoff;
-            }
+          if (commitSlot.kind === 'stack-below') {
+            updateSnapGhost(commitSlot);
+            const snapHandoff = takeSnapGhostForCommit();
+            dragFlyer?.remove();
+            dragFlyer = null;
+            commitFlyer = snapHandoff;
           }
           animHandled = placeDieWithAnim(dragDieId, commitSlot, commitFlyer);
           if (animHandled) {
             dragFlyer = null;
           } else {
-            snapHandoff?.remove();
+            commitFlyer?.remove();
           }
           clearSnapGhost();
         }
@@ -433,7 +440,7 @@ function resolveDrop(e) {
   } else if (dragDieEl) {
     dragDieEl.classList.remove('die--drag-pending');
     const tapResult = handleDieTap(dragDieEl);
-    if (tapResult === 'return') {
+    if (tapResult === 'return' || tapResult === 'refund-swap') {
       blockNextRowClick = true;
       render();
     } else if (tapResult === 'selection') renderSelection();

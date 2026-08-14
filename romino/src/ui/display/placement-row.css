@@ -79,6 +79,10 @@
   will-change: transform;
 }
 
+.die--stack-shifted {
+  will-change: transform;
+}
+
 .placement-col--stack-bottom-up > .die--placed + .die--placed {
   margin-bottom: calc(-1 * var(--die-border));
 }
@@ -195,7 +199,8 @@
   z-index: var(--stack-z, 1);
 }
 
-.die--returnable {
+.die--returnable,
+.die--swap-refundable {
   cursor: pointer;
   touch-action: none;
 }

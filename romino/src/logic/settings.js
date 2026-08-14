@@ -29,6 +29,7 @@ export const SETTINGS_CONFIG = [
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },
       { key: 'jokerFlushOnly',      label: 'Joker flush only',        default: true, type: 'toggle' },
       { key: 'starPowers',          label: 'Star Powers',             default: false, type: 'toggle' },
+      { key: 'pushBelowCost',       label: 'Bugger',                  default: 0, type: 'stepper', min: 0, max: 5 },
       { key: 'buggerSingles',       label: 'Bugger Singles',          default: false, type: 'toggle' },
     ],
   },
@@ -43,6 +44,8 @@ export const SETTINGS_CONFIG = [
       { key: 'snapping',            label: 'Snapping',              default: true, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
       { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
+      { key: 'sweptLowSuitBonus',   label: 'Low suit bonus',        default: 2, type: 'stepper', min: 0, max: 10 },
+      { key: 'sweptDuplicatePenalty', label: 'Duplicate penalty',   default: 1, type: 'stepper', min: 0, max: 10 },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },
@@ -87,5 +90,15 @@ export function clampSettings() {
   if (settings.startingDice < 0) settings.startingDice = 0;
   const startingDiceCap = Math.min(settings.nDice, settings.nSpots * 2, 24);
   if (settings.startingDice > startingDiceCap) settings.startingDice = startingDiceCap;
-  if (!settings.starPowers) settings.buggerSingles = false;
+  if (!settings.starPowers) {
+    settings.pushBelowCost = 0;
+    settings.buggerSingles = false;
+  }
+  if (settings.pushBelowCost < 0) settings.pushBelowCost = 0;
+  if (settings.pushBelowCost > 5) settings.pushBelowCost = 5;
+  if (!settings.pushBelowCost) settings.buggerSingles = false;
+  if (settings.sweptLowSuitBonus < 0) settings.sweptLowSuitBonus = 0;
+  if (settings.sweptLowSuitBonus > 10) settings.sweptLowSuitBonus = 10;
+  if (settings.sweptDuplicatePenalty < 0) settings.sweptDuplicatePenalty = 0;
+  if (settings.sweptDuplicatePenalty > 10) settings.sweptDuplicatePenalty = 10;
 }

@@ -38,6 +38,9 @@ function loadSettings() {
     if (typeof settings.nineCubes === 'boolean') {
       settings.nineCubes = settings.nineCubes ? 1 : 0;
     }
+    if (saved.starPowers && !('pushBelowCost' in saved)) {
+      settings.pushBelowCost = 1;
+    }
     clampSettings();
   } catch { /* ignore */ }
 }
@@ -66,7 +69,17 @@ function clampDraft() {
   if (draftSettings.startingDice < 0) draftSettings.startingDice = 0;
   const startingDiceCap = Math.min(draftSettings.nDice, draftSettings.nSpots * 2, 24);
   if (draftSettings.startingDice > startingDiceCap) draftSettings.startingDice = startingDiceCap;
-  if (!draftSettings.starPowers) draftSettings.buggerSingles = false;
+  if (!draftSettings.starPowers) {
+    draftSettings.pushBelowCost = 0;
+    draftSettings.buggerSingles = false;
+  }
+  if (draftSettings.pushBelowCost < 0) draftSettings.pushBelowCost = 0;
+  if (draftSettings.pushBelowCost > 5) draftSettings.pushBelowCost = 5;
+  if (!draftSettings.pushBelowCost) draftSettings.buggerSingles = false;
+  if (draftSettings.sweptLowSuitBonus < 0) draftSettings.sweptLowSuitBonus = 0;
+  if (draftSettings.sweptLowSuitBonus > 10) draftSettings.sweptLowSuitBonus = 10;
+  if (draftSettings.sweptDuplicatePenalty < 0) draftSettings.sweptDuplicatePenalty = 0;
+  if (draftSettings.sweptDuplicatePenalty > 10) draftSettings.sweptDuplicatePenalty = 10;
 }
 
 function isDraftControlDisabled(item) {
@@ -75,7 +88,8 @@ function isDraftControlDisabled(item) {
   if (item.key === 'dominoSpots') return !draftSettings.dominoRoll || draftSettings.tileDealtEvery > 0;
   if (item.key === 'switcherJokers') return !draftSettings.tricolors || draftSettings.tricolorSevens;
   if (item.key === 'tricolorSevens') return draftSettings.switcherJokers;
-  if (item.key === 'buggerSingles') return !draftSettings.starPowers;
+  if (item.key === 'pushBelowCost') return !draftSettings.starPowers;
+  if (item.key === 'buggerSingles') return !draftSettings.starPowers || draftSettings.pushBelowCost === 0;
   return false;
 }
 

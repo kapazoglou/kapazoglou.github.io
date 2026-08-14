@@ -11,7 +11,7 @@ HUD `#hud-star-pay` tap/drag routing:
 
 | Target | Action |
 |--------|--------|
-| Tray 1/6 | Reroll outer (when `rerollOuter` / domino pair reroll) |
+| Tray 1/6 | Reroll outer when `rerollOuter` ON; flip 1↔6 when Star Powers ON and `rerollOuter` OFF |
 | Tray 2–5 | Flip to opposite face (`starPowers`) |
 | 2-dice stack, two different inner faces | Swap top/bottom (`starPowers`) — an outer 1/6 or a matching pair blocks the swap |
 
@@ -22,5 +22,5 @@ Reroll wins over flip on tray 1/6 when both available.
 - `isHudStarPayDraggable()` — when reroll, domino reroll, or star powers available
 
 ## Tap (no drag)
-- Selected tray 2–5 → flip
+- Selected tray die eligible for flip → flip (2–5 always; 1/6 when `rerollOuter` OFF)
 - Else selected tray 1/6 / domino → reroll

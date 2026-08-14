@@ -1,6 +1,7 @@
 import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
-import { findDieColumn, getColumn } from '../../logic/row.js';
+import { findDieColumn, getColumn, isPushBelowPlacedDie } from '../../logic/row.js';
+import { DIE_OUTER } from '../../logic/dice-visual.js';
 import { pinRowScroll, restorePinnedRowScroll, unpinRowScroll, syncStarMarkersDuringMotion } from '../display/placement-row.js';
 import { syncDominoSpotStripDuringMotion, setDominoSpotStackDragSuppressed } from '../display/domino-spot-strip.js';
 import { COL_SPREAD_MS } from './timing.js';
@@ -12,6 +13,14 @@ let vacatedSourceCol = null;
 
 /** @type {number | null} */
 let dragSuppressedSpotCol = null;
+
+/** @type {HTMLElement[]} */
+let shiftedPushReturnDice = [];
+
+function stackStepPx() {
+  const border = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-border')) || 4;
+  return DIE_OUTER - border;
+}
 
 function clearDragSuppressedSpot() {
   if (dragSuppressedSpotCol == null) return;
@@ -134,9 +143,60 @@ export function beginColumnRepositionCollapse(sourceCol) {
   }
 }
 
+/** Shift upper dice down one stack step; bottom die stays in flex (hidden) so row baseline holds. */
+export function beginPushReturnCollapse(dieId) {
+  if (!isPushBelowPlacedDie(dieId)) return;
+
+  const loc = findDieColumn(dieId);
+  if (!loc || loc.column.dice.length < 2 || loc.column.dice[0] !== dieId) return;
+
+  clearPushReturnCollapse();
+
+  const inner = document.querySelector('.placement-row-inner');
+  const colNode = colEl(inner, loc.col);
+  if (!colNode) return;
+
+  const step = stackStepPx();
+  const remaining = [...colNode.querySelectorAll('.die--placed')]
+    .filter(el => Number(el.dataset.dieId) !== dieId);
+
+  if (!remaining.length) return;
+
+  shiftedPushReturnDice = remaining;
+  for (const el of remaining) {
+    el.classList.add('die--stack-shifted');
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${step}px)`;
+  }
+
+  syncStarMarkersDuringMotion();
+  syncDominoSpotStripDuringMotion();
+}
+
+/** Drop internal state only — next `render()` rebuilds the row (no die snap). */
+export function resetPushReturnCollapse() {
+  shiftedPushReturnDice = [];
+}
+
+/** Restore shifted dice after cancel drag. */
+export function clearPushReturnCollapse() {
+  if (!shiftedPushReturnDice.length) return;
+
+  for (const el of shiftedPushReturnDice) {
+    el.classList.remove('die--stack-shifted');
+    el.style.transition = '';
+    el.style.transform = '';
+  }
+  shiftedPushReturnDice = [];
+
+  syncStarMarkersDuringMotion();
+  syncDominoSpotStripDuringMotion();
+}
+
 /** Drop internal state only — next `render()` rebuilds the row (no column snap). */
 export function resetRepositionCollapse() {
   vacatedSourceCol = null;
+  resetPushReturnCollapse();
   clearDragSuppressedSpot();
   unpinRowScroll();
 }

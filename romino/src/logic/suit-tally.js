@@ -40,9 +40,6 @@ export function lowestSuitTallyCount() {
   return Math.min(...SWEPT_SUIT_ORDER.map(letter => state.suitTally[letter] ?? 0));
 }
 
-/** End bonus points per lowest suit tally (applied at suit-cap game over). */
-export const SWEPT_SUIT_END_BONUS_PER = 2;
-
 /** End bonus points per unique swept rank+suit combo (full deck cap). */
 export const SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER = 1;
 
@@ -58,12 +55,22 @@ export function countUniqueSessionSweepCombos() {
   return Math.min(seen.size, SWEPT_SUIT_UNIQUE_COMBO_CAP);
 }
 
-/** End bonus: lowest-suit tally + unique rank+suit combos (applied at suit-cap game over). */
+/** Extra copies beyond the first per suit:rank (session sweeps + Switcher converts). */
+export function countDuplicateSessionSweepExtras() {
+  let extras = 0;
+  for (const count of Object.values(buildSessionSweepTileCounts())) {
+    if (count > 1) extras += count - 1;
+  }
+  return extras;
+}
+
+/** End bonus: lowest-suit tally + unique combos − duplicate penalty (suit-cap game over). */
 export function applySweptSuitsEndBonus() {
-  const suitBonus = lowestSuitTallyCount() * SWEPT_SUIT_END_BONUS_PER;
+  const suitBonus = lowestSuitTallyCount() * settings.sweptLowSuitBonus;
   const comboBonus = countUniqueSessionSweepCombos() * SWEPT_SUIT_UNIQUE_COMBO_BONUS_PER;
-  const bonus = suitBonus + comboBonus;
-  if (bonus > 0) state.points += bonus;
+  const dupPenalty = countDuplicateSessionSweepExtras() * settings.sweptDuplicatePenalty;
+  const bonus = suitBonus + comboBonus - dupPenalty;
+  if (bonus !== 0) state.points += bonus;
   return bonus;
 }
 

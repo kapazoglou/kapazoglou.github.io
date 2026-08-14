@@ -13,7 +13,20 @@ export function promoteSnapGhostToFlyer(ghostEl) {
   ghostEl.classList.add('placement-die-flyer');
   ghostEl.style.opacity = '';
   ghostEl.style.visibility = '';
+  ghostEl.style.transition = 'none';
+  ghostEl.style.transform = 'translate(0, 0)';
   return ghostEl;
+}
+
+/** Re-anchor commit flyer to the live snap slot (after scroll pin / layout shift). */
+export function syncCommitFlyerToSlot(flyer, dieId, slot) {
+  if (!flyer || !slot) return;
+  const pos = slotAnchorXY(slot, dieId);
+  if (!pos) return;
+  flyer.style.transition = 'none';
+  flyer.style.transform = 'translate(0, 0)';
+  flyer.style.left = `${pos.left}px`;
+  flyer.style.top = `${pos.top}px`;
 }
 
 /** Tap-to-push: spawn commit flyer at snap anchor (same slot as ghost). */

@@ -4,9 +4,10 @@ import { findStarMatches } from '../../logic/stars.js';
 import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHTML, cubeTileHTML, isSwitcherTricolorStack } from '../../logic/dice-visual.js';
 import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
+import { pushBelowEnabled } from '../../logic/star-powers.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
-  isPlacedThisTurn, isTopDieInStack, isReturnablePlacedDie, getColumn, CENTER_COL, dieIdAt,
+  isPlacedThisTurn, isTopDieInStack, isReturnablePlacedDie, isSwapRefundableDie, getColumn, CENTER_COL, dieIdAt,
   slotsEqual, stackHeight, spreadContextForDie,
 } from '../../logic/row.js';
 
@@ -15,12 +16,13 @@ function stackHTML(col, column) {
     const die = state.dice[dieId];
     const sel = state.selectedDieId === dieId && state.draggingDieId !== dieId;
     const ret = isReturnablePlacedDie(dieId);
+    const swapRef = isSwapRefundableDie(dieId);
     const dragging = state.draggingDieId === dieId;
     const z = i + 1;
     const style = ret
       ? `--stack-z:${z};--die-border-fill:${dieFaceBorderColor(die.value)}`
       : `--stack-z:${z}`;
-    return `<div class="die die--placed${sel ? ' die--placed-selected' : ''}${ret ? ' die--returnable' : ''}${dragging ? ' die--drag-source' : ''}" data-die-id="${dieId}" data-col="${col}" style="${style}">${dieSVG(die.value, DIE_OUTER)}</div>`;
+    return `<div class="die die--placed${sel ? ' die--placed-selected' : ''}${ret ? ' die--returnable' : ''}${swapRef ? ' die--swap-refundable' : ''}${dragging ? ' die--drag-source' : ''}" data-die-id="${dieId}" data-col="${col}" style="${style}">${dieSVG(die.value, DIE_OUTER)}</div>`;
   }).join('');
 }
 
@@ -314,7 +316,7 @@ function updatePushBelowTargets(inner) {
   inner.querySelectorAll('.die--push-below-target').forEach(el => {
     el.classList.remove('die--push-below-target');
   });
-  if (!settings.starPowers || state.phase !== 'rolled') return;
+  if (!pushBelowEnabled() || state.phase !== 'rolled') return;
 
   const dieId = state.draggingDieId ?? state.selectedDieId;
   if (dieId == null || !state.actionBar.includes(dieId)) return;

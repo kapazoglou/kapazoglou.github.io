@@ -8,7 +8,15 @@ export function starPowersEnabled() {
 }
 
 export function buggerSinglesEnabled() {
-  return settings.starPowers && settings.buggerSingles;
+  return pushBelowEnabled() && settings.buggerSingles;
+}
+
+export function pushBelowStarCost() {
+  return settings.pushBelowCost > 0 ? settings.pushBelowCost : 0;
+}
+
+export function pushBelowEnabled() {
+  return starPowersEnabled() && pushBelowStarCost() > 0;
 }
 
 /** Opposite face on a standard die (1↔6, 2↔5, 3↔4). */
@@ -33,7 +41,11 @@ export function canStarFlipTrayDie(dieId) {
   if (!canSpendStarPower()) return false;
   if (!state.actionBar.includes(dieId)) return false;
   const die = state.dice[dieId];
-  return die != null && isInnerTrayFlipValue(die.value);
+  if (die == null) return false;
+  const value = die.value;
+  if (isInnerTrayFlipValue(value)) return true;
+  if (isOuterDieValue(value)) return !settings.rerollOuter;
+  return false;
 }
 
 /** Stack index 0 = bottom, last index = top (canonical row order). */
@@ -61,7 +73,7 @@ function passesBuggerPendingPush(bottomValue, pushValue) {
 
 /** Match rules only — for snap ghosts / highlights (no star balance). */
 export function passesPushBelowAtCol(col, pushValue) {
-  if (!starPowersEnabled()) return false;
+  if (!pushBelowEnabled()) return false;
   const column = state.row[col] ?? null;
   if (!column || column.kind !== 'stack') return false;
   const n = column.dice.length;
@@ -72,16 +84,61 @@ export function passesPushBelowAtCol(col, pushValue) {
     if (!state.buggerPendingCols.has(col)) return false;
     return passesBuggerPendingPush(pair.bottom, pushValue);
   }
+  if (isAllOuterStack(column)) {
+    return isPushBelowTrayValue(pushValue);
+  }
   return passesPushBelowMatch(pair.top, pair.bottom, pushValue);
 }
 
 export function canPushBelowAtCol(col, pushValue) {
-  return passesPushBelowAtCol(col, pushValue) && state.stars > 0 && state.phase === 'rolled';
+  const cost = pushBelowStarCost();
+  return passesPushBelowAtCol(col, pushValue) && state.stars >= cost && state.phase === 'rolled';
+}
+
+/** Toggle flip tracking — odd flips leave the die flagged for refund on return. */
+export function recordFlip(dieId) {
+  if (state.flippedDieIds.has(dieId)) state.flippedDieIds.delete(dieId);
+  else state.flippedDieIds.add(dieId);
+}
+
+export function isFlippedDie(dieId) {
+  return state.flippedDieIds.has(dieId);
+}
+
+export function clearFlippedDie(dieId) {
+  state.flippedDieIds.delete(dieId);
+}
+
+export function markSwapStackCol(col) {
+  if (starPowersEnabled()) state.swapStackCols.add(col);
+}
+
+export function clearSwapStackCol(col) {
+  state.swapStackCols.delete(col);
+}
+
+export function isSwapPaidCol(col) {
+  return state.swapStackCols.has(col);
+}
+
+export function isSwapRefundableDie(dieId) {
+  for (const [colKey, column] of Object.entries(state.row)) {
+    if (column.kind !== 'stack' || !column.dice.includes(dieId)) continue;
+    return isSwapPaidCol(Number(colKey));
+  }
+  return false;
+}
+
+export function canRefundSwapStack(col) {
+  if (!isSwapPaidCol(col) || state.phase !== 'rolled') return false;
+  const column = state.row[col] ?? null;
+  return column?.kind === 'stack' && column.dice.length === 2;
 }
 
 /** Swap needs two different inner faces — an outer 1/6 or a matching pair locks the stack. */
 export function canStarSwapStack(col) {
   if (!canSpendStarPower()) return false;
+  if (isSwapPaidCol(col)) return false;
   const column = state.row[col] ?? null;
   if (column?.kind !== 'stack' || column.dice.length !== 2) return false;
   const pair = stackTopBottomValues(column);
@@ -110,6 +167,44 @@ export function clearBuggerPendingCol(col) {
 
 export function isBuggerPendingCol(col) {
   return state.buggerPendingCols.has(col);
+}
+
+/** Stack column where every die is outer (1 or 6). */
+export function isAllOuterStack(column) {
+  if (!column || column.kind !== 'stack' || !column.dice.length) return false;
+  return column.dice.every(id => isBuggerOuterValue(state.dice[id]?.value));
+}
+
+export function markBuggerOuterStackLockedCol(col) {
+  if (buggerSinglesEnabled()) state.buggerOuterStackLockedCols.add(col);
+}
+
+export function clearBuggerOuterStackLockedCol(col) {
+  state.buggerOuterStackLockedCols.delete(col);
+}
+
+export function isBuggerOuterStackLockedCol(col) {
+  return state.buggerOuterStackLockedCols.has(col);
+}
+
+/** After stack mutations — lock 2+ all-outer stacks; clear when height drops below 2. */
+export function syncBuggerOuterStackLock(col) {
+  if (!buggerSinglesEnabled()) {
+    clearBuggerOuterStackLockedCol(col);
+    return;
+  }
+  const column = state.row[col] ?? null;
+  if (!column || column.kind !== 'stack') {
+    clearBuggerOuterStackLockedCol(col);
+    return;
+  }
+  if (column.dice.length < 2) {
+    clearBuggerOuterStackLockedCol(col);
+    return;
+  }
+  if (isAllOuterStack(column)) {
+    markBuggerOuterStackLockedCol(col);
+  }
 }
 
 /** Tray die eligible for star-pay reroll (outer 1/6) — takes priority over flip. */

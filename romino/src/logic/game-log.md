@@ -1,9 +1,9 @@
 ---
 module: game-log
 layer: logic
-v: 1.2
-date: 2026-07-28
-deps: [state, settings]
+v: 1.3
+date: 2026-08-14
+deps: [state, settings, sweeps-row]
 ---
 # Game log
 

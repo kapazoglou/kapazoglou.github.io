@@ -12,6 +12,11 @@ import { getDominoKeyForCol } from './domino-spots.js';
 import { tickDeckOnConvert } from './deck-size.js';
 import { recordTileCreated, recordStarSpent } from './game-log.js';
 import { tallySwitcherConvert } from './suit-tally.js';
+import {
+  buggerSinglesEnabled,
+  clearBuggerOuterStackLockedCol,
+  isBuggerOuterStackLockedCol,
+} from './star-powers.js';
 
 function convertOptions() {
   return {
@@ -41,11 +46,15 @@ export function isSwitcherConvertCol(col) {
   return isSwitcherTricolorStack(values);
 }
 
+export function canConvertColumn(col) {
+  const column = state.row[col];
+  if (!column || column.kind !== 'stack' || column.dice.length !== 3) return false;
+  if (buggerSinglesEnabled() && isBuggerOuterStackLockedCol(col)) return false;
+  return true;
+}
+
 export function getConvertibleCols() {
-  return getOccupiedCols().filter(col => {
-    const column = state.row[col];
-    return column.kind === 'stack' && column.dice.length === 3;
-  });
+  return getOccupiedCols().filter(canConvertColumn);
 }
 
 /** Switcher Jokers: tricolor stack → lone die of missing inner color; mid+top return to pool. */
@@ -69,6 +78,7 @@ export function convertSwitcherColumn(col) {
   state.dice[bottomId].value = missing;
   const dominoKey = getDominoKeyForCol(col);
   state.row[col] = { kind: 'stack', dice: [bottomId], ...(dominoKey ? { dominoKey } : {}) };
+  clearBuggerOuterStackLockedCol(col);
   return null;
 }
 
@@ -90,6 +100,7 @@ export function convertColumn(col) {
   if (tile.rank === JOKER_RANK) state.jokerSuitsUsed.add(tile.suit);
   const dominoKey = getDominoKeyForCol(col);
   state.row[col] = { kind: 'tile', ...tile, ...(dominoKey ? { dominoKey } : {}) };
+  clearBuggerOuterStackLockedCol(col);
   recordTileCreated(tile, col);
   return tickDeckOnConvert();
 }

@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
+import { effectiveSweepStars } from './sweeps-row.js';
 
 const LOG_KEY = 'romino-v2-game-log';
 const LIFETIME_KEY = 'romino-v2-lifetime-stats';
@@ -114,15 +115,15 @@ export function recordSweepRun(tiles, multiplier) {
   });
 }
 
-export function commitBankCycle(maxMult, starsBanked) {
+export function commitBankCycle(totalLengthFactor, starsBanked) {
   if (!session.pendingBank?.sweeps.length) {
     session.pendingBank = null;
     return;
   }
   session.bankEvents.push({
     starsBanked,
-    multiplier: maxMult,
-    pointsGained: starsBanked * maxMult,
+    multiplier: totalLengthFactor,
+    pointsGained: effectiveSweepStars(starsBanked) * totalLengthFactor,
     sweeps: session.pendingBank.sweeps,
   });
   session.pendingBank = null;

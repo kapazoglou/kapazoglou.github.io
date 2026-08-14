@@ -128,7 +128,7 @@ export function getTutorialSteps() {
       type: 'info',
       anchor: '#hud-stars',
       title: 'Sweep multiplier',
-      body: 'A 3-tile sweep uses ×1. Each extra tile adds +1 to the multiplier (4 tiles → ×2, 5 → ×3). Multiple sweeps add their multipliers together — your stars × total multiplier fly into points.',
+      body: 'Each sweep scores (length − 2) × your stars — a 3-tile sweep is ×1, 4 tiles ×2, and so on. Tricolor joker flushes always use ×1. Chain sweeps add their factors together. With 0 stars you still bank at ×1. Stars × total factor fly into points, then stars reset.',
     },
     {
       id: 'stay-alive',

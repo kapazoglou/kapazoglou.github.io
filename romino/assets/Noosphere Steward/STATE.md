@@ -16,7 +16,7 @@ lastVerified: 2026-08-14
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `starPowers`, `buggerSingles`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `buggerSingles`, `tutoria` |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -33,13 +33,23 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **sweeps-row.js v1.21, sweep-anim.js v1.17, pip-anim.js v1.11, game-log.js v1.3, suit-tally.js v1.5, settings.js v2.38, settings-panel.js, tutorial-steps.js** — sweep bank `(length − 2) × effectiveStars` (0 stars → 1); end bonus steppers `sweptLowSuitBonus` / `sweptDuplicatePenalty`
+
+- **state.js v2.30, star-powers.js v1.10, flip-tray-anim.js v1.1, row.js v1.76, turn.js v2.47, placement-row.js, base.css** — Star flip (Action A) refund: `flippedDieIds` (odd flips) refunds star + reverts face on return to bar; active suit-tint stroke limited to just-placed/returnable dice (swap-refundable no longer tinted)
+
+- **state.js v2.29, star-powers.js v1.9, row.js v1.75, turn.js v2.46, stack-swap-anim.js v1.1, pip-anim.js v1.10, drag-drop.js v2.41, placement-row.js, placement-row.css** — Star Powers stack swap (Action B) refund: `swapStackCols` tracks paid swaps this turn; tap reverses order + star to HUD; return returnable die from swapped col also refunds; re-swap blocked until refunded
+
+- **state.js v2.28, star-powers.js v1.8, row.js v1.74, convert.js v1.15** — Bugger Singles outer stacks: any outer-on-outer stacking; `buggerOuterStackLockedCols` convert gate until push-below unlocks; permissive push on 2-die all-outer
+
+- **settings.js v2.37, settings-panel.js v1.40, star-powers.js v1.6, row.js v1.73, placement-row.js, placement-input.js v1.5, placement-anim.js v1.34, pip-anim.js v1.9** — `pushBelowCost` Bugger stepper (0=off, 1–5=star cost); requires `starPowers` ON; migrates saved `starPowers:true` → cost 1; `buggerSingles` + outer-bottom guard gated on cost > 0
+
 - **star-powers.js v1.0, settings.js v2.36, settings-panel.js, state.js v2.27, row.js v1.67, star-reroll-input.js v1.3, flip-tray-anim.js v1.0, stack-swap-anim.js v1.0, placement-anim.js v1.28, pip-anim.js v1.8, placement-row.js, placement-row.css** — `starPowers` + clamped `buggerSingles`: tray flip (2–5), 2-dice swap, push-from-below, bugger 1/6 column gate
 
 - **turn.js v2.45** — suit-cap game over via `evaluateGameOver('post-confirm')` + `tryContinueAfterConfirm` safety net
 
 - **turn.js v2.44** — nRoll=4 + dominoRoll: N-place roll/KO threshold and pool debit (was Domino Spots only; blocked roll at 3 dice when 2 suffice)
 
-- **suit-tally.js v1.4** — suit-cap end bonus: `(2 × lowest suit tally) + (1 × unique rank+suit combos, max 52)`
+- **suit-tally.js v1.5** — suit-cap end bonus: `(sweptLowSuitBonus × lowest suit tally) + (1 × unique rank+suit combos, max 52) − (sweptDuplicatePenalty × extra copies per suit:rank)`
 
 - **sweeps-row.js v1.20, suit-tally.js v1.3** — restore `releaseWithheldDice` on sweep (tally import had dropped it); guard `convertSweepTiles`
 

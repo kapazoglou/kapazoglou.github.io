@@ -1,8 +1,8 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { canStarSwapStack, swapStackDice } from '../../logic/star-powers.js';
+import { canStarSwapStack, canRefundSwapStack, markSwapStackCol, clearSwapStackCol, swapStackDice } from '../../logic/star-powers.js';
 import { recordStarSpent } from '../../logic/game-log.js';
-import { payStarForConvert } from './pip-anim.js';
+import { payStarForConvert, refundStarFromCol } from './pip-anim.js';
 import { DIE_OUTER, DIE_BORDER } from '../../logic/dice-visual.js';
 import { render } from '../display/render.js';
 import { CUBE_MERGE_MS } from './timing.js';
@@ -35,26 +35,56 @@ export function swapStackWithAnim(col) {
   const mergeMs = spd(CUBE_MERGE_MS);
 
   payStarForConvert(col, () => {
-    const { bottom, top } = els;
-    bottom.classList.add('die--cube-merge', 'die--cube-merge-blend');
-    top.classList.add('die--cube-merge', 'die--cube-merge-blend');
-    bottom.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
-    top.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        bottom.style.transform = `translate(0, ${-DIE_STACK_STEP}px)`;
-        top.style.transform = `translate(0, ${DIE_STACK_STEP}px)`;
-      });
-    });
-
-    setTimeout(() => {
+    runSwapCrossAnim(els, mergeMs, () => {
       swapStackDice(col);
       state.stars -= 1;
       recordStarSpent('swap');
+      markSwapStackCol(col);
       state.phase = 'rolled';
       render();
-    }, mergeMs);
+    });
+  });
+
+  return true;
+}
+
+function runSwapCrossAnim(els, mergeMs, onDone) {
+  const { bottom, top } = els;
+  bottom.classList.add('die--cube-merge', 'die--cube-merge-blend');
+  top.classList.add('die--cube-merge', 'die--cube-merge-blend');
+  bottom.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
+  top.style.transition = `transform ${mergeMs}ms ${FLY_EASING}`;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      bottom.style.transform = `translate(0, ${-DIE_STACK_STEP}px)`;
+      top.style.transform = `translate(0, ${DIE_STACK_STEP}px)`;
+    });
+  });
+
+  setTimeout(onDone, mergeMs);
+}
+
+/** @returns {boolean} true when refund animation started */
+export function tryRefundSwapStack(col) {
+  if (!canRefundSwapStack(col)) return false;
+  return refundSwapStackWithAnim(col);
+}
+
+export function refundSwapStackWithAnim(col) {
+  if (!canRefundSwapStack(col)) return false;
+  const els = stackDiceEls(col);
+  if (!els) return false;
+
+  state.phase = 'animating';
+  const mergeMs = spd(CUBE_MERGE_MS);
+
+  runSwapCrossAnim(els, mergeMs, () => {
+    swapStackDice(col);
+    state.stars += 1;
+    clearSwapStackCol(col);
+    state.phase = 'rolled';
+    refundStarFromCol(col, () => render());
   });
 
   return true;

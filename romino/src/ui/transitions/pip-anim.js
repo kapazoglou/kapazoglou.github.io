@@ -123,15 +123,50 @@ function trayDieCenter(dieId, layerRect, scale) {
 }
 
 /** Visual-only HUD → stack column before push-from-below placement. */
-export function payStarForSlot(col, onDone) {
-  payStarForConvert(col, onDone);
+export function payStarForSlot(col, onDone, count = 1) {
+  payStarForConvert(col, onDone, count);
+}
+
+/** Visual-only stack column → HUD after state.stars was already updated (mirror of payStarForConvert). */
+export function refundStarFromCol(col, onDone, count = 1) {
+  const starsEl = document.getElementById('hud-stars');
+  const layer = flyLayer();
+  if (!starsEl || !layer) {
+    onDone?.();
+    return;
+  }
+
+  const scale = viewportScale();
+  const layerRect = layer.getBoundingClientRect();
+  const start = convertColCenter(col, layerRect, scale);
+  const end = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
+  const flyMs = spd(CONVERT_FLY_MS);
+
+  if (!start) {
+    starsEl.textContent = String(state.stars);
+    renderHUD();
+    onDone?.();
+    return;
+  }
+
+  starsEl.textContent = String(state.stars - count);
+  const toCenters = Array.from({ length: count }, () => end);
+  for (let i = 0; i < count; i++) {
+    launchStarFlyer(start, toCenters[i], layer, flyMs);
+  }
+
+  setTimeout(() => {
+    starsEl.textContent = String(state.stars);
+    renderHUD();
+    onDone?.();
+  }, flyMs);
 }
 
 /** Visual-only HUD → ace/joker stack before convert (mirror of collectStarsToHUD). */
-export function payStarForConvert(col, onDone) {
+export function payStarForConvert(col, onDone, count = 1) {
   const starsEl = document.getElementById('hud-stars');
   const layer = flyLayer();
-  if (!starsEl || !layer || state.stars <= 0) {
+  if (!starsEl || !layer || state.stars < count) {
     onDone?.();
     return;
   }
@@ -147,8 +182,9 @@ export function payStarForConvert(col, onDone) {
     return;
   }
 
-  starsEl.textContent = String(state.stars - 1);
-  launchStarFlyer(start, end, layer, flyMs);
+  starsEl.textContent = String(state.stars - count);
+  const fromCenters = Array.from({ length: count }, () => start);
+  launchStarFlyers(fromCenters, end, layer, flyMs);
 
   setTimeout(() => {
     onDone?.();
@@ -224,11 +260,8 @@ export function payStarForTrayDie(dieId, onDone) {
 }
 
 /** Visual-only HUD stars → points after state was already updated. All stars fly together. */
-export function bankStarsToPoints(stars, multiplier, onDone) {
-  if (stars <= 0) {
-    onDone?.();
-    return;
-  }
+export function bankStarsToPoints(starsBeforeBank, lengthFactor, onDone) {
+  const effectiveStars = starsBeforeBank > 0 ? starsBeforeBank : 1;
 
   const starsEl = document.getElementById('hud-stars');
   const pointsEl = document.getElementById('hud-points');
@@ -238,14 +271,14 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
     return;
   }
 
-  const product = stars * multiplier;
+  const product = effectiveStars * lengthFactor;
   const oldPoints = state.points - product;
   const eqHoldMs = spd(SWEEP_MULT_EQ_HOLD_MS);
   const productHoldMs = spd(SWEEP_MULT_PRODUCT_HOLD_MS);
   const flyMs = spd(SWEEP_MULT_BANK_FLY_MS);
 
   pointsEl.textContent = String(oldPoints);
-  starsEl.textContent = `${stars}×${multiplier}`;
+  starsEl.textContent = `${effectiveStars}×${lengthFactor}`;
   starsEl.classList.add('is-sweep-mult');
 
   setTimeout(() => {
@@ -258,10 +291,10 @@ export function bankStarsToPoints(stars, multiplier, onDone) {
       const start = rectCenterInLayer(starsEl.getBoundingClientRect(), layerRect, scale);
       const end = rectCenterInLayer(pointsEl.getBoundingClientRect(), layerRect, scale);
 
-      starsEl.textContent = String(stars);
+      starsEl.textContent = starsBeforeBank > 0 ? String(starsBeforeBank) : '0';
       pointsEl.textContent = String(oldPoints);
 
-      const fromCenters = Array.from({ length: stars }, () => start);
+      const fromCenters = Array.from({ length: effectiveStars }, () => start);
       launchStarFlyers(fromCenters, end, layer, flyMs);
 
       setTimeout(() => {

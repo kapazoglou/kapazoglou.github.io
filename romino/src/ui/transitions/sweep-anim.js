@@ -1,7 +1,7 @@
 import { state, clearSweepExitTimers } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
 import { SUIT_COLOR } from '../../logic/dice-visual.js';
-import { findSweepRuns, applySweepRun, sweepStarMultiplierForRun, checkFlankWellDone } from '../../logic/sweeps-row.js';
+import { findSweepRuns, applySweepRun, sweepLengthFactor, computeSweepBankPoints, checkFlankWellDone } from '../../logic/sweeps-row.js';
 import { clearDealtStrip, sortedDealtStrip } from '../../logic/dealt-strip.js';
 import { flankSideForSweepCol, popFlankStack } from '../../logic/deck-flank.js';
 import {
@@ -286,20 +286,17 @@ export function animateFlankStackSweep(flankSides, onDone) {
 /** Beat → sweep each run; re-scan after every apply so chain sweeps are not missed. */
 export function resolveSweepsAnimated(onDone) {
   const starsToBank = state.stars;
-  let totalMult = 0;
+  let totalLengthFactor = 0;
   let anySwept = false;
   beginBankCycle(starsToBank);
 
   const finish = (result = null) => {
     if (anySwept) {
-      commitBankCycle(totalMult, starsToBank);
-      if (starsToBank > 0) {
-        state.points += starsToBank * totalMult;
-        state.stars = 0;
-        bankStarsToPoints(starsToBank, totalMult, () => onDone?.(result));
-      } else {
-        onDone?.(result);
-      }
+      const pointsGained = computeSweepBankPoints(starsToBank, totalLengthFactor);
+      commitBankCycle(totalLengthFactor, starsToBank);
+      state.points += pointsGained;
+      state.stars = 0;
+      bankStarsToPoints(starsToBank, totalLengthFactor, () => onDone?.(result));
     } else {
       cancelBankCycle();
       onDone?.(result);
@@ -318,14 +315,14 @@ export function resolveSweepsAnimated(onDone) {
       const beforeLeft = captureColLeftPositions();
       const flankRevealed = run.map(([col]) => flankSideForSweepCol(col)).filter(Boolean);
       const tiles = run.map(([, t]) => t);
-      const mult = sweepStarMultiplierForRun(tiles);
+      const lengthFactor = sweepLengthFactor(tiles);
       applySweepRun(run);
       for (const side of flankRevealed) {
         state.newFlankSides.add(side);
       }
-      recordSweepRun(tiles, mult);
+      recordSweepRun(tiles, lengthFactor);
       anySwept = true;
-      totalMult += mult;
+      totalLengthFactor += lengthFactor;
       const wellDone = checkFlankWellDone();
       render();
       if (flankRevealed.length) {

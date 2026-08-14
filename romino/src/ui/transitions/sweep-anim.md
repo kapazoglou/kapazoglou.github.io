@@ -1,8 +1,8 @@
 ---
 module: sweep-anim
 layer: ui/transitions
-v: 1.16
-date: 2026-08-11
+v: 1.17
+date: 2026-08-14
 deps: [state, settings, sweeps-row, game-log, render, timing, pip-anim, domino-spot-strip, cube-fly, dice-visual]
 ---
 # Sweep Anim
@@ -12,7 +12,7 @@ Beat pop → (Dice & Cubes: suit-cube fade + bottom-die arc fly to roll btn, sta
 ## Exports
 - `startRowSweepAnimation(cols, onDone)` — beat, optional cube prelude (`diceAndCubes` ON), then sweep run
 - `animateFlankStackSweep(flankSides, onDone)` — same beat/sweep on flank tops only; `popFlankStack` + reveal; returns `'well-done'` when both stacks empty
-- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; log bank cycle to `game-log`; sum each run’s `sweepStarMultiplierForRun` (tricolor flushes always ×1); bank `stars × totalMult` with pips **only when at least one sweep ran and stars > 0**
+- `resolveSweepsAnimated(onDone)` — beat + sweep each run, re-scan after every apply; log bank cycle to `game-log`; sum each run’s `sweepLengthFactor` (tricolor flushes always ×1); bank `effectiveStars × totalFactor` with pip anim when at least one sweep ran (0 stars score as 1)
 
 ## State (`sweepExit`)
 - `phase`: `'wait'` | `'run'`
