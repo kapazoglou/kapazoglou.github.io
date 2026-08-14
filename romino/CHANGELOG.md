@@ -12,6 +12,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **suit-tally.js v1.13, game-over.js v2.10, turn.js v2.53, suit-tally.md, game-over.md, turn.md** — discovery win: all 52 unique suit:rank combos → game over title WINNER (+1 score multiplier); zero duplicates → FLAWLESS (+2); checked before suit-cap loss
+
+- **game-over.js v2.9, game-over.css, sweeps-row.js v1.22, state.js v2.34** — full-sweep game-over multiplier: scoring sweep that empties the row increments `fullSweepCount`; final score ×(1 + count) after end bonus; breakdown shows `full sweeps ×N` when N > 1
+
+- **suit-tally.js v1.12, suit-tally.md, turn.md** — suit-cap end trigger raised: game over when any suit tally reaches 14 (was 13)
+
+- **game-over.js v2.8, settings-panel v1.44, settings-panel.css, index.html** — lifetime stats removed from game-over sheet; lifetime block moved to bottom of settings panel
+
 - **domino-spots.js v1.20, row.js v1.90, state.js v2.33** — Domino Spots offer bind: new columns + Bugger Singles use roll used/unused offers (1st/2nd); Starting Dice pool-only; confirm discards unassigned offers; restore v1.14 stack rebind + v1.15 vacate promote
 
 - **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.6, placement-anim.js v1.41, domino-spot-strip.js** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render (fixes flash/drops)

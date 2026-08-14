@@ -28,6 +28,8 @@ export function createInitialState() {
     convertSweepTiles: [],
     /** Successful rollDice() calls this session (game-over stat). */
     rollCount: 0,
+    /** Scoring sweeps that left the player row empty (game-over score multiplier). */
+    fullSweepCount: 0,
     /** Suits that already produced a joker tile this session (one joker per suit per game). */
     jokerSuitsUsed: new Set(),
     phase: 'idle',

@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { getOccupiedCols } from './row.js';
+import { getOccupiedCols, isRowEmpty } from './row.js';
 import { JOKER_RANK } from './dice-visual.js';
 import { settings } from './settings.js';
 import {
@@ -253,6 +253,17 @@ export function applySweepRun(run) {
     delete state.row[col];
   }
   state.rowTileWarningCols.clear();
+  recordFullSweepIfRowEmpty();
+}
+
+/** Increment when a scoring sweep leaves no columns on the player row. */
+export function recordFullSweepIfRowEmpty() {
+  if (isRowEmpty()) state.fullSweepCount += 1;
+}
+
+/** Game-over score multiplier: ×1 default, +1 per full sweep (1 full sweep → ×2). */
+export function fullSweepScoreMultiplier() {
+  return 1 + state.fullSweepCount;
 }
 
 /** @returns {'well-done' | null} */

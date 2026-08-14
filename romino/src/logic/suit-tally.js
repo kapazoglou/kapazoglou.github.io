@@ -6,10 +6,16 @@ import { DISCARD_RANKS, JOKER_RANK, SWEPT_SUIT_ORDER, missingInnerDieFromTricolo
 /** 13 rank rows: A + 2–12 + joker (discovery grid). */
 export const SWEEP_DISCOVERY_RANKS = ['A', ...DISCARD_RANKS.slice(2, 13), JOKER_RANK];
 
-/** Game ends when any suit tally exceeds this value (i.e. reaches 13). */
-export const SWEPT_SUIT_CAP = 12;
+/** Game ends when any suit tally exceeds this value (i.e. reaches 14). */
+export const SWEPT_SUIT_CAP = 13;
 
 export const SWEPT_SUIT_CAP_REASON = 'suit tally complete';
+
+/** Game-over reason when all 52 rank+suit combos appear in the discovery grid. */
+export const DISCOVERY_WIN_REASON = 'winner';
+
+/** Game-over reason when discovery is complete with zero duplicate suit:rank copies. */
+export const DISCOVERY_FLAWLESS_REASON = 'flawless';
 
 export function tallySuit(suit) {
   if (!suit || state.suitTally[suit] == null) return;
@@ -34,6 +40,30 @@ export function isSuitTallyCapReached() {
 /** @returns {typeof SWEPT_SUIT_CAP_REASON | null} */
 export function suitTallyGameOverReason() {
   return isSuitTallyCapReached() ? SWEPT_SUIT_CAP_REASON : null;
+}
+
+export function isDiscoveryGridComplete() {
+  if (!settings.sweptSuits) return false;
+  return countUniqueSessionSweepCombos() >= SWEPT_SUIT_UNIQUE_COMBO_CAP;
+}
+
+export function isDiscoveryFlawless() {
+  return isDiscoveryGridComplete() && countDuplicateSessionSweepExtras() === 0;
+}
+
+/** @returns {typeof DISCOVERY_FLAWLESS_REASON | typeof DISCOVERY_WIN_REASON | null} */
+export function discoveryWinGameOverReason() {
+  if (!settings.sweptSuits) return null;
+  if (isDiscoveryFlawless()) return DISCOVERY_FLAWLESS_REASON;
+  if (isDiscoveryGridComplete()) return DISCOVERY_WIN_REASON;
+  return null;
+}
+
+/** Extra game-over multiplier on top of full sweeps (+1 winner, +2 flawless). */
+export function discoveryWinMultiplierBonus(reason) {
+  if (reason === DISCOVERY_FLAWLESS_REASON) return 2;
+  if (reason === DISCOVERY_WIN_REASON) return 1;
+  return 0;
 }
 
 export function lowestSuitTallyCount() {

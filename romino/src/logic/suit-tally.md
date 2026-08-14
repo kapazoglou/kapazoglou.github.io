@@ -1,16 +1,19 @@
 ---
 module: suit-tally
 layer: logic
-v: 1.11
+v: 1.13
 date: 2026-08-14
 deps: [state, settings, dice-visual, game-log]
 ---
 # Suit tally
 
-Per-suit swept/converted counts in `state.suitTally` (Z X Y W). When `sweptSuits` ON: game ends after confirm when any suit exceeds 12; **every** game over applies end bonus `(sweptLowSuitBonus × lowest suit tally) + (1 × unique rank+suit combos, max 52) − (sweptDuplicatePenalty × extra copies per suit:rank)` to `state.points`.
+Per-suit swept/converted counts in `state.suitTally` (Z X Y W). When `sweptSuits` ON: game ends after confirm when all 52 unique rank+suit combos are swept (WINNER) or with zero duplicates (FLAWLESS); otherwise when any suit exceeds 13; **every** game over applies end bonus `(sweptLowSuitBonus × lowest suit tally) + (1 × unique rank+suit combos, max 52) − (sweptDuplicatePenalty × extra copies per suit:rank)` to `state.points`.
 
 - `tallySuit(suit)` — increment one suit
 - `tallySwitcherConvert(values)` — Switcher Jokers: suit tally + `convertSweepTiles` (joker rank, missing suit)
+- `discoveryWinGameOverReason()` — `'flawless'` | `'winner'` | null (before suit-cap check)
+- `discoveryWinMultiplierBonus(reason)` — +2 flawless, +1 winner, added to full-sweep multiplier at game over
+- `isDiscoveryGridComplete()` / `isDiscoveryFlawless()` — 52 unique combos; flawless = no duplicate suit:rank copies
 - `suitTallyGameOverReason()` — `'suit tally complete'` or null
 - `applySweptSuitsEndBonus()` — apply breakdown to `state.points`; returns breakdown object
 - `computeSweptSuitsEndBonus()` — breakdown without mutating state

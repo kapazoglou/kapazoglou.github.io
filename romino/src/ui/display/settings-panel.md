@@ -1,7 +1,7 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.43
+v: 1.44
 date: 2026-08-14
 deps: [state, settings, phase, render, game-log, lifetime-stats-view]
 ---
@@ -15,7 +15,7 @@ As a player, I want to access a hidden settings panel (triple-tap the left HUD p
 - `TUTORIAL_DONE_KEY` — localStorage key cleared when `tutoria` toggles OFF→ON on apply
 
 ## Lifetime block
-- `#settings-lifetime` — top of panel (below title): summary, stars, dice bars, segmented tile matrix for the **draft** settings config
+- `#settings-lifetime` — bottom of panel (below toggles): summary, stars, dice bars, segmented tile matrix for the **draft** settings config
 - Updates on every stepper/toggle edit while panel is open; matrix seg toggles converted vs swept counts
 
 ## Toggle behaviour

@@ -23,6 +23,7 @@
         <div id="settings-content">
           <button id="settings-back" aria-label="Back">←</button>
           <h2 id="settings-title">SETTINGS</h2>
+          <div id="settings-toggles"></div>
           <div class="go-section-label">lifetime</div>
           <div class="go-lifetime" id="settings-lifetime">
             <div class="go-lifetime-summary" id="settings-lifetime-summary"></div>
@@ -36,7 +37,6 @@
               <div class="go-lifetime-tiles" id="settings-lifetime-tiles" aria-label="Lifetime tile counts by suit and rank"></div>
             </div>
           </div>
-          <div id="settings-toggles"></div>
         </div>
       </div>
       <div id="game-over-overlay" class="game-over-overlay" aria-hidden="true">
@@ -61,20 +61,6 @@
               <div class="go-sweeps" id="go-sweeps"></div>
               <div class="go-section-label">high scores</div>
               <div class="go-leaderboard" id="go-leaderboard"></div>
-              <div class="go-section-label">lifetime</div>
-              <div class="go-lifetime" id="go-lifetime">
-                <div class="go-lifetime-summary" id="go-lifetime-summary"></div>
-                <div class="go-lifetime-stars" id="go-lifetime-stars"></div>
-                <div class="go-lifetime-compare" id="go-lifetime-compare"></div>
-                <div class="go-lifetime-dice" id="go-lifetime-dice" aria-label="Lifetime dice distribution"></div>
-                <div class="go-lifetime-tiles-wrap">
-                  <div class="go-tile-matrix-seg" id="go-tile-matrix-seg" role="tablist" aria-label="Tile count mode">
-                    <button type="button" class="go-tile-matrix-seg-btn is-active" role="tab" data-mode="converted" aria-selected="true">converted</button>
-                    <button type="button" class="go-tile-matrix-seg-btn" role="tab" data-mode="swept" aria-selected="false">swept</button>
-                  </div>
-                  <div class="go-lifetime-tiles" id="go-lifetime-tiles" aria-label="Lifetime tile counts by suit and rank"></div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -29,7 +29,7 @@ import {
   isDominoSpotsActive,
   dominoSpotAssignmentGameOverReason,
 } from './domino-spots.js';
-import { suitTallyGameOverReason } from './suit-tally.js';
+import { discoveryWinGameOverReason, suitTallyGameOverReason } from './suit-tally.js';
 import { getStarEligibleDieIds } from './stars.js';
 
 /** Starting star balance — `startingStars` plus rerollOuter / nRoll=2 domino-pair seed (N-place each). */
@@ -161,10 +161,11 @@ export function evaluateGameOver(context) {
   clampSettings();
   const spotReason = dominoSpotAssignmentGameOverReason();
   if (spotReason) return spotReason;
+  const winContexts = context === 'post-confirm' || context === 'post-roll' || context === 'idle-roll';
+  const discoveryReason = discoveryWinGameOverReason();
+  if (discoveryReason && winContexts) return discoveryReason;
   const suitCapReason = suitTallyGameOverReason();
-  if (suitCapReason && (context === 'post-confirm' || context === 'post-roll' || context === 'idle-roll')) {
-    return suitCapReason;
-  }
+  if (suitCapReason && winContexts) return suitCapReason;
   if (context === 'idle-roll') {
     if (isDominoPoolRollBlocked()) return 'domino pool exhausted';
     if (isDominoQuadRoll()) {

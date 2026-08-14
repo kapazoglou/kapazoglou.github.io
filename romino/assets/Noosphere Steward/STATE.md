@@ -33,6 +33,12 @@ lastVerified: 2026-08-14
 
 ## Modified this session
 
+- **suit-tally.js v1.13, game-over.js v2.10, turn.js v2.53** — discovery win end: 52 unique suit:rank combos → WINNER (+1 multiplier); zero duplicates → FLAWLESS (+2); evaluated before suit-cap loss
+
+- **game-over.js v2.9, game-over.css, sweeps-row.js v1.22, state.js v2.34** — full-sweep end multiplier: scoring sweep that empties player row → `fullSweepCount`; game-over total ×(1 + count) after end bonus
+
+- **game-over.js v2.8, settings-panel v1.44, settings-panel.css, index.html** — lifetime stats UI removed from game-over; lifetime block at bottom of settings panel
+
 - **domino-spots.js v1.20, row.js v1.90, state.js v2.33** — Domino Spots offer bind: new columns + Bugger Singles from roll used/unused; Starting Dice pool-only; confirm discards unassigned offers; v1.14/v1.15 rebind/promote restored
 
 - **domino-spots.js v1.19, row.js v1.89, turn.js v2.52, render.js v1.8, placement-anim.js v1.41** — Domino Spots invariant: every row column pool-assigned; vacate returns key; missing key → game over; no offer rebind on render

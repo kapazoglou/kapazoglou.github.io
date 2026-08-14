@@ -8,10 +8,15 @@ import {
 } from '../../logic/game-log.js';
 import { resetGame } from '../../logic/turn.js';
 import { settings } from '../../logic/settings.js';
-import { applySweptSuitsEndBonus } from '../../logic/suit-tally.js';
+import {
+  computeSweptSuitsEndBonus,
+  discoveryWinMultiplierBonus,
+  DISCOVERY_FLAWLESS_REASON,
+  DISCOVERY_WIN_REASON,
+} from '../../logic/suit-tally.js';
+import { fullSweepScoreMultiplier } from '../../logic/sweeps-row.js';
 import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
-import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   month: 'short',
@@ -28,29 +33,6 @@ function miniTileHTML(tile) {
       <span class="go-tile-suit">${tile.suit}</span>
     </div>
   </div>`;
-}
-
-let lifetimeMatrixMode = 'converted';
-let lastLifetimeRecord = null;
-
-function renderLifetimeStats(record) {
-  renderLifetimeStatsView({
-    settingsObj: record.settings,
-    summaryId: 'go-lifetime-summary',
-    starsId: 'go-lifetime-stars',
-    diceId: 'go-lifetime-dice',
-    tilesId: 'go-lifetime-tiles',
-    compareId: 'go-lifetime-compare',
-    compareRecord: record,
-    matrixMode: lifetimeMatrixMode,
-    matrixSegId: 'go-tile-matrix-seg',
-  });
-}
-
-function setLifetimeMatrixMode(mode) {
-  if (mode !== 'converted' && mode !== 'swept') return;
-  lifetimeMatrixMode = mode;
-  if (lastLifetimeRecord) renderLifetimeStats(lastLifetimeRecord);
 }
 
 export function sweepListHTML() {
@@ -81,20 +63,30 @@ export function leaderboardHTML(currentId = null) {
   }).join('');
 }
 
-function scoreBreakdownHTML(sweptScore, breakdown) {
-  const finalTotal = sweptScore + breakdown.total;
+function scoreBreakdownHTML(sweptScore, breakdown, fullSweepMult, discoveryBonus) {
+  const subtotal = sweptScore + breakdown.total;
+  const finalTotal = subtotal * fullSweepMult;
   const fmtSigned = (sign, n) => {
     if (n === 0) return '0';
     return sign === '−' ? `−${n}` : `+${n}`;
   };
   const rows = [
     { label: 'swept', text: String(sweptScore), neg: false },
-    { label: 'unique', text: fmtSigned('+', breakdown.comboBonus), neg: false },
-    { label: 'duplicates', text: fmtSigned('−', breakdown.dupPenalty), neg: breakdown.dupPenalty > 0 },
-    { label: 'lowest suit', text: fmtSigned('+', breakdown.suitBonus), neg: false },
   ];
-  const lineHTML = rows.map(({ label, text, neg }) => {
-    const valueClass = neg ? ' go-breakdown-value--neg' : '';
+  if (settings.sweptSuits) {
+    rows.push(
+      { label: 'unique', text: fmtSigned('+', breakdown.comboBonus), neg: false },
+      { label: 'duplicates', text: fmtSigned('−', breakdown.dupPenalty), neg: breakdown.dupPenalty > 0 },
+      { label: 'lowest suit', text: fmtSigned('+', breakdown.suitBonus), neg: false },
+    );
+  }
+  if (fullSweepMult > 1) {
+    const multLabel = discoveryBonus > 0 ? 'multiplier' : 'full sweeps';
+    rows.push({ label: multLabel, text: `×${fullSweepMult}`, neg: false, accent: true });
+  }
+  const lineHTML = rows.map(({ label, text, neg, accent }) => {
+    let valueClass = neg ? ' go-breakdown-value--neg' : '';
+    if (accent) valueClass += ' go-breakdown-value--accent';
     return `<div class="go-breakdown-row">
       <span class="go-breakdown-label">${label}</span>
       <span class="go-breakdown-value${valueClass}">${text}</span>
@@ -107,10 +99,10 @@ function scoreBreakdownHTML(sweptScore, breakdown) {
     </div>`;
 }
 
-function renderScoreBreakdown(sweptScore, breakdown) {
+function renderScoreBreakdown(sweptScore, breakdown, fullSweepMult, discoveryBonus) {
   const el = document.getElementById('go-score-breakdown');
   if (!el) return;
-  el.innerHTML = scoreBreakdownHTML(sweptScore, breakdown);
+  el.innerHTML = scoreBreakdownHTML(sweptScore, breakdown, fullSweepMult, discoveryBonus);
   el.hidden = false;
 }
 
@@ -131,15 +123,28 @@ export function showGameOver(reason = '') {
 
   const titleEl = document.getElementById('game-over-title');
   if (titleEl) {
-    titleEl.textContent = reason === 'well-done' ? 'WELL DONE' : 'GAME OVER';
+    if (reason === 'well-done') titleEl.textContent = 'WELL DONE';
+    else if (reason === DISCOVERY_FLAWLESS_REASON) titleEl.textContent = 'FLAWLESS';
+    else if (reason === DISCOVERY_WIN_REASON) titleEl.textContent = 'WINNER';
+    else titleEl.textContent = 'GAME OVER';
   }
 
   const reasonEl = document.getElementById('game-over-reason');
-  if (reasonEl) reasonEl.textContent = reason === 'well-done' ? '' : reason;
+  if (reasonEl) {
+    const winReason = reason === 'well-done'
+      || reason === DISCOVERY_WIN_REASON
+      || reason === DISCOVERY_FLAWLESS_REASON;
+    reasonEl.textContent = winReason ? '' : reason;
+  }
 
   const sweptScore = state.points;
-  if (settings.sweptSuits) {
-    renderScoreBreakdown(sweptScore, applySweptSuitsEndBonus());
+  const breakdown = settings.sweptSuits ? computeSweptSuitsEndBonus() : { total: 0 };
+  const discoveryBonus = discoveryWinMultiplierBonus(reason);
+  const fullSweepMult = fullSweepScoreMultiplier() + discoveryBonus;
+  state.points = (sweptScore + breakdown.total) * fullSweepMult;
+
+  if (settings.sweptSuits || fullSweepMult > 1) {
+    renderScoreBreakdown(sweptScore, breakdown, fullSweepMult, discoveryBonus);
   } else {
     hideScoreBreakdown();
   }
@@ -160,10 +165,6 @@ export function showGameOver(reason = '') {
 
   const sweepsEl = document.getElementById('go-sweeps');
   if (sweepsEl) sweepsEl.innerHTML = sweepListHTML();
-
-  lifetimeMatrixMode = 'converted';
-  lastLifetimeRecord = record;
-  renderLifetimeStats(record);
 
   const { entry } = recordHighscore({ score, rolls, sweeps });
   const leaderboardEl = document.getElementById('go-leaderboard');
@@ -188,11 +189,5 @@ export function initGameOver() {
     disarmEndGamePrompt();
     resetGame();
     render();
-  });
-
-  document.getElementById('go-tile-matrix-seg')?.addEventListener('click', e => {
-    const btn = e.target.closest('.go-tile-matrix-seg-btn[data-mode]');
-    if (!btn) return;
-    setLifetimeMatrixMode(btn.dataset.mode);
   });
 }

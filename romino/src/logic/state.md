@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.33
+v: 2.34
 date: 2026-08-14
 deps: []
 ---
@@ -35,6 +35,7 @@ Single source of truth for v2 row game.
 - `sweepHistory` — game-over sweep summary
 - `convertSweepTiles` — Switcher Joker converts counted as swept (`sweptSuits` discovery grid)
 - `rollCount` — successful rolls this session (game-over stat)
+- `fullSweepCount` — scoring sweeps that emptied the player row (game-over multiplier = 1 + count)
 - `phase` — `'idle' | 'rolled' | 'animating' | 'replay'`
 - `placedDieIds` — unconfirmed placements this turn
 - `draggingDieId`, `snapGhostSlot` — UI-only drag / snap-ghost preview flags

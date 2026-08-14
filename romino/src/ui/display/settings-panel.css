@@ -42,7 +42,7 @@
   color: var(--text-primary); margin-top: -8px;
 }
 
-#settings-lifetime { margin-bottom: 4px; }
+#settings-lifetime { margin-top: 4px; }
 
 #settings-toggles { display: flex; flex-direction: column; gap: 8px; }
 
