@@ -64,7 +64,7 @@ export function countDuplicateSessionSweepExtras() {
   return extras;
 }
 
-/** End bonus breakdown (suit-cap game over); does not mutate state. */
+/** End bonus breakdown; does not mutate state. */
 export function computeSweptSuitsEndBonus() {
   const lowestCount = lowestSuitTallyCount();
   const uniqueCount = countUniqueSessionSweepCombos();
@@ -86,7 +86,7 @@ export function computeSweptSuitsEndBonus() {
   };
 }
 
-/** End bonus: lowest-suit tally + unique combos − duplicate penalty (suit-cap game over). */
+/** End bonus: lowest-suit tally + unique combos − duplicate penalty (when sweptSuits ON). */
 export function applySweptSuitsEndBonus() {
   const breakdown = computeSweptSuitsEndBonus();
   if (breakdown.total !== 0) state.points += breakdown.total;

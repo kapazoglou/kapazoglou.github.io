@@ -319,7 +319,8 @@ function updatePushBelowTargets(inner) {
   if (!pushBelowEnabled() || state.phase !== 'rolled') return;
 
   const dieId = state.draggingDieId ?? state.selectedDieId;
-  if (dieId == null || !state.actionBar.includes(dieId)) return;
+  if (dieId == null) return;
+  if (!state.actionBar.includes(dieId) && !state.placedDieIds.has(dieId)) return;
 
   const valid = getValidSlotsForDie(dieId);
   for (const slot of valid) {

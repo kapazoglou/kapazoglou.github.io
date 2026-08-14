@@ -8,7 +8,7 @@ import {
 } from '../../logic/game-log.js';
 import { resetGame } from '../../logic/turn.js';
 import { settings } from '../../logic/settings.js';
-import { applySweptSuitsEndBonus, isSuitTallyCapReached, SWEPT_SUIT_CAP_REASON } from '../../logic/suit-tally.js';
+import { applySweptSuitsEndBonus } from '../../logic/suit-tally.js';
 import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
@@ -100,32 +100,30 @@ function scoreBreakdownHTML(sweptScore, breakdown) {
       <span class="go-breakdown-value${valueClass}">${text}</span>
     </div>`;
   }).join('');
-  return `<div class="go-score-breakdown">
-    ${lineHTML}
+  return `${lineHTML}
     <div class="go-breakdown-row go-breakdown-row--total">
       <span class="go-breakdown-label">total</span>
       <span class="go-breakdown-value">${finalTotal}</span>
-    </div>
-  </div>`;
+    </div>`;
 }
 
 function renderScoreBreakdown(sweptScore, breakdown) {
   const el = document.getElementById('go-score-breakdown');
-  const labelEl = document.querySelector('.go-stat-label');
+  const statRow = document.getElementById('go-stat-row');
   if (!el) return;
   el.innerHTML = scoreBreakdownHTML(sweptScore, breakdown);
   el.hidden = false;
-  if (labelEl) labelEl.textContent = 'total score';
+  if (statRow) statRow.hidden = true;
 }
 
 function hideScoreBreakdown() {
   const el = document.getElementById('go-score-breakdown');
-  const labelEl = document.querySelector('.go-stat-label');
+  const statRow = document.getElementById('go-stat-row');
   if (el) {
     el.innerHTML = '';
     el.hidden = true;
   }
-  if (labelEl) labelEl.textContent = 'swept points';
+  if (statRow) statRow.hidden = false;
 }
 
 export function showGameOver(reason = '') {
@@ -145,10 +143,7 @@ export function showGameOver(reason = '') {
   if (reasonEl) reasonEl.textContent = reason === 'well-done' ? '' : reason;
 
   const sweptScore = state.points;
-  const isSuitCapEnd = settings.sweptSuits && (
-    reason === SWEPT_SUIT_CAP_REASON || isSuitTallyCapReached()
-  );
-  if (isSuitCapEnd) {
+  if (settings.sweptSuits) {
     renderScoreBreakdown(sweptScore, applySweptSuitsEndBonus());
   } else {
     hideScoreBreakdown();

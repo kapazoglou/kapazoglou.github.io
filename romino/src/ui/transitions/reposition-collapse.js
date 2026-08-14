@@ -180,9 +180,13 @@ export function resetPushReturnCollapse() {
 
 /** Restore shifted dice after cancel drag. */
 export function clearPushReturnCollapse() {
-  if (!shiftedPushReturnDice.length) return;
+  // Scan the DOM rather than trusting `shiftedPushReturnDice`: a failed
+  // reposition runs `resetPushReturnCollapse` (state-only) before we get here,
+  // which would otherwise strand the shift transforms on the upper dice.
+  const shifted = document.querySelectorAll('.die--stack-shifted');
+  if (!shifted.length && !shiftedPushReturnDice.length) return;
 
-  for (const el of shiftedPushReturnDice) {
+  for (const el of shifted) {
     el.classList.remove('die--stack-shifted');
     el.style.transition = '';
     el.style.transform = '';
@@ -196,7 +200,7 @@ export function clearPushReturnCollapse() {
 /** Drop internal state only — next `render()` rebuilds the row (no column snap). */
 export function resetRepositionCollapse() {
   vacatedSourceCol = null;
-  resetPushReturnCollapse();
+  clearPushReturnCollapse();
   clearDragSuppressedSpot();
   unpinRowScroll();
 }

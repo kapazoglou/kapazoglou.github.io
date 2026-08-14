@@ -618,6 +618,15 @@ function pushBelowRulesPass(col, value) {
   return passesPushBelowAtCol(col, value) && passesPushBelowNoDuplicate(col, value);
 }
 
+/** Push-below snap listing — a push die being repositioned earns a star credit (refund on leave). */
+function canOfferPushBelowSlot(dieId, col, value) {
+  if (!pushBelowRulesPass(col, value)) return false;
+  const cost = pushBelowStarCost();
+  if (!cost) return false;
+  const credit = isPushBelowPlacedDie(dieId) ? cost : 0;
+  return state.stars + credit >= cost;
+}
+
 function canPlaceValueAt(col, kind, value) {
   const column = getColumn(col);
 
@@ -684,7 +693,7 @@ export function getValidSlotsForDie(dieId) {
       if (canPlaceValueAt(col, 'stack', value)) {
         slots.push({ col, kind: 'stack' });
       }
-      if (fromBar && canPlaceValueAt(col, 'stack-below', value)) {
+      if (canOfferPushBelowSlot(dieId, col, value)) {
         slots.push({ col, kind: 'stack-below' });
       }
     }
@@ -779,6 +788,12 @@ function removeDieFromRow(dieId) {
   return false;
 }
 
+/** Top die, or a push-below bottom die, may leave its column for reposition. */
+function canRepositionPlacedDie(dieId) {
+  if (isTopDieInStack(dieId)) return true;
+  return isPushBelowPlacedDie(dieId) && isBottomDieInStack(dieId);
+}
+
 export function placeDie(dieId, slot) {
   const fromBar = state.actionBar.includes(dieId);
   const fromRow = state.placedDieIds.has(dieId);
@@ -787,7 +802,8 @@ export function placeDie(dieId, slot) {
 
   if (slot.kind === 'stack-below') {
     const cost = pushBelowStarCost();
-    if (state.stars < cost || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
+    const credit = fromRow && isPushBelowPlacedDie(dieId) ? cost : 0;
+    if (state.stars + credit < cost || !pushBelowRulesPass(slot.col, state.dice[dieId].value)) {
       return false;
     }
   } else {
@@ -800,14 +816,31 @@ export function placeDie(dieId, slot) {
   if (fromBar) {
     state.actionBar = state.actionBar.filter(id => id !== dieId);
   } else {
-    if (!isTopDieInStack(dieId)) return false;
+    if (!canRepositionPlacedDie(dieId)) return false;
+    const wasPushBelow = isPushBelowPlacedDie(dieId);
     const loc = findDieColumn(dieId);
     vacatedDominoKey = loc ? getDominoKeyForCol(loc.col) : null;
     const sourceCol = loc?.col ?? null;
     const removeResult = removeDieFromRow(dieId);
     if (removeResult === false) return false;
+    if (wasPushBelow) {
+      state.pushBelowDieIds.delete(dieId);
+      state.stars += pushBelowStarCost();
+    }
     if (typeof removeResult === 'number') vacatedCol = removeResult;
-    else if (sourceCol != null) syncBuggerOuterStackLock(sourceCol);
+    else if (wasPushBelow && sourceCol != null) {
+      const column = getColumn(sourceCol);
+      if (column?.kind === 'stack') {
+        if (column.dice.length === 1) {
+          const outerVal = state.dice[column.dice[0]].value;
+          if (buggerSinglesEnabled() && isBuggerOuterValue(outerVal)) {
+            markBuggerPendingCol(sourceCol);
+          }
+        } else {
+          syncBuggerOuterStackLock(sourceCol);
+        }
+      }
+    } else if (sourceCol != null) syncBuggerOuterStackLock(sourceCol);
   }
 
   let targetCol;

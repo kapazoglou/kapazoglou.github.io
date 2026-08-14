@@ -7,7 +7,7 @@ import { pinRowScroll, unpinRowScroll, syncStarMarkersDuringMotion, slotAnchorRo
 import { syncDominoSpotStripDuringMotion } from '../display/domino-spot-strip.js';
 import { spreadColumnElement, flankStackColElement } from '../display/flank-stacks.js';
 import { resetInsertHoverSpread, handoffInsertHoverSpread } from './placement-hover.js';
-import { clearRepositionCollapse, resetRepositionCollapse } from './reposition-collapse.js';
+import { clearRepositionCollapse, clearPushReturnCollapse, resetRepositionCollapse } from './reposition-collapse.js';
 import { pushBelowStarCost } from '../../logic/star-powers.js';
 import { payStarForSlot } from './pip-anim.js';
 import { computeSpreadOffsets } from './placement-spread.js';
@@ -425,10 +425,15 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
   const fromBar = state.actionBar.includes(dieId);
   if (!fromBar) {
     resetInsertHoverSpread();
-    resetRepositionCollapse();
     state.draggingDieId = null;
     const ok = placeDie(dieId, slot);
-    if (ok) render();
+    if (ok) {
+      resetRepositionCollapse();
+      render();
+    } else {
+      clearPushReturnCollapse();
+      clearRepositionCollapse(false);
+    }
     existingFlyer?.remove();
     return ok;
   }

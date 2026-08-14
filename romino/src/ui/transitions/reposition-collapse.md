@@ -1,7 +1,7 @@
 ---
 module: reposition-collapse
 layer: ui/transitions
-v: 1.8
+v: 1.10
 date: 2026-08-14
 deps: [state, settings, row, placement-row, domino-spot-strip, timing]
 ---

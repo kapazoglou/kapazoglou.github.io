@@ -10,6 +10,18 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **game-over.js v2.6, suit-tally.js v1.7, suit-tally.md** — end bonus + score breakdown on every game over when `sweptSuits` ON (not suit-cap only)
+
+- **game-over.js v2.5, index.html** — suit-cap score breakdown: single box (no nested wrapper); hide redundant hero stat row when breakdown shows
+
+- **row.js v1.81, placement-row.js** — push-below snaps for repositioned dice: `stack-below` slots listed for placed dice (not bar-only); push-target highlights during placed-die drag; push die re-push gets star credit so zero-balance snap still works
+
+- **row.js v1.80** — repositioning a push-below die refunds `pushBelowStarCost()` (same as return-to-bar), not just clearing `pushBelowDieIds`
+
+- **row.js v1.79, placement-anim.js v1.38, reposition-collapse.js v1.10** — fix pushed die vanishing on reposition drag: restore snap ghosts for push-below bottom dice; allow `placeDie` to reposition them (clears `pushBelowDieIds`, no star refund); restore stack-shift DOM on failed drop instead of resetting state before cleanup
+
+- **row.js v1.78, reposition-collapse.js v1.9** — fix pushed dice vanishing on drag: a placed non-top die (push-below bottom die) now reports no reposition slots (`getValidSlotsForDie` → `[]`) so its only valid drop is the bar — no more silently-failing snap that stranded the upper dice shifted down over it; `clearPushReturnCollapse` now scans the DOM so shift transforms always restore even after `resetPushReturnCollapse` nulled the tracked list
+
 - **handlers.js v2.14** — tap-to-return a pushed die now works like drag: `consumeRowClickBlock()` moved to the top of the click handler (all modes, before push-below re-attempt) so a tap that returns/refunds a die swallows its trailing click instead of re-pushing the just-returned die below the same column
 
 - **game-over.js v2.4, game-over.css, suit-tally.js v1.6, index.html** — suit-cap game over: apply end bonus via tally check (not reason string only); score breakdown (swept + unique − duplicates + lowest suit → total)
