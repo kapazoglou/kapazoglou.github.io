@@ -38,6 +38,18 @@
   width: var(--domino-spot-width, var(--die-size));
 }
 
+.domino-spot-stack--vertical {
+  flex-direction: column;
+  align-items: center;
+  width: var(--domino-spot-die);
+  height: var(--domino-spot-height, var(--domino-spot-die));
+}
+
+.domino-spot-stack--vertical .domino-spot-die + .domino-spot-die {
+  margin-left: 0;
+  margin-top: -1px;
+}
+
 .domino-spot-die {
   width: var(--domino-spot-die);
   height: var(--domino-spot-die);
@@ -157,7 +169,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
 }
 
 .domino-discard-pile.is-overflowing .domino-discard-pile-scroll {
@@ -168,11 +180,34 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   align-content: flex-start;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 2px;
   max-width: 100%;
+}
+
+.domino-discard-pile--hand .domino-discard-pile-row {
+  gap: 30px;
+}
+
+.domino-discard-pile--hand .domino-spot-stack-wrap {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.domino-discard-pile--hand.domino-discard-pile--locked .domino-spot-stack-wrap {
+  pointer-events: none;
+  opacity: 0.33;
+}
+
+.domino-discard-pile--hand.domino-discard-pile--preview
+  .domino-spot-stack-wrap:not(:has(.domino-hand-stack--selected)) {
+  opacity: 0.33;
+}
+
+.domino-spot-strip--nroll1-hand .domino-spot-stack-wrap.domino-spot-stack-wrap--under-dice {
+  opacity: 0.33;
 }
 
 .domino-discard-pile .domino-spot-stack-wrap {

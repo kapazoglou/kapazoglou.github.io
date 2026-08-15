@@ -8,7 +8,7 @@ export const SETTINGS_CONFIG = [
       { key: 'startingDice', label: 'Starting Dice', default: 7, type: 'stepper', min: 0, max: 24 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 14, type: 'stepper', min: 1, max: 24 },
       { key: 'nRoll',  label: 'N-roll',         default: 4,  type: 'stepper', min: 1, max: 6 },
-      { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 1, max: 6 },
+      { key: 'nPlace', label: 'N-place',        default: 2,  type: 'stepper', min: 2, max: 6 },
       { key: 'nSpots', label: 'N-spots',        default: 14, type: 'stepper', min: 1, max: 24 },
       { key: 'sweptLowSuitBonus',   label: 'Low suit bonus',        default: 2, type: 'stepper', min: 0, max: 10 },
       { key: 'sweptDuplicatePenalty', label: 'Duplicate penalty',   default: 1, type: 'stepper', min: 0, max: 10 },
@@ -76,7 +76,8 @@ export function spd(ms) {
 }
 
 export function clampSettings() {
-  if (settings.nPlace > settings.nRoll) settings.nPlace = settings.nRoll;
+  if (settings.nPlace < 2) settings.nPlace = 2;
+  if (settings.dominoRoll && settings.nPlace > 2) settings.nPlace = 2;
   if (settings.nRoll > settings.nDice) settings.nRoll = settings.nDice;
   if (settings.deckFlank) settings.tileDealtEvery = 0;
   if (settings.tileDealtEvery > 0) settings.deckFlank = false;

@@ -13,6 +13,7 @@ import {
   clearDominoTrayState,
   drawDominoRoll,
   canDrawDominoRoll,
+  canDrawDominoKeyFromPool,
   settleDominoQuadRoll,
   settleDominoRollOnConfirm,
   setCurrentRollOfferedKeys,
@@ -20,6 +21,11 @@ import {
   canApplyDominoPairReroll,
   discardOfferedDominoKeys,
   isDominoPairRollTray,
+  isDominoHandMode,
+  dominoHandBothDicePlaced,
+  lockHandDomino,
+  refillDominoHandOne,
+  clearHandPreviewState,
 } from './domino-roll.js';
 import {
   setDominoOfferedKeys,
@@ -32,10 +38,11 @@ import {
 import { discoveryWinGameOverReason, suitTallyGameOverReason } from './suit-tally.js';
 import { getStarEligibleDieIds } from './stars.js';
 
-/** Starting star balance — `startingStars` plus rerollOuter / nRoll=2 domino-pair seed (N-place each). */
+/** Starting star balance — `startingStars` plus rerollOuter / domino-pair seed (N-place each). */
 export function initialStarCount() {
   let count = settings.startingStars;
   if (settings.dominoRoll && settings.nRoll === 2 && settings.nPlace === 2) count += settings.nPlace;
+  else if (settings.dominoRoll && settings.nRoll === 1) count += 1;
   else if (settings.rerollOuter) count += settings.nPlace;
   return count;
 }
@@ -54,6 +61,10 @@ export function resetGame() {
   clearDominoTrayState();
   clearAllDominoSpotBindings();
   seedStartingDice();
+  if (isDominoHandMode() && state.dominoHandKeys.length === 0) {
+    triggerGameOver('domino pool exhausted');
+    return;
+  }
   if (!seedStartingDominoSpots()) {
     triggerGameOver('domino pool exhausted');
   }
@@ -64,9 +75,15 @@ function isDominoQuadRoll() {
   return settings.dominoRoll && settings.nRoll === 4;
 }
 
-/** Domino Spots: active draw pool empty — discard returns only on sweep. */
+/** Domino Roll: active pool cannot satisfy next draw (Spots ON: empty pool; Spots OFF: no reshuffles left). */
 function isDominoPoolRollBlocked() {
-  return isDominoSpotsActive() && !canDrawDominoRoll();
+  if (!settings.dominoRoll) return false;
+  if (isDominoHandMode()) {
+    if (state.dominoHandKeys.length > 0) return false;
+    return !canDrawDominoKeyFromPool(1);
+  }
+  if (settings.nRoll !== 2 && settings.nRoll !== 3 && settings.nRoll !== 4) return false;
+  return !canDrawDominoRoll();
 }
 
 /** Dice not on row — matches roll-button label. */
@@ -89,6 +106,7 @@ function rollDicePoolCost() {
 }
 
 export function canRoll() {
+  if (isDominoHandMode()) return false;
   if (state.phase !== 'idle') return false;
   clampSettings();
   if (isDominoPoolRollBlocked()) return flankEndgamePending();
@@ -136,8 +154,9 @@ export function isRollButtonEndGameTap() {
 }
 
 export function canConfirm() {
-  return state.phase === 'rolled'
-    && state.placedThisTurn >= settings.nPlace;
+  if (state.phase !== 'rolled') return false;
+  if (isDominoHandMode()) return dominoHandBothDicePlaced();
+  return state.placedThisTurn >= settings.nPlace;
 }
 
 /** True when leaving the page would discard an in-progress session (not fresh reset / game over). */
@@ -230,6 +249,11 @@ export function tryContinueAfterConfirm() {
   const suitCapReason = evaluateGameOver('post-confirm');
   if (suitCapReason) {
     enterGameOver(suitCapReason);
+    return;
+  }
+  if (isDominoHandMode()) {
+    const blockedReason = evaluateGameOver('idle-roll');
+    if (blockedReason) enterGameOver(blockedReason);
     return;
   }
   const rollResult = rollDice();
@@ -332,11 +356,19 @@ export function rerollDominoPairOffer() {
   discardOfferedDominoKeys();
   state.dominoPairRerollAvailable = false;
 
+  if (isDominoHandMode()) {
+    state.dominoHandLocked = true;
+    state.dominoHandPreviewKey = null;
+    state.dominoHandSelectedIndex = null;
+    state.dominoHandPreviewDieIds = [];
+  }
+
   state.newTrayDieIds = new Set();
   for (let i = 0; i < 2; i++) {
     const id = spawnRandomDie();
     state.actionBar.push(id);
     state.newTrayDieIds.add(id);
+    if (isDominoHandMode()) state.dominoHandPreviewDieIds.push(id);
   }
 
   return 'ok';
@@ -345,11 +377,26 @@ export function rerollDominoPairOffer() {
 export function confirmTurn() {
   if (!canConfirm()) return false;
 
+  if (isDominoHandMode()) {
+    if (state.dicePool < settings.nRoll) return false;
+    if (!state.dominoHandLocked) {
+      lockHandDomino();
+      state.rollCount += 1;
+      state.dicePool -= settings.nRoll;
+    }
+  }
+
   if (isDominoSpotsActive()) {
     settleDominoSpotsOnConfirm(state.placedDieIds);
   } else {
     settleDominoRollOnConfirm();
     settleDominoQuadRoll(state.placedDieIds);
+  }
+
+  if (isDominoHandMode()) {
+    refillDominoHandOne();
+    clearHandPreviewState();
+    state.dominoHandCommittedKey = null;
   }
 
   state.dicePool += state.actionBar.length;

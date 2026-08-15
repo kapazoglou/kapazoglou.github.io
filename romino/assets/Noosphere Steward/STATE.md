@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-08-14
+lastVerified: 2026-08-15
 ---
 
 # römino — Verified Pattern State
@@ -13,7 +13,7 @@ lastVerified: 2026-08-14
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews |
+| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` (nRoll=1 hand preview) |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
 | Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingStars`, `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `pushSwapStars`, `buggerSingles`, `tutoria` |
@@ -32,6 +32,28 @@ lastVerified: 2026-08-14
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **domino-spot-strip.css v2.30** — nRoll=1 hand: no accent outline on selected domino
+
+- **domino-spot-strip.css v2.29** — nRoll=1 hand unselected + seam under-dice: 33% opacity
+
+- **domino-spot-strip.js v2.28, domino-spot-strip.css v2.28** — nRoll=1 hand unselected + seam under-dice: 66% opacity
+
+- **domino-spot-strip.css v2.26** — nRoll=1 hand row gap 30px
+
+- **domino-spot-strip.js v2.26, domino-spot-strip.css v2.26** — discard pile + nRoll=1 hand: horizontal stacks; six pips upright; hand gap 40px
+
+- **deck-size.js v1.5** — nRoll=1 + Domino Spots: seam-strip deck badge (pool counter + spot-visibility toggle), not HUD
+
+- **settings.js v2.44, settings-panel.js v1.58** — nPlace min 2 without forcing nRoll up; nRoll=1 + nPlace=2 allowed
+
+- **settings.js v2.43, settings-panel.js v1.57** — N-place stepper min 2; saved nPlace=1 migrates; nRoll/nDice bump when needed
+
+- **domino-roll.js v1.34, domino-spots.js v1.22, turn.js v2.56, state.js v2.36, deck-size.js v1.4, domino-spot-strip.js v2.25, domino-spot-strip.css v2.25, handlers.js v2.16** — nRoll=1 Domino Hand: 7-domino pick-then-roll; discard-row band; hidden discards; +1 refill on confirm; star reroll discard; 3 reshuffles; domino-width gap; Spots used-offer bind; no auto-roll after confirm
+
+- **domino-roll.js v1.33, domino-spots.js v1.21, dice-visual.js v1.10, domino-spot-strip.js v2.23** — unified pool-only counter; 3 charged reshuffles both modes; sweep free pool return; nRoll=2 col-2 pool draw; vertical discard pile; reshuffle dots Spots ON too
+
+- **domino-roll.js v1.32, turn.js v2.55, state.js v2.35, action-bar.js v1.70** — Spots OFF 3 reshuffle cap + dots
 
 - **settings.js v2.41, viewport-controls.js v1.5, settings-panel.js v1.52, base.css** — `fullScreen` settings toggle replaces bottom-left fullscreen button
 

@@ -121,6 +121,32 @@
   transition: width calc(0.2s * var(--t)) ease;
 }
 
+.domino-reshuffle-dots {
+  position: absolute;
+  right: 36px;
+  top: calc(var(--roll-btn-wrap-inset-top) / 2);
+  transform: translate(50%, -50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+
+.domino-reshuffle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.33;
+}
+
+.domino-reshuffle-dot--active {
+  opacity: 1;
+}
+
 .roll-btn-wrap--endgame-armed {
   width: 128px;
   display: flex;

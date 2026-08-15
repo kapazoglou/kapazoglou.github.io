@@ -1,7 +1,13 @@
 import { state } from '../../logic/state.js';
 import { spd } from '../../logic/settings.js';
 import { isDominoSpotsActive, getDominoKeyForCol, getRowDominoSpotCols } from '../../logic/domino-spots.js';
-import { parseDominoKey, getDominoDiscardKeys } from '../../logic/domino-roll.js';
+import {
+  parseDominoKey,
+  getDominoDiscardKeys,
+  isDominoHandMode,
+  isDominoHandLocked,
+  isDominoHandPreviewActive,
+} from '../../logic/domino-roll.js';
 import { dominoStackHTML, DOMINO_SPOT_DIE } from '../../logic/dice-visual.js';
 import { isDominoDeckInActionBar } from '../../logic/deck-size.js';
 import { spreadColumnElement } from './flank-stacks.js';
@@ -145,6 +151,11 @@ export function renderDominoDiscardPile() {
   const strip = document.getElementById('domino-spot-strip');
   if (!strip) return;
 
+  if (isDominoHandMode()) {
+    renderDominoHand(strip);
+    return;
+  }
+
   if (!isDominoSpotsActive()) {
     strip.querySelector('.domino-discard-pile')?.remove();
     lastDiscardRenderKey = '';
@@ -154,6 +165,7 @@ export function renderDominoDiscardPile() {
   const keys = getDominoDiscardKeys();
   const sig = keys.join('|');
   const pile = ensureDominoDiscardPileShell(strip);
+  pile.classList.remove('domino-discard-pile--hand');
   const row = pile.querySelector('.domino-discard-pile-row');
 
   if (!keys.length) {
@@ -175,7 +187,56 @@ export function renderDominoDiscardPile() {
 
   row.innerHTML = keys.map((key, i) => {
     const values = parseDominoKey(key);
-    return dominoStackHTML(values, { attrs: ` data-discard-index="${i}"` });
+    return dominoStackHTML(values, {
+      orientation: 'horizontal',
+      attrs: ` data-discard-index="${i}"`,
+    });
+  }).join('');
+
+  positionDominoDiscardPile({ reveal: true });
+  lastDiscardRenderKey = sig;
+}
+
+function dominoHandRenderKey() {
+  const sel = state.dominoHandPreviewKey ?? 'none';
+  return `hand:${state.dominoHandKeys.join('|')}|${sel}|${state.dominoHandLocked ? 1 : 0}`;
+}
+
+/** nRoll=1 hand — reuse discard-row band; discards hidden. */
+function renderDominoHand(strip) {
+  const keys = state.dominoHandKeys;
+  const sig = dominoHandRenderKey();
+  const pile = ensureDominoDiscardPileShell(strip);
+  pile.classList.add('domino-discard-pile--hand');
+  pile.classList.toggle('domino-discard-pile--locked', isDominoHandLocked());
+  pile.classList.toggle('domino-discard-pile--preview', isDominoHandPreviewActive());
+  const row = pile.querySelector('.domino-discard-pile-row');
+
+  if (!keys.length) {
+    row.innerHTML = '';
+    lastDiscardRenderKey = '';
+    positionDominoDiscardPile({ reveal: false });
+    return;
+  }
+
+  if (sig === lastDiscardRenderKey) {
+    positionDominoDiscardPile({ reveal: true });
+    return;
+  }
+
+  const firstShow = !pile.classList.contains('is-positioned');
+  if (firstShow) pile.classList.remove('is-positioned');
+
+  positionDominoDiscardPile({ reveal: false });
+
+  row.innerHTML = keys.map((key, i) => {
+    const values = parseDominoKey(key);
+    const selected = state.dominoHandPreviewKey === key;
+    return dominoStackHTML(values, {
+      orientation: 'horizontal',
+      attrs: ` data-hand-index="${i}" role="button" tabindex="0" aria-pressed="${selected ? 'true' : 'false'}"`,
+      stackClassExtra: selected ? 'domino-hand-stack--selected' : '',
+    });
   }).join('');
 
   positionDominoDiscardPile({ reveal: true });
@@ -220,6 +281,7 @@ export function positionDominoDiscardPile({ reveal = true } = {}) {
   pile.style.width = `${toDesignPx(stripRect.width, scale)}px`;
   pile.style.paddingTop = `${margin}px`;
   pile.style.paddingBottom = `${margin}px`;
+  pile.style.paddingLeft = `${margin}px`;
   pile.style.paddingRight = `${margin}px`;
   pile.style.boxSizing = 'border-box';
   pile.classList.toggle('is-overflowing', !fits);
@@ -325,6 +387,24 @@ export function renderDominoSpotStrip() {
   syncDominoSpotsVisibility();
 }
 
+function syncDominoSpotUnderDiceOpacity(strip) {
+  const nRoll1Hand = isDominoHandMode();
+  strip.classList.toggle('domino-spot-strip--nroll1-hand', nRoll1Hand);
+  if (!nRoll1Hand) {
+    strip.querySelectorAll('.domino-spot-stack-wrap--under-dice').forEach(el => {
+      el.classList.remove('domino-spot-stack-wrap--under-dice');
+    });
+    return;
+  }
+
+  for (const el of strip.querySelectorAll('.domino-spot-stack-wrap[data-col]')) {
+    const col = Number(el.dataset.col);
+    const column = state.row[col];
+    const underDice = column?.kind === 'stack' && column.dice.length > 0;
+    el.classList.toggle('domino-spot-stack-wrap--under-dice', underDice);
+  }
+}
+
 export function positionDominoSpotStrip() {
   const strip = document.getElementById('domino-spot-strip');
   const inner = document.querySelector('.placement-row-inner');
@@ -372,6 +452,7 @@ export function positionDominoSpotStrip() {
     positioned = true;
   }
 
+  syncDominoSpotUnderDiceOpacity(strip);
   positionActionBarDeck();
   positionDominoDiscardPile();
   return positioned;

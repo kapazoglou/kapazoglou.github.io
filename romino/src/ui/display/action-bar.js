@@ -9,6 +9,9 @@ import {
   isDominoPairLocked,
   isDominoPairTraySeamless,
   canShowDominoPairReroll,
+  showDominoReshuffleDots,
+  DOMINO_RESHUFFLE_MAX,
+  isDominoHandMode,
 } from '../../logic/domino-roll.js';
 import { isEndGamePromptArmed, syncEndGamePromptWithRollChrome } from './end-game-prompt.js';
 
@@ -88,6 +91,16 @@ function buildDiceTrayHTML() {
   return `<div class="action-bar-dice" id="action-bar-dice">${diceHTML}</div>`;
 }
 
+function buildReshuffleDotsHTML() {
+  const remaining = state.dominoReshufflesRemaining;
+  const dots = [];
+  for (let i = 0; i < DOMINO_RESHUFFLE_MAX; i++) {
+    const active = i < remaining;
+    dots.push(`<span class="domino-reshuffle-dot${active ? ' domino-reshuffle-dot--active' : ''}" aria-hidden="true"></span>`);
+  }
+  return `<div class="domino-reshuffle-dots" aria-label="Reshuffles remaining: ${remaining} of ${DOMINO_RESHUFFLE_MAX}">${dots.join('')}</div>`;
+}
+
 /** Sync tray dice selection chrome without rebuilding the bar. */
 export function updateActionBarSelection() {
   const bar = document.getElementById('action-bar');
@@ -119,11 +132,15 @@ export function renderActionBar() {
   const confirm = canConfirm();
   const trayStuck = state.phase === 'rolled' && isTrayStuck();
   const spotBlocked = isDominoSpotAssignmentBlocked();
+  const handIdle = isDominoHandMode() && state.phase === 'idle';
   const rollDisabled = state.phase === 'replay'
+    || handIdle
     || (!canRoll() && !confirm && !canEndGame() && !trayStuck && !spotBlocked);
   const rollLabel = rollAffordanceRemaining();
   const rollLow = isRollPoolLow();
-  const rollAria = confirm ? 'Confirm placement' : trayStuck ? 'End game' : 'Roll dice';
+  const rollAria = confirm
+    ? (isDominoHandMode() ? 'Confirm domino' : 'Confirm placement')
+    : trayStuck ? 'End game' : 'Roll dice';
   const hasFullStack = rowHasThreeDiceStack();
   const endgameArmed = isEndGamePromptArmed();
   const rollLabelDisplay = endgameArmed ? '&lt;' : String(rollLabel);
@@ -146,7 +163,7 @@ export function renderActionBar() {
       </div>`
     : '';
 
-  const rollWrapHTML = endgameArmed
+  const rollWrapInner = endgameArmed
     ? `<div class="${wrapClasses}"${wrapExpanded}>
         <div class="roll-btn-slot roll-btn-slot--number">
           <div class="roll-btn-face" aria-hidden="true">${rollButtonFaceSVG(DIE_OUTER)}</div>
@@ -159,9 +176,13 @@ export function renderActionBar() {
         ${rollBtnHTML}
       </div>`;
 
+  const rollWrapHTML = rollWrapInner;
+  const reshuffleDotsHTML = showDominoReshuffleDots() ? buildReshuffleDotsHTML() : '';
+
   bar.innerHTML = `
     ${diceTrayHTML}
     ${rollWrapHTML}
+    ${reshuffleDotsHTML}
     <p class="action-bar-credit">röminó</p>
   `;
 }

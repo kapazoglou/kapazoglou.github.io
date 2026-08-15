@@ -9,7 +9,7 @@ import {
   getDominoEngagedPairIndex,
   setCurrentRollOfferedKeys,
   syncDominoDeckCount,
-  reshuffleDominoPoolAtSweep,
+  canDrawDominoKeyFromPool,
 } from './domino-roll.js';
 
 export function isDominoSpotsActive() {
@@ -101,7 +101,9 @@ function bindDominoSpotFromOffer(col, spotIndex, opts = {}) {
 /** @param {number} col @returns {boolean} */
 function bindDominoSpotFromPool(col) {
   if (getDominoKeyForCol(col)) return true;
-  const key = drawDominoKeyFromPool();
+  const nRoll = settings.nRoll;
+  if (!canDrawDominoKeyFromPool(nRoll)) return false;
+  const key = drawDominoKeyFromPool(nRoll);
   if (!key) return false;
   setDominoKeyOnCol(col, key);
   return true;
@@ -293,7 +295,18 @@ function assignDominoForNewColumn(dieId, col) {
   }
 
   if (getDominoKeyForCol(col)) return true;
-  return bindDominoSpotFromOffer(col, spotIndex);
+
+  if (settings.nRoll === 1) {
+    if (getDominoSpotKey(0)) return bindDominoSpotFromOffer(col, 0, { force: true });
+    return bindDominoSpotFromPool(col);
+  }
+  if (settings.nRoll === 4) {
+    return bindDominoSpotFromOffer(col, spotIndex);
+  }
+  if (spotIndex === 0) {
+    return bindDominoSpotFromOffer(col, 0);
+  }
+  return bindDominoSpotFromPool(col);
 }
 
 /** @param {number} dieId @param {number} col */
@@ -432,7 +445,7 @@ export function releaseDominoKeysForCols(cols) {
   for (const col of cols) {
     const key = getDominoKeyForCol(col);
     if (!key) continue;
-    discardDominoKey(key);
+    returnKeyToPool(key);
     delete state.dominoSpotKeys[col];
     delete state.dominoColSpotSlot[col];
 
@@ -446,7 +459,7 @@ export function releaseDominoKeysForCols(cols) {
     if (turnIdx !== -1) state.dominoSpotsCreatedThisTurn.splice(turnIdx, 1);
   }
 
-  reshuffleDominoPoolAtSweep();
+  syncDominoDeckCount();
 }
 
 /** @param {number} spotIndex @returns {string | null} */

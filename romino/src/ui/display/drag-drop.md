@@ -1,7 +1,7 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.46
+v: 2.47
 date: 2026-08-15
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input, stack-swap-anim]
 ---
@@ -15,7 +15,7 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 
 ## Die drag
 - Tap on returnable (this-turn, top-of-stack) placed die returns it to the tray and keeps it selected; tray die tap toggles selection (inactive tray 1/6 remain selectable when `rerollOuter` ON)
-- **Star Powers stack swap refund** — tap swapped stack (`.die--swap-refundable`) reverses order + refunds 1 star; return returnable die from swapped col also refunds star (see [[stack-swap-anim]])
+- **Star Powers stack swap refund** — tap swapped stack (`.die--swap-refundable`) reverses order + refunds 1 star; when a tray die is selected and push-below is valid on that bottom die, push runs first (no refund); return returnable die from swapped col also refunds star (see [[stack-swap-anim]])
 - **`rerollOuter` ON** — reroll via `#hud-star-pay` tap (selected outer) or star drag onto tray 1/6; tap disabled when `starPowers` ON — see [[star-reroll-input]]
 - Drag to action bar still clears selection
 - Drag uses the same `.placement-die-flyer` as commit placement — spawns at the source die's exact position in `.viewport-inner`, then follows the pointer; hands off on drop (no separate `#drag-ghost`)

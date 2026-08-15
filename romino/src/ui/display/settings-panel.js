@@ -54,7 +54,8 @@ function saveSettings() {
 }
 
 function clampDraft() {
-  if (draftSettings.nPlace > draftSettings.nRoll) draftSettings.nPlace = draftSettings.nRoll;
+  if (draftSettings.nPlace < 2) draftSettings.nPlace = 2;
+  if (draftSettings.dominoRoll && draftSettings.nPlace > 2) draftSettings.nPlace = 2;
   if (draftSettings.nRoll > draftSettings.nDice) draftSettings.nRoll = draftSettings.nDice;
   if (draftSettings.deckFlank) draftSettings.tileDealtEvery = 0;
   if (draftSettings.tileDealtEvery > 0) draftSettings.deckFlank = false;

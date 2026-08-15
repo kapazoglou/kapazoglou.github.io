@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { isDominoPairLocked } from './domino-roll.js';
+import { isDominoPairLocked, dominoHandDicePlaceQuota, isDominoHandMode } from './domino-roll.js';
 import {
   onTrayDiePlaced,
   onColumnVacated,
@@ -168,17 +168,18 @@ function colIsEmpty(col) {
 export const CENTER_COL = 0;
 
 export function canPlaceMoreThisTurn() {
-  return state.placedThisTurn < settings.nPlace;
+  return state.placedThisTurn < dominoHandDicePlaceQuota();
 }
 
 /** Tray die inactive when per-turn N-place quota is filled or domino quad pair is locked. */
 export function isBarDieInactive(dieId) {
+  const quota = dominoHandDicePlaceQuota();
   return state.actionBar.includes(dieId)
-    && (state.placedThisTurn >= settings.nPlace || isDominoPairLocked(dieId));
+    && (state.placedThisTurn >= quota || isDominoPairLocked(dieId));
 }
 
 function canPlaceMoreDiceFromBar() {
-  return state.placedThisTurn < settings.nPlace;
+  return state.placedThisTurn < dominoHandDicePlaceQuota();
 }
 
 function passesOneToOneNewColumn(value) {
@@ -439,7 +440,7 @@ export function isAtSpotCap() {
 
 /** Gap-insert spread / fly spread phase — N-place + N-spots gate for dice. */
 export function gapInsertAnimationsAllowed() {
-  if (state.placedThisTurn < settings.nPlace && !isAtSpotCap()) return true;
+  if (state.placedThisTurn < dominoHandDicePlaceQuota() && !isAtSpotCap()) return true;
   if (state.draggingDieId != null && state.placedDieIds.has(state.draggingDieId)) return true;
   return false;
 }
@@ -797,6 +798,34 @@ function removeDieFromRow(dieId) {
     return null;
   }
   return false;
+}
+
+/** Hand preview — strip preview-placed dice from row and undo spot bindings. */
+export function purgePreviewPlacementsFromRow() {
+  const ids = [...state.placedDieIds];
+  for (const dieId of ids) {
+    const loc = findDieColumn(dieId);
+    const boundKey = loc ? getDominoKeyForCol(loc.col) : null;
+    const sourceCol = loc?.col ?? null;
+
+    if (isPushBelowPlacedDie(dieId)) {
+      state.pushBelowDieIds.delete(dieId);
+      state.stars += pushBelowStarCost();
+      if (sourceCol != null) clearPushReminderCol(sourceCol);
+    }
+
+    const removeResult = removeDieFromRow(dieId);
+    if (removeResult === false) continue;
+
+    if (typeof removeResult === 'number') {
+      onColumnVacated(removeResult, boundKey);
+    } else if (sourceCol != null) {
+      onColumnVacated(sourceCol, boundKey);
+    }
+
+    state.placedDieIds.delete(dieId);
+  }
+  state.placedThisTurn = 0;
 }
 
 /** Top die, or a push-below bottom die, may leave its column for reposition. */

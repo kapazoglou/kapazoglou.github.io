@@ -1,7 +1,7 @@
 ---
 module: action-bar
 layer: ui/display
-v: 1.69
+v: 1.73
 date: 2026-08-15
 deps: [state, cards, dice, grid, end-game-prompt, domino-roll, domino-spots]
 ---
@@ -14,8 +14,10 @@ As a player, I need the action bar to show my hand cards during the place-card p
 - **Domino Roll nRoll=2** — seamless domino pair on initial offer; star-pay discards offer + random spaced dice (no deck tick); counter −1 only on roll-button draw
 - **Domino Roll nRoll=4** — dual-pair tray (pipe separator; deck counter badge on seam strip — see domino-spot-strip; fixed slots; toward-`|` on drag/placement; return order preserved per pair)
 - `ghostCardHTML(slotCount)` — skeleton card HTML for the action-bar ghost indicator
+- Roll button disabled in nRoll=1 hand idle (no roll affordance); confirm aria **"Confirm domino"** when both dice placed
 - Roll button face border (`action-bar.css`): **accent** (`--accent`) when enabled and not warning red; **warning red** when enabled and (`isRollPoolLow()` without a 3-dice stack on the row, or rolled + `isTrayStuck()`). Number text (`.roll-btn--low`) follows `isRollPoolLow()` — nRoll=4 + dominoRoll uses **N-place** threshold; may stay red while border stays accent if a full stack is on the row. Tap: warning-red border → arm KO confirm bar (`isRollButtonEndGameTap` + `end-game-prompt`); armed wrap expands left with white **`&lt;`** back + red **KO** confirm; accent border → idle roll or rolled confirm.
 - `.action-bar-credit` — static footer under roll button: `röminó` (16px, white + overlay blend)
+- **Domino Spots OFF + domino roll** — `.domino-reshuffle-dots` when domino roll countdown active (both Spots modes)
 
 ## Modes
 - **place-card**: renders hand cards (`.in-tray`) with `is-new` slide-in if flagged

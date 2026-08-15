@@ -280,7 +280,20 @@ function dominoSpotJoinRadii(join, outerRx, faceRx) {
   if (join === 'both') {
     return { outer: flat, face: flatFace };
   }
+  if (join === 'down') {
+    return { outer: { ...round, bl: 0, br: 0 }, face: { ...roundFace, bl: 0, br: 0 } };
+  }
+  if (join === 'up') {
+    return { outer: { ...round, tl: 0, tr: 0 }, face: { ...roundFace, tl: 0, tr: 0 } };
+  }
   return { outer: round, face: roundFace };
+}
+
+function dominoSpotJoinForIndexVertical(i, n) {
+  if (n <= 1) return 'none';
+  if (i === 0) return 'down';
+  if (i === n - 1) return 'up';
+  return 'both';
 }
 
 function dominoSpotJoinForIndex(i, n) {
@@ -291,7 +304,7 @@ function dominoSpotJoinForIndex(i, n) {
 }
 
 /** 20×20 domino spot die — 1px white border, inverted face/pips. */
-export function dominoSpotDieSVG(value, { join = 'none' } = {}) {
+export function dominoSpotDieSVG(value, { join = 'none', pipRotationDeg = 0 } = {}) {
   const outer = DOMINO_SPOT_DIE;
   const border = DOMINO_SPOT_BORDER;
   const face = outer - border * 2;
@@ -304,11 +317,14 @@ export function dominoSpotDieSVG(value, { join = 'none' } = {}) {
   const outerRx = 12 * (outer / DIE_OUTER);
   const faceRx = 8 * (face / DIE_FACE);
   const { outer: outerR, face: faceR } = dominoSpotJoinRadii(join, outerRx, faceRx);
+  const pipCenter = border + face / 2;
   const circles = ALL_PIPS.filter(k => active.has(k)).map(k => {
     const [fx, fy] = PIP_POS[k];
     return `<circle cx="${border + fx * faceScale}" cy="${border + fy * faceScale}" r="${pipR}" fill="${pipFill}"/>`;
   }).join('');
-  const pips = circles;
+  const pips = circles && pipRotationDeg
+    ? `<g transform="rotate(${pipRotationDeg} ${pipCenter} ${pipCenter})">${circles}</g>`
+    : circles;
   const borderPath = roundedRectPath(0, 0, outer, outer, outerR);
   const facePath = roundedRectPath(border, border, face, face, faceR);
   return `<svg width="${outer}" height="${outer}" viewBox="0 0 ${outer} ${outer}" xmlns="http://www.w3.org/2000/svg" data-name="dice_filled_bg">
@@ -318,18 +334,35 @@ export function dominoSpotDieSVG(value, { join = 'none' } = {}) {
   </svg>`;
 }
 
-/** Horizontal domino strip for between-zone spot strip. */
-export function dominoStackHTML(values, { col, isNew = false, attrs = '', stackClassExtra = '', stackStyleVars = '' } = {}) {
+/** Horizontal or vertical domino strip (seam + discard pile = horizontal; vertical for legacy callers). */
+export function dominoStackHTML(values, {
+  col,
+  isNew = false,
+  attrs = '',
+  stackClassExtra = '',
+  stackStyleVars = '',
+  orientation = 'horizontal',
+} = {}) {
   const size = DOMINO_SPOT_DIE;
   const n = values.length;
-  const stackWidth = n * size - Math.max(0, n - 1) * DOMINO_SPOT_GAP;
-  const classExtra = ['domino-spot-stack', isNew ? 'is-new' : '', stackClassExtra].filter(Boolean).join(' ');
+  const vertical = orientation === 'vertical';
+  const stackSpan = n * size - Math.max(0, n - 1) * DOMINO_SPOT_GAP;
+  const classExtra = [
+    'domino-spot-stack',
+    vertical ? 'domino-spot-stack--vertical' : '',
+    isNew ? 'is-new' : '',
+    stackClassExtra,
+  ].filter(Boolean).join(' ');
   const colAttr = col != null ? ` data-col="${col}"` : '';
   const wrapStyle = `--domino-spot-die:${size}px`;
-  const stackStyle = `--domino-spot-width:${stackWidth}px${stackStyleVars ? `;${stackStyleVars}` : ''}`;
+  const stackStyle = vertical
+    ? `--domino-spot-width:${size}px;--domino-spot-height:${stackSpan}px${stackStyleVars ? `;${stackStyleVars}` : ''}`
+    : `--domino-spot-width:${stackSpan}px${stackStyleVars ? `;${stackStyleVars}` : ''}`;
+  const joinAt = vertical ? dominoSpotJoinForIndexVertical : dominoSpotJoinForIndex;
   const diceHTML = values.map((v, i) => {
-    const join = dominoSpotJoinForIndex(i, n);
-    return `<div class="domino-spot-die">${dominoSpotDieSVG(v, { join })}</div>`;
+    const join = joinAt(i, n);
+    const pipRotationDeg = vertical ? sixPipRotationDeg(v) : 0;
+    return `<div class="domino-spot-die">${dominoSpotDieSVG(v, { join, pipRotationDeg })}</div>`;
   }).join('');
   return `<div class="domino-spot-stack-wrap"${colAttr} style="${wrapStyle}"${attrs}><div class="${classExtra}" style="${stackStyle}">${diceHTML}</div></div>`;
 }

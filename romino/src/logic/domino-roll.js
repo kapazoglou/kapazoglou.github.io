@@ -1,12 +1,161 @@
 import { state } from './state.js';
 import { settings } from './settings.js';
-import { isDominoDeckCountdown, isDominoDeckInActionBar } from './deck-size.js';
+import { spawnKnownDie } from './dice.js';
+import { isDominoDeckCountdown } from './deck-size.js';
+import { setDominoOfferedKeys, isDominoSpotsActive, clearDominoSpotsRollState } from './domino-spots.js';
+import { purgePreviewPlacementsFromRow } from './row.js';
 
 /** @typedef {[number, number]} PairCombo */
 /** @typedef {[number, number, number]} TripleCombo */
 
 const PAIR_POOL_SIZE = 21;
 const TRIPLE_POOL_SIZE = 56;
+export const DOMINO_RESHUFFLE_MAX = 3;
+export const DOMINO_HAND_SIZE = 7;
+export const DOMINO_HAND_DICE_PLACE = 2;
+
+/** nRoll=1 + dominoRoll: 7-domino hand with preview / lock / confirm. */
+export function isDominoHandMode() {
+  return settings.dominoRoll && settings.nRoll === 1;
+}
+
+export function dominoHandDicePlaceQuota() {
+  return isDominoHandMode() ? DOMINO_HAND_DICE_PLACE : settings.nPlace;
+}
+
+export function dominoHandBothDicePlaced() {
+  return state.placedThisTurn >= DOMINO_HAND_DICE_PLACE && state.actionBar.length === 0;
+}
+
+export function isDominoHandLocked() {
+  return Boolean(state.dominoHandLocked);
+}
+
+export function isDominoHandPreviewActive() {
+  return isDominoHandMode()
+    && state.dominoHandPreviewKey != null
+    && !state.dominoHandLocked;
+}
+
+function clearDominoHandState() {
+  state.dominoHandKeys = [];
+  state.dominoHandSelectedIndex = null;
+  state.dominoHandCommittedKey = null;
+  state.dominoHandPreviewKey = null;
+  state.dominoHandLocked = false;
+  state.dominoHandPreviewDieIds = [];
+}
+
+function syncHandSelectedIndexFromPreview() {
+  if (!state.dominoHandPreviewKey) {
+    state.dominoHandSelectedIndex = null;
+    return;
+  }
+  const idx = state.dominoHandKeys.indexOf(state.dominoHandPreviewKey);
+  state.dominoHandSelectedIndex = idx >= 0 ? idx : null;
+}
+
+function clearPreviewTrayDice() {
+  for (const id of state.dominoHandPreviewDieIds) {
+    delete state.dice[id];
+  }
+  state.dominoHandPreviewDieIds = [];
+  state.actionBar = [];
+  state.newTrayDieIds = new Set();
+}
+
+export function clearHandPreviewState() {
+  state.dominoHandPreviewKey = null;
+  state.dominoHandLocked = false;
+  state.dominoHandSelectedIndex = null;
+  clearPreviewTrayDice();
+}
+
+function spawnPreviewTrayPair(values) {
+  clearPreviewTrayDice();
+  for (const value of values) {
+    const id = spawnKnownDie(value);
+    state.actionBar.push(id);
+    state.dominoHandPreviewDieIds.push(id);
+    state.newTrayDieIds.add(id);
+  }
+}
+
+function setHandPreviewOfferedKeys(key) {
+  if (isDominoSpotsActive()) setDominoOfferedKeys([key]);
+  else setCurrentRollOfferedKeys([key]);
+}
+
+/** Undo preview placements, tray dice, and spot turn state (hand switch). */
+export function revertHandPreviewTurn() {
+  if (!isDominoHandMode()) return;
+
+  purgePreviewPlacementsFromRow();
+  clearPreviewTrayDice();
+  clearDominoSpotsRollState();
+  state.dominoOfferedKeys = [];
+  state.pushBelowDieIds.clear();
+  state.swapStackCols.clear();
+  state.pushReminderCols.clear();
+  state.swapReminderCols.clear();
+  state.flippedDieIds.clear();
+  state.selectedDieId = null;
+  state.dominoPairRerollAvailable = false;
+}
+
+/** Splice preview key from hand; mark locked. */
+export function lockHandDomino() {
+  const key = state.dominoHandPreviewKey ?? state.dominoHandCommittedKey;
+  if (!key) return false;
+
+  if (state.dominoHandPreviewKey) {
+    const idx = state.dominoHandKeys.indexOf(state.dominoHandPreviewKey);
+    if (idx !== -1) state.dominoHandKeys.splice(idx, 1);
+  }
+
+  state.dominoHandCommittedKey = key;
+  state.dominoHandPreviewKey = null;
+  state.dominoHandLocked = true;
+  state.dominoHandSelectedIndex = null;
+  state.dominoHandPreviewDieIds = [];
+  return true;
+}
+
+function removeOfferedKeysFromHand(keys) {
+  for (const key of keys) {
+    const idx = state.dominoHandKeys.indexOf(key);
+    if (idx !== -1) state.dominoHandKeys.splice(idx, 1);
+  }
+}
+
+/**
+ * @param {number} i
+ * @returns {boolean}
+ */
+export function previewHandDomino(i) {
+  if (!isDominoHandMode() || state.dominoHandLocked) return false;
+  if (i < 0 || i >= state.dominoHandKeys.length) return false;
+
+  const key = state.dominoHandKeys[i];
+  if (state.dominoHandPreviewKey && state.dominoHandPreviewKey !== key) {
+    revertHandPreviewTurn();
+  } else if (state.dominoHandPreviewKey === key) {
+    return true;
+  }
+
+  state.dominoHandPreviewKey = key;
+  syncHandSelectedIndexFromPreview();
+
+  const values = parseDominoKey(key);
+  spawnPreviewTrayPair(values);
+  setHandPreviewOfferedKeys(key);
+
+  state.placedThisTurn = 0;
+  state.placedDieIds = new Set();
+  state.dominoPairRerollAvailable = true;
+  state.phase = 'rolled';
+  return true;
+}
 
 export function buildPairCombos() {
   /** @type {PairCombo[]} */
@@ -92,17 +241,10 @@ export function getDominoDiscardKeys(nRoll = settings.nRoll) {
   return activeDominoDiscard(nRoll);
 }
 
-/** Deck badge — pool-only when Domino Spots ON or seam-strip badge (nRoll=4 / nRoll=2+nPlace=2); else pool + discard + tray offers. */
+/** Deck badge — active draw pool only (Domino Roll nRoll 2/3/4). */
 export function syncDominoDeckCount(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
-  const poolLen = activeDominoPool(nRoll).length;
-  if (settings.dominoSpots || isDominoDeckInActionBar()) {
-    state.deckRemaining = poolLen;
-    return;
-  }
-  state.deckRemaining = poolLen
-    + activeDominoDiscard(nRoll).length
-    + state.dominoOfferedKeys.length;
+  state.deckRemaining = activeDominoPool(nRoll).length;
 }
 
 /** Track combo keys offered in the tray this roll; refreshes deck counter. */
@@ -120,31 +262,57 @@ function dominoDrawNeeded(nRoll) {
   return nRoll === 4 ? 2 : 1;
 }
 
-/** Active pool can satisfy the next draw (Domino Spots: discard stays out until sweep). */
-export function canDrawDominoRoll(nRoll = settings.nRoll) {
-  if (!settings.dominoRoll || (nRoll !== 2 && nRoll !== 3 && nRoll !== 4)) return true;
-  const needed = dominoDrawNeeded(nRoll);
+/** Reshuffle-dot UI — Domino Roll ON, nRoll 1/2/3/4 (both Spots modes). */
+export function showDominoReshuffleDots() {
+  return settings.dominoRoll && isDominoDeckCountdown();
+}
+
+/** @param {number} nRoll @param {number} needed */
+function tryChargedDominoReshuffle(nRoll, needed) {
+  if (state.dominoReshufflesRemaining <= 0) return false;
+  state.dominoReshufflesRemaining -= 1;
   const pool = activeDominoPool(nRoll);
-  if (settings.dominoSpots) return pool.length >= needed;
+  const discard = activeDominoDiscard(nRoll);
+  if (discard.length) {
+    pool.push(...discard.splice(0));
+    shuffle(pool);
+  }
+  if (!settings.dominoSpots && pool.length < needed) {
+    if (nRoll === 3) rebuildTriplePool();
+    else rebuildPairPool();
+  }
+  syncDominoDeckCount(nRoll);
   return true;
 }
 
-/** Domino Spots OFF: pool too short → full rebuild (every combo available again). */
-function ensureDominoPoolForDraw(nRoll, needed) {
-  if (settings.dominoSpots) return;
-  if (activeDominoPool(nRoll).length >= needed) return;
-  if (nRoll === 3) rebuildTriplePool();
-  else rebuildPairPool();
-  syncDominoDeckCount(nRoll);
+/** Active pool can satisfy the next tray draw. */
+export function canDrawDominoRoll(nRoll = settings.nRoll) {
+  if (!settings.dominoRoll || (nRoll !== 2 && nRoll !== 3 && nRoll !== 4)) return true;
+  const needed = dominoDrawNeeded(nRoll);
+  if (activeDominoPool(nRoll).length >= needed) return true;
+  if (state.dominoReshufflesRemaining <= 0) return false;
+  if (!settings.dominoSpots) return true;
+  return activeDominoDiscard(nRoll).length > 0;
 }
 
-/** Domino Spots: merge discard into pool and shuffle after a sweep (or pair-sweep). */
+/** Single pool draw (e.g. nRoll=2 second column spot). */
+export function canDrawDominoKeyFromPool(nRoll = settings.nRoll) {
+  if (!settings.dominoRoll) return false;
+  if (activeDominoPool(nRoll).length > 0) return true;
+  if (state.dominoReshufflesRemaining <= 0) return false;
+  if (!settings.dominoSpots) return true;
+  return activeDominoDiscard(nRoll).length > 0;
+}
+
+/** Pool too short → charged reshuffle (merge discard; Spots OFF may full-rebuild). */
+function ensureDominoPoolForDraw(nRoll, needed) {
+  if (activeDominoPool(nRoll).length >= needed) return;
+  tryChargedDominoReshuffle(nRoll, needed);
+}
+
+/** @deprecated Sweep returns keys via returnKeyToPool — no discard merge at sweep. */
 export function reshuffleDominoPoolAtSweep(nRoll = settings.nRoll) {
   if (!isDominoDeckCountdown()) return;
-  const pool = activeDominoPool(nRoll);
-  const discard = activeDominoDiscard(nRoll);
-  if (discard.length) pool.push(...discard.splice(0));
-  shuffle(pool);
   syncDominoDeckCount(nRoll);
 }
 
@@ -158,6 +326,9 @@ function drawRandomFromPool(pool) {
 /** Draw one combo key from the active pool (removes it; refreshes deck counter). */
 export function drawDominoKeyFromPool(nRoll = settings.nRoll) {
   if (!settings.dominoRoll) return null;
+  if (activeDominoPool(nRoll).length === 0 && canDrawDominoKeyFromPool(nRoll)) {
+    ensureDominoPoolForDraw(nRoll, 1);
+  }
   const key = drawRandomFromPool(activeDominoPool(nRoll));
   syncDominoDeckCount(nRoll);
   return key;
@@ -174,11 +345,51 @@ export function initDominoPools() {
     state.dominoTriplePool = [];
     state.dominoPairDiscard = [];
     state.dominoTripleDiscard = [];
+    state.dominoReshufflesRemaining = 0;
+    clearDominoHandState();
     return;
   }
   rebuildPairPool();
   rebuildTriplePool();
+  state.dominoReshufflesRemaining = isDominoDeckCountdown() ? DOMINO_RESHUFFLE_MAX : 0;
   syncDominoDeckCount();
+  if (isDominoHandMode()) initDominoHand();
+  else clearDominoHandState();
+}
+
+/** Deal initial hand from pair pool (nRoll=1). */
+export function initDominoHand() {
+  if (!isDominoHandMode()) {
+    clearDominoHandState();
+    return;
+  }
+  state.dominoHandKeys = [];
+  state.dominoHandSelectedIndex = null;
+  state.dominoHandCommittedKey = null;
+  state.dominoHandPreviewKey = null;
+  state.dominoHandLocked = false;
+  state.dominoHandPreviewDieIds = [];
+  for (let i = 0; i < DOMINO_HAND_SIZE; i++) {
+    const key = drawDominoKeyFromPool(1);
+    if (!key) break;
+    state.dominoHandKeys.push(key);
+  }
+}
+
+/** @deprecated — use previewHandDomino */
+export function selectDominoHandIndex(i) {
+  return previewHandDomino(i);
+}
+
+export function hasDominoHandSelection() {
+  if (!isDominoHandMode()) return true;
+  return state.dominoHandPreviewKey != null || isDominoHandPreviewActive();
+}
+
+export function refillDominoHandOne() {
+  if (!isDominoHandMode()) return;
+  const key = drawDominoKeyFromPool(1);
+  if (key) state.dominoHandKeys.push(key);
 }
 
 export function clearDominoTrayState() {
@@ -186,13 +397,15 @@ export function clearDominoTrayState() {
   state.dominoChosenPairIndex = null;
   state.dominoPairComboKeys = null;
   state.dominoPairRerollAvailable = false;
+  state.dominoHandCommittedKey = null;
+  if (isDominoHandMode()) clearHandPreviewState();
 }
 
-/** nRoll=2 + dominoRoll: tray shows a seamless pair while both dice are idle. */
+/** nRoll=2 or nRoll=1 hand + dominoRoll: tray shows a seamless pair while both dice are idle. */
 export function isDominoPairRollTray() {
-  return settings.dominoRoll
-    && settings.nRoll === 2
-    && state.phase === 'rolled';
+  if (!settings.dominoRoll || state.phase !== 'rolled') return false;
+  if (settings.nRoll === 2) return true;
+  return isDominoHandMode();
 }
 
 /** Seamless domino pair only on the initial roll offer (before ↺ reroll). */
@@ -205,10 +418,12 @@ export function isDominoPairTraySeamless() {
 
 /** Substantive gate for star-pay pair redraw (ignores phase — safe during anim callback). */
 export function canApplyDominoPairReroll() {
-  if (!settings.dominoRoll || settings.nRoll !== 2) return false;
+  if (!settings.dominoRoll) return false;
+  if (settings.nRoll !== 2 && !isDominoHandMode()) return false;
   if (!state.dominoPairRerollAvailable) return false;
   if (state.placedThisTurn > 0) return false;
   if (state.actionBar.length !== 2) return false;
+  if (isDominoHandMode() && state.dominoHandLocked) return false;
   return state.dominoOfferedKeys.length > 0;
 }
 
@@ -219,9 +434,15 @@ export function canShowDominoPairReroll() {
 
 /** Discard current tray domino offer (star-pay redraw — does not draw from pool). */
 export function discardOfferedDominoKeys() {
+  if (isDominoHandMode() && isDominoHandPreviewActive()) {
+    removeOfferedKeysFromHand(state.dominoOfferedKeys);
+    state.dominoHandPreviewKey = null;
+    state.dominoHandSelectedIndex = null;
+  }
   for (const key of state.dominoOfferedKeys) discardDominoKey(key);
   state.dominoOfferedKeys = [];
-  syncDominoDeckCount(2);
+  state.dominoHandCommittedKey = null;
+  syncDominoDeckCount();
 }
 
 /** @param {string} key — vacate-undo only; swept/unbound offers use discardDominoKey. */
@@ -238,12 +459,13 @@ export function discardDominoKey(key) {
   syncDominoDeckCount();
 }
 
-/** nRoll 2/3 confirm (Domino Spots OFF): move offered combo keys to discard. */
+/** nRoll 1/2/3 confirm (Domino Spots OFF): move offered combo keys to discard. */
 export function settleDominoRollOnConfirm() {
   if (!settings.dominoRoll || settings.dominoSpots) return;
   if (settings.nRoll === 4) return;
   for (const key of state.dominoOfferedKeys) discardDominoKey(key);
   state.dominoOfferedKeys = [];
+  state.dominoHandCommittedKey = null;
   syncDominoDeckCount();
 }
 

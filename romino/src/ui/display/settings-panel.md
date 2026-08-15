@@ -1,7 +1,7 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.55
+v: 1.58
 date: 2026-08-15
 deps: [state, settings, phase, render, game-log, lifetime-stats-view, highscores]
 ---

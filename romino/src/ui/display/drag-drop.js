@@ -22,7 +22,7 @@ import {
   PUSH_BELOW_DRAG_SNAP_ENABLED,
 } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
-import { attemptPlacementAtPoint } from './placement-input.js';
+import { attemptPlacementAtPoint, attemptPushBelowOnBottomDie } from './placement-input.js';
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
 import { beginRepositionCollapse, clearRepositionCollapse, beginPushReturnCollapse, clearPushReturnCollapse } from '../transitions/reposition-collapse.js';
 import { tryRefundSwapStack } from '../transitions/stack-swap-anim.js';
@@ -214,11 +214,21 @@ function isDragSessionActive() {
   return dragDieId != null;
 }
 
-/** @returns {'return' | 'refund-swap' | 'selection' | null} */
+/** @returns {'return' | 'refund-swap' | 'push-below' | 'push-invalid' | 'selection' | null} */
 function handleDieTap(dieEl) {
   if (dieEl.classList.contains('die--placed')) {
     const dieId = Number(dieEl.dataset.dieId);
     if (!state.placedDieIds.has(dieId)) return null;
+
+    if (
+      state.selectedDieId != null
+      && state.actionBar.includes(state.selectedDieId)
+      && state.phase === 'rolled'
+    ) {
+      const pushResult = attemptPushBelowOnBottomDie(state.selectedDieId, dieEl);
+      if (pushResult === 'placed') return 'push-below';
+      if (pushResult === 'invalid') return 'push-invalid';
+    }
 
     if (isSwapRefundableDie(dieId) && !isReturnablePlacedDie(dieId)) {
       const loc = findDieColumn(dieId);
@@ -485,7 +495,7 @@ function resolveDrop(e) {
   } else if (dragDieEl) {
     dragDieEl.classList.remove('die--drag-pending');
     const tapResult = handleDieTap(dragDieEl);
-    if (tapResult === 'return' || tapResult === 'refund-swap') {
+    if (tapResult === 'return' || tapResult === 'refund-swap' || tapResult === 'push-below' || tapResult === 'push-invalid') {
       blockNextRowClick = true;
       if (tapResult === 'refund-swap') render();
     } else if (tapResult === 'selection') renderSelection();

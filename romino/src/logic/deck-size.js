@@ -4,18 +4,19 @@ import { settings } from './settings.js';
 /** Domino Roll uses the HUD deck counter for combo-list countdown (even when deckSize is 0). */
 export function isDominoDeckCountdown() {
   return settings.dominoRoll
-    && (settings.nRoll === 2 || settings.nRoll === 3 || settings.nRoll === 4);
+    && (settings.nRoll === 1 || settings.nRoll === 2 || settings.nRoll === 3 || settings.nRoll === 4);
 }
 
 export function isDeckSizeActive() {
   return settings.deckSize > 0 || isDominoDeckCountdown();
 }
 
-/** nRoll=4 (and nRoll=2 + nPlace=2 domino pair) show deck counter on seam strip, not HUD. */
+/** nRoll=4, nRoll=2+nPlace=2, and nRoll=1+Spots show deck counter on seam strip (tap toggles spot visibility), not HUD. */
 export function isDominoDeckInActionBar() {
   if (!isDominoDeckCountdown()) return false;
   if (settings.nRoll === 4) return true;
-  return settings.nRoll === 2 && settings.nPlace === 2;
+  if (settings.nRoll === 2 && settings.nPlace === 2) return true;
+  return settings.nRoll === 1 && settings.dominoSpots;
 }
 
 export function showDeckInHud() {

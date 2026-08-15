@@ -70,6 +70,8 @@ export function createInitialState() {
     dominoPairDiscard: [],
     /** Domino Roll — discarded triple combo keys (reshuffled on short draw when Domino Spots OFF; on sweep when ON). */
     dominoTripleDiscard: [],
+    /** Domino Roll + Spots OFF — short-draw rebuild charges (3 per game). */
+    dominoReshufflesRemaining: 0,
     /** nRoll=4 domino quad: [[dieId, dieId], [dieId, dieId]] after roll. */
     dominoPairGroups: null,
     /** nRoll=4 domino quad: 0 | 1 | null — active pair after tray selection. */
@@ -78,6 +80,18 @@ export function createInitialState() {
     dominoPairComboKeys: null,
     /** nRoll=2 domino pair: one reroll offer per roll (↺ discards offer and redraws). */
     dominoPairRerollAvailable: false,
+    /** nRoll=1 domino hand — visible pair keys in discard-row band (max 7). */
+    dominoHandKeys: [],
+    /** nRoll=1 domino hand — idle selection index into dominoHandKeys. */
+    dominoHandSelectedIndex: null,
+    /** nRoll=1 domino hand — key committed this roll (removed from hand on lock). */
+    dominoHandCommittedKey: null,
+    /** nRoll=1 hand preview — selected key still in dominoHandKeys until lock. */
+    dominoHandPreviewKey: null,
+    /** nRoll=1 hand — true after star reroll or lock on confirm. */
+    dominoHandLocked: false,
+    /** nRoll=1 hand preview — tray die ids spawned for current preview (revert cleanup). */
+    dominoHandPreviewDieIds: [],
     /** Domino spots — combo keys offered this roll. */
     dominoOfferedKeys: [],
     /** Domino spots — spot 1: used domino key this roll. */

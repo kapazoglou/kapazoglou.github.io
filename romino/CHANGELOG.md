@@ -12,6 +12,46 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+---
+
+---
+
+- **domino-spot-strip.css v2.30** — nRoll=1 hand: remove accent outline on selected domino
+
+- **domino-spot-strip.css v2.29** — nRoll=1 hand + seam under-dice dim: 33% opacity (was 66%)
+
+- **domino-spot-strip.js v2.28, domino-spot-strip.css v2.28** — nRoll=1 hand: unselected dominos 66% opacity while previewing; locked hand 66% (was 45%); seam spots under placed dice 66%
+
+- **domino-roll.js v1.35, turn.js v2.57, domino-spots.js v1.23, row.js v1.91, state.js v2.37, action-bar.js v1.73, handlers.js v2.17, domino-spot-strip.js v2.27, domino-spot-strip.css v2.27** — nRoll=1 hand preview: tap domino → pair tray (stays in hand); switch reverts row/tray/spots; both dice placed → roll lock+confirm; star reroll locks early; no idle roll; 2 dice / 1 domino per turn; Spots same-key two-col bind
+
+- **domino-spot-strip.css v2.26** — nRoll=1 hand row gap 30px (was 40px)
+
+- **domino-spot-strip.js v2.26, domino-spot-strip.css v2.26** — discard pile + nRoll=1 hand: horizontal domino stacks (six pips upright); hand row gap 40px
+
+- **deck-size.js v1.5** — nRoll=1 + Domino Spots: deck badge on seam strip (visibility toggle like nRoll=4 / nRoll=2+nPlace=2)
+
+- **settings.js v2.44, settings-panel.js v1.58** — nPlace min 2 without forcing nRoll up; nRoll=1 + nPlace=2 allowed
+
+- **settings.js v2.43, settings-panel.js v1.57** — N-place stepper min 2 (always); saved nPlace=1 migrates up; nRoll/nDice bump when needed
+
+- **domino-roll.js v1.34, domino-spots.js v1.22, turn.js v2.56, state.js v2.36, deck-size.js v1.4, domino-spot-strip.js v2.25, domino-spot-strip.css v2.25, handlers.js v2.16** — nRoll=1 Domino Hand: deal 7 in discard-row band; pick-then-roll pair tray (Roll 2 UX); hidden discards; +1 hand refill on confirm; star reroll discards domino; 3 reshuffles; domino-width hand gap; Spots used-offer bind
+
+- **domino-spot-strip.js v2.24, domino-spot-strip.css v2.24** — discard pile X-centred in domino spots band (was right-aligned under roll button)
+
+- **dice-visual.js v1.11, domino-spot-strip.js v2.23** — discard pile vertical stacks: six pips rotate 90° (matches row dice)
+
+- **domino-roll.js v1.33, domino-spots.js v1.21, dice-visual.js v1.10, domino-spot-strip.js v2.23, domino-spot-strip.css v2.23, turn.js v2.55** — unified domino pool: pool-only counter both modes; 3 charged reshuffles (merge discard / Spots OFF rebuild); sweep → free pool return; nRoll=2 2nd col pool draw; reshuffle dots both modes; vertical discard pile stacks
+
+- **settings.js v2.42, settings-panel.js v1.56** — `dominoRoll` ON clamps `nPlace` to 2
+
+- **action-bar.js v1.72, action-bar.css** — domino reshuffle dots midway between action-bar top and roll button (button/bar layout unchanged)
+
+- **action-bar.js v1.71, action-bar.css** — domino reshuffle dots above roll button (roll wrap position unchanged)
+
+- **domino-roll.js v1.32, turn.js v2.55, state.js v2.35, action-bar.js v1.70, action-bar.css** — Domino Spots OFF: cap short-draw pool rebuilds at 3 per game; three reshuffle dots below roll button; exhausted → domino pool exhausted KO
+
+- **handlers.js v2.15, drag-drop.js v2.47** — tray die selected + tap swap-paid bottom die: push-below runs before swap refund (tap + click paths)
+
 - **settings-panel.css, index.html** — copyright credit under CONFIG header (matches action bar)
 
 - **action-bar.js v1.69** — main-screen credit shortened to `RÖMINÓ` (full credit remains in settings)
