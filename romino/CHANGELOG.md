@@ -16,6 +16,22 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-roll.js v1.38, domino-spots.js v1.24, turn.js v2.58** — nRoll=1 + Spots: game over only when domino hand and pool both empty (not pool alone); spot-assignment KO deferred while hand has dominos; hand mode skips dice-pool idle loss
+
+- **domino-spot-strip.js v2.36, domino-spot-strip.css v2.36** — spot visibility toggle: nRoll>1 discard pile follows deck badge (`--spots-suppressed`); nRoll=1 hand exempt; fixes child wrap leak
+
+- **domino-spot-strip.js v2.35, domino-spot-strip.css v2.35** — nRoll=1 hand enter: off-screen start state; overflow visible on hand container; reveal after double-rAF layout (no pre-position flash)
+
+- **settings.js v2.45** — fix broken SETTINGS_CONFIG syntax (stray fullScreen line broke entire app)
+
+- **domino-spot-strip.js v2.34, domino-spot-strip.css v2.34** — hand pile visibility + layout: positioned-only wrap show; spots-hidden skips hand; badge positioning optional
+
+- **domino-spot-strip.css v2.33** — fix nRoll=1 hand invisible: discard-pile wraps inherit pile visibility (base wrap rule stays hidden)
+
+- **domino-spot-strip.js v2.32, domino-spot-strip.css v2.32, domino-roll.js v1.37** — fix hand domino init flash: inherit pile visibility; anim only when positioned; layout-before-reveal; refill-only enter anim; reset discard render cache on mode switch
+
+- **domino-roll.js v1.36, state.js v2.38, domino-spot-strip.js v2.31, domino-spot-strip.css v2.31** — nRoll=1 hand: incoming dominos slide-in like tray dice (staggered `action-bar-slide-in`)
+
 - **domino-spot-strip.css v2.30** — nRoll=1 hand: remove accent outline on selected domino
 
 - **domino-spot-strip.css v2.29** — nRoll=1 hand + seam under-dice dim: 33% opacity (was 66%)

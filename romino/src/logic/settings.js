@@ -4,6 +4,7 @@ export const SETTINGS_CONFIG = [
     group: 'counts',
     label: 'Counts',
     items: [
+      { key: 'fullScreen',          label: 'Full screen',           default: false, type: 'toggle' },
       { key: 'startingStars', label: 'Starting Stars', default: 0, type: 'stepper', min: 0, max: 52 },
       { key: 'startingDice', label: 'Starting Dice', default: 7, type: 'stepper', min: 0, max: 24 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 14, type: 'stepper', min: 1, max: 24 },
@@ -44,7 +45,6 @@ export const SETTINGS_CONFIG = [
       { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
       { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
-      { key: 'fullScreen',          label: 'Full screen',           default: false, type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
     ],
   },

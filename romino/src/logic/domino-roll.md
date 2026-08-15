@@ -1,7 +1,7 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.35
+v: 1.38
 date: 2026-08-15
 deps: [state, settings, deck-size, game-log]
 ---
@@ -9,7 +9,7 @@ deps: [state, settings, deck-size, game-log]
 
 Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 1, 2, 3, or 4.
 
-**nRoll=1 hand** — deal 7 pair keys into `dominoHandKeys` (discard-row UI); **preview-on-select**: tap spawns pair tray immediately (`phase = rolled`); domino stays in hand until lock; switch domino → `revertHandPreviewTurn()`; **both dice on row** (`DOMINO_HAND_DICE_PLACE = 2`, empty tray) before confirm; roll button **lock + confirm** in one tap (debits pool on confirm); star reroll discards domino + locks hand (`dominoHandLocked`); then place both → confirm only; no idle roll; +1 hand refill on confirm; discards hidden; KO when hand empty and pool cannot refill.
+**nRoll=1 hand** — deal 7 pair keys into `dominoHandKeys` (discard-row UI); **preview-on-select**: tap spawns pair tray immediately (`phase = rolled`); domino stays in hand until lock; switch domino → `revertHandPreviewTurn()`; **both dice on row** (`DOMINO_HAND_DICE_PLACE = 2`, empty tray) before confirm; roll button **lock + confirm** in one tap (debits pool on confirm); star reroll discards domino + locks hand (`dominoHandLocked`); then place both → confirm only; no idle roll; +1 hand refill on confirm; discards hidden; **Spots ON:** KO only when hand empty and pool cannot draw/refill (`isDominoHandAndPoolExhausted()`).
 
 **Hand placement quota** — `dominoHandDicePlaceQuota()` returns 2 in hand mode (one domino per turn, not `settings.nPlace`).
 
@@ -63,7 +63,7 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 1, 2, 3, or 4
 - `onDominoDieReturnedToTray(dieId)` — clears selection on tray return; idle unlock when all quad dice in tray
 
 ## Exports
-- `DOMINO_HAND_SIZE`, `DOMINO_HAND_DICE_PLACE`, `isDominoHandMode()`, `initDominoHand()`, `previewHandDomino()`, `revertHandPreviewTurn()`, `lockHandDomino()`, `dominoHandDicePlaceQuota()`, `dominoHandBothDicePlaced()`, `isDominoHandPreviewActive()`, `isDominoHandLocked()`, `selectDominoHandIndex()`, `hasDominoHandSelection()`, `refillDominoHandOne()`, `clearHandPreviewState()`
+- `DOMINO_HAND_SIZE`, `DOMINO_HAND_DICE_PLACE`, `isDominoHandMode()`, `isDominoHandPlayable()`, `isDominoHandAndPoolExhausted()`, `initDominoHand()`, `previewHandDomino()`, `revertHandPreviewTurn()`, `lockHandDomino()`, `dominoHandDicePlaceQuota()`, `dominoHandBothDicePlaced()`, `isDominoHandPreviewActive()`, `isDominoHandLocked()`, `selectDominoHandIndex()`, `hasDominoHandSelection()`, `refillDominoHandOne()`, `clearHandPreviewState()`
 - `DOMINO_RESHUFFLE_MAX`, `showDominoReshuffleDots()`
 - `initDominoPools()`, `clearDominoTrayState()`, `drawDominoRoll(nRoll)`, `drawDominoKeyFromPool(nRoll)`, `canDrawDominoRoll(nRoll)`, `canDrawDominoKeyFromPool(nRoll)`, `settleDominoRollOnConfirm()`, `settleDominoQuadRoll(placedDieIds)`, `syncDominoDeckCount(nRoll)`, `syncDominoDeckRemaining(nRoll)`, `setCurrentRollOfferedKeys(keys)`, `discardDominoKey(key)`, `returnKeyToPool(key)`, `reshuffleDominoPoolAtSweep(nRoll)` (deprecated no-op), `parseDominoKey(key)`, `getDominoDiscardKeys(nRoll)`
 - `canApplyDominoPairReroll()`, `canShowDominoPairReroll()`, `discardOfferedDominoKeys()`

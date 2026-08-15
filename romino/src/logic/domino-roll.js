@@ -19,6 +19,18 @@ export function isDominoHandMode() {
   return settings.dominoRoll && settings.nRoll === 1;
 }
 
+/** nRoll=1 hand still has selectable dominos in the discard-row band. */
+export function isDominoHandPlayable() {
+  return isDominoHandMode() && state.dominoHandKeys.length > 0;
+}
+
+/** nRoll=1 + Spots: loss only when hand and active pool both cannot supply another turn. */
+export function isDominoHandAndPoolExhausted() {
+  if (!isDominoHandMode()) return false;
+  if (state.dominoHandKeys.length > 0) return false;
+  return !canDrawDominoKeyFromPool(1);
+}
+
 export function dominoHandDicePlaceQuota() {
   return isDominoHandMode() ? DOMINO_HAND_DICE_PLACE : settings.nPlace;
 }
@@ -44,6 +56,7 @@ function clearDominoHandState() {
   state.dominoHandPreviewKey = null;
   state.dominoHandLocked = false;
   state.dominoHandPreviewDieIds = [];
+  state.newDominoHandKeys = new Set();
 }
 
 function syncHandSelectedIndexFromPreview() {
@@ -369,6 +382,7 @@ export function initDominoHand() {
   state.dominoHandPreviewKey = null;
   state.dominoHandLocked = false;
   state.dominoHandPreviewDieIds = [];
+  state.newDominoHandKeys = new Set();
   for (let i = 0; i < DOMINO_HAND_SIZE; i++) {
     const key = drawDominoKeyFromPool(1);
     if (!key) break;
@@ -389,7 +403,10 @@ export function hasDominoHandSelection() {
 export function refillDominoHandOne() {
   if (!isDominoHandMode()) return;
   const key = drawDominoKeyFromPool(1);
-  if (key) state.dominoHandKeys.push(key);
+  if (key) {
+    state.dominoHandKeys.push(key);
+    state.newDominoHandKeys.add(key);
+  }
 }
 
 export function clearDominoTrayState() {

@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.37
+v: 2.38
 date: 2026-08-15
 deps: []
 ---
@@ -23,7 +23,7 @@ Single source of truth for v2 row game.
 - `dominoReshufflesRemaining` — charged reshuffles per game (3 when domino roll active); dots UI in action bar
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
 - `dominoPairRerollAvailable` — nRoll=2 ↺ reroll once per roll
-- `dominoHandKeys`, `dominoHandSelectedIndex`, `dominoHandCommittedKey`, `dominoHandPreviewKey`, `dominoHandLocked`, `dominoHandPreviewDieIds` — nRoll=1 hand preview/lock mode
+- `dominoHandKeys`, `dominoHandSelectedIndex`, `dominoHandCommittedKey`, `dominoHandPreviewKey`, `dominoHandLocked`, `dominoHandPreviewDieIds`, `newDominoHandKeys` — nRoll=1 hand preview/lock mode
 - `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoColSpotSlot`, `startingDominoSpotCols`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
 - `pushBelowDieIds` — dies placed via push-below this turn (return refunds `pushBelowStarCost()`)
 - `swapStackCols` — columns star-paid stack swap this turn (tap refunds 1 star + reverses order)

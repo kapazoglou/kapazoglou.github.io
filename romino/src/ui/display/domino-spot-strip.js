@@ -11,7 +11,7 @@ import {
 import { dominoStackHTML, DOMINO_SPOT_DIE } from '../../logic/dice-visual.js';
 import { isDominoDeckInActionBar } from '../../logic/deck-size.js';
 import { spreadColumnElement } from './flank-stacks.js';
-import { COL_SPREAD_MS } from '../transitions/timing.js';
+import { COL_SPREAD_MS, TRAY_STAGGER_MS } from '../transitions/timing.js';
 
 let scrollBound = false;
 let motionRaf = 0;
@@ -19,6 +19,7 @@ let motionDeadline = 0;
 let layoutRaf = 0;
 let lastStripRenderKey = '';
 let lastDiscardRenderKey = '';
+let lastDiscardMode = '';
 
 function viewportScale() {
   const root = document.querySelector('.viewport-inner');
@@ -86,10 +87,13 @@ export function toggleDominoSpotsVisibility() {
 export function syncDominoSpotsVisibility() {
   const strip = document.getElementById('domino-spot-strip');
   const badge = document.getElementById('action-bar-deck');
+  const pile = strip?.querySelector('.domino-discard-pile');
   const hidden = !state.dominoSpotsVisible;
   strip?.classList.toggle('is-spots-hidden', hidden);
   badge?.classList.toggle('is-spots-hidden', hidden);
   badge?.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+  // nRoll=1 hand ignores spot toggle; nRoll>1 discard pile follows deck-badge visibility
+  pile?.classList.toggle('domino-discard-pile--spots-suppressed', hidden && !isDominoHandMode());
 }
 
 /** Seam-row deck badge — same Y as domino spots; X centred over roll-button die. */
@@ -98,39 +102,42 @@ export function positionActionBarDeck() {
   const strip = document.getElementById('domino-spot-strip');
   const inner = document.querySelector('.placement-row-inner');
   const bar = document.getElementById('action-bar');
-  if (!badge || !strip || !inner || !bar) return;
-
-  const colNode = inner.querySelector('.placement-col');
-  if (!colNode) {
-    badge.classList.remove('is-positioned');
+  if (!strip || !bar) {
+    positionDominoDiscardPile();
     return;
   }
 
-  const scale = viewportScale();
-  const stripRect = strip.getBoundingClientRect();
-  const colRect = colNode.getBoundingClientRect();
-  if (!colRect.width) {
-    badge.classList.remove('is-positioned');
-    return;
+  if (badge && inner) {
+    const colNode = inner.querySelector('.placement-col');
+    if (!colNode) {
+      badge.classList.remove('is-positioned');
+    } else {
+      const scale = viewportScale();
+      const stripRect = strip.getBoundingClientRect();
+      const colRect = colNode.getBoundingClientRect();
+      if (!colRect.width) {
+        badge.classList.remove('is-positioned');
+      } else {
+        const gap = toDesignPx(stripRect.top - colRect.bottom, scale);
+        const offsetY = dominoSeamOffsetY(gap);
+        const centerY = -offsetY + DOMINO_SPOT_DIE / 2;
+
+        const rollWrap = bar.querySelector('.roll-btn-wrap');
+        let centerX;
+        if (rollWrap) {
+          const wrapRect = rollWrap.getBoundingClientRect();
+          centerX = toDesignPx(wrapRect.right - stripRect.left, scale) - 36;
+        } else {
+          centerX = toDesignPx(stripRect.width, scale) - 36;
+        }
+
+        badge.style.left = `${centerX}px`;
+        badge.style.top = `${centerY}px`;
+        badge.classList.add('is-positioned');
+      }
+    }
   }
 
-  const gap = toDesignPx(stripRect.top - colRect.bottom, scale);
-  const offsetY = dominoSeamOffsetY(gap);
-  const centerY = -offsetY + DOMINO_SPOT_DIE / 2;
-
-  const rollWrap = bar.querySelector('.roll-btn-wrap');
-  let centerX;
-  if (rollWrap) {
-    const wrapRect = rollWrap.getBoundingClientRect();
-    // Fixed over roll-button die centre — right inset 36px (12px pad + half die), stable when KO expands wrap
-    centerX = toDesignPx(wrapRect.right - stripRect.left, scale) - 36;
-  } else {
-    centerX = toDesignPx(stripRect.width, scale) - 36;
-  }
-
-  badge.style.left = `${centerX}px`;
-  badge.style.top = `${centerY}px`;
-  badge.classList.add('is-positioned');
   positionDominoDiscardPile();
 }
 
@@ -151,8 +158,15 @@ export function renderDominoDiscardPile() {
   const strip = document.getElementById('domino-spot-strip');
   if (!strip) return;
 
+  const mode = isDominoHandMode() ? 'hand' : isDominoSpotsActive() ? 'spots' : 'none';
+  if (mode !== lastDiscardMode) {
+    lastDiscardRenderKey = '';
+    lastDiscardMode = mode;
+  }
+
   if (isDominoHandMode()) {
     renderDominoHand(strip);
+    syncDominoSpotsVisibility();
     return;
   }
 
@@ -183,8 +197,6 @@ export function renderDominoDiscardPile() {
   const firstShow = !pile.classList.contains('is-positioned');
   if (firstShow) pile.classList.remove('is-positioned');
 
-  positionDominoDiscardPile({ reveal: false });
-
   row.innerHTML = keys.map((key, i) => {
     const values = parseDominoKey(key);
     return dominoStackHTML(values, {
@@ -193,8 +205,10 @@ export function renderDominoDiscardPile() {
     });
   }).join('');
 
+  positionDominoDiscardPile({ reveal: false });
   positionDominoDiscardPile({ reveal: true });
   lastDiscardRenderKey = sig;
+  syncDominoSpotsVisibility();
 }
 
 function dominoHandRenderKey() {
@@ -227,20 +241,37 @@ function renderDominoHand(strip) {
   const firstShow = !pile.classList.contains('is-positioned');
   if (firstShow) pile.classList.remove('is-positioned');
 
-  positionDominoDiscardPile({ reveal: false });
-
   row.innerHTML = keys.map((key, i) => {
     const values = parseDominoKey(key);
     const selected = state.dominoHandPreviewKey === key;
+    const isNew = state.newDominoHandKeys.has(key);
+    let stackStyleVars = '';
+    if (isNew) {
+      const newIndex = keys.slice(0, i).filter(k => state.newDominoHandKeys.has(k)).length;
+      stackStyleVars = `--hand-enter-delay:${spd(newIndex * TRAY_STAGGER_MS)}ms`;
+    }
     return dominoStackHTML(values, {
       orientation: 'horizontal',
+      isNew,
+      stackStyleVars,
       attrs: ` data-hand-index="${i}" role="button" tabindex="0" aria-pressed="${selected ? 'true' : 'false'}"`,
       stackClassExtra: selected ? 'domino-hand-stack--selected' : '',
     });
   }).join('');
 
-  positionDominoDiscardPile({ reveal: true });
+  state.newDominoHandKeys.clear();
+
+  scheduleDominoDiscardPileReveal();
   lastDiscardRenderKey = sig;
+}
+
+function scheduleDominoDiscardPileReveal() {
+  positionDominoDiscardPile({ reveal: false });
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      positionDominoDiscardPile({ reveal: true });
+    });
+  });
 }
 
 export function positionDominoDiscardPile({ reveal = true } = {}) {

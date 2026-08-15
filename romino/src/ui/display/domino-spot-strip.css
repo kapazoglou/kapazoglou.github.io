@@ -71,6 +71,29 @@
   fill: #fff;
 }
 
+.domino-discard-pile--hand {
+  overflow: visible;
+}
+
+.domino-discard-pile--hand .domino-discard-pile-scroll {
+  overflow: visible;
+}
+
+.domino-spot-strip--nroll1-hand .domino-spot-strip-inner {
+  overflow: visible;
+}
+
+.domino-discard-pile--hand .domino-spot-stack.is-new {
+  opacity: 0;
+  transform: translateY(44px) scale(0.88);
+}
+
+.domino-discard-pile--hand.is-positioned .domino-spot-stack.is-new {
+  animation: action-bar-slide-in calc(0.32s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
+  animation-delay: var(--hand-enter-delay, 0ms);
+  transform-origin: center bottom;
+}
+
 .domino-spot-stack.is-new {
   animation: domino-spot-enter calc(0.22s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1) both;
 }
@@ -213,10 +236,20 @@
 .domino-discard-pile .domino-spot-stack-wrap {
   position: static;
   transform: none;
+  visibility: hidden;
+}
+
+.domino-discard-pile.is-positioned .domino-spot-stack-wrap {
   visibility: visible;
 }
 
-.domino-spot-strip.is-spots-hidden .domino-discard-pile {
+.domino-discard-pile.domino-discard-pile--spots-suppressed,
+.domino-discard-pile.domino-discard-pile--spots-suppressed.is-positioned {
+  visibility: hidden;
+}
+
+.domino-discard-pile.domino-discard-pile--spots-suppressed .domino-spot-stack-wrap,
+.domino-discard-pile.domino-discard-pile--spots-suppressed.is-positioned .domino-spot-stack-wrap {
   visibility: hidden;
 }
 

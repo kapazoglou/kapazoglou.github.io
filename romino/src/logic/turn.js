@@ -13,7 +13,6 @@ import {
   clearDominoTrayState,
   drawDominoRoll,
   canDrawDominoRoll,
-  canDrawDominoKeyFromPool,
   settleDominoQuadRoll,
   settleDominoRollOnConfirm,
   setCurrentRollOfferedKeys,
@@ -23,6 +22,7 @@ import {
   isDominoPairRollTray,
   isDominoHandMode,
   dominoHandBothDicePlaced,
+  isDominoHandAndPoolExhausted,
   lockHandDomino,
   refillDominoHandOne,
   clearHandPreviewState,
@@ -78,10 +78,7 @@ function isDominoQuadRoll() {
 /** Domino Roll: active pool cannot satisfy next draw (Spots ON: empty pool; Spots OFF: no reshuffles left). */
 function isDominoPoolRollBlocked() {
   if (!settings.dominoRoll) return false;
-  if (isDominoHandMode()) {
-    if (state.dominoHandKeys.length > 0) return false;
-    return !canDrawDominoKeyFromPool(1);
-  }
+  if (isDominoHandMode()) return isDominoHandAndPoolExhausted();
   if (settings.nRoll !== 2 && settings.nRoll !== 3 && settings.nRoll !== 4) return false;
   return !canDrawDominoRoll();
 }
@@ -123,6 +120,7 @@ export function canEndGame() {
   clampSettings();
   if (isDominoSpotAssignmentBlocked()) return true;
   if (isDominoPoolRollBlocked()) return true;
+  if (isDominoHandMode()) return false;
   if (isDominoQuadRoll()) {
     return rollAffordanceRemaining() < settings.nPlace;
   }
@@ -198,7 +196,7 @@ export function evaluateGameOver(context) {
     if (isDominoPoolRollBlocked()) return 'domino pool exhausted';
     if (isDominoQuadRoll()) {
       if (rollAffordanceRemaining() < settings.nPlace) return 'dice pool exhausted';
-    } else if (state.dicePool < settings.nRoll) {
+    } else if (!isDominoHandMode() && state.dicePool < settings.nRoll) {
       return 'dice pool exhausted';
     }
   }

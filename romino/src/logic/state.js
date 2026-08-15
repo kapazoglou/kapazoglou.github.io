@@ -92,6 +92,8 @@ export function createInitialState() {
     dominoHandLocked: false,
     /** nRoll=1 hand preview — tray die ids spawned for current preview (revert cleanup). */
     dominoHandPreviewDieIds: [],
+    /** nRoll=1 hand — keys that just entered the hand (slide-in anim). */
+    newDominoHandKeys: new Set(),
     /** Domino spots — combo keys offered this roll. */
     dominoOfferedKeys: [],
     /** Domino spots — spot 1: used domino key this roll. */

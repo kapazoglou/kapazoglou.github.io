@@ -1,7 +1,7 @@
 ---
 module: domino-spots
 layer: logic
-v: 1.23
+v: 1.24
 date: 2026-08-15
 deps: [state, settings, domino-roll, row, star-powers]
 ---
@@ -17,7 +17,7 @@ Logic-only relationship between domino combo pool and row columns when `dominoSp
 - **Starting Dice** columns: pool draw via `startingDominoSpotCols`
 - **Bugger Singles** lone-outer columns: offer bind when slots free
 - Assignment on **placement/vacate events** — no offer rebind on render
-- Offer slots exhausted when a column needs a key → `dominoSpotAssignmentGameOverReason()` → game over
+- Offer slots exhausted when a column needs a key → `dominoSpotAssignmentGameOverReason()` → game over (**nRoll=1 hand:** deferred while `dominoHandKeys` non-empty)
 - Pre-confirm vacate: offer keys **unbind** (slot freed); starting keys **`returnKeyToPool`**
 - v1.14 — used die stacked onto unused-slot column → rebind to **used**
 - v1.15 — vacate used-slot → promote remaining unused-slot column to **used**

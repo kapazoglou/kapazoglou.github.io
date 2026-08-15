@@ -13,7 +13,7 @@ lastVerified: 2026-08-15
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` (nRoll=1 hand preview) |
+| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` / `newDominoHandKeys` (nRoll=1 hand preview) |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
 | Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingStars`, `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `pushSwapStars`, `buggerSingles`, `tutoria` |
@@ -32,6 +32,22 @@ lastVerified: 2026-08-15
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **domino-roll.js v1.38, domino-spots.js v1.24, turn.js v2.58** — nRoll=1 + Spots: domino loss only when hand+pool both empty; spot KO deferred while hand has dominos
+
+- **domino-spot-strip.js v2.36, domino-spot-strip.css v2.36** — nRoll>1 discard pile respects spot visibility toggle; nRoll=1 hand exempt
+
+- **domino-spot-strip.js v2.35, domino-spot-strip.css v2.35** — hand enter off-screen + overflow visible + deferred reveal
+
+- **settings.js v2.45** — fix SETTINGS_CONFIG parse error (app boot)
+
+- **domino-spot-strip.js v2.34, domino-spot-strip.css v2.34** — hand visibility + discard pile layout without deck badge
+
+- **domino-spot-strip.css v2.33** — nRoll=1 hand visible again (`visibility: inherit` on pile wraps)
+
+- **domino-spot-strip.js v2.32, domino-spot-strip.css v2.32, domino-roll.js v1.37** — hand domino init flash fix (visibility inherit, positioned-only anim, refill-only slide-in)
+
+- **domino-roll.js v1.36, state.js v2.38, domino-spot-strip.js v2.31, domino-spot-strip.css v2.31** — nRoll=1 hand incoming domino slide-in (tray dice anim)
 
 - **domino-spot-strip.css v2.30** — nRoll=1 hand: no accent outline on selected domino
 

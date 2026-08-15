@@ -161,6 +161,7 @@ export function syncAllRowDominoSpots() {
 /** @returns {string|null} */
 export function dominoSpotAssignmentGameOverReason() {
   if (!isDominoSpotsActive()) return null;
+  if (settings.dominoRoll && settings.nRoll === 1 && state.dominoHandKeys.length > 0) return null;
   for (const col of getRowDominoSpotCols()) {
     if (!getDominoKeyForCol(col)) return 'domino pool exhausted';
   }
