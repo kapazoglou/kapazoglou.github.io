@@ -1,7 +1,7 @@
 ---
 module: domino-spots
 layer: logic
-v: 1.24
+v: 1.25
 date: 2026-08-15
 deps: [state, settings, domino-roll, row, star-powers]
 ---
@@ -12,8 +12,8 @@ Logic-only relationship between domino combo pool and row columns when `dominoSp
 ## Invariant
 - **Every live row column** must have a `dominoKey` until sweep
 - **nRoll=4 + nPlace=2** — both columns bind from roll **offers** (used / unused)
-- **nRoll=1 hand** — both columns bind **used offer** from preview (`bindDominoSpotFromOffer(col, 0, { force: true })`); same domino key on two cols allowed this turn; star reroll (no offer) falls back to pool draw; revert on hand switch vacates spot cols
-- **nRoll=2 or 3 + nPlace=2** — 1st column = **used offer**; 2nd column = **pool draw**
+- **nRoll=1 hand** — 1st column = **used offer** (selected domino preview); 2nd column = **pool draw**; star reroll → spot 0 = **reserved offer** (not discarded until confirm); spot 1 = pool draw; discard reserved on confirm if 0 new cols; revert on hand switch vacates spot cols
+- **nRoll=2 or 3 + nPlace=2** — 1st column = **used offer**; 2nd column = **pool draw**; star reroll (nRoll=2 only) → same reserve rule as hand
 - **Starting Dice** columns: pool draw via `startingDominoSpotCols`
 - **Bugger Singles** lone-outer columns: offer bind when slots free
 - Assignment on **placement/vacate events** — no offer rebind on render

@@ -1,7 +1,7 @@
 ---
 module: domino-roll
 layer: logic
-v: 1.38
+v: 1.39
 date: 2026-08-15
 deps: [state, settings, deck-size, game-log]
 ---
@@ -46,12 +46,12 @@ Depleting multiset combo pools for `dominoRoll` ON when `nRoll` is 1, 2, 3, or 4
 - `revertHandPreviewTurn()` — purge preview row placements + spot vacate; clear tray preview dice
 - `lockHandDomino()` — splice preview key from hand; set `dominoHandCommittedKey`; `dominoHandLocked = true`
 - `dominoHandBothDicePlaced()`, `isDominoHandPreviewActive()`, `isDominoHandLocked()`, `clearHandPreviewState()`
-- Star reroll: `discardOfferedDominoKeys()` removes preview domino from hand; `dominoHandLocked = true`
+- Star reroll: `discardOfferedDominoKeys()` removes preview domino from hand; **Spots ON** reserves used key in `dominoStarRerollUsedKey` (discard deferred to confirm); **Spots OFF** discards immediately; `dominoHandLocked = true`
 - `selectDominoHandIndex()` — alias to `previewHandDomino`
 
 ## nRoll=2 domino pair tray
 - Seamless pair (0 gap) on initial roll offer only (`isDominoPairTraySeamless()`); after star-pay redraw, normal 20px gap
-- Star-pay: discard offered combo → two random tray dice; **no pool draw** (deck counter unchanged); once per roll
+- Star-pay: discard offered combo → two random tray dice; **no pool draw** (deck counter unchanged); once per roll; **Spots ON** defers used-offer discard to confirm (see `dominoStarRerollUsedKey`)
 - `canApplyDominoPairReroll()`, `canShowDominoPairReroll()`, `discardOfferedDominoKeys()`
 - `isDominoPairRollTray()`, `isDominoPairTraySeamless()`
 

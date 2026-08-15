@@ -456,7 +456,13 @@ export function discardOfferedDominoKeys() {
     state.dominoHandPreviewKey = null;
     state.dominoHandSelectedIndex = null;
   }
-  for (const key of state.dominoOfferedKeys) discardDominoKey(key);
+  const keys = [...state.dominoOfferedKeys];
+  if (isDominoSpotsActive() && keys.length > 0) {
+    state.dominoStarRerollUsedKey = keys[0];
+    for (let i = 1; i < keys.length; i++) discardDominoKey(keys[i]);
+  } else {
+    for (const key of keys) discardDominoKey(key);
+  }
   state.dominoOfferedKeys = [];
   state.dominoHandCommittedKey = null;
   syncDominoDeckCount();

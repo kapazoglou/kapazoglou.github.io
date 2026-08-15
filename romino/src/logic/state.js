@@ -100,6 +100,8 @@ export function createInitialState() {
     dominoUsedKey: null,
     /** Domino spots — spot 2: unused domino key (nRoll=4). */
     dominoUnusedKey: null,
+    /** Domino spots — used offer reserved after star reroll (Spots ON; discard on confirm if unbound). */
+    dominoStarRerollUsedKey: null,
     /** Domino spots — column ids that received tray dice this turn, in first-use order. */
     dominoSpotCols: [],
     /** Domino spots — spot cols created this turn (deck tick on confirm). */

@@ -16,6 +16,10 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spot-strip.js v2.37** — nRoll=1 hand: seam spot dominoes stay 33% opacity after column converts to tile (`--under-dice` includes tiles)
+
+- **domino-roll.js v1.39, domino-spots.js v1.25, state.js v2.39** — Spots ON star reroll: reserve used offer for 1st new column (`dominoStarRerollUsedKey`); discard on confirm only if 0 new cols; Spots OFF unchanged
+
 - **domino-roll.js v1.38, domino-spots.js v1.24, turn.js v2.58** — nRoll=1 + Spots: game over only when domino hand and pool both empty (not pool alone); spot-assignment KO deferred while hand has dominos; hand mode skips dice-pool idle loss
 
 - **domino-spot-strip.js v2.36, domino-spot-strip.css v2.36** — spot visibility toggle: nRoll>1 discard pile follows deck badge (`--spots-suppressed`); nRoll=1 hand exempt; fixes child wrap leak
@@ -37,6 +41,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 - **domino-spot-strip.css v2.29** — nRoll=1 hand + seam under-dice dim: 33% opacity (was 66%)
 
 - **domino-spot-strip.js v2.28, domino-spot-strip.css v2.28** — nRoll=1 hand: unselected dominos 66% opacity while previewing; locked hand 66% (was 45%); seam spots under placed dice 66%
+
+- **domino-spots.js v1.24** — nRoll=1 hand: 1st spot col = selected domino offer; 2nd = pool draw (was same key on both)
 
 - **domino-roll.js v1.35, turn.js v2.57, domino-spots.js v1.23, row.js v1.91, state.js v2.37, action-bar.js v1.73, handlers.js v2.17, domino-spot-strip.js v2.27, domino-spot-strip.css v2.27** — nRoll=1 hand preview: tap domino → pair tray (stays in hand); switch reverts row/tray/spots; both dice placed → roll lock+confirm; star reroll locks early; no idle roll; 2 dice / 1 domino per turn; Spots same-key two-col bind
 

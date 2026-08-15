@@ -33,12 +33,14 @@ export function setDominoOfferedKeys(keys) {
   setCurrentRollOfferedKeys(keys);
   state.dominoUsedKey = null;
   state.dominoUnusedKey = null;
+  state.dominoStarRerollUsedKey = null;
 }
 
 export function clearDominoSpotsRollState() {
   state.dominoOfferedKeys = [];
   state.dominoUsedKey = null;
   state.dominoUnusedKey = null;
+  state.dominoStarRerollUsedKey = null;
   state.dominoSpotCols = [];
   state.dominoSpotsCreatedThisTurn = [];
   state.newDominoSpotCols.clear();
@@ -48,6 +50,7 @@ function clearDominoSpotsOfferState() {
   state.dominoOfferedKeys = [];
   state.dominoUsedKey = null;
   state.dominoUnusedKey = null;
+  state.dominoStarRerollUsedKey = null;
   state.dominoSpotsCreatedThisTurn = [];
 }
 
@@ -298,7 +301,10 @@ function assignDominoForNewColumn(dieId, col) {
   if (getDominoKeyForCol(col)) return true;
 
   if (settings.nRoll === 1) {
-    if (getDominoSpotKey(0)) return bindDominoSpotFromOffer(col, 0, { force: true });
+    if (spotIndex === 0) {
+      if (bindDominoSpotFromOffer(col, 0)) return true;
+      return bindDominoSpotFromPool(col);
+    }
     return bindDominoSpotFromPool(col);
   }
   if (settings.nRoll === 4) {
@@ -414,9 +420,13 @@ export function settleDominoSpotsOnConfirm(placedDieIds) {
   if (!isDominoSpotsActive()) return;
 
   const offered = state.dominoOfferedKeys;
-  if (!offered.length) return;
+  const candidates = [...new Set([
+    ...offered,
+    ...(state.dominoStarRerollUsedKey ? [state.dominoStarRerollUsedKey] : []),
+  ])];
+  if (!candidates.length) return;
 
-  if (!state.dominoUsedKey && placedDieIds.size > 0) {
+  if (!state.dominoUsedKey && placedDieIds.size > 0 && offered.length) {
     if (settings.nRoll === 4 && state.dominoPairGroups) {
       const placed0 = state.dominoPairGroups[0].some(id => placedDieIds.has(id));
       const placed1 = state.dominoPairGroups[1].some(id => placedDieIds.has(id));
@@ -431,7 +441,7 @@ export function settleDominoSpotsOnConfirm(placedDieIds) {
   const assigned = new Set(
     state.dominoSpotsCreatedThisTurn.map(c => getDominoKeyForCol(c)).filter(Boolean),
   );
-  for (const key of offered) {
+  for (const key of candidates) {
     if (!assigned.has(key)) discardDominoKey(key);
   }
 
@@ -466,7 +476,7 @@ export function releaseDominoKeysForCols(cols) {
 /** @param {number} spotIndex @returns {string | null} */
 export function getDominoSpotKey(spotIndex) {
   if (!isDominoSpotsActive()) return null;
-  if (spotIndex === 0) return state.dominoUsedKey;
+  if (spotIndex === 0) return state.dominoUsedKey ?? state.dominoStarRerollUsedKey;
   if (spotIndex === 1) return state.dominoUnusedKey;
   return null;
 }
@@ -495,6 +505,10 @@ export function isDieFromUsedDomino(dieId) {
     return state.dominoOfferedKeys.length === 1;
   }
 
+  if (state.dominoStarRerollUsedKey && !state.dominoOfferedKeys.length) {
+    return state.actionBar.includes(dieId) || state.placedDieIds.has(dieId);
+  }
+
   if (settings.nRoll === 4) return getDominoPairIndex(dieId) != null;
   return state.dominoOfferedKeys.length === 1
     && (state.actionBar.includes(dieId) || state.placedDieIds.has(dieId));
@@ -504,6 +518,7 @@ export function isDieFromUsedDomino(dieId) {
 export function getDominoKeyForDie(dieId) {
   if (!isDieFromUsedDomino(dieId)) return null;
   if (state.dominoUsedKey) return state.dominoUsedKey;
+  if (state.dominoStarRerollUsedKey) return state.dominoStarRerollUsedKey;
   if (settings.nRoll === 4) {
     const idx = getDominoPairIndex(dieId);
     return idx != null ? state.dominoOfferedKeys[idx] ?? null : null;

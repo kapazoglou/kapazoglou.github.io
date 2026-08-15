@@ -1,7 +1,7 @@
 ---
 module: domino-spot-strip
 layer: ui/display
-v: 2.36
+v: 2.37
 date: 2026-08-15
 deps: [domino-spots.js, domino-roll.js, dice-visual.js, flank-stacks.js, render.js]
 ---
@@ -11,7 +11,7 @@ Between-zone domino glyphs on the row↔tray seam when `dominoSpots` ON. Horizon
 
 **Discard pile** (dominoSpots ON): horizontal `dominoStackHTML({ orientation: 'horizontal' })` stacks in a horizontal LTR row (2px gap, wraps) under the roll button; six pips upright (tray rule); X-centred in strip band; vertically centred in band when content fits, `overflow-y: auto` when wrapped rows exceed band; equal top/bottom/left/right inset when centred; hidden with seam spots via deck-badge toggle.
 
-**Domino hand** (nRoll=1 + dominoRoll): same band as discard pile; 7 selectable horizontal stacks; 30px gap; discards hidden; unselected stacks 33% opacity while previewing; `--locked` disables hand taps + 33% all stacks after star reroll / lock; +1 refill slide-in like tray dice (starts below final position; hand container `overflow: visible`); pile revealed after layout (double rAF). **nRoll=1 seam spots** under placed dice: 33% opacity (`--under-dice`).
+**Domino hand** (nRoll=1 + dominoRoll): same band as discard pile; 7 selectable horizontal stacks; 30px gap; discards hidden; unselected stacks 33% opacity while previewing; `--locked` disables hand taps + 33% all stacks after star reroll / lock; +1 refill slide-in like tray dice (starts below final position; hand container `overflow: visible`); pile revealed after layout (double rAF). **nRoll=1 seam spots** under row content (dice stack or converted tile): 33% opacity (`--under-dice`).
 
 ## Exports
 - `setDominoSpotStackDragSuppressed(col, suppressed)` — hide one stack during sole-die spot drag (no strip rebuild)

@@ -431,8 +431,11 @@ function syncDominoSpotUnderDiceOpacity(strip) {
   for (const el of strip.querySelectorAll('.domino-spot-stack-wrap[data-col]')) {
     const col = Number(el.dataset.col);
     const column = state.row[col];
-    const underDice = column?.kind === 'stack' && column.dice.length > 0;
-    el.classList.toggle('domino-spot-stack-wrap--under-dice', underDice);
+    const underContent = column && (
+      column.kind === 'tile' ||
+      (column.kind === 'stack' && column.dice.length > 0)
+    );
+    el.classList.toggle('domino-spot-stack-wrap--under-dice', underContent);
   }
 }
 

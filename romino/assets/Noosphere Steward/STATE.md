@@ -13,7 +13,7 @@ lastVerified: 2026-08-15
 
 | Domain | Home | Notes |
 |--------|------|-------|
-| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` / `newDominoHandKeys` (nRoll=1 hand preview) |
+| Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` / `newDominoHandKeys` (nRoll=1 hand preview) / `dominoStarRerollUsedKey` (Spots ON star reroll reserve) |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
 | Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingStars`, `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `pushSwapStars`, `buggerSingles`, `tutoria` |
@@ -32,6 +32,12 @@ lastVerified: 2026-08-15
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **domino-spot-strip.js v2.37** — nRoll=1 hand: seam spot 33% opacity persists after convert (tile cols keep `--under-dice`)
+
+- **domino-roll.js v1.39, domino-spots.js v1.25, state.js v2.39** — Spots ON star reroll: reserve used offer for 1st new column; discard on confirm only if 0 new cols
+
+- **domino-spots.js v1.24** — nRoll=1 hand: 1st spot col = selected domino offer; 2nd = pool draw
 
 - **domino-roll.js v1.38, domino-spots.js v1.24, turn.js v2.58** — nRoll=1 + Spots: domino loss only when hand+pool both empty; spot KO deferred while hand has dominos
 

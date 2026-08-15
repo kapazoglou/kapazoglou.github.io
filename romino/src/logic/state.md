@@ -1,7 +1,7 @@
 ---
 module: state
 layer: logic
-v: 2.38
+v: 2.39
 date: 2026-08-15
 deps: []
 ---
@@ -24,7 +24,7 @@ Single source of truth for v2 row game.
 - `dominoPairGroups`, `dominoChosenPairIndex`, `dominoPairComboKeys` — nRoll=4 dual-pair tray + confirm settle
 - `dominoPairRerollAvailable` — nRoll=2 ↺ reroll once per roll
 - `dominoHandKeys`, `dominoHandSelectedIndex`, `dominoHandCommittedKey`, `dominoHandPreviewKey`, `dominoHandLocked`, `dominoHandPreviewDieIds`, `newDominoHandKeys` — nRoll=1 hand preview/lock mode
-- `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoColSpotSlot`, `startingDominoSpotCols`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
+- `dominoOfferedKeys`, `dominoUsedKey`, `dominoUnusedKey`, `dominoStarRerollUsedKey`, `dominoSpotCols`, `dominoSpotKeys`, `dominoColSpotSlot`, `startingDominoSpotCols`, `dominoSpotsCreatedThisTurn`, `newDominoSpotCols` — domino spots roll state when `dominoSpots` ON
 - `pushBelowDieIds` — dies placed via push-below this turn (return refunds `pushBelowStarCost()`)
 - `swapStackCols` — columns star-paid stack swap this turn (tap refunds 1 star + reverses order)
 - `flippedDieIds` — tray dice star-flipped (odd flips) this turn (return to bar refunds 1 star + reverts face)
