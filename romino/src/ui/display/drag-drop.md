@@ -1,7 +1,7 @@
 ---
 module: drag-drop
 layer: ui/display
-v: 2.47
+v: 2.49
 date: 2026-08-15
 deps: [state, settings, row, dice-visual, placement-anim, render, placement-input, stack-swap-anim]
 ---
@@ -14,15 +14,16 @@ As a player, I want to drag dice from the tray onto the row. Dropping in a valid
 - `consumeRowClickBlock()` — one-shot guard so return-to-bar tap is not followed by a row click re-place
 
 ## Die drag
+- Tap on returnable placed die **returns before push-below** (avoids red flash when a tray die is selected)
+- **Row→tray return** — placed die: tray band, full action-bar band below row (incl. Domino discard pile), or flyer over either; reposition drop on row no longer flashes invalid
+- **Star Powers stack swap refund** — tap swapped stack (`.die--swap-refundable`) reverses order + refunds 1 star; return returnable die from swapped col also refunds star (see [[stack-swap-anim]])
 - Tap on returnable (this-turn, top-of-stack) placed die returns it to the tray and keeps it selected; tray die tap toggles selection (inactive tray 1/6 remain selectable when `rerollOuter` ON)
-- **Star Powers stack swap refund** — tap swapped stack (`.die--swap-refundable`) reverses order + refunds 1 star; when a tray die is selected and push-below is valid on that bottom die, push runs first (no refund); return returnable die from swapped col also refunds star (see [[stack-swap-anim]])
-- **`rerollOuter` ON** — reroll via `#hud-star-pay` tap (selected outer) or star drag onto tray 1/6; tap disabled when `starPowers` ON — see [[star-reroll-input]]
 - Drag to action bar still clears selection
 - Drag uses the same `.placement-die-flyer` as commit placement — spawns at the source die's exact position in `.viewport-inner`, then follows the pointer; hands off on drop (no separate `#drag-ghost`)
 - Tray die removed from action bar on drag start; cancelled / illegal drop restores bar via `renderActionBar()`
 - Cancelled row reposition (illegal drop / no valid slot) restores die via full `render()` — not `renderSelection()` (reposition collapse + drag-source hiding must be rebuilt from state)
-- **Cancel zone** — pointer below `#placement-row` and outside `#action-bar-dice` cancels the drag (no snap commit, no placement, no return); snap ghost + gap spread clear while dragging through this zone
-- Return-to-tray uses **dice-tray rect** (`#action-bar-dice`) only — not full `#action-bar` padding (40px band below row was falsely triggering push-below star refund + return)
+- **Cancel zone** — pointer below `#placement-row` and outside `#action-bar-dice` cancels the drag (no snap commit, no placement, no return); snap ghost + gap spread clear while dragging through this zone — **except** row→tray return (see below)
+- **Row→tray return** — placed die only: accept pointer or drag flyer over `#action-bar-dice`, action-bar band below `#placement-row` (through discard pile), or flyer over either; tray-from-bar drags still use dice-tray rect only
 - Drag return clears `state.draggingDieId` before tray `render()` so the die is not omitted from `buildDiceTrayHTML`
 - Sole-die row reposition: source gap closes on drag via `reposition-collapse`
 - Push-below return drag: upper dice shift down one stack step on drag start via `beginPushReturnCollapse` (column height unchanged — row baseline preserved)

@@ -60,8 +60,63 @@ function isPointerOnDiceTray(clientX, clientY) {
     && clientY >= r.top && clientY <= r.bottom;
 }
 
+/** Action-bar band above roll button — tray + top padding (row→tray drops only). */
+function isActionBarTrayBand(clientX, clientY) {
+  const bar = document.getElementById('action-bar');
+  if (!bar) return false;
+  const barRect = bar.getBoundingClientRect();
+  if (clientX < barRect.left || clientX > barRect.right
+    || clientY < barRect.top || clientY > barRect.bottom) {
+    return false;
+  }
+  const rollWrap = bar.querySelector('.roll-btn-wrap');
+  if (!rollWrap) return isPointerOnDiceTray(clientX, clientY);
+  const rollTop = rollWrap.getBoundingClientRect().top;
+  return clientY < rollTop;
+}
+
+/**
+ * Row → tray return hit-test — pointer and/or drag flyer (flyer sits above finger).
+ * Domino Spots discard pile sits below the roll button in the cancel zone; the flyer
+ * often overlaps the tray while the finger does not.
+ */
+function isRowReturnDrop(clientX, clientY) {
+  if (isPointerOnDiceTray(clientX, clientY)) return true;
+  if (!isPointerOnPlacementRow(clientX, clientY) && isActionBarTrayBand(clientX, clientY)) {
+    return true;
+  }
+  const pt = flyerResolvePoint();
+  if (!pt) return false;
+  if (isPointerOnDiceTray(pt.x, pt.y)) return true;
+  return isActionBarTrayBand(pt.x, pt.y);
+}
+
+/** Placed die → tray: row band below placement row through action bar (incl. discard pile). */
+function isPlacedDieReturnBand(clientX, clientY) {
+  const rowEl = document.getElementById('placement-row');
+  const bar = document.getElementById('action-bar');
+  if (!rowEl || !bar) return false;
+  const rowRect = rowEl.getBoundingClientRect();
+  const barRect = bar.getBoundingClientRect();
+  if (clientY <= rowRect.bottom) return false;
+  if (clientY > barRect.bottom) return false;
+  if (clientX < barRect.left || clientX > barRect.right) return false;
+  return true;
+}
+
+/** Placed die row→tray — tray band, discard pile, or flyer over either. */
+function isPlacedDieReturnDrop(clientX, clientY) {
+  if (isRowReturnDrop(clientX, clientY)) return true;
+  if (isPlacedDieReturnBand(clientX, clientY)) return true;
+  const pt = flyerResolvePoint();
+  if (!pt) return false;
+  if (isRowReturnDrop(pt.x, pt.y)) return true;
+  return isPlacedDieReturnBand(pt.x, pt.y);
+}
+
 /** Below the row and not on the dice tray — cancel drag (no snap commit, no return). */
-function isDropCancelZone(clientX, clientY) {
+function isDropCancelZone(clientX, clientY, { allowPlacedReturn = false } = {}) {
+  if (allowPlacedReturn && isPlacedDieReturnDrop(clientX, clientY)) return false;
   return !isPointerOnPlacementRow(clientX, clientY)
     && !isPointerOnDiceTray(clientX, clientY);
 }
@@ -221,6 +276,22 @@ function handleDieTap(dieEl) {
     if (!state.placedDieIds.has(dieId)) return null;
 
     if (
+      isSwapRefundableDie(dieId)
+      && !isReturnablePlacedDie(dieId)
+    ) {
+      const loc = findDieColumn(dieId);
+      if (loc && tryRefundSwapStack(loc.col)) return 'refund-swap';
+    }
+
+    if (isReturnablePlacedDie(dieId)) {
+      if (returnDieToBarWithStarRefund(dieId, !isDominoQuadRollActive())) {
+        if (isDominoQuadRollActive()) onDominoDieReturnedToTray(dieId);
+        else state.selectedDieId = dieId;
+        return 'return';
+      }
+    }
+
+    if (
       state.selectedDieId != null
       && state.actionBar.includes(state.selectedDieId)
       && state.phase === 'rolled'
@@ -230,16 +301,6 @@ function handleDieTap(dieEl) {
       if (pushResult === 'invalid') return 'push-invalid';
     }
 
-    if (isSwapRefundableDie(dieId) && !isReturnablePlacedDie(dieId)) {
-      const loc = findDieColumn(dieId);
-      if (loc && tryRefundSwapStack(loc.col)) return 'refund-swap';
-    }
-
-    if (returnDieToBarWithStarRefund(dieId, !isDominoQuadRollActive())) {
-      if (isDominoQuadRollActive()) onDominoDieReturnedToTray(dieId);
-      else state.selectedDieId = dieId;
-      return 'return';
-    }
     return null;
   }
 
@@ -353,7 +414,8 @@ function onPointerMove(e) {
     }
     if (settings.directPlacement) {
       const validSlots = getValidSlotsForDie(dragDieId);
-      if (isDropCancelZone(e.clientX, e.clientY)) {
+      const returningPlaced = state.placedDieIds.has(dragDieId);
+      if (isDropCancelZone(e.clientX, e.clientY, { allowPlacedReturn: returningPlaced })) {
         activeSnapSlot = null;
         updateSnapGhost(null);
         clearInsertHoverSpread(false);
@@ -411,13 +473,10 @@ function resolveDrop(e) {
   if (isDragging) {
     let animHandled = false;
     let returnedToBar = false;
-    const cancelDrop = isDropCancelZone(e.clientX, e.clientY);
+    const returningPlaced = state.placedDieIds.has(dragDieId);
+    const cancelDrop = isDropCancelZone(e.clientX, e.clientY, { allowPlacedReturn: returningPlaced });
 
-    if (
-      !cancelDrop
-      && state.placedDieIds.has(dragDieId)
-      && isPointerOnDiceTray(e.clientX, e.clientY)
-    ) {
+    if (returningPlaced && isPlacedDieReturnDrop(e.clientX, e.clientY)) {
       // Clear before render — buildDiceTrayHTML hides state.draggingDieId.
       state.draggingDieId = null;
       returnedToBar = returnDieToBarWithStarRefund(dragDieId);
@@ -453,6 +512,7 @@ function resolveDrop(e) {
         const stackY = flyerPt?.y ?? e.clientY;
         const result = attemptPlacementAtPoint(
           dragDieId, e.clientX, e.clientY, stackY, dragFlyer,
+          { suppressInvalidFlash: returningPlaced },
         );
         if (result === 'placed') {
           dragFlyer = null;

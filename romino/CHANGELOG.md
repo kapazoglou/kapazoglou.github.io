@@ -16,6 +16,26 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **domino-spots.js v1.33** — settled columns immutable: `isSettledDominoSpotCol` guards all bind/vacate/rebind paths; clear `dominoColSpotSlot` on confirm
+
+- **domino-spots.js v1.32, row.js v1.93** — spot slot 0/1 scoped to `dominoSpotsCreatedThisTurn` (fixes post-confirm new-col allocation); reposition merge path enforces single-column used; `syncDominoSpotInvariants` at `placeDie` exit
+
+- **domino-spots.js v1.31** — invariant: one live turn spot col → used domino always (pool reserve unbinds on return/merge)
+
+- **domino-spots.js v1.30, row.js v1.92** — stack/reposition used die onto pool-reserve column: bind used only; pool reserve returns to dominoUnusedKey
+
+- **domino-spots.js v1.29, state.js v2.40** — sticky slot per col on vacate; confirm assigned keys from live spot slots; nRoll≠4 no stack-rebind; pool reserve sync from bound cols
+
+- **drag-drop.js v2.49, placement-input.js v1.7** — row→tray return: tap return before push-below; wider placed-die drop band (incl. discard pile); no invalid flash on cancelled reposition
+
+- **domino-spots.js v1.28** — confirm: unassigned turn pool reserve returns to pool (not discard pile)
+
+- **domino-spots.js v1.27** — fix spot assignment: use next free slot (not turn-list length); reserve pool draw on 1st column; keep reservations while roll offers live after full vacate
+
+- **domino-spots.js v1.26** — spot-1 pool draw cached in `dominoUnusedKey` (stable across vacate/re-place until confirm); sync no longer clears cache; confirm discards unassigned pool draw
+
+- **drag-drop.js v2.48** — row→tray return: accept drag flyer + action-bar band above roll button (Domino Spots discard pile no longer cancels return)
+
 - **domino-spot-strip.js v2.37** — nRoll=1 hand: seam spot dominoes stay 33% opacity after column converts to tile (`--under-dice` includes tiles)
 
 - **domino-roll.js v1.39, domino-spots.js v1.25, state.js v2.39** — Spots ON star reroll: reserve used offer for 1st new column (`dominoStarRerollUsedKey`); discard on confirm only if 0 new cols; Spots OFF unchanged

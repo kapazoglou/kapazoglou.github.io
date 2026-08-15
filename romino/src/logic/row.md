@@ -1,7 +1,7 @@
 ---
 module: row
 layer: logic
-v: 1.91
+v: 1.93
 date: 2026-08-15
 deps: [state, settings, domino-roll, domino-spots, dealt-strip, nine-cubes, monotonic, star-powers, game-log]
 ---

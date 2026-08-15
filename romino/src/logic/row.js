@@ -10,6 +10,7 @@ import {
   ensureDominoSpotForCol,
   isDominoSpotsActive,
   maybeRebindDominoSpotToUsed,
+  syncDominoSpotInvariants,
 } from './domino-spots.js';
 import { recordStarSpent } from './game-log.js';
 import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
@@ -935,7 +936,7 @@ export function placeDie(dieId, slot) {
     }
   }
 
-  if (fromBar && (slot.kind === 'stack' || slot.kind === 'stack-below')) {
+  if (slot.kind === 'stack' || slot.kind === 'stack-below') {
     maybeRebindDominoSpotToUsed(targetCol, dieId);
   }
 
@@ -944,6 +945,8 @@ export function placeDie(dieId, slot) {
   if (isDominoSpotsActive() && state.row[targetCol] && !ensureDominoSpotForCol(targetCol)) {
     return 'domino-exhausted';
   }
+
+  if (isDominoSpotsActive()) syncDominoSpotInvariants();
 
   state.selectedDieId = null;
   return true;

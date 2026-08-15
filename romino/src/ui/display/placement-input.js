@@ -62,23 +62,30 @@ export function attemptPushBelowOnBottomDie(dieId, bottomDieEl) {
 }
 
 /** @returns {'placed' | 'invalid' | 'none'} */
-export function attemptPlacementAtPoint(dieId, clientX, clientY, stackY = clientY, existingFlyer = null) {
+export function attemptPlacementAtPoint(
+  dieId,
+  clientX,
+  clientY,
+  stackY = clientY,
+  existingFlyer = null,
+  { suppressInvalidFlash = false } = {},
+) {
   const onRow = isPointerOnPlacementRow(clientX, clientY);
   const validSlots = getValidSlotsForDie(dieId);
   const slot = resolveSlotFromPointer(clientX, clientY, stackY, { dieId, validSlots });
 
   if (!slot) {
-    if (onRow) flashInvalidPlacement();
+    if (onRow && !suppressInvalidFlash) flashInvalidPlacement();
     return 'none';
   }
 
   if (validSlots.some(s => slotsEqual(s, slot))) {
     const flyer = slot.kind === 'stack-below' ? null : existingFlyer;
     if (placeDieWithAnim(dieId, slot, flyer)) return 'placed';
-    flashInvalidPlacement();
+    if (!suppressInvalidFlash) flashInvalidPlacement();
     return 'invalid';
   }
 
-  flashBlockedPlacement(dieId, slot);
+  if (!suppressInvalidFlash) flashBlockedPlacement(dieId, slot);
   return 'invalid';
 }

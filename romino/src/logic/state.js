@@ -130,6 +130,8 @@ export function createInitialState() {
     startingDominoSpotCols: new Set(),
     /** Domino spots — offer slot consumed per col: 0 = used, 1 = unused. */
     dominoColSpotSlot: {},
+    /** Domino spots — col → slot to restore when the same col is re-placed after vacate. */
+    dominoColVacatedSlot: {},
     sweepExit: null,
     sweepExitBeatTimer: null,
     sweepExitDoneTimer: null,

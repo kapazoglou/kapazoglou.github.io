@@ -33,6 +33,26 @@ lastVerified: 2026-08-15
 
 ## Modified this session
 
+- **drag-drop.js v2.48** — row→tray return hit-test: flyer + tray band above roll btn (Spots discard pile cancel fix)
+
+- **domino-spots.js v1.33** — settled column domino keys immutable after confirm; slot metadata cleared on confirm
+
+- **domino-spots.js v1.32, row.js v1.93** — spot 0/1 assignment scoped to `dominoSpotsCreatedThisTurn` (post-confirm new cols); single-column used on reposition merge; `syncDominoSpotInvariants` in `placeDie`
+
+- **domino-spots.js v1.31** — one turn spot col → used domino invariant (return first die)
+
+- **domino-spots.js v1.30, row.js v1.92** — used die onto pool-reserve col: used only; reserve unbinds
+
+- **domino-spots.js v1.29, state.js v2.40** — sticky col→slot on vacate; confirm uses live spot slots; pool reserve sync
+
+- **drag-drop.js v2.49, placement-input.js v1.7** — row→tray: return-before-push tap; wider placed-die drop band; no invalid flash on cancelled reposition
+
+- **domino-spots.js v1.28** — confirm: unassigned turn pool reserve → returnKeyToPool (not discard)
+
+- **domino-spots.js v1.27** — next-free-slot assignment; pool draw reserved on 1st col; turn reservations survive full vacate pre-confirm
+
+- **domino-spots.js v1.26** — spot-1 pool draw cached in dominoUnusedKey; stable vacate/re-place until confirm
+
 - **domino-spot-strip.js v2.37** — nRoll=1 hand: seam spot 33% opacity persists after convert (tile cols keep `--under-dice`)
 
 - **domino-roll.js v1.39, domino-spots.js v1.25, state.js v2.39** — Spots ON star reroll: reserve used offer for 1st new column; discard on confirm only if 0 new cols
