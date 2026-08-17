@@ -19,7 +19,6 @@ import {
   slotAnchorXY,
   syncPushBelowTargets,
   isPointerOnPlacementRow,
-  PUSH_BELOW_DRAG_SNAP_ENABLED,
 } from './placement-row.js';
 import { renderActionBar } from './action-bar.js';
 import { attemptPlacementAtPoint, attemptPushBelowOnBottomDie } from './placement-input.js';
@@ -504,19 +503,15 @@ function resolveDrop(e) {
           e.clientX, e.clientY, stackY, validSlots, dragDieId,
         );
         if (commitSlot) {
-          let commitFlyer = dragFlyer;
-          if (PUSH_BELOW_DRAG_SNAP_ENABLED && commitSlot.kind === 'stack-below') {
-            updateSnapGhost(commitSlot);
-            const snapHandoff = takeSnapGhostForCommit();
-            dragFlyer?.remove();
-            dragFlyer = null;
-            commitFlyer = snapHandoff;
-          }
-          animHandled = placeDieWithAnim(dragDieId, commitSlot, commitFlyer);
+          updateSnapGhost(commitSlot);
+          const snapHandoff = takeSnapGhostForCommit();
+          dragFlyer?.remove();
+          dragFlyer = null;
+          animHandled = placeDieWithAnim(dragDieId, commitSlot, snapHandoff);
           if (animHandled) {
             dragFlyer = null;
           } else {
-            commitFlyer?.remove();
+            snapHandoff?.remove();
           }
           clearSnapGhost();
         }

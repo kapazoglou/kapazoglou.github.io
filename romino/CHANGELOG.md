@@ -6,6 +6,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ## Deploy / build — 2026-08-17
 
+- **drag-drop.js v2.51** — fix snap release jump: promote snap ghost to commit flyer for all slot kinds (was pointer-following flyer)
+
 - **viewport-controls.js v1.7, base.css** — desktop fullscreen: width-first fit, extend design height (ultrawide expands width)
 
 - **viewport-controls.js v1.6, base.css** — desktop fullscreen: frame size from `#app` client box (not vw/dvh); min scale clamp prevents overflow on narrow aspect ratios
