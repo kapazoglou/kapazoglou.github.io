@@ -1,8 +1,8 @@
 ---
 module: placement-anim
 layer: ui/transitions
-v: 1.43
-date: 2026-08-14
+v: 1.44
+date: 2026-08-17
 deps: [state, settings, row, render, timing, dice-visual, pip-anim]
 ---
 # Placement Anim

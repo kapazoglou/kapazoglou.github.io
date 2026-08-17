@@ -8,6 +8,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 - **drag-drop.js v2.51** — fix snap release jump: promote snap ghost to commit flyer for all slot kinds (was pointer-following flyer)
 
+- **placement-anim.css v1.44, convert-anim.css** — convert arc / fly-back flyers use `transform-origin: top left` so scale(0.55–0.88) stays anchored to snap position (was center-origin drift)
+
 - **viewport-controls.js v1.7, base.css** — desktop fullscreen: width-first fit, extend design height (ultrawide expands width)
 
 - **viewport-controls.js v1.6, base.css** — desktop fullscreen: frame size from `#app` client box (not vw/dvh); min scale clamp prevents overflow on narrow aspect ratios

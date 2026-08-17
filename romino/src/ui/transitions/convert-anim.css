@@ -37,7 +37,6 @@
   z-index: 650;
   mix-blend-mode: normal;
   opacity: 0.5;
-  transform-origin: center center;
   will-change: transform, opacity;
 }
 
