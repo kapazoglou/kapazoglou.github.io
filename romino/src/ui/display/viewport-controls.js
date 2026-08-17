@@ -1,6 +1,17 @@
 import { settings } from '../../logic/settings.js';
 
 const SETTINGS_STORAGE_KEY = 'romino-v2-settings';
+/** Must match `:root { --design-height }` in base.css */
+const DESIGN_HEIGHT = 412;
+const DESIGN_WIDTH_MIN = DESIGN_HEIGHT * (16 / 9);
+
+const FS_VARS = [
+  '--fs-frame-w',
+  '--fs-frame-h',
+  '--fs-viewport-scale',
+  '--fs-design-w',
+  '--fs-design-h',
+];
 
 function persistFullScreenPref() {
   try {
@@ -22,17 +33,37 @@ function syncFullscreenClass() {
   document.documentElement.classList.toggle('is-browser-fullscreen', isFullscreen());
 }
 
+/** Width-first fullscreen layout; extend design height (or width on ultrawide). */
+function computeFullscreenLayout(frameW, frameH) {
+  const scaleW = frameW / DESIGN_WIDTH_MIN;
+  const designHAtW = frameH / scaleW;
+
+  if (designHAtW >= DESIGN_HEIGHT) {
+    return { scale: scaleW, designW: DESIGN_WIDTH_MIN, designH: designHAtW };
+  }
+
+  const scale = frameH / DESIGN_HEIGHT;
+  return { scale, designW: frameW / scale, designH: DESIGN_HEIGHT };
+}
+
 /** Match layout vars to the real fullscreen element box (vw/dvh can overshoot on desktop). */
 function syncFullscreenMetrics() {
   const root = document.documentElement;
   const app = document.getElementById('app');
   if (!app || !isFullscreen()) {
-    root.style.removeProperty('--fs-frame-w');
-    root.style.removeProperty('--fs-frame-h');
+    for (const key of FS_VARS) root.style.removeProperty(key);
     return;
   }
-  root.style.setProperty('--fs-frame-w', `${app.clientWidth}px`);
-  root.style.setProperty('--fs-frame-h', `${app.clientHeight}px`);
+
+  const frameW = app.clientWidth;
+  const frameH = app.clientHeight;
+  const { scale, designW, designH } = computeFullscreenLayout(frameW, frameH);
+
+  root.style.setProperty('--fs-frame-w', `${frameW}px`);
+  root.style.setProperty('--fs-frame-h', `${frameH}px`);
+  root.style.setProperty('--fs-viewport-scale', String(scale));
+  root.style.setProperty('--fs-design-w', `${designW}px`);
+  root.style.setProperty('--fs-design-h', `${designH}px`);
 }
 
 async function enterFullscreen() {

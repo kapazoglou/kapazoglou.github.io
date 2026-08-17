@@ -35,7 +35,7 @@ lastVerified: 2026-08-17
 
 ## Modified this session
 
-- **viewport-controls.js v1.6, base.css** — desktop fullscreen frame from `#app` client box; scale min-clamp vs narrow aspect
+- **viewport-controls.js v1.7, base.css** — desktop fullscreen: width-first fit, extend design height (ultrawide expands width)
 
 - **settings-panel.js v1.71** — backdrop tap dismisses sidebar (same path as × close)
 

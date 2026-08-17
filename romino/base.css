@@ -61,6 +61,7 @@
   --warning-red-rgb: 255, 72, 72;
   --warning-red: #ff2e51;
   --design-height:    412px;
+  --design-height-base: 412px;
   --design-width-min: calc(var(--design-height) * 16 / 9);
   --frame-fit-width:  min(100vw, calc(100dvh * 16 / 9));
   --frame-fit-height: calc(var(--frame-fit-width) * 9 / 16);
@@ -84,16 +85,11 @@
 }
 
 html.is-browser-fullscreen {
-  --frame-width:    var(--fs-frame-w, 100vw);
-  --frame-height:   var(--fs-frame-h, 100dvh);
-  --viewport-scale: min(
-    calc(var(--frame-height) / var(--design-height)),
-    calc(var(--frame-width) / var(--design-width-min))
-  );
-  --design-width:   max(
-    var(--design-width-min),
-    calc(var(--frame-width) / var(--viewport-scale))
-  );
+  --frame-width:     var(--fs-frame-w, 100vw);
+  --frame-height:    var(--fs-frame-h, 100dvh);
+  --viewport-scale:  var(--fs-viewport-scale);
+  --design-width:    var(--fs-design-w);
+  --design-height:   var(--fs-design-h);
 }
 
 #app:fullscreen,

@@ -2,7 +2,7 @@
   "name": "web_taromino",
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite index.dev.html",
+    "dev": "vite --open /",
     "build": "vite build",
     "build:pages": "vite build && node scripts/sync-pages.mjs",
     "preview": "vite preview"
