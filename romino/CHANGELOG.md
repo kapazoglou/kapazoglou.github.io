@@ -4,6 +4,12 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+## Deploy / build — 2026-08-17
+
+- **vite.config.js, package.json, scripts/sync-pages.mjs, index.dev.html** — GitHub Pages fix: `base: '/romino/'`, `npm run build:pages` syncs Vite output into committed `index.html` + `assets/`; local dev uses `index.dev.html`
+
+---
+
 ---
 
 ---
