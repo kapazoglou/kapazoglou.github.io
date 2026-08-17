@@ -1,5 +1,13 @@
 import manifest from '../../../assets/music/manifest.json';
 import { settings } from '../../logic/settings.js';
+import {
+  getAudioContext,
+  getMusicGainNode,
+  onAudioUnlock,
+  resumeAudioContext,
+  setupAudioUnlock,
+  syncMusicGain,
+} from './audio-context.js';
 
 const LOFI_SUFFIX = ' LoFi';
 const LOAD_TIMEOUT_MS = 120_000;
@@ -52,16 +60,9 @@ const loadPromises = new Map();
 /** @type {Set<() => void>} */
 const loadListeners = new Set();
 
-/** @type {AudioContext | null} */
-let audioContext = null;
-/** @type {GainNode | null} */
-let masterGain = null;
-
 let unlocked = false;
 let booted = false;
 let currentTrackId = 'off';
-/** @type {(() => void) | null} */
-let unlockHandler = null;
 /** @type {string | null} track id currently being fetched/decoded */
 let loadingTrackId = null;
 let overlayActive = false;
@@ -83,32 +84,8 @@ function buildFileUrlMap() {
   }
 }
 
-function musicMasterGain() {
-  const step = settings.musicVolume ?? 8;
-  return Math.min(1, Math.max(0, step / 10));
-}
-
-function getAudioContext() {
-  if (audioContext) return audioContext;
-  const Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) return null;
-  try {
-    audioContext = new Ctx();
-    masterGain = audioContext.createGain();
-    masterGain.connect(audioContext.destination);
-    syncMasterGain();
-    return audioContext;
-  } catch {
-    return null;
-  }
-}
-
-function syncMasterGain() {
-  if (masterGain) masterGain.gain.value = musicMasterGain();
-}
-
 function syncAllPlayerVolumes() {
-  syncMasterGain();
+  syncMusicGain();
 }
 
 function notifyLoadChange() {
@@ -189,8 +166,9 @@ function wrapLoopTime(mix, time) {
 }
 
 function getMixTime(mix) {
-  if (!mix.playing || !audioContext) return mix.offset;
-  const elapsed = audioContext.currentTime - mix.startedAt;
+  const ctx = getAudioContext();
+  if (!mix.source || !ctx) return mix.offset;
+  const elapsed = ctx.currentTime - mix.startedAt;
   const span = loopSpan(mix);
   const rel = ((mix.offset - mix.loopStart + elapsed) % span + span) % span;
   return mix.loopStart + rel;
@@ -198,7 +176,7 @@ function getMixTime(mix) {
 
 function stopMix(mix) {
   const t = getMixTime(mix);
-  if (mix.playing && mix.source) {
+  if (mix.source) {
     try { mix.source.stop(); } catch { /* already stopped */ }
     mix.source.disconnect();
     mix.source = null;
@@ -210,9 +188,10 @@ function stopMix(mix) {
 
 function startMix(mix) {
   const ctx = getAudioContext();
-  if (!ctx || !masterGain || !mix.buffer) return;
+  const bus = getMusicGainNode();
+  if (!ctx || !bus || !mix.buffer) return;
 
-  if (mix.playing) stopMix(mix);
+  if (mix.source) stopMix(mix);
 
   if (ctx.state === 'suspended') ctx.resume().catch(() => {});
 
@@ -221,7 +200,7 @@ function startMix(mix) {
   source.loop = true;
   source.loopStart = mix.loopStart;
   source.loopEnd = mix.loopEnd;
-  source.connect(masterGain);
+  source.connect(bus);
 
   const startAt = wrapLoopTime(mix, mix.offset);
   source.start(0, startAt);
@@ -378,19 +357,24 @@ function syncOverlayPlayback() {
   if (!player) return;
 
   const want = pickActiveMix(player);
-  const idle = want === player.main ? player.lofi : player.main;
+  const other = want === player.main ? player.lofi : player.main;
 
-  if (idle?.playing) {
-    const t = stopMix(idle);
-    if (want.playing) stopMix(want);
-    want.offset = t;
-    syncMasterGain();
-    if (!want.playing) startMix(want);
+  let handoff = null;
+  if (other?.source) handoff = stopMix(other);
+
+  // Belt-and-suspenders: never stack main + LoFi
+  for (const mix of [player.main, player.lofi]) {
+    if (mix && mix !== want && mix.source) stopMix(mix);
+  }
+
+  if (want.source) {
+    syncMusicGain();
     return;
   }
 
-  syncMasterGain();
-  if (!want.playing) startMix(want);
+  if (handoff != null) want.offset = handoff;
+  syncMusicGain();
+  startMix(want);
 }
 
 function setOverlayActive(on) {
@@ -456,33 +440,17 @@ async function playTrack(trackId) {
   syncOverlayPlayback();
 }
 
-function removeUnlockListener() {
-  if (!unlockHandler) return;
-  document.removeEventListener('pointerdown', unlockHandler, true);
-  document.removeEventListener('keydown', unlockHandler, true);
-  unlockHandler = null;
-}
-
 /** Resume AudioContext when allowed; prime graph already running while suspended. */
 async function tryAutoplayUnlock() {
   if (unlocked || currentTrackId === 'off') return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  try {
-    await ctx.resume();
-  } catch { return; }
-  if (ctx.state !== 'running') return;
+  if (!await resumeAudioContext()) return;
   unlocked = true;
-  removeUnlockListener();
   syncOverlayPlayback();
 }
 
 function setupUnlockListener() {
-  if (unlockHandler) return;
-
-  unlockHandler = () => { tryAutoplayUnlock(); };
-  document.addEventListener('pointerdown', unlockHandler, { passive: true, capture: true });
-  document.addEventListener('keydown', unlockHandler, { capture: true });
+  setupAudioUnlock();
+  onAudioUnlock(() => { tryAutoplayUnlock(); });
 }
 
 /** After persisted settings load: preload selected track and start playback. */

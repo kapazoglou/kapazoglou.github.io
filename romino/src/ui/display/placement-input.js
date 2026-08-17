@@ -6,8 +6,6 @@ import {
   convertIdentityForStackCompletion,
   wouldCompleteBlockedCube,
   cubeLockColForStackCompletion,
-  wouldCompleteBlockedMonotonic,
-  monotonicBoundaryColsForBlockedAttempt,
 } from '../../logic/row.js';
 import { pushBelowEnabled, pushBelowStarCost } from '../../logic/star-powers.js';
 import { state } from '../../logic/state.js';
@@ -19,7 +17,6 @@ import {
   flashStarShortagePlacement,
   flashDuplicateBlocked,
   flashCubeBlocked,
-  flashMonotonicBlocked,
 } from '../transitions/invalid-flash.js';
 
 function flashBlockedPlacement(dieId, slot) {
@@ -32,8 +29,6 @@ function flashBlockedPlacement(dieId, slot) {
     const lockCol = cubeLockColForStackCompletion(dieId, slot);
     if (lockCol != null) flashCubeBlocked(lockCol);
     else flashInvalidPlacement();
-  } else if (wouldCompleteBlockedMonotonic(dieId, slot)) {
-    flashMonotonicBlocked(monotonicBoundaryColsForBlockedAttempt(dieId, slot));
   } else flashInvalidPlacement();
 }
 

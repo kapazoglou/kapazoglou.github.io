@@ -111,6 +111,11 @@ export function isTricolorStack(values) {
   return new Set(values).size === 3;
 }
 
+/** Tricolor/joker stack bottom→top must be strictly ascending or descending. */
+export function passesTricolorStackOrder(a, b, c) {
+  return (a < b && b < c) || (a > b && b > c);
+}
+
 /** Tricolor joker with second + third summing to 7 (stricter tricolors variant). */
 export function isTricolorSevensStack(values) {
   return isTricolorStack(values) && values[1] + values[2] === 7;

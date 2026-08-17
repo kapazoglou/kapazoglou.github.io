@@ -2,7 +2,7 @@ import { settings, SETTINGS_CONFIG, clampSettings, spd } from '../../logic/setti
 import { clearHighscores } from '../../logic/highscores.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 import { setFullscreenEnabled } from './viewport-controls.js';
-import { playSfx } from '../transitions/sfx.js';
+import { playSfx, applySfxVolume } from '../transitions/sfx.js';
 import { applyMusicTrack, applyMusicVolume, bootstrapMusic, ensureMusicPreload, getMusicSelectOptions, isMusicLoading, onMusicLoadChange, previewMusicTrack } from '../transitions/music.js';
 import { applyBgDicierVfx } from './bg-dicier-vfx.js';
 
@@ -23,6 +23,7 @@ function applyImmediateSetting(key) {
   settings[key] = draftSettings[key];
   if (key === 'fullScreen') setFullscreenEnabled(settings.fullScreen);
   else if (key === 'musicVolume') applyMusicVolume();
+  else if (key === 'sfxVolume') applySfxVolume();
   else if (key === 'vfxEnabled') applyBgDicierVfx();
   saveSettings();
 }

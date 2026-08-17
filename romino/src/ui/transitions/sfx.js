@@ -1,7 +1,15 @@
 import manifest from '../../../assets/sfx/manifest.json';
 import { settings } from '../../logic/settings.js';
+import {
+  getAudioContext,
+  onAudioUnlock,
+  resumeAudioContext,
+  setupAudioUnlock,
+  sfxStepToGain,
+} from './audio-context.js';
 
 const MAX_CONCURRENT = 6;
+const LOAD_TIMEOUT_MS = 30_000;
 const SFX_DIR = 'assets/sfx';
 
 /** Vite-resolved URLs so SFX ship in build output (same pattern as music). */
@@ -16,11 +24,20 @@ const fileUrlMap = new Map();
 
 /** @type {Map<string, string | null>} null = known missing / unconfigured */
 const resolvedUrlCache = new Map();
-/** @type {Map<string, HTMLAudioElement>} warmed URL → template element */
+/** @type {Map<string, AudioBuffer>} warmed URL → decoded buffer */
+const bufferCache = new Map();
+/** @type {Map<string, HTMLAudioElement>} warmed URL → template element (fallback) */
 const preloadPool = new Map();
 /** @type {Promise<void> | null} */
 let preloadPromise = null;
-/** @type {HTMLAudioElement[]} */
+
+/**
+ * @typedef {object} ActiveVoice
+ * @property {AudioBufferSourceNode | HTMLAudioElement} node
+ * @property {'webaudio' | 'html'} kind
+ */
+
+/** @type {ActiveVoice[]} */
 const activeInstances = [];
 let unlocked = false;
 
@@ -40,11 +57,6 @@ function buildFileUrlMap() {
 }
 
 buildFileUrlMap();
-
-function masterGain() {
-  const step = settings.sfxVolume ?? 8;
-  return Math.min(1, Math.max(0, step / 10));
-}
 
 function entryFilename(entry) {
   const raw = entry?.file ?? entry?.url ?? '';
@@ -91,6 +103,7 @@ function markUrlUnavailable(url) {
   for (const id of Object.keys(manifest)) {
     if (resolveEntryUrl(id) === url) markUnavailable(id);
   }
+  bufferCache.delete(url);
   preloadPool.delete(url);
 }
 
@@ -103,7 +116,29 @@ function collectPreloadUrls() {
   return urls;
 }
 
-function preloadOne(url) {
+async function decodeOne(url) {
+  const existing = bufferCache.get(url);
+  if (existing) return existing;
+
+  const ctx = getAudioContext();
+  if (!ctx) throw new Error('Web Audio unavailable');
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), LOAD_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    if (!res.ok) throw new Error('audio fetch failed');
+    const data = await res.arrayBuffer();
+    const buffer = await ctx.decodeAudioData(data);
+    bufferCache.set(url, buffer);
+    return buffer;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function preloadOneHtml(url) {
   const existing = preloadPool.get(url);
   if (existing) return Promise.resolve(existing);
 
@@ -137,7 +172,16 @@ function preloadOne(url) {
   });
 }
 
-/** Warm all configured manifest clips at boot — gameplay never blocked on failure. */
+/** Decode to buffer when possible; HTML warm per URL on failure (never global disable). */
+async function preloadOne(url) {
+  try {
+    await decodeOne(url);
+  } catch {
+    await preloadOneHtml(url);
+  }
+}
+
+/** Decode all configured manifest clips at boot — gameplay never blocked on failure. */
 export function preloadSfx() {
   if (!preloadPromise) {
     preloadPromise = Promise.all([...collectPreloadUrls()].map(preloadOne)).then(() => {});
@@ -150,35 +194,76 @@ function ensureUnlocked() {
   const ua = navigator.userActivation;
   if (ua?.isActive || ua?.hasBeenActive) {
     unlocked = true;
+    resumeAudioContext().catch(() => {});
     return true;
   }
   return false;
 }
 
+function removeActiveVoice(voice) {
+  const idx = activeInstances.indexOf(voice);
+  if (idx >= 0) activeInstances.splice(idx, 1);
+}
+
 function trimActiveInstances() {
   while (activeInstances.length > MAX_CONCURRENT) {
     const stale = activeInstances.shift();
-    stale?.pause();
+    if (!stale) continue;
+    if (stale.kind === 'webaudio') {
+      try { stale.node.stop(); } catch { /* already stopped */ }
+      stale.node.disconnect();
+    } else {
+      stale.node.pause();
+    }
   }
 }
 
-function playInstance(id, volumeScale = 1) {
-  const entry = manifest[id];
-  if (!entry || !entryFilename(entry)) return;
+function playWebAudio(id, href, vol) {
+  const ctx = getAudioContext();
+  const buffer = bufferCache.get(href);
+  if (!ctx || !buffer) return false;
 
-  const href = resolveEntryUrl(id);
-  if (!href) return;
+  if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+
+  const playGain = ctx.createGain();
+  playGain.gain.value = vol;
+  source.connect(playGain);
+  playGain.connect(ctx.destination);
+
+  const voice = { node: source, kind: /** @type {'webaudio'} */ ('webaudio') };
+
+  const onEnd = () => {
+    removeActiveVoice(voice);
+    source.removeEventListener('ended', onEnd);
+  };
+
+  source.addEventListener('ended', onEnd);
+  activeInstances.push(voice);
+  trimActiveInstances();
 
   try {
-    const vol = Math.min(1, Math.max(0, (entry.volume ?? 1) * masterGain() * volumeScale));
+    source.start(0);
+    return true;
+  } catch {
+    removeActiveVoice(voice);
+    return false;
+  }
+}
+
+function playHtmlAudio(id, href, vol) {
+  try {
     const warmed = preloadPool.get(href);
     const instance = warmed ? new Audio(warmed.src) : new Audio(href);
     instance.preload = 'auto';
     instance.volume = vol;
 
+    const voice = { node: instance, kind: /** @type {'html'} */ ('html') };
+
     const onEnd = () => {
-      const idx = activeInstances.indexOf(instance);
-      if (idx >= 0) activeInstances.splice(idx, 1);
+      removeActiveVoice(voice);
       instance.removeEventListener('ended', onEnd);
       instance.removeEventListener('error', onError);
     };
@@ -190,25 +275,45 @@ function playInstance(id, volumeScale = 1) {
     instance.addEventListener('ended', onEnd);
     instance.addEventListener('error', onError, { once: true });
 
-    activeInstances.push(instance);
+    activeInstances.push(voice);
     trimActiveInstances();
 
     instance.play().catch(() => {
       onEnd();
     });
+    return true;
   } catch {
     markUnavailable(id);
+    return false;
   }
 }
 
-function unlockFromGesture() {
-  unlocked = true;
+function playInstance(id, volumeScale = 1) {
+  const entry = manifest[id];
+  if (!entry || !entryFilename(entry)) return;
+
+  const href = resolveEntryUrl(id);
+  if (!href) return;
+
+  const clipGain = Math.min(1, Math.max(0, (entry.volume ?? 1) * volumeScale));
+  const master = sfxStepToGain(settings.sfxVolume);
+  const vol = clipGain * master;
+  const htmlVol = Math.min(1, vol);
+
+  if (bufferCache.has(href)) {
+    if (playWebAudio(id, href, vol)) return;
+  }
+
+  playHtmlAudio(id, href, htmlVol);
 }
 
-/** Call once at boot — unlock audio on first user gesture (mobile autoplay policy). */
+/** Reserved for settings hook — volume is read at each play. */
+export function applySfxVolume() {}
+
+/** Call once at boot — shared gesture unlock for Web Audio context. */
 export function initSfx() {
-  document.addEventListener('pointerdown', unlockFromGesture, { passive: true, capture: true });
-  document.addEventListener('keydown', unlockFromGesture, { capture: true });
+  setupAudioUnlock();
+  onAudioUnlock(() => { unlocked = true; });
 }
 
 /** @param {string} id — manifest key */

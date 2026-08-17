@@ -81,7 +81,7 @@
     "label": "Invalid move",
     "file": "zapsplat_multimedia_game_retro_musical_incorrect_fail_negative.mp3",
     "volume": 0.8,
-    "notes": "All invalid flashes (generic, star shortage, duplicate, cube, monotonic)"
+    "notes": "All invalid flashes (generic, star shortage, duplicate, cube)"
   },
   "sweep_dup_warn": {
     "label": "Duplicate sweep warning",

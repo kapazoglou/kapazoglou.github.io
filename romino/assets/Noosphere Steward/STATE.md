@@ -17,8 +17,8 @@ lastVerified: 2026-08-17
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
 | Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `sfxEnabled`, `sfxVolume`, `vfxEnabled`, `musicTrack`, … |
-| SFX | `src/ui/transitions/sfx.js` + `assets/sfx/manifest.json` | `preloadSfx()` at boot (URL-deduped warm pool); `playSfx(id)` clones warmed src; gated by `sfxEnabled` + volume; unlock on first gesture |
-| Music | `src/ui/transitions/music.js` + `assets/music/manifest.json` | Web Audio lazy decode; `loopStart`/`loopEnd`/`loopEndPadding` in manifest; default loopEnd −0.02s; LoFi swap on settings/game-over/suit-discovery hold |
+| SFX | `src/ui/transitions/sfx.js` + `assets/sfx/manifest.json` | Web Audio decode at boot (`audio-context.js`); `playSfx(id)` via `BufferSourceNode`; HTML Audio fallback; gated by `sfxEnabled` + volume bus |
+| Music | `src/ui/transitions/music.js` + `assets/music/manifest.json` | Shared `audio-context.js`; lazy decode; `loopStart`/`loopEnd`/`loopEndPadding`; LoFi swap on settings/game-over/suit-discovery hold |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -34,6 +34,12 @@ lastVerified: 2026-08-17
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **dice-visual.js v2.14, row.js v1.95** — tricolor/joker monotonic stack order on top + push completion; joker ordered push OR when normal push match fails
+
+- **audio-context.js v1.0 (new), sfx.js v1.5, music.js v2.8, settings-panel.js v1.72** — shared Web Audio context; SFX low-latency playback; HTML Audio fallback
+
+- **settings.js v2.52, row.js v1.94, placement-input.js v1.8, invalid-flash.js v1.6** — remove deprecated `monotonic` toggle, `monotonic.js`, rank-zone gates, and boundary flash feedback
 
 - **Gemfile, Gemfile.lock** — removed Windows-only `wdm` from lockfile; pin Bundler 4.0.11 in deploy workflow
 

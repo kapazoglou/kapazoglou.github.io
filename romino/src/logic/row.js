@@ -13,11 +13,10 @@ import {
   syncDominoSpotInvariants,
 } from './domino-spots.js';
 import { recordStarSpent } from './game-log.js';
-import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
+import { JOKER_RANK, isInnerDie, isSwitcherTricolorStack, passesTricolorStackOrder, tileIdentityFromStackValues, tileIdentityRequiresStar } from './dice-visual.js';
 import { flankStackTop } from './deck-flank.js';
 import { identityBlockedByStripOrRow } from './dealt-strip.js';
 import { isCubeLockedForIdentity, getCubeLockColForBlockedAttempt } from './nine-cubes.js';
-import { monotonicEnabled, monotonicRankAllowed, monotonicBoundaryColsForCol } from './monotonic.js';
 import {
   buggerSinglesEnabled,
   clearBuggerPendingCol,
@@ -206,7 +205,9 @@ function passesTricolorThirdDie(first, second, third, excludeCol = null) {
 }
 
 function passesOneToOneThirdDie(first, second, third, excludeCol = null) {
-  if (passesTricolorThirdDie(first, second, third, excludeCol)) return true;
+  if (passesTricolorThirdDie(first, second, third, excludeCol)) {
+    return passesTricolorStackOrder(first, second, third);
+  }
   if (!settings.oneToOne) return true;
   if (isOneSixPair(second, third)) return true;
   if (second === first) return true;
@@ -313,15 +314,6 @@ function rowHasMatchingConvertIdentity(suit, rank, excludeCol = null) {
   return false;
 }
 
-function passesMonotonicTile(bottomValue, midValue, topValue, col) {
-  if (!monotonicEnabled()) return true;
-  const values = [bottomValue, midValue, topValue];
-  if (isSwitcherTricolorStack(values)) return true;
-  const { rank, rankSum } = tileIdentityFromStackValues(values, jokerTileOptions());
-  if (rank === JOKER_RANK) return true;
-  return monotonicRankAllowed(col, rankSum);
-}
-
 /** Block completing a stack whose convert result duplicates an existing tile or another full stack. */
 function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = null) {
   const values = [bottomValue, midValue, topValue];
@@ -335,7 +327,6 @@ function passesNoDuplicateTile(bottomValue, midValue, topValue, excludeCol = nul
   if (rowHasMatchingConvertIdentity(suit, rank, excludeCol)) return false;
   if (rowHasTile(suit, rank, excludeCol)) return false;
   if (settings.nineCubes > 0 && isCubeLockedForIdentity(suit, rank, excludeCol)) return false;
-  if (!passesMonotonicTile(bottomValue, midValue, topValue, excludeCol)) return false;
   return true;
 }
 
@@ -536,40 +527,6 @@ export function cubeLockColForStackCompletion(dieId, slot) {
   return getCubeLockColForBlockedAttempt(suit, rank, slot.col);
 }
 
-/** Slot completes a stack blocked by monotonic rank zone (duplicate/cube take priority). */
-export function wouldCompleteBlockedMonotonic(dieId, slot) {
-  if (!monotonicEnabled()) return false;
-  if (wouldCompleteBlockedDuplicate(dieId, slot)) return false;
-  if (wouldCompleteBlockedCube(dieId, slot)) return false;
-  if (isStarBlockedPlacement(dieId, slot)) return false;
-  if (slot.kind !== 'stack') return false;
-  const column = getColumn(slot.col);
-  if (!column || column.kind !== 'stack' || column.dice.length !== 2) return false;
-  const die = state.dice[dieId];
-  if (!die) return false;
-  const v0 = state.dice[column.dice[0]].value;
-  const v1 = state.dice[column.dice[1]].value;
-  const v2 = die.value;
-  if (!passesOneToOneThirdDie(v0, v1, v2, slot.col)) return false;
-  if (!passesStarCostForStackCompletion(v0, v1, v2, slot.col)) return false;
-  const values = [v0, v1, v2];
-  if (isSwitcherTricolorStack(values)) return false;
-  const { suit, rank } = tileIdentityFromStackValues(values, jokerTileOptions());
-  if (rank === JOKER_RANK) return false;
-  if (rowHasMatchingThreeDiceStack(v0, v1, v2, slot.col)) return false;
-  if (rowHasMatchingConvertIdentity(suit, rank, slot.col)) return false;
-  if (rowHasTile(suit, rank, slot.col)) return false;
-  if (identityBlockedByStripOrRow(suit, rank, slot.col)) return false;
-  if (settings.nineCubes > 0 && isCubeLockedForIdentity(suit, rank, slot.col)) return false;
-  return !passesMonotonicTile(v0, v1, v2, slot.col);
-}
-
-/** Boundary anchor cols to flash on monotonic-blocked stack completion. */
-export function monotonicBoundaryColsForBlockedAttempt(_dieId, slot) {
-  if (slot?.col != null) return monotonicBoundaryColsForCol(slot.col);
-  return [];
-}
-
 /** Convert identity for a would-be 3-dice stack completion (for duplicate feedback). */
 export function convertIdentityForStackCompletion(dieId, slot) {
   if (slot.kind !== 'stack') return null;
@@ -623,12 +580,27 @@ function passesPushBelowNoDuplicate(col, value) {
   if (column?.kind !== 'stack' || column.dice.length !== 2) return true;
   const v0 = state.dice[column.dice[0]].value;
   const v1 = state.dice[column.dice[1]].value;
-  return passesNoDuplicateTile(value, v0, v1, col);
+  if (!passesNoDuplicateTile(value, v0, v1, col)) return false;
+  if (passesTricolorThirdDie(value, v0, v1, col)) {
+    return passesTricolorStackOrder(value, v0, v1);
+  }
+  return true;
+}
+
+/** Push match when normal rules fail but push completes an ordered tricolor stack. */
+function passesJokerOrderedPushBelow(col, pushValue) {
+  const column = getColumn(col);
+  if (column?.kind !== 'stack' || column.dice.length !== 2) return false;
+  const v0 = state.dice[column.dice[0]].value;
+  const v1 = state.dice[column.dice[1]].value;
+  if (!passesTricolorThirdDie(pushValue, v0, v1, col)) return false;
+  return passesTricolorStackOrder(pushValue, v0, v1);
 }
 
 /** Rules only — no star balance, no phase. Shared by slot listing and commit. */
 function pushBelowRulesPass(col, value) {
-  return passesPushBelowAtCol(col, value) && passesPushBelowNoDuplicate(col, value);
+  const match = passesPushBelowAtCol(col, value) || passesJokerOrderedPushBelow(col, value);
+  return match && passesPushBelowNoDuplicate(col, value);
 }
 
 /** Push-below snap listing — a push die being repositioned earns a star credit (refund on leave). */
@@ -668,7 +640,7 @@ function canPlaceValueAt(col, kind, value) {
   }
 
   if (kind === 'stack-below') {
-    return canPushBelowAtCol(col, value) && passesPushBelowNoDuplicate(col, value);
+    return pushBelowRulesPass(col, value);
   }
 
   return false;

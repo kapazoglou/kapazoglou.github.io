@@ -1,13 +1,13 @@
 ---
 module: music
 layer: ui/transitions
-v: 2.7
+v: 2.11
 date: 2026-08-17
-deps: [settings]
+deps: [settings, audio-context]
 ---
 # Music
 
-Looping background music via **Web Audio API** (lazy `fetch` + `decodeAudioData` per track). Tracks listed from [manifest.json](../../../assets/music/manifest.json) — **LoFi-paired entries only**; unpaired source files live in `assets/music/no-lofi/`. **Only the selected track** (main + LoFi) is decoded — not the full library.
+Looping background music via **Web Audio API** (shared `audio-context.js`; lazy `fetch` + `decodeAudioData` per track). Music bus gain uses same 0–10 → 0–1 linear curve as SFX.
 
 ## Loop trim
 - Default `loopEnd` = buffer duration − **0.02s** (encoder tail padding).

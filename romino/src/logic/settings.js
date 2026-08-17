@@ -75,7 +75,6 @@ export const SETTINGS_CONFIG = [
       { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
-      { key: 'monotonic',           label: 'Monotonic',             default: false, type: 'toggle' },
     ],
   },
     {
@@ -83,7 +82,6 @@ export const SETTINGS_CONFIG = [
     label: 'Deprecated',
     items: [
       { key: 'nineCubes',  label: 'Nine Cubes', default: 0, type: 'stepper', min: 0, max: 2 },
-      { key: 'monotonic',           label: 'Monotonic',             default: false, type: 'toggle' },
       { key: 'tricolorRestriction', label: 'Tricolor Restrictions',    default: false,  type: 'toggle' },
       { key: 'tricolorSevens',      label: 'Tricolor Sevens',         default: false, type: 'toggle' },      
       { key: 'tileDealtEvery', label: 'Tile Dealt Every', default: 0, type: 'stepper', min: 0, max: 6 },

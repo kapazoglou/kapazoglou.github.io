@@ -6,6 +6,24 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ## Deploy / build — 2026-08-17
 
+- **audio-context.js v1.5, sfx.js v1.8** — SFX volume fix: master at play time (not bus-only); 2.5× boost; per-clip Web Audio/HTML fallback
+
+- **dice-visual.js v2.14, row.js v1.95** — tricolor/joker stack completion requires monotonic bottom→top order (asc or desc); push-from-below may finish ordered tricolor stacks when normal push match fails (`passesJokerOrderedPushBelow`)
+
+- **audio-context.js v1.4, sfx.js v1.7** — louder SFX bus curve: step 7 → 1.0, step 10 → 1.5
+
+- **audio-context.js v1.3, sfx.js v1.6** — SFX volume curve: step 7 → 0.7, steps 8–10 ramp to 1.0 (10 clearly louder than 7)
+
+- **audio-context.js v1.2** — revert music /5 curve to linear /10; apply bus gain via `setValueAtTime` during playback
+
+- **audio-context.js v1.1, music.js v2.10** — music volume curve /5 (reverted); stricter main/LoFi exclusivity in overlay handoff
+
+- **music.js v2.9** — fix double-playback leak: stop mix by `source` presence (not `playing` flag); overlay handoff always stops inactive mix
+
+- **audio-context.js v1.0 (new), sfx.js v1.5, music.js v2.8, settings-panel.js v1.72** — shared Web Audio context; SFX pre-decode + `BufferSourceNode` playback (HTML Audio fallback); `applySfxVolume()` on slider change
+
+- **settings.js v2.52, row.js v1.94, placement-input.js v1.8, invalid-flash.js v1.6** — remove deprecated `monotonic` toggle and rank-zone placement constraints; delete `monotonic.js`
+
 - **Gemfile, Gemfile.lock, .github/workflows/deploy-pages.yml** — CI fix: drop Windows-only `wdm` from lockfile; pin Bundler 4.0.11 on Actions
 
 - **Gemfile.lock, .github/workflows/deploy-pages.yml** — CI fix: add `x86_64-linux` to Bundler lockfile (was Windows-only → `bundle` exit 16 on GitHub Actions)
