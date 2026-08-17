@@ -6,6 +6,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ## Deploy / build — 2026-08-17
 
+- **viewport-controls.js v1.6, base.css** — desktop fullscreen: frame size from `#app` client box (not vw/dvh); min scale clamp prevents overflow on narrow aspect ratios
+
 - **vite.config.js, package.json, scripts/sync-pages.mjs, index.dev.html** — GitHub Pages fix: `base: '/romino/'`, `npm run build:pages` syncs Vite output into committed `index.html` + `assets/`; local dev uses `index.dev.html`
 
 ---

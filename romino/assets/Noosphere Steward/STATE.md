@@ -35,6 +35,8 @@ lastVerified: 2026-08-17
 
 ## Modified this session
 
+- **viewport-controls.js v1.6, base.css** — desktop fullscreen frame from `#app` client box; scale min-clamp vs narrow aspect
+
 - **settings-panel.js v1.71** — backdrop tap dismisses sidebar (same path as × close)
 
 - **sfx.js v1.3, main.js** — boot `preloadSfx()` warms configured clips before first interaction
@@ -115,7 +117,7 @@ lastVerified: 2026-08-17
 
 - **domino-roll.js v1.32, turn.js v2.55, state.js v2.35, action-bar.js v1.70** — Spots OFF 3 reshuffle cap + dots
 
-- **settings.js v2.41, viewport-controls.js v1.5, settings-panel.js v1.52, base.css** — `fullScreen` settings toggle replaces bottom-left fullscreen button
+- **settings.js v2.41, viewport-controls.js v1.6, settings-panel.js v1.52, base.css** — `fullScreen` settings toggle replaces bottom-left fullscreen button
 
 - **highscores.js v1.1, settings-panel.js v1.45, settings-panel.css, index.html** — settings: clear high scores button + `clearHighscores()`
 
