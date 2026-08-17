@@ -1,5 +1,5 @@
-.dicier {
-  font-family: 'Dicier Round Light';
+.dicier,
+.dicier--dark {
   font-feature-settings:
     'liga' 1, 'kern' 1, 'calt' 1, 'dlig' 0,
     'ss01' 0, 'ss02' 0, 'ss03' 0, 'ss04' 0, 'ss05' 0, 'ss06' 0,
@@ -9,12 +9,27 @@
   text-rendering: optimizeLegibility;
 }
 
+.dicier {
+  font-family: 'Dicier Round Light', sans-serif;
+}
+
+.bg-dicier-vfx__cell.dicier--dark {
+  font-family: 'Dicier Round Dark', sans-serif;
+}
+
 .bg-dicier-vfx {
+  --bg-dicier-fill: #909090;
+  --bg-dicier-opacity: 1;
+  --bg-dicier-blend: overlay;
+
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  color: var(--bg-dicier-fill);
+  opacity: var(--bg-dicier-opacity);
+  mix-blend-mode: var(--bg-dicier-blend);
 }
 
 .bg-dicier-vfx__motion {
@@ -30,9 +45,6 @@
   width: max-content;
   font-size: var(--bg-dicier-font-size, 10px);
   line-height: 1;
-  color: #fff;
-  opacity: var(--bg-dicier-opacity, 0.05);
-  mix-blend-mode: overlay;
   will-change: transform;
 }
 

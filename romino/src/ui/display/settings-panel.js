@@ -481,13 +481,23 @@ export function initSettingsPanel() {
     playSfx('ui_tap');
   });
 
-  document.getElementById('settings-back').addEventListener('click', () => {
+  function closeSettingsPanel() {
     resetClearHighscoresSlider();
     const reloading = applyDraftSettings();
     if (!reloading) {
       document.getElementById('settings-panel').classList.remove('is-open');
       playSfx('ui_close');
     }
+  }
+
+  document.getElementById('settings-back').addEventListener('click', () => {
+    closeSettingsPanel();
+  });
+
+  document.getElementById('settings-panel').addEventListener('click', e => {
+    if (!e.currentTarget.classList.contains('is-open')) return;
+    if (e.target.closest('#settings-content')) return;
+    closeSettingsPanel();
   });
 
   initClearHighscoresSlider();

@@ -18,6 +18,34 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+- **settings-panel.js v1.71, settings-panel.md** — tap dim backdrop to close sidebar (same apply/reload path as ×)
+
+- **bg-dicier-vfx.css v2.28, bg-dicier-vfx.md** — master fill `#909090` (was `#999999`)
+
+- **bg-dicier-vfx.js v2.18, bg-dicier-vfx.css v2.27, bg-dicier-vfx.md, base.css** — fix suit Dark glyphs: `@font-face` for Round Dark (same path as Light); cell-scoped font rule
+
+- **bg-dicier-vfx.js v2.17, bg-dicier-vfx.css v2.26, bg-dicier-vfx.md, index.html** — suit codes render in Dicier Round Dark; other symbols stay Round Light
+
+- **bg-dicier-vfx.css v2.25, bg-dicier-vfx.md** — master fill `#999999` (was `#aaaaaa`)
+
+- **bg-dicier-vfx.css v2.24, bg-dicier-vfx.md** — master fill `#aaaaaa` (was `#888888`)
+
+- **bg-dicier-vfx.css v2.23, bg-dicier-vfx.md** — master blend `overlay` (was `screen`)
+
+- **bg-dicier-vfx.css v2.22, bg-dicier-vfx.md** — master blend `screen` (was `multiply`)
+
+- **bg-dicier-vfx.css v2.21, bg-dicier-vfx.js v2.16, bg-dicier-vfx.md** — master fill/opacity/blend on `#bg-dicier-vfx` (fixes blend isolation from motion transform); drop per-cell opacity fade
+
+- **bg-dicier-vfx.css v2.20, bg-dicier-vfx.md** — grid blend mode `multiply` (was `lighten`)
+
+- **bg-dicier-vfx.css v2.19, bg-dicier-vfx.md** — grid blend mode `lighten` (was `screen`)
+
+- **bg-dicier-vfx.css v2.18, bg-dicier-vfx.md** — grid blend mode `screen` (was `overlay`)
+
+- **bg-dicier-vfx.css v2.17, bg-dicier-vfx.md** — VFX symbol fill `#888888` (was `#aaa`)
+
+- **bg-dicier-vfx.css v2.16, bg-dicier-vfx.md** — VFX symbols at 100% opacity, fill `#aaa` (was 3% white)
+
 - **bg-dicier-vfx.js v2.15, bg-dicier-vfx.md** — dice-pool VFX speed cap raised to +25% (was +10%)
 
 - **bg-dicier-vfx.js v2.14, bg-dicier-vfx.md** — VFX speed tied to dice pool (up to +10% when empty); scroll, rotation, symbol cycles

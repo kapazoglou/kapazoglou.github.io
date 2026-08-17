@@ -1,10 +1,10 @@
 /** Decorative Dicier-icon texture — bidirectional row stream + oscillating rotation, clipped by viewport. */
 
-import dicierWoff2 from '../../../assets/Dicier v1_5_4/woff2/Dicier-Round-Light.woff2?url';
 import { settings, spd } from '../../logic/settings.js';
 import { state } from '../../logic/state.js';
 
-const FONT_FAMILY = 'Dicier Round Light';
+const FONT_FAMILY_LIGHT = 'Dicier Round Light';
+const FONT_FAMILY_DARK = 'Dicier Round Dark';
 const COL_PX = 25;
 const ROW_PX = 20;
 const FONT_PX = 10;
@@ -45,7 +45,6 @@ function rampPhaseTime(rampSec, covered, total) {
 const ROW_BUFFER = 8;
 const SYMBOL_CYCLE_MIN_MS = 12000;
 const SYMBOL_CYCLE_MAX_MS = 45000;
-const SYMBOL_FADE_MS = 500;
 const CODES_URL = 'assets/Dicier v1_5_4/Dicier codes v1_5_4.txt';
 /** dlig codes — not used; keep Round Light default ligatures only */
 const ROUND_LIGHT_SKIP = new Set(['16', '32', '64']);
@@ -90,6 +89,21 @@ const FALLBACK_CODES = [
   'NUN', 'GIMEL', 'Z_STAR', 'Z_CIRCLE', 'EVEN', 'ODD',
 ];
 
+/** Standalone suits + value_suit combos use Round Dark. */
+const STANDALONE_SUITS = new Set(['HEARTS', 'DIAMONDS', 'CLUBS', 'SPADES']);
+const SUIT_SUFFIX = /_(HEARTS|DIAMONDS|CLUBS|SPADES)$/;
+
+/** @param {string} code */
+function isSuitCode(code) {
+  return STANDALONE_SUITS.has(code) || SUIT_SUFFIX.test(code);
+}
+
+/** @param {HTMLElement} cell @param {string} code */
+function setCellCode(cell, code) {
+  cell.textContent = code;
+  cell.classList.toggle('dicier--dark', isSuitCode(code));
+}
+
 /** @param {string[]} codes @returns {string} */
 function pickCode(codes) {
   return codes[Math.floor(Math.random() * codes.length)];
@@ -116,20 +130,18 @@ function poolSpeedMult() {
   return 1 + POOL_SPEED_BOOST * (1 - ratio);
 }
 
-/** @type {WeakMap<HTMLElement, { idleRemainingS: number, phase: 'idle' | 'fadeOut' | 'fadeIn', phaseT: number, pendingCode?: string }>} */
+/** @type {WeakMap<HTMLElement, { idleRemainingS: number }>} */
 const cellSymbolState = new WeakMap();
 
 /** @param {HTMLElement} cell */
 function initCellSymbolCycle(cell) {
   cellSymbolState.set(cell, {
     idleRemainingS: randomSymbolCycleMs() / 1000,
-    phase: 'idle',
-    phaseT: 0,
   });
 }
 
 /**
- * Per-cell symbol swaps on independent random timers; one fade at a time per cell.
+ * Per-cell symbol swaps on independent random timers (no per-cell opacity — master layer owns fill/blend).
  * @param {HTMLElement} grid
  * @param {number} dt wall seconds
  * @param {number} poolMult dice-pool speed scale
@@ -137,7 +149,6 @@ function initCellSymbolCycle(cell) {
  */
 function tickSymbolCycles(grid, dt, poolMult, codes) {
   const vfxDt = dt * poolMult;
-  const fadeSec = spd(SYMBOL_FADE_MS) / 2000;
   const cells = grid.querySelectorAll('.bg-dicier-vfx__cell');
 
   for (const raw of cells) {
@@ -149,37 +160,10 @@ function tickSymbolCycles(grid, dt, poolMult, codes) {
       if (!meta) continue;
     }
 
-    if (meta.phase === 'fadeOut') {
-      meta.phaseT += vfxDt;
-      const t = Math.min(1, meta.phaseT / fadeSec);
-      raw.style.opacity = String(1 - t * 0.9);
-      if (t >= 1) {
-        raw.textContent = meta.pendingCode ?? pickCode(codes);
-        meta.phase = 'fadeIn';
-        meta.phaseT = 0;
-      }
-      continue;
-    }
-
-    if (meta.phase === 'fadeIn') {
-      meta.phaseT += vfxDt;
-      const t = Math.min(1, meta.phaseT / fadeSec);
-      raw.style.opacity = String(0.1 + t * 0.9);
-      if (t >= 1) {
-        raw.style.opacity = '';
-        meta.phase = 'idle';
-        meta.phaseT = 0;
-        meta.idleRemainingS = randomSymbolCycleMs() / 1000;
-        delete meta.pendingCode;
-      }
-      continue;
-    }
-
     meta.idleRemainingS -= vfxDt;
     if (meta.idleRemainingS <= 0) {
-      meta.phase = 'fadeOut';
-      meta.phaseT = 0;
-      meta.pendingCode = pickCodeExcept(codes, raw.textContent ?? '');
+      setCellCode(raw, pickCodeExcept(codes, raw.textContent ?? ''));
+      meta.idleRemainingS = randomSymbolCycleMs() / 1000;
     }
   }
 }
@@ -204,16 +188,10 @@ export function applyBgDicierVfx() {
 
 function loadDicierFont() {
   if (!fontReady) {
-    fontReady = (async () => {
-      if (document.fonts?.check?.(`${FONT_PX}px ${FONT_FAMILY}`)) return;
-      const face = new FontFace(FONT_FAMILY, `url(${dicierWoff2}) format('woff2')`, {
-        style: 'normal',
-        weight: 'normal',
-      });
-      const loaded = await face.load();
-      document.fonts.add(loaded);
-      await document.fonts.load(`${FONT_PX}px ${FONT_FAMILY}`);
-    })().catch(() => {});
+    fontReady = Promise.all([
+      document.fonts.load(`${FONT_PX}px ${FONT_FAMILY_LIGHT}`),
+      document.fonts.load(`${FONT_PX}px ${FONT_FAMILY_DARK}`),
+    ]).catch(() => {});
   }
   return fontReady;
 }
@@ -225,7 +203,7 @@ function createRow(cols, codes) {
   for (let c = 0; c < cols; c++) {
     const cell = document.createElement('span');
     cell.className = 'bg-dicier-vfx__cell dicier';
-    cell.textContent = pickCode(codes);
+    setCellCode(cell, pickCode(codes));
     initCellSymbolCycle(cell);
     row.appendChild(cell);
   }
@@ -312,7 +290,7 @@ function startStream(mount, codes) {
         for (let i = 0; i < add; i++) {
           const cell = document.createElement('span');
           cell.className = 'bg-dicier-vfx__cell dicier';
-          cell.textContent = pickCode(codes);
+          setCellCode(cell, pickCode(codes));
           initCellSymbolCycle(cell);
           rowEl.appendChild(cell);
         }

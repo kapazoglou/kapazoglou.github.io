@@ -35,6 +35,8 @@ lastVerified: 2026-08-17
 
 ## Modified this session
 
+- **settings-panel.js v1.71** — backdrop tap dismisses sidebar (same path as × close)
+
 - **sfx.js v1.3, main.js** — boot `preloadSfx()` warms configured clips before first interaction
 
 - **bg-dicier-vfx.js v2.9** — 3s accel/decel ramps at inflection, constant cruise speed

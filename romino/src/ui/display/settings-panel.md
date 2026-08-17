@@ -1,7 +1,7 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.70
+v: 1.71
 date: 2026-08-17
 deps: [state, settings, phase, render, game-log, lifetime-stats-view, highscores, sfx, music]
 ---
@@ -11,7 +11,7 @@ As a player, I want to access a hidden settings panel (double-tap the left HUD p
 
 ## Exports
 - `renderSettingsPanel()` — builds toggle rows from `SETTINGS_CONFIG` into `#settings-toggles` (skips `deprecated` group)
-- `initSettingsPanel()` — attaches double-tap listener on `#hud-points` and close-button listener
+- `initSettingsPanel()` — attaches double-tap listener on `#hud-points`, close (×), and backdrop dismiss
 - `.settings-credit` — static `röminó © YEAR — kapazoglou manoli` under CONFIG header (`index.html`)
 - `TUTORIAL_DONE_KEY` — localStorage key cleared when `tutoria` toggles OFF→ON on apply
 

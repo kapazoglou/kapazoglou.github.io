@@ -32,6 +32,15 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Dicier Round Dark';
+  src: url('assets/Dicier v1_5_4/woff2/Dicier-Round-Dark.woff2') format('woff2'),
+       url('assets/Dicier v1_5_4/woff/Dicier-Round-Dark.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
