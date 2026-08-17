@@ -6,6 +6,8 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ## Deploy / build — 2026-08-17
 
+- **Gemfile.lock, .github/workflows/deploy-pages.yml** — CI fix: add `x86_64-linux` to Bundler lockfile (was Windows-only → `bundle` exit 16 on GitHub Actions)
+
 - **drag-drop.js v2.51** — fix snap release jump: promote snap ghost to commit flyer for all slot kinds (was pointer-following flyer)
 
 - **placement-anim.css v1.44, convert-anim.css** — convert arc / fly-back flyers use `transform-origin: top left` so scale(0.55–0.88) stays anchored to snap position (was center-origin drift)
