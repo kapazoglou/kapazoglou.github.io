@@ -35,6 +35,8 @@ lastVerified: 2026-08-17
 
 ## Modified this session
 
+- **Gemfile, Gemfile.lock** — removed Windows-only `wdm` from lockfile; pin Bundler 4.0.11 in deploy workflow
+
 - **Gemfile.lock** — `x86_64-linux` platform added so Jekyll `bundle install` succeeds on GitHub Actions (was Windows-only lockfile)
 
 - **.github/workflows/deploy-pages.yml, _config.yml, romino/.gitignore, README.md** — CI Vite build on push (manifest.json bundled server-side); no local build:pages for deploy
