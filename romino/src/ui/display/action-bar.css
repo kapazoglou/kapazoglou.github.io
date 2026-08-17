@@ -264,6 +264,20 @@
   cursor: default;
 }
 
+@keyframes roll-btn-pool-return {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.roll-btn-wrap--pool-return .roll-btn-face {
+  animation: roll-btn-pool-return calc(0.38s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1);
+}
+
+.roll-btn-wrap--pool-return .roll-btn:not(:disabled) {
+  animation: roll-btn-pool-return calc(0.38s * var(--t)) cubic-bezier(0.2, 0, 0.4, 1);
+}
+
 .action-bar-credit {
   position: absolute;
   left: 20px;

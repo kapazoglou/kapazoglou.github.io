@@ -1,0 +1,51 @@
+.dicier {
+  font-family: 'Dicier Round Light';
+  font-feature-settings:
+    'liga' 1, 'kern' 1, 'calt' 1, 'dlig' 0,
+    'ss01' 0, 'ss02' 0, 'ss03' 0, 'ss04' 0, 'ss05' 0, 'ss06' 0,
+    'ss07' 0, 'ss08' 0, 'ss09' 0, 'ss10' 0, 'ss11' 0,
+    'ss12' 0, 'ss13' 0, 'ss14' 0, 'ss15' 0, 'ss16' 0, 'ss17' 0, 'ss18' 0;
+  font-variant-ligatures: common-ligatures contextual;
+  text-rendering: optimizeLegibility;
+}
+
+.bg-dicier-vfx {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-dicier-vfx__motion {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.bg-dicier-vfx__grid {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  font-size: var(--bg-dicier-font-size, 10px);
+  line-height: 1;
+  color: #fff;
+  opacity: var(--bg-dicier-opacity, 0.05);
+  mix-blend-mode: overlay;
+  will-change: transform;
+}
+
+.bg-dicier-vfx__row {
+  display: grid;
+  grid-template-columns: repeat(var(--bg-dicier-cols, 16), var(--bg-dicier-col-pitch, 25px));
+  height: var(--bg-dicier-row-pitch, 20px);
+}
+
+.bg-dicier-vfx__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--bg-dicier-col-pitch, 25px);
+  height: var(--bg-dicier-row-pitch, 20px);
+}

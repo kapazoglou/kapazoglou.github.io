@@ -1,9 +1,9 @@
 ---
 module: settings-panel
 layer: ui/display
-v: 1.58
-date: 2026-08-15
-deps: [state, settings, phase, render, game-log, lifetime-stats-view, highscores]
+v: 1.70
+date: 2026-08-17
+deps: [state, settings, phase, render, game-log, lifetime-stats-view, highscores, sfx, music]
 ---
 # Settings Panel — User Story
 
@@ -24,7 +24,9 @@ As a player, I want to access a hidden settings panel (double-tap the left HUD p
 
 ## Toggle behaviour
 - Edits buffer in a draft while the panel is open; **close (×)** applies all, saves to localStorage, then reloads the page when game settings changed
-- `fullScreen` applies on close without reload (Fullscreen API via `viewport-controls`)
+- `fullScreen`, `musicVolume`, `sfxVolume`, `vfxEnabled` apply immediately on change (persist + side effects; no reload)
+- `musicTrack` select — loading progress in dropdown only (`Loading… (n/total)` + spinner on select); preview on change, commit on close
+- Optional `attribution` on config items renders `.settings-attribution` below the row (Music, Sound effects, Background VFX)
 - If nothing changed, close dismisses the sidebar without reload
 - Tutoria OFF→ON clears `romino-tutorial-done` before reload so the walkthrough runs again
 - `deckFlank` and `tileDealtEvery` / `tileDealtChainDraw` are mutually exclusive in draft (disabled UI + `clampDraft`)

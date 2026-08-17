@@ -10,6 +10,9 @@ import { initViewportControls } from './ui/display/viewport-controls.js';
 import { render } from './ui/display/render.js';
 import { initDominoSpotStrip } from './ui/display/domino-spot-strip.js';
 import { initSuitDiscoveryOverlay } from './ui/display/suit-discovery-overlay.js';
+import { initSfx, preloadSfx } from './ui/transitions/sfx.js';
+import { initMusic } from './ui/transitions/music.js';
+import { initBgDicierVfx } from './ui/display/bg-dicier-vfx.js';
 
 /** Numbers Deuce is lazy-loaded via @font-face; warm it before first tile convert. */
 async function initNumbersDeuceFont() {
@@ -17,8 +20,9 @@ async function initNumbersDeuceFont() {
   await document.fonts.load('40px "Numbers Deuce"').catch(() => {});
 }
 
-await initNumbersDeuceFont();
+await Promise.all([initNumbersDeuceFont(), initBgDicierVfx(), preloadSfx()]);
 
+initMusic();
 initDragDrop();
 initDominoSpotStrip();
 initStarRerollInput();
@@ -32,6 +36,7 @@ initNavigationGuard();
 initSettingsPanel();
 initViewportControls();
 initSuitDiscoveryOverlay();
+initSfx();
 
 resetGame();
 render();

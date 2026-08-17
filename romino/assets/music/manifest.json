@@ -1,0 +1,74 @@
+{
+  "tracks": [
+    {
+      "id": "bubble-gum-puzzler",
+      "label": "Bubble Gum Puzzler",
+      "file": "Bubble-Gum-Puzzler.ogg"
+    },
+    {
+      "id": "candy-smash",
+      "label": "Candy Smash",
+      "file": "Candy-Smash.ogg"
+    },
+    {
+      "id": "cool-puzzler",
+      "label": "Cool Puzzler",
+      "file": "Cool-Puzzler.ogg"
+    },
+    {
+      "id": "dreaming-of-puzzles",
+      "label": "Dreaming of Puzzles",
+      "file": "Dreaming-of-Puzzles.ogg"
+    },
+    {
+      "id": "game-menu-looping-1",
+      "label": "Game Menu Looping 1",
+      "file": "Game-Menu_Looping-1.ogg"
+    },
+    {
+      "id": "light-puzzles-10",
+      "label": "Light Puzzles 10",
+      "file": "Light-Puzzles-10.ogg"
+    },
+    {
+      "id": "light-puzzles-12",
+      "label": "Light Puzzles 12",
+      "file": "Light-Puzzles-12.ogg"
+    },
+    {
+      "id": "mind-bender-2",
+      "label": "Mind Bender 2",
+      "file": "Mind-Bender-2.ogg"
+    },
+    {
+      "id": "mind-bender",
+      "label": "Mind Bender",
+      "file": "Mind-Bender.ogg"
+    },
+    {
+      "id": "more-puzzle-madness",
+      "label": "More Puzzle Madness",
+      "file": "More-Puzzle-Madness.ogg"
+    },
+    {
+      "id": "pixel-balloons-v1",
+      "label": "Pixel Balloons v1",
+      "file": "Pixel-Balloons_v1.ogg"
+    },
+    {
+      "id": "pixel-balloons-v2",
+      "label": "Pixel Balloons v2",
+      "file": "Pixel-Balloons_v2.ogg"
+    },
+    {
+      "id": "pixel-balloons",
+      "label": "Pixel Balloons",
+      "file": "Pixel-Balloons.ogg"
+    },
+    {
+      "id": "sky-puzzle",
+      "label": "Sky Puzzle",
+      "file": "Sky-Puzzle.ogg"
+    }
+  ]
+}

@@ -12,7 +12,7 @@ date: 2026-07-19
 [[render]] · [[placement-row]] · [[hud-v2]] · [[action-bar]] · [[settings-panel]] · [[viewport-controls]] · [[drag-drop]] · [[handlers]] · [[navigation-guard]]
 
 ## UI / Transitions
-[[timing]] · [[haptics]] · [[convert-anim]] · [[sweep-anim]] · [[pip-anim]] · [[confirm-anim]]
+[[timing]] · [[haptics]] · [[sfx]] · [[convert-anim]] · [[sweep-anim]] · [[pip-anim]] · [[confirm-anim]]
 
 ## Reference
-[[EVENTS]] · [[design-specs]] · [[CHANGELOG]]
+[[EVENTS]] · [[SFX]] · [[design-specs]] · [[CHANGELOG]]

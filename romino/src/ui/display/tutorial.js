@@ -1,6 +1,7 @@
 import { settings, spd } from '../../logic/settings.js';
 import { TUTORIAL_DONE_KEY } from './settings-panel.js';
 import { getTutorialSteps, hasEarnedStarSinceStart } from './tutorial-steps.js';
+import { playSfx } from '../transitions/sfx.js';
 
 const HIGHLIGHT_PAD = 8;
 const CARD_GAP = 16;
@@ -261,10 +262,14 @@ function buildDOM() {
   skipBtn = card.querySelector('[data-tutorial-skip]');
   nextBtn = card.querySelector('[data-tutorial-next]');
 
-  skipBtn?.addEventListener('click', finishTutorial);
+  skipBtn?.addEventListener('click', () => {
+    playSfx('ui_tap');
+    finishTutorial();
+  });
   nextBtn?.addEventListener('click', () => {
     const step = currentStep();
     if (step?.type === 'gate' && !gateMet(step)) return;
+    playSfx('ui_tap');
     advanceStep();
   });
 

@@ -17,6 +17,7 @@ import {
 import { fullSweepScoreMultiplier } from '../../logic/sweeps-row.js';
 import { disarmEndGamePrompt } from './end-game-prompt.js';
 import { render } from './render.js';
+import { playSfx } from '../transitions/sfx.js';
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   month: 'short',
@@ -120,6 +121,7 @@ export function showGameOver(reason = '') {
     overlay.classList.remove('is-minimized');
     overlay.classList.add('is-visible');
     overlay.setAttribute('aria-hidden', 'false');
+    playSfx('game_over');
   }
 
   const titleEl = document.getElementById('game-over-title');
@@ -182,10 +184,12 @@ export function hideGameOver() {
 export function initGameOver() {
   document.getElementById('go-handle')?.addEventListener('click', e => {
     if (e.target.closest('#game-over-restart')) return;
+    playSfx('ui_tap');
     document.getElementById('game-over-overlay')?.classList.toggle('is-minimized');
   });
 
   document.getElementById('game-over-restart')?.addEventListener('click', () => {
+    playSfx('game_restart');
     hideGameOver();
     disarmEndGamePrompt();
     resetGame();

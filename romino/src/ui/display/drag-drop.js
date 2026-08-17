@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings } from '../../logic/settings.js';
-import { slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, isReturnablePlacedDie, isSwapRefundableDie, findDieColumn } from '../../logic/row.js';
+import { slotFromHintDataset, isBarDieInactive, getValidSlotsForDie, isReturnablePlacedDie, isSwapRefundableDie, findDieColumn, slotsEqual } from '../../logic/row.js';
 import { returnDieToBarWithStarRefund } from '../transitions/star-refund-anim.js';
 import {
   setDominoChosenPairFromDie,
@@ -26,6 +26,7 @@ import { attemptPlacementAtPoint, attemptPushBelowOnBottomDie } from './placemen
 import { updateInsertHoverSpread, clearInsertHoverSpread } from '../transitions/placement-hover.js';
 import { beginRepositionCollapse, clearRepositionCollapse, beginPushReturnCollapse, clearPushReturnCollapse } from '../transitions/reposition-collapse.js';
 import { tryRefundSwapStack } from '../transitions/stack-swap-anim.js';
+import { playSfx } from '../transitions/sfx.js';
 
 const DRAG_THRESHOLD = 8;
 /** Gap between pointer and bottom edge of drag die (screen px). */
@@ -46,6 +47,8 @@ let blockNextRowClick = false;
 let activeSnapSlot = null;
 /** @type {HTMLElement | null} */
 let snapGhostEl = null;
+/** Last slot that triggered `snap_tick` — reset when ghost hides. */
+let lastSnapTickSlot = null;
 
 function snappingActive() {
   return settings.snapping && settings.directPlacement;
@@ -217,18 +220,26 @@ function updateSnapGhost(slot) {
   snapGhostEl.classList.toggle('placement-snap-ghost--push-below', slot?.kind === 'stack-below');
   if (!slot) {
     snapGhostEl.style.display = 'none';
+    lastSnapTickSlot = null;
     syncDragPreviewVisibility();
     return;
   }
   const pos = slotAnchorXY(slot, dragDieId);
   if (!pos) {
     snapGhostEl.style.display = 'none';
+    lastSnapTickSlot = null;
     syncDragPreviewVisibility();
     return;
   }
+  const wasHidden = snapGhostEl.style.display === 'none';
+  const slotChanged = !lastSnapTickSlot || !slotsEqual(lastSnapTickSlot, slot);
   snapGhostEl.style.display = '';
   snapGhostEl.style.left = `${pos.left}px`;
   snapGhostEl.style.top = `${pos.top}px`;
+  if (wasHidden || slotChanged) {
+    playSfx('snap_tick');
+    lastSnapTickSlot = slot;
+  }
   syncDragPreviewVisibility();
 }
 
@@ -237,6 +248,7 @@ function clearSnapGhost() {
   snapGhostEl?.remove();
   snapGhostEl = null;
   activeSnapSlot = null;
+  lastSnapTickSlot = null;
   syncPushBelowTargets();
 }
 
@@ -393,6 +405,7 @@ function beginDrag(e) {
   }
 
   syncStarMarkersDuringMotion();
+  playSfx('dice_pickup');
 }
 
 function onPointerMove(e) {
@@ -538,10 +551,12 @@ function resolveDrop(e) {
 
     if (!animHandled) {
       if (returnedToBar) {
+        playSfx('dice_return');
         /* render handled in returnDieToBarWithStarRefund */
         dragFlyer?.remove();
         dragFlyer = null;
       } else if (dragDieId != null && state.actionBar.includes(dragDieId)) {
+        playSfx('dice_cancel');
         syncDominoTrayIdleUnlock();
         renderActionBar();
       } else if (dragDieId != null && state.placedDieIds.has(dragDieId)) {
@@ -557,7 +572,11 @@ function resolveDrop(e) {
     const tapResult = handleDieTap(dragDieEl);
     if (tapResult === 'return' || tapResult === 'refund-swap' || tapResult === 'push-below' || tapResult === 'push-invalid') {
       blockNextRowClick = true;
+      if (tapResult === 'return') playSfx('dice_return');
       if (tapResult === 'refund-swap') render();
-    } else if (tapResult === 'selection') renderSelection();
+    } else if (tapResult === 'selection') {
+      playSfx('dice_select');
+      renderSelection();
+    }
   }
 }

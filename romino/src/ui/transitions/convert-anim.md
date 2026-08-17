@@ -1,9 +1,9 @@
 ---
 module: convert-anim
 layer: ui/transitions
-v: 1.21
-date: 2026-08-10
-deps: [state, settings, convert, render, timing, dice-visual]
+v: 1.23
+date: 2026-08-17
+deps: [state, settings, convert, render, timing, dice-visual, pool-return-effect]
 ---
 # Convert Anim
 
@@ -12,7 +12,8 @@ Salvaged from Square `card-anim`: tray slide-in + stack→tile conversion sequen
 ## Exports
 - `processConverts(cols, index, onDone, wellDoneResult?)` — ace/joker/switcher: star pay fly first, then convert anim then mutate; matching flank tops swept after each convert
 - `animateConverts(onDone)` — queue all full stacks on the row; passes `'well-done'` when convert-match discard empties both flank stacks or deck-size counter hits 0
-- `animateConvertFlyBack(col, onDone)` — (internal) top-first stagger to roll button; when `tileDiceHold` ON, flies 2 of 3 (withheld die hidden, no flyer)
+- `animateConvertFlyBack(col, onDone)` — (internal) top-first stagger to roll button; when `tileDiceHold` ON, flies 2 of 3 (withheld die hidden, no flyer); pool return pulse/SFX on commit via `finishConvert`
+- `finishConvert` — pool credit + `triggerPoolReturnEffect` after render (syncs roll-btn number bump)
 - `animateSwitcherJokerConvert(col, onDone)` — (internal) when `switcherJokers` ON: merge + missing-suit crossfade; mid+top arc-fly; bottom die stays (no rank cube / shell)
 - `animateCubeConvert(col, onDone)` — (internal) when `diceAndCubes` ON: overlay-blend top→mid merge **with rank cube fade in parallel**; mid/top hidden when merge ends; then scale-down + arc fly + suit-color glyph + inset stroke
 - `animateCubeJokerConvert(col, onDone)` — (internal) joker branch: top→mid merge; mid+top collapse to bottom while missing-suit die crossfades in at bottom suit slot; all three stack dice arc-fly from bottom suit die at 50% opacity

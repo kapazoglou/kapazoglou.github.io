@@ -5,6 +5,7 @@ import { stripTileHasRowDuplicate, pairSweepStripTile, getRowColForIdentity, sor
 import { spd } from '../../logic/settings.js';
 import { BEAT_MS, SWEEP_MS } from '../transitions/timing.js';
 import { render } from './render.js';
+import { playSfx } from '../transitions/sfx.js';
 
 let pairSweepBeatTimer = null;
 let pairSweepDoneTimer = null;
@@ -94,11 +95,13 @@ export function startPairSweepAnimation(stripId) {
   state.pairSweepExit = { stripId, rowCol, phase: 'wait', prevPhase };
   state.phase = 'animating';
   document.getElementById('app')?.classList.add('is-sweep-exit');
+  playSfx('sweep_beat');
   render();
 
   pairSweepBeatTimer = setTimeout(() => {
     pairSweepBeatTimer = null;
     if (!state.pairSweepExit) return;
+    playSfx('sweep_rise');
     state.pairSweepExit.phase = 'run';
     render();
     pairSweepDoneTimer = setTimeout(() => {

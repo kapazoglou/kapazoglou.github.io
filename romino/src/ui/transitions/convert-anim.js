@@ -1,6 +1,6 @@
 import { state } from '../../logic/state.js';
 import { settings, spd } from '../../logic/settings.js';
-import { getConvertibleCols, convertColumn, convertRequiresStar, isSwitcherConvertCol } from '../../logic/convert.js';
+import { getConvertibleCols, convertColumn, convertRequiresStar, isSwitcherConvertCol, diceReturnedCountForConvert } from '../../logic/convert.js';
 import { findFlankSidesWithTopMatch } from '../../logic/deck-flank.js';
 import {
   dieSVG,
@@ -18,6 +18,8 @@ import { render } from '../display/render.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { payStarForConvert } from './pip-anim.js';
 import { animateFlankStackSweep } from './sweep-anim.js';
+import { playSfx, playSfxVariant } from './sfx.js';
+import { triggerPoolReturnEffect } from './pool-return-effect.js';
 import {
   FLY_EASING,
   viewportScale,
@@ -511,12 +513,15 @@ function afterConvertTile(col, cols, index, onDone, wellDoneResult) {
 
 function finishConvert(col, cols, index, onDone, wellDoneResult) {
   const switcher = isSwitcherConvertCol(col);
+  const returned = diceReturnedCountForConvert(col);
   const convertResult = convertColumn(col);
   const mergedWellDone = mergeWellDone(wellDoneResult, convertResult);
   state.convertingCol = null;
   const skipTilePop = settings.diceAndCubes || switcher;
   if (!skipTilePop) state.newTileCols.add(col);
   render();
+  if (!skipTilePop) playSfx('tile_place');
+  if (returned > 0) triggerPoolReturnEffect(returned);
   const tailMs = skipTilePop ? 0 : spd(CONVERT_MS);
   setTimeout(() => {
     if (!skipTilePop) state.newTileCols.delete(col);
@@ -539,6 +544,7 @@ export function processConverts(cols, index, onDone, wellDoneResult = null) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       const runConvertAnim = () => {
+        playSfxVariant('convert', 'convert_2', index);
         const onAnimDone = () => finishConvert(col, cols, index, onDone, wellDoneResult);
         if (isSwitcherConvertCol(col)) {
           animateSwitcherJokerConvert(col, onAnimDone);

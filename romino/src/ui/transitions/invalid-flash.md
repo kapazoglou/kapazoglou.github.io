@@ -1,9 +1,9 @@
 ---
 module: invalid-flash
 layer: ui/transitions
-v: 1.4
-date: 2026-08-10
-deps: [settings, state, dealt-strip.js, render.js]
+v: 1.5
+date: 2026-08-17
+deps: [settings, state, dealt-strip.js, render.js, sfx]
 ---
 # Invalid Flash
 

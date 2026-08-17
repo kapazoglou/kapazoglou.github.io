@@ -69,7 +69,7 @@ export const BANK_PIP_FADE_DELAY_MS = 300;
 /** Launch next bank pip midway through the previous pip's travel phase. */
 export const BANK_PIP_GAP_MS = BANK_PIP_POP_UP_MS + BANK_PIP_POP_DOWN_MS + BANK_PIP_TRAVEL_MS / 2;
 
-/** HUD sweep bank: hold on `stars×mult` before showing product. */
+/** HUD sweep bank: hold on `mult×stars` before showing product. */
 export const SWEEP_MULT_EQ_HOLD_MS = 520;
 
 /** HUD sweep bank: hold on product before pip fly to score. */

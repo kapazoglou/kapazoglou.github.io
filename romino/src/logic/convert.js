@@ -57,6 +57,16 @@ export function getConvertibleCols() {
   return getOccupiedCols().filter(canConvertColumn);
 }
 
+/** Dice returned to pool when this stack converts (before `convertColumn` mutates row). */
+export function diceReturnedCountForConvert(col) {
+  const column = state.row[col];
+  if (!column || column.kind !== 'stack' || column.dice.length !== 3) return 0;
+  const values = column.dice.map(id => state.dice[id].value);
+  if (isSwitcherTricolorStack(values)) return 2;
+  const hold = settings.tileDiceHold ? 1 : 0;
+  return Math.max(0, column.dice.length - hold);
+}
+
 /** Switcher Jokers: tricolor stack → lone die of missing inner color; mid+top return to pool. */
 export function convertSwitcherColumn(col) {
   const column = state.row[col];

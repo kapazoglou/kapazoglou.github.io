@@ -4,6 +4,7 @@ import {
   buildSessionSweepTiles,
   SWEEP_DISCOVERY_RANKS,
 } from '../../logic/suit-tally.js';
+import { syncMusicOverlayState } from '../transitions/music.js';
 
 function sweepTileCountKey(suit, rank) {
   return `${suit}:${rank}`;
@@ -99,6 +100,7 @@ function showOverlay() {
   if (!el || !gridEl) return;
   gridEl.innerHTML = sessionSweepDiscoveryHTML(buildSessionSweepTiles());
   holdActive = true;
+  syncMusicOverlayState();
 }
 
 function endHold() {
@@ -106,6 +108,7 @@ function endHold() {
   heldRow = null;
   holdActive = false;
   unmountOverlay();
+  syncMusicOverlayState();
 }
 
 function onHoldEnd() {

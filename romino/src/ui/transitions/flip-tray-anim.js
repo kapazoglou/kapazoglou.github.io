@@ -3,6 +3,7 @@ import { oppositeDieValue, canStarFlipTrayDie, recordFlip } from '../../logic/st
 import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForTrayDie } from './pip-anim.js';
 import { render } from '../display/render.js';
+import { playSfx } from './sfx.js';
 
 /** Star pay fly → deduct → flip tray die to opposite face (all faces; outer gated by rerollOuter). */
 export function tryStarFlipTrayPay(dieId, { skipStarFly = false } = {}) {
@@ -30,6 +31,7 @@ export function flipTrayDieWithAnim(dieId, { skipStarFly = false } = {}) {
     state.newTrayDieIds.add(dieId);
 
     state.phase = 'rolled';
+    playSfx('dice_select');
     render();
   }, { skipFly: skipStarFly });
 

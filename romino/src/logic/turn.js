@@ -37,6 +37,8 @@ import {
 } from './domino-spots.js';
 import { discoveryWinGameOverReason, suitTallyGameOverReason } from './suit-tally.js';
 import { getStarEligibleDieIds } from './stars.js';
+import { playSfx } from '../ui/transitions/sfx.js';
+import { resetStarCreatedSfxKeys } from '../ui/display/placement-row.js';
 
 /** Starting star balance — `startingStars` plus rerollOuter / domino-pair seed (N-place each). */
 export function initialStarCount() {
@@ -49,6 +51,7 @@ export function initialStarCount() {
 
 export function resetGame() {
   resetStateObject();
+  resetStarCreatedSfxKeys();
   resetGameLog();
   clampSettings();
   state.dicePool = settings.nDice;
@@ -332,7 +335,10 @@ export function rollDice() {
   if (settings.tileDealtEvery > 0 && !settings.deckFlank && state.rollCount % settings.tileDealtEvery === 0) {
     const deal = resolveCadenceDeal();
     if (deal.deckDepleted) return 'well-done';
-    if (deal.tile) appendDealtStripTile(deal.tile);
+    if (deal.tile) {
+      appendDealtStripTile(deal.tile);
+      playSfx('tile_place');
+    }
   }
 
   if (settings.dominoRoll && count === 2) {
@@ -340,6 +346,7 @@ export function rollDice() {
   }
 
   state.phase = 'rolled';
+  playSfx('dice_roll');
   return 'ok';
 }
 

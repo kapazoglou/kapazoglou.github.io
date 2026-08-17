@@ -23,6 +23,8 @@ import {
   viewportScale,
   rollBtnTargetXY,
 } from './cube-fly.js';
+import { playSfx, playSfxVariant } from './sfx.js';
+import { triggerPoolReturnEffect } from './pool-return-effect.js';
 import {
   BEAT_MS,
   SWEEP_MS,
@@ -48,7 +50,8 @@ function captureColLeftPositions() {
 }
 
 /** FLIP remaining columns inward after swept tiles are removed from state. */
-function animateColumnCollapse(beforeLeft, onDone) {
+function animateColumnCollapse(beforeLeft, onDone, runIndex = 0) {
+  playSfxVariant('sweep_collapse', 'sweep_collapse_2', runIndex);
   const inner = document.querySelector('.placement-row-inner');
   if (!inner) {
     onDone();
@@ -186,6 +189,7 @@ function animateSweepCubePrelude(cols, onDone) {
 
 function beginSweepRunPhase() {
   if (!state.sweepExit) return;
+  playSfxVariant('sweep_rise', 'sweep_rise_2', state.sweepExit.runIndex ?? 0);
   state.sweepExit.phase = 'run';
   render();
   state.sweepExitDoneTimer = setTimeout(() => {
@@ -194,7 +198,8 @@ function beginSweepRunPhase() {
   }, spd(SWEEP_MS));
 }
 
-export function startRowSweepAnimation(cols, onDone) {
+export function startRowSweepAnimation(cols, onDone, runIndex = 0) {
+  playSfxVariant('sweep_beat', 'sweep_beat_2', runIndex);
   pinRowScroll();
   clearSweepExitTimers();
   const flankSides = cols.map(col => flankSideForSweepCol(col)).filter(Boolean);
@@ -205,6 +210,7 @@ export function startRowSweepAnimation(cols, onDone) {
     stripIds,
     phase: 'wait',
     suitFlownCols: new Set(),
+    runIndex,
     onDone,
   };
   document.getElementById('app')?.classList.add('is-sweep-exit');
@@ -251,6 +257,7 @@ function finishFlankStackSweep() {
     state.newFlankSides.add(side);
   }
   render();
+  playSfx('tile_place');
   setTimeout(() => {
     for (const side of flankSides) state.newFlankSides.delete(side);
     render();
@@ -265,6 +272,7 @@ export function animateFlankStackSweep(flankSides, onDone) {
     onDone?.(null);
     return;
   }
+  playSfx('sweep_beat');
   pinRowScroll();
   clearSweepExitTimers();
   state.sweepExit = { cols: [], flankSides: [...flankSides], phase: 'wait', onDone };
@@ -274,6 +282,7 @@ export function animateFlankStackSweep(flankSides, onDone) {
   state.sweepExitBeatTimer = setTimeout(() => {
     state.sweepExitBeatTimer = null;
     if (!state.sweepExit) return;
+    playSfx('sweep_rise');
     state.sweepExit.phase = 'run';
     render();
     state.sweepExitDoneTimer = setTimeout(() => {
@@ -303,6 +312,8 @@ export function resolveSweepsAnimated(onDone) {
     }
   };
 
+  let sweepRunIndex = 0;
+
   const next = () => {
     const runs = findSweepRuns();
     if (!runs.length) {
@@ -310,13 +321,20 @@ export function resolveSweepsAnimated(onDone) {
       return;
     }
     const run = runs[0];
+    const runIndex = sweepRunIndex++;
     startRowSweepAnimation(run.map(([col]) => col), () => {
       clearDealtStrip();
       const beforeLeft = captureColLeftPositions();
       const flankRevealed = run.map(([col]) => flankSideForSweepCol(col)).filter(Boolean);
       const tiles = run.map(([, t]) => t);
       const lengthFactor = sweepLengthFactor(tiles);
+      const playerColsSwept = run
+        .map(([col]) => col)
+        .filter(col => !flankSideForSweepCol(col)).length;
       applySweepRun(run);
+      if (settings.tileDiceHold && playerColsSwept > 0) {
+        triggerPoolReturnEffect(playerColsSwept);
+      }
       for (const side of flankRevealed) {
         state.newFlankSides.add(side);
       }
@@ -338,8 +356,8 @@ export function resolveSweepsAnimated(onDone) {
           return;
         }
         next();
-      });
-    });
+      }, runIndex);
+    }, runIndex);
   };
 
   next();

@@ -1,6 +1,6 @@
 ---
 topologyPhase: row
-lastVerified: 2026-08-15
+lastVerified: 2026-08-17
 ---
 
 # römino — Verified Pattern State
@@ -16,7 +16,9 @@ lastVerified: 2026-08-15
 | Game state | `src/logic/state.js` | row map, pool, `diceWithheld`, stars, points, `suitTally`, rollCount, `jokerSuitsUsed`, `deckRemaining`, `dealtStrip`, flank deck/previews, `dominoReshufflesRemaining`, `dominoHandKeys` / `dominoHandPreviewKey` / `dominoHandLocked` / `dominoHandPreviewDieIds` / `dominoHandSelectedIndex` / `dominoHandCommittedKey` / `newDominoHandKeys` (nRoll=1 hand preview) / `dominoStarRerollUsedKey` (Spots ON star reroll reserve) |
 | Highscores | `src/logic/highscores.js` | localStorage top-10 |
 | Game log | `src/logic/game-log.js` | per-game log (cap 100) + lifetime aggregates per settings config (`romino-v2-lifetime-stats`) |
-| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `startingStars`, `startingDice`, `tileDealtEvery`, `deckSize`, `deckFlank`, `tileDiceHold`, `diceAndCubes`, `directPlacement`, `snapping`, `suitRestriction`, `nextMustFollow`, `consecutiveStars`, `verticalStars`, `aceJokerStarCost`, `rerollOuter`, `dominoRoll`, `dominoSpots`, `tricolors`, `switcherJokers`, `tricolorSevens`, `tricolorRestriction`, `jokerFlushOnly`, `nineCubes`, `monotonic`, `sweptSuits`, `sweptLowSuitBonus`, `sweptDuplicatePenalty`, `starPowers`, `pushBelowCost`, `pushSwapStars`, `buggerSingles`, `tutoria` |
+| Settings | `src/logic/settings.js` | nDice/nRoll/nPlace/nSpots + toggles incl. `sfxEnabled`, `sfxVolume`, `vfxEnabled`, `musicTrack`, … |
+| SFX | `src/ui/transitions/sfx.js` + `assets/sfx/manifest.json` | `preloadSfx()` at boot (URL-deduped warm pool); `playSfx(id)` clones warmed src; gated by `sfxEnabled` + volume; unlock on first gesture |
+| Music | `src/ui/transitions/music.js` + `assets/music/manifest.json` | Web Audio lazy decode; `loopStart`/`loopEnd`/`loopEndPadding` in manifest; default loopEnd −0.02s; LoFi swap on settings/game-over/suit-discovery hold |
 | Tutorial | `src/ui/display/tutorial.js` | Tutoria overlay when `tutoria` ON; completion `romino-tutorial-done` in localStorage |
 | End-game KO prompt | `src/ui/display/end-game-prompt.js` | UI-only armed state for roll-button KO confirm; defers overlay until KO tap |
 | DOM | Derived | `render()` only |
@@ -32,6 +34,20 @@ lastVerified: 2026-08-15
 - `src/ui/display/handlers.js` — input
 
 ## Modified this session
+
+- **sfx.js v1.3, main.js** — boot `preloadSfx()` warms configured clips before first interaction
+
+- **bg-dicier-vfx.js v2.9** — 3s accel/decel ramps at inflection, constant cruise speed
+
+- **settings.js v2.49, bg-dicier-vfx.js v2.3, settings-panel.js v1.69** — `vfxEnabled` toggle (General, under SFX); slower Dicier rotation (0.4°/s)
+
+- **music.js v2.5** — boot graph priming + `tryAutoplayUnlock()`; document-level gesture fallback
+
+- **music.js v2.4** — `bootstrapMusic()` after settings load; boot preload restored; unlock calls `applyMusicTrack()`
+
+- **music.js v2.2** — Web Audio seamless loops; default loopEnd trim 0.02s; manifest loop trim fields
+
+- **sfx.js v1.0, manifest.json, SFX.md, settings.js v2.47** — minimal tactile SFX layer (~22 IDs); settings toggles; hooks across turn/placement/confirm/UI
 
 - **drag-drop.js v2.48** — row→tray return hit-test: flyer + tray band above roll btn (Spots discard pile cancel fix)
 

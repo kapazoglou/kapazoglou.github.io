@@ -16,6 +16,134 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ---
 
+---
+
+- **bg-dicier-vfx.js v2.15, bg-dicier-vfx.md** — dice-pool VFX speed cap raised to +25% (was +10%)
+
+- **bg-dicier-vfx.js v2.14, bg-dicier-vfx.md** — VFX speed tied to dice pool (up to +10% when empty); scroll, rotation, symbol cycles
+
+- **bg-dicier-vfx.js v2.13, bg-dicier-vfx.css v2.13, bg-dicier-vfx.md** — grid pitch eased to 25×20px (between original 28×22 and tight 22×18)
+
+- **bg-dicier-vfx.js v2.12, bg-dicier-vfx.css v2.12, bg-dicier-vfx.md** — tighter grid pitch (22×18px, was 28×22px)
+
+- **bg-dicier-vfx.js v2.11, bg-dicier-vfx.md** — slower symbol cycling (12–45s) and gentler fade (500ms)
+
+- **bg-dicier-vfx.js v2.10, bg-dicier-vfx.md** — per-cell symbol cycling on independent random timers; subtle fade, one swap at a time per cell
+
+- **pip-anim.js v1.19, pip-anim.md** — sweep bank HUD shows multiplier left of star count (`N×stars` not `stars×N`)
+
+- **settings.js v2.51** — Dicier attribution under Background VFX toggle (Speak the Sky, CC BY 4.0)
+
+- **settings.js v2.50, settings-panel.js v1.70** — Zapsplat SFX attribution under Sound effects toggle (mirrors Music credit)
+
+- **music.js v2.7, music manifest, MUSIC.md** — manifest + settings list LoFi-paired tracks only (14); unpaired sources in `assets/music/no-lofi/`; catalog skips manifest entries without a LoFi file
+
+- **music.js v2.6, suit-discovery-overlay.js v1.7** — LoFi music handoff while suit tally discovery overlay is held (same swap as settings sidebar)
+
+- **drag-drop.js v2.51, sfx.js v1.4** — defer/throttle drag-path SFX (`dice_pickup`, `snap_tick`) off pointer events; init guard; pointermove error recovery
+
+- **sfx.js v1.3, sfx.md, main.js** — boot `preloadSfx()` warms all configured clips (URL-deduped) before first interaction; play clones warmed `src`
+
+- **placement-row.js, sfx.js** — `star_created` per die-pair (not column key); SFX in marker draw loop; horizontal all rows + vertical; `play().catch` no longer permanently disables SFX ids
+
+- **placement-row.js** — `star_created` synced to drawable markers (snap/drag filters); lifecycle still from `findStarMatches`
+
+- **placement-row.js, turn.js** — `star_created` tracks logic match lifecycle (`findStarMatches`); no reset on roll/confirm; re-fires only when a match is destroyed then recreated
+
+- **placement-row.js, manifest.json, SFX.md** — `sweep_dup_warn` SFX when red −N duplicate-sweep label first appears on stack/tile
+
+- **sfx.js v1.4, manifest.json, convert-anim.js, sweep-anim.js, pool-return-effect.js v1.2, confirm-anim.js, SFX.md** — `_2` manifest ids + `playSfxVariant`; convert / pool-return / chain-sweep alternate 1st↔2nd
+
+- **pool-return-effect.js v1.1, manifest.json, SFX.md** — dedicated `dice_pool_return` manifest id (filename-only, like other SFX)
+
+- **pool-return-effect.js v1.0 (new), convert-anim.js, sweep-anim.js, convert.js, action-bar.css** — roll-button pulse + pool return SFX on convert and `tileDiceHold` sweeps
+
+- **placement-row.js, pip-anim.js v1.18, turn.js** — `star_spend` plays even when HUD drag skips fly; `star_created` limited to visible row-0 horizontal gaps with per-turn dedupe
+
+- **placement-row.js, pip-anim.js v1.17, manifest.json, SFX.md** — split star SFX: `star_created` on live horizontal ⭐ preview; `star_collect` for confirm collect + refunds; `star_spend` unchanged
+
+- **bg-dicier-vfx.js v2.9, bg-dicier-vfx.md** — ~3s sin/cos ramps at inflection; constant 0.4°/s cruise between
+
+- **bg-dicier-vfx.js v2.8, bg-dicier-vfx.md** — slow leg timing back to ~0.4°/s average (`ROT_LEG_SPEED` 15 → 1)
+
+- **bg-dicier-vfx.js v2.7, bg-dicier-vfx.md** — fix frozen VFX: τ-based easing, faster leg timing, uniform mid-leg boot
+
+- **bg-dicier-vfx.js v2.6, bg-dicier-vfx.md** — sinusoidal leg easing: decelerate to zero at inflection, accelerate back; scroll matched
+
+- **bg-dicier-vfx.js v2.5, bg-dicier-vfx.md** — random initial rotation ±60–90° (signed random motion dir)
+
+- **bg-dicier-vfx.js v2.4, bg-dicier-vfx.md** — rotation oscillates ±60–90° (random turn limit); scroll + spawn/cull ends reverse together
+
+- **settings.js v2.49, settings.md, settings-panel.js v1.69, settings-panel.md, bg-dicier-vfx.js v2.3, bg-dicier-vfx.md** — `vfxEnabled` toggle under SFX (immediate apply); rotation 0.8°/s → 0.4°/s
+
+- **settings-panel.js v1.68, settings-panel.md** — fullScreen, musicVolume, sfxVolume apply immediately on change (not on panel close)
+
+- **music.js v2.5, music.md** — prime playback graph on boot (no unlock gate); `tryAutoplayUnlock()` on load + after decode; document-level gesture fallback
+
+- **music.js v2.4, music.md, settings-panel.js** — restore boot music preload via `bootstrapMusic()` after settings load; first tap starts playback without opening settings
+
+- **music.js v2.3, music.md** — Music dropdown appends `+LoFi` to tracks with a matching LoFi file
+
+- **bg-dicier-vfx.js v2.3, bg-dicier-vfx.css v2.3, base.css** — lock to `Dicier Round Light` only; disable OT sets that switch mode/weight; core English codes
+
+- **bg-dicier-vfx.js v2.2** — oversized grid from pivot reach; recycle rows only when fully off-screen (45° safe)
+
+- **bg-dicier-vfx.js v2.1, bg-dicier-vfx.css v2.1** — slight grid shrink: 10px icons, 28×22px pitch
+
+- **bg-dicier-vfx.js v2.0** — slower upward scroll (3.2px/s, matched to rotation scale)
+
+- **bg-dicier-vfx.js v1.9** — slower rotation (0.8°/s)
+
+- **bg-dicier-vfx.js v1.8, bg-dicier-vfx.css v1.8** — narrower horizontal pitch (32px)
+
+- **bg-dicier-vfx.css v1.7** — opacity back to 5% (overlay blend kept)
+
+- **bg-dicier-vfx.css v1.6** — grid `mix-blend-mode: overlay`; opacity 66%
+
+- **bg-dicier-vfx.js v1.5, bg-dicier-vfx.css v1.5** — tighter 11px / 40×24px pitch; rotation pivot on `#placement-row` center
+
+- **bg-dicier-vfx.js v1.4, bg-dicier-vfx.css v1.4** — upward row stream (spawn/cull off-screen) + slow continuous rotation; clipped by viewport
+
+- **bg-dicier-vfx.js v1.3, bg-dicier-vfx.css v1.3** — tighter grid: 14px icons, 52×32px pitch
+
+- **bg-dicier-vfx.js v1.2, bg-dicier-vfx.css v1.2** — smaller icons (18px), wider horizontal pitch (68px); full-height layer behind action bar (overlay blend)
+
+- **bg-dicier-vfx.js v1.1, bg-dicier-vfx.css v1.1, base.css, index.html** — fix Dicier woff2 path + FontFace import; unified orthogonal grid motion; restore action-bar blend (drop sibling z-index rule)
+
+- **bg-dicier-vfx.js v1.0, bg-dicier-vfx.css v1.0, base.css, index.html, main.js** — decorative Dicier-icon background grid (low-opacity white, pan + wobble) above bg, clipped above action bar
+
+- **music.js v2.2, music.md, MUSIC.md, assets/music/README.md** — Web Audio seamless loops (lazy decode); default loopEnd trim 0.02s; manifest `loopStart` / `loopEnd` / `loopEndPadding`
+
+- **drag-drop.js v2.50, manifest.json** — `snap_tick` SFX when snapping ghost appears or moves to a new slot during drag
+
+- **sfx.js v1.2, assets/sfx/README.md, manifest.json** — filename-only `file` field (music pattern); Vite glob resolve; gesture unlock fixes first roll tap; gameplay never blocked on missing clips
+- **settings.js v2.47, settings-panel.js v1.60** — General: `sfxEnabled` toggle + `sfxVolume` stepper (0–10)
+- **main.js** — `initSfx()` at boot
+- **invalid-flash.js v1.5, turn.js, drag-drop.js, placement-anim.js, pip-anim.js, convert-anim.js, sweep-anim.js** — Phase A/B confirm-pipeline SFX hooks
+- **game-over.js, end-game-prompt.js, handlers.js, dealt-strip.js, tutorial.js, star-reroll-input.js, reroll-outer-anim.js, domino-reroll-anim.js, flip-tray-anim.js** — Phase C meta + star-power SFX hooks
+
+- **music.js v2.1, settings-panel.js v1.66, settings-panel.css** — fix music autoplay (sync play when preloaded); load main before LoFi; draft-track preview + visible Loading… on Music row/dropdown
+
+- **music.js v2.0** — play OGG via HTML Audio (no bulk Web Audio decode); lazy-load selected track + LoFi only; instant catalog dropdown
+
+- **settings-panel.js v1.65, settings-panel.css** — Music loading status in dropdown only; removed status line under Music row
+
+- **music.js v1.6, settings-panel.js v1.64** — Music dropdown driven by manifest catalog (always lists tracks); per-track load status; preload kick on settings open + gesture
+
+- **music.js v1.5, settings-panel.js v1.63, settings-panel.css** — Music loading visible in dropdown + status line; dropdown stays open during load; preload starts at boot
+
+- **music.js v1.4, settings-panel.js v1.62, settings-panel.css** — background music preload; loading spinner + progress in Music dropdown; Vite glob URLs for deploy
+
+- **settings.js v2.48, settings-panel.js v1.61, music.js v1.3** — Music volume stepper (0–10, default 8); applies on settings close without reload
+
+- **assets/music/manifest.json, music.js v1.2** — manifest populated with 78 Eric Matyas tracks; LoFi pairing supports `.LoFi.ext` naming
+
+- **music.js v1.1** — graceful no-op when manifest empty, files missing, or Web Audio unavailable; boot never blocked
+
+- **music.js v1.0, MUSIC.md, assets/music/** — drop-in music folder; Web Audio seamless loops; LoFi swap on settings sidebar + game-over sheet at same timestamp
+
+- **settings.js v2.46, settings-panel.js v1.59, settings-panel.css** — General group: Full screen moved from Counts; Music select (dummy tracks) + Eric Matyas attribution
+
 - **domino-spots.js v1.33** — settled columns immutable: `isSettledDominoSpotCol` guards all bind/vacate/rebind paths; clear `dominoColSpotSlot` on confirm
 
 - **domino-spots.js v1.32, row.js v1.93** — spot slot 0/1 scoped to `dominoSpotsCreatedThisTurn` (fixes post-confirm new-col allocation); reposition merge path enforces single-column used; `syncDominoSpotInvariants` at `placeDie` exit

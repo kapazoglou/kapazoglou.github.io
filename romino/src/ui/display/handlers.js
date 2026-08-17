@@ -23,11 +23,13 @@ import { startPairSweepAnimation } from './dealt-strip.js';
 import { stripTileHasRowDuplicate } from '../../logic/dealt-strip.js';
 import { toggleDominoSpotsVisibility } from './domino-spot-strip.js';
 import { isDominoHandMode, isDominoHandLocked, previewHandDomino } from '../../logic/domino-roll.js';
+import { playSfx } from '../transitions/sfx.js';
 
 export function initHandlers() {
   document.getElementById('app').addEventListener('click', e => {
     if (e.target.closest('#action-bar-deck')) {
       toggleDominoSpotsVisibility();
+      playSfx('ui_tap');
       return;
     }
 
@@ -37,6 +39,7 @@ export function initHandlers() {
     if (handStack && isDominoHandMode() && !isDominoHandLocked()) {
       const i = Number(handStack.dataset.handIndex);
       if (!Number.isNaN(i) && previewHandDomino(i)) {
+        playSfx('ui_tap');
         render();
       }
       return;
@@ -93,6 +96,7 @@ export function initHandlers() {
       if (rollBtn && !rollBtn.disabled) {
         if (isEndGamePromptArmed()) {
           disarmEndGamePrompt();
+          playSfx('ui_tap');
           scheduleRender(render);
           return;
         }

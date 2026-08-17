@@ -6,9 +6,11 @@ import { getStarMatchRects } from '../display/placement-row.js';
 import { animateConverts } from './convert-anim.js';
 import { resolveSweepsAnimated } from './sweep-anim.js';
 import { collectStarsToHUD } from './pip-anim.js';
+import { resetPoolReturnSfxSeq } from './pool-return-effect.js';
 
 /** Post-confirm animation pipeline: stars → convert → sweep → bank. */
 export function runConfirmAnimations(onDone) {
+  resetPoolReturnSfxSeq();
   const newDieIds = state.starNewDieIds ?? new Set();
   delete state.starNewDieIds;
 

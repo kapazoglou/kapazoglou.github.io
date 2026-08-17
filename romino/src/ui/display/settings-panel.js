@@ -2,6 +2,9 @@ import { settings, SETTINGS_CONFIG, clampSettings, spd } from '../../logic/setti
 import { clearHighscores } from '../../logic/highscores.js';
 import { renderLifetimeStatsView } from './lifetime-stats-view.js';
 import { setFullscreenEnabled } from './viewport-controls.js';
+import { playSfx } from '../transitions/sfx.js';
+import { applyMusicTrack, applyMusicVolume, bootstrapMusic, ensureMusicPreload, getMusicSelectOptions, isMusicLoading, onMusicLoadChange, previewMusicTrack } from '../transitions/music.js';
+import { applyBgDicierVfx } from './bg-dicier-vfx.js';
 
 const STORAGE_KEY = 'romino-v2-settings';
 export const TUTORIAL_DONE_KEY = 'romino-tutorial-done';
@@ -9,6 +12,20 @@ export const TUTORIAL_DONE_KEY = 'romino-tutorial-done';
 /** Pending edits while the panel is open; applied on close. */
 let draftSettings = null;
 let settingsLifetimeMatrixMode = 'converted';
+
+/** Live-apply on change (no wait for panel close). */
+const IMMEDIATE_APPLY_KEYS = new Set(['fullScreen', 'musicVolume', 'sfxVolume', 'vfxEnabled']);
+
+const NO_RELOAD_KEYS = new Set(['fullScreen', 'musicTrack', 'musicVolume', 'sfxVolume', 'vfxEnabled']);
+
+function applyImmediateSetting(key) {
+  if (!draftSettings || !IMMEDIATE_APPLY_KEYS.has(key)) return;
+  settings[key] = draftSettings[key];
+  if (key === 'fullScreen') setFullscreenEnabled(settings.fullScreen);
+  else if (key === 'musicVolume') applyMusicVolume();
+  else if (key === 'vfxEnabled') applyBgDicierVfx();
+  saveSettings();
+}
 
 function refreshSettingsLifetime() {
   if (!draftSettings) return;
@@ -85,6 +102,10 @@ function clampDraft() {
   if (draftSettings.sweptLowSuitBonus > 10) draftSettings.sweptLowSuitBonus = 10;
   if (draftSettings.sweptDuplicatePenalty < 0) draftSettings.sweptDuplicatePenalty = 0;
   if (draftSettings.sweptDuplicatePenalty > 10) draftSettings.sweptDuplicatePenalty = 10;
+  if (draftSettings.sfxVolume < 0) draftSettings.sfxVolume = 0;
+  if (draftSettings.sfxVolume > 10) draftSettings.sfxVolume = 10;
+  if (draftSettings.musicVolume < 0) draftSettings.musicVolume = 0;
+  if (draftSettings.musicVolume > 10) draftSettings.musicVolume = 10;
 }
 
 function isDraftControlDisabled(item) {
@@ -118,6 +139,9 @@ function refreshSettingsPanelControls() {
       const value = row.querySelector('.settings-stepper-value');
       if (value) value.textContent = String(draftSettings[item.key]);
       row.querySelectorAll('.settings-stepper-btn').forEach(btn => { btn.disabled = disabled; });
+    } else if (item.type === 'select') {
+      const select = row.querySelector('select[data-key]');
+      if (select) select.value = draftSettings[item.key];
     }
   });
   refreshSettingsLifetime();
@@ -129,7 +153,7 @@ function applyDraftSettings() {
 
   const fullScreenChanged = draftSettings.fullScreen !== settings.fullScreen;
   const gameChanged = Object.keys(settings).some(
-    key => key !== 'fullScreen' && draftSettings[key] !== settings[key]
+    key => !NO_RELOAD_KEYS.has(key) && draftSettings[key] !== settings[key]
   );
 
   if (!settings.tutoria && draftSettings.tutoria) {
@@ -147,10 +171,22 @@ function applyDraftSettings() {
     setFullscreenEnabled(settings.fullScreen);
   }
 
+  applyMusicTrack();
+  applyMusicVolume();
+  applyBgDicierVfx();
+
   if (!gameChanged) return false;
 
   location.reload();
   return true;
+}
+
+function appendAttribution(container, item) {
+  if (!item.attribution) return;
+  const credit = document.createElement('p');
+  credit.className = 'settings-attribution';
+  credit.textContent = item.attribution;
+  container.appendChild(credit);
 }
 
 export function renderSettingsPanel() {
@@ -166,9 +202,16 @@ export function renderSettingsPanel() {
     for (const item of group.items) {
       if (item.type === 'stepper') {
         container.appendChild(buildStepperRow(item));
+      } else if (item.type === 'select') {
+        if (item.key === 'musicTrack') {
+          container.appendChild(buildMusicSelectBlock(item));
+        } else {
+          container.appendChild(buildSelectRow(item));
+        }
       } else {
         container.appendChild(buildToggleRow(item));
       }
+      appendAttribution(container, item);
     }
   }
   refreshSettingsLifetime();
@@ -209,7 +252,9 @@ function buildStepperRow(item) {
     draftSettings[item.key] = Math.min(max, Math.max(min, draftSettings[item.key] + delta));
     clampDraft();
     value.textContent = String(draftSettings[item.key]);
+    applyImmediateSetting(item.key);
     refreshSettingsPanelControls();
+    playSfx('ui_tap');
   };
 
   minus.addEventListener('click', () => update(-1));
@@ -218,6 +263,128 @@ function buildStepperRow(item) {
   controls.append(minus, value, plus);
   row.append(label, controls);
   if (isDraftControlDisabled(item)) row.classList.add('settings-row--disabled');
+  return row;
+}
+
+function populateMusicSelect(select) {
+  const prev = draftSettings?.musicTrack ?? 'off';
+  select.replaceChildren();
+  for (const opt of getMusicSelectOptions()) {
+    const option = document.createElement('option');
+    option.value = opt.value;
+    option.textContent = opt.label;
+    if (opt.disabled) option.disabled = true;
+    select.appendChild(option);
+  }
+
+  const loading = isMusicLoading();
+  const wrap = select.closest('.settings-select-wrap');
+  wrap?.classList.toggle('is-loading', loading);
+  select.disabled = loading;
+
+  if (loading) {
+    select.value = '__loading__';
+    return;
+  }
+
+  select.value = prev;
+  if (!select.querySelector(`option[value="${CSS.escape(select.value)}"]`)) {
+    select.value = 'off';
+    if (draftSettings) draftSettings.musicTrack = 'off';
+  }
+}
+
+function refreshMusicSelectRow() {
+  const block = document.querySelector('.settings-music-block');
+  const select = block?.querySelector('select[data-key="musicTrack"]');
+  const label = block?.querySelector('.settings-row-label');
+  if (!select || !draftSettings) return;
+  populateMusicSelect(select);
+  const loading = isMusicLoading();
+  block?.classList.toggle('is-loading', loading);
+  if (label) label.textContent = loading ? 'Music · Loading…' : 'Music';
+}
+
+function buildMusicSelectBlock(item) {
+  const block = document.createElement('div');
+  block.className = 'settings-music-block';
+
+  const row = document.createElement('div');
+  row.className = 'settings-row settings-row--select settings-row--music';
+  row.dataset.key = item.key;
+
+  const label = document.createElement('span');
+  label.className = 'settings-row-label';
+  label.textContent = item.label;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'settings-select-wrap';
+
+  const select = document.createElement('select');
+  select.className = 'settings-select';
+  select.dataset.key = item.key;
+  select.setAttribute('aria-label', item.label);
+  populateMusicSelect(select);
+
+  const spinner = document.createElement('span');
+  spinner.className = 'settings-select-spinner';
+  spinner.setAttribute('aria-hidden', 'true');
+
+  const syncMusicUi = () => {
+    const trackId = draftSettings?.musicTrack ?? 'off';
+    ensureMusicPreload(trackId);
+    previewMusicTrack(trackId);
+    refreshMusicSelectRow();
+  };
+  select.addEventListener('focus', syncMusicUi);
+  select.addEventListener('pointerdown', syncMusicUi);
+
+  select.addEventListener('change', () => {
+    if (select.value === '' || select.value === '__loading__' || select.value === '__error__') return;
+    draftSettings[item.key] = select.value;
+    playSfx('ui_tap');
+    syncMusicUi();
+  });
+
+  wrap.append(select, spinner);
+  row.append(label, wrap);
+  block.appendChild(row);
+
+  return block;
+}
+
+function buildSelectRow(item) {
+  const row = document.createElement('div');
+  row.className = 'settings-row settings-row--select';
+  row.dataset.key = item.key;
+
+  const label = document.createElement('span');
+  label.className = 'settings-row-label';
+  label.textContent = item.label;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'settings-select-wrap';
+
+  const select = document.createElement('select');
+  select.className = 'settings-select';
+  select.dataset.key = item.key;
+  select.setAttribute('aria-label', item.label);
+
+  for (const opt of item.options ?? []) {
+    const option = document.createElement('option');
+    option.value = opt.value;
+    option.textContent = opt.label;
+    select.appendChild(option);
+  }
+  select.value = draftSettings[item.key];
+
+  select.addEventListener('change', () => {
+    draftSettings[item.key] = select.value;
+    playSfx('ui_tap');
+  });
+
+  wrap.append(select);
+  row.append(label, wrap);
   return row;
 }
 
@@ -246,7 +413,9 @@ function buildToggleRow(item) {
     draftSettings[item.key] = input.checked;
     clampDraft();
     if (item.key === 'deckFlank') input.checked = draftSettings.deckFlank;
+    applyImmediateSetting(item.key);
     refreshSettingsPanelControls();
+    playSfx('ui_tap');
   });
 
   track.appendChild(input);
@@ -261,7 +430,24 @@ function buildToggleRow(item) {
 
 export function initSettingsPanel() {
   loadSettings();
+  applyBgDicierVfx();
+  bootstrapMusic();
   document.documentElement.classList.toggle('fast-anims', settings.fastAnimations);
+
+  onMusicLoadChange(() => {
+    if (!draftSettings) return;
+    if (!document.getElementById('settings-panel')?.classList.contains('is-open')) return;
+    refreshMusicSelectRow();
+  });
+
+  document.getElementById('app')?.addEventListener('pointerdown', () => {
+    if (!draftSettings) return;
+    if (!document.getElementById('settings-panel')?.classList.contains('is-open')) return;
+    const trackId = draftSettings.musicTrack ?? 'off';
+    ensureMusicPreload(trackId);
+    previewMusicTrack(trackId);
+    refreshMusicSelectRow();
+  }, { passive: true });
 
   let tapCount = 0;
   let tapTimer = null;
@@ -276,8 +462,13 @@ export function initSettingsPanel() {
       draftSettings = { ...settings };
       settingsLifetimeMatrixMode = 'converted';
       renderSettingsPanel();
+      const trackId = draftSettings.musicTrack ?? 'off';
+      ensureMusicPreload(trackId);
+      previewMusicTrack(trackId);
+      refreshMusicSelectRow();
       resetClearHighscoresSlider();
       document.getElementById('settings-panel').classList.add('is-open');
+      playSfx('ui_open');
     }
   });
 
@@ -287,6 +478,7 @@ export function initSettingsPanel() {
     if (btn.dataset.mode !== 'converted' && btn.dataset.mode !== 'swept') return;
     settingsLifetimeMatrixMode = btn.dataset.mode;
     refreshSettingsLifetime();
+    playSfx('ui_tap');
   });
 
   document.getElementById('settings-back').addEventListener('click', () => {
@@ -294,6 +486,7 @@ export function initSettingsPanel() {
     const reloading = applyDraftSettings();
     if (!reloading) {
       document.getElementById('settings-panel').classList.remove('is-open');
+      playSfx('ui_close');
     }
   });
 
@@ -346,6 +539,7 @@ function confirmClearHighscores() {
   label.textContent = 'DELETED';
   track.classList.add('is-deleted-flash');
   track.style.pointerEvents = 'none';
+  playSfx('ui_confirm');
 
   clearHighscoresFlashTimer = window.setTimeout(() => {
     clearHighscoresFlashTimer = null;

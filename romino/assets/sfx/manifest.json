@@ -1,0 +1,194 @@
+{
+  "ui_tap": {
+    "label": "UI tap",
+    "file": "",
+    "volume": 0.6,
+    "notes": "Settings stepper ±, toggle, tutorial, deck badge, matrix seg"
+  },
+  "ui_open": {
+    "label": "Panel open",
+    "file": "",
+    "volume": 0.7,
+    "notes": "Settings panel open (double-tap HUD points)"
+  },
+  "ui_close": {
+    "label": "Panel close",
+    "file": "",
+    "volume": 0.7,
+    "notes": "Settings back / apply close"
+  },
+  "ui_confirm": {
+    "label": "Destructive confirm",
+    "file": "",
+    "volume": 0.8,
+    "notes": "Clear highscores slider DELETED flash"
+  },
+  "dice_roll": {
+    "label": "Roll dice",
+    "file": "zapsplat_leisure_small_dice_x2_drop_into_plastic_shaker_cup_001_81077.mp3",
+    "volume": 1.0,
+    "notes": "Roll button; tray dice stagger-in; post-confirm auto-roll; reroll at 0.5 vol"
+  },
+  "dice_select": {
+    "label": "Select die",
+    "file": "zapsplat_multimedia_game_sound_menu_click_001_76687.mp3",
+    "volume": 0.5,
+    "notes": "Tray die select/deselect; tray flip after star pay"
+  },
+  "snap_tick": {
+    "label": "Snap ghost tick",
+    "file": "zapsplat_multimedia_button_click_002.mp3",
+    "volume": 0.45,
+    "notes": "Snapping ghost appears or moves to a new valid slot during drag"
+  },
+  "dice_pickup": {
+    "label": "Pick up die",
+    "file": "zapsplat_multimedia_button_click_bright_003_92100.mp3",
+    "volume": 0.6,
+    "notes": "Drag threshold crossed; star drag from HUD"
+  },
+  "dice_land": {
+    "label": "Place die",
+    "file": "zapsplat_household_electrical_device_plastic_button_switch_power_on_off_002_40939.mp3",
+    "volume": 0.9,
+    "notes": "Valid placement commit (hint, direct tap, drop, push-below, edge insert, reposition)"
+  },
+  "dice_return": {
+    "label": "Return to tray",
+    "file": "zapsplat_multimedia_button_click_fast_plastic_49161.mp3",
+    "volume": 0.7,
+    "notes": "Return placed die to action bar"
+  },
+  "dice_pool_return": {
+    "label": "Return to pool",
+    "file": "zapsplat_leisure_small_dice_x2_drop_into_plastic_shaker_cup_003_81079.mp3",
+    "volume": 0.75,
+    "notes": "Dice re-enter pool (odd returns in a confirm cycle) — staggered per die + roll-btn pulse"
+  },
+  "dice_pool_return_2": {
+    "label": "Return to pool (alt)",
+    "file": "zapsplat_leisure_small_dice_x2_drop_into_plastic_shaker_cup_004_81080.mp3",
+    "volume": 0.75,
+    "notes": "Even returns in confirm cycle; alternates with dice_pool_return"
+  },
+  "dice_cancel": {
+    "label": "Cancel drag",
+    "file": "zapsplat_multimedia_button_click_fast_plastic_49161.mp3",
+    "volume": 0.5,
+    "notes": "Drag cancelled outside valid zone"
+  },
+  "invalid": {
+    "label": "Invalid move",
+    "file": "zapsplat_multimedia_game_retro_musical_incorrect_fail_negative.mp3",
+    "volume": 0.8,
+    "notes": "All invalid flashes (generic, star shortage, duplicate, cube, monotonic)"
+  },
+  "sweep_dup_warn": {
+    "label": "Duplicate sweep warning",
+    "file": "",
+    "volume": 0.7,
+    "notes": "Red −N label first appears above stack/tile when suit:rank already swept (sweptSuits ON)"
+  },
+  "star_spend": {
+    "label": "Spend star",
+    "file": "zapsplat_science_fiction_computer_button_press_beep_tone_002_83982.mp3",
+    "volume": 0.7,
+    "notes": "Star pip HUD→column/tray (push-below, reroll, flip, swap, convert pay)"
+  },
+  "star_created": {
+    "label": "Star match appears",
+    "file": "zapsplat_science_fiction_computer_button_press_beep_tone_001_83981.mp3",
+    "volume": 0.65,
+    "notes": "Live horizontal ⭐ marker first appears between adjacent dice while placing"
+  },
+  "star_collect": {
+    "label": "Star collect / refund",
+    "file": "zapsplat_science_fiction_computer_console_button_beep_feedback_response_001_99927.mp3",
+    "volume": 0.7,
+    "notes": "Star pip row→HUD on confirm collect; refunds (push/swap/reposition/flip)"
+  },
+  "convert": {
+    "label": "Convert stack",
+    "file": "zapsplat_leisure_playing_card_single_turn_over_on_table_001_20473.mp3",
+    "volume": 0.9,
+    "notes": "1st / 3rd / … convert in confirm cycle"
+  },
+  "convert_2": {
+    "label": "Convert stack (alt)",
+    "file": "zapsplat_leisure_playing_card_single_turn_over_on_table_002_20474.mp3",
+    "volume": 0.9,
+    "notes": "2nd / 4th / … convert; alternates with convert"
+  },
+  "tile_place": {
+    "label": "Tile lands",
+    "file": "",
+    "volume": 0.8,
+    "notes": "New tile pop-in after convert; cadence dealt strip tile; flank reveal"
+  },
+  "sweep_beat": {
+    "label": "Sweep beat",
+    "file": "zapsplat_leisure_playing_cards_deck_shuffle_short_few_cards_002_20498.mp3",
+    "volume": 0.6,
+    "notes": "1st / 3rd / … sweep in chain; manual dealt-strip pair-sweep"
+  },
+  "sweep_beat_2": {
+    "label": "Sweep beat (alt)",
+    "file": "zapsplat_leisure_playing_cards_deck_shuffle_short_few_cards_001_20497.mp3",
+    "volume": 0.6,
+    "notes": "2nd / 4th / … sweep in confirm chain"
+  },
+  "sweep_rise": {
+    "label": "Sweep rise",
+    "file": "zapsplat_multimedia_game_retro_musical_ascend_advance_correct.mp3",
+    "volume": 0.9,
+    "notes": "1st / 3rd / … sweep rise; dealt-strip; flank stack"
+  },
+  "sweep_rise_2": {
+    "label": "Sweep rise (alt)",
+    "file": "zapsplat_multimedia_game_retro_musical_ascend_advance_correct.mp3",
+    "volume": 0.9,
+    "notes": "2nd / 4th / … sweep rise in confirm chain"
+  },
+  "sweep_collapse": {
+    "label": "Column collapse",
+    "file": "zapsplat_leisure_playing_cards_box_empty_set_down_on_table_003_20480.mp3",
+    "volume": 0.5,
+    "notes": "1st / 3rd / … post-sweep collapse"
+  },
+  "sweep_collapse_2": {
+    "label": "Column collapse (alt)",
+    "file": "zapsplat_leisure_playing_cards_box_empty_set_down_on_table_002_20479.mp3",
+    "volume": 0.5,
+    "notes": "2nd / 4th / … post-sweep collapse in confirm chain"
+  },
+  "score_reveal": {
+    "label": "Score equation",
+    "file": "zapsplat_multimedia_game_retro_musical_short_tone_002.mp3",
+    "volume": 0.7,
+    "notes": "HUD stars×mult equation hold"
+  },
+  "score_bank": {
+    "label": "Bank to points",
+    "file": "zapsplat_multimedia_game_retro_musical_ascend_positive.mp3",
+    "volume": 0.9,
+    "notes": "Star pip(s) fly HUD stars → points"
+  },
+  "warning": {
+    "label": "Warning",
+    "file": "zapsplat_multimedia_game_retro_musical_alert_002.mp3",
+    "volume": 0.8,
+    "notes": "Roll button low/stuck; end-game prompt arm"
+  },
+  "game_over": {
+    "label": "Game over",
+    "file": "zapsplat_multimedia_game_retro_musical_descend_fail_lose_life.mp3",
+    "volume": 1.0,
+    "notes": "Game-over sheet reveal"
+  },
+  "game_restart": {
+    "label": "Restart",
+    "file": "zapsplat_multimedia_game_retro_musical_completed.mp3",
+    "volume": 0.8,
+    "notes": "Play again"
+  }
+}

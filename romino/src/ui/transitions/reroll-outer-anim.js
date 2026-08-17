@@ -5,6 +5,7 @@ import { evaluateGameOver, triggerGameOver, scheduleRender } from '../../logic/t
 import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForTrayDie } from './pip-anim.js';
 import { render } from '../display/render.js';
+import { playSfx } from './sfx.js';
 
 function canRerollOuterDie(dieId) {
   if (!settings.rerollOuter || state.phase !== 'rolled' || state.stars <= 0) return false;
@@ -50,6 +51,7 @@ export function rerollOuterDieWithAnim(dieId, { skipStarFly = false } = {}) {
     }
 
     state.phase = 'rolled';
+    playSfx('dice_roll', { volumeScale: 0.5 });
     render();
   }, { skipFly: skipStarFly });
 

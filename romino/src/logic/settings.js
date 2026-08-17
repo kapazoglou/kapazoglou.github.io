@@ -1,10 +1,39 @@
 // v2 settings — steppers + toggles wired through SETTINGS_CONFIG
 export const SETTINGS_CONFIG = [
   {
+    group: 'general',
+    label: 'General',
+    items: [
+      { key: 'fullScreen', label: 'Full screen', default: false, type: 'toggle' },
+            {
+        key: 'vfxEnabled',
+        label: 'Background VFX',
+        default: true,
+        type: 'toggle',
+        attribution: 'Dicier, by Speak the Sky, licensed under CC BY 4.0',
+      },
+      { key: 'musicVolume', label: 'Music volume', default: 8, type: 'stepper', min: 0, max: 10 },
+      {
+        key: 'musicTrack',
+        label: 'Music',
+        default: 'off',
+        type: 'select',
+        attribution: 'Music by Eric Matyas - www.soundimage.org',
+      },
+      { key: 'sfxVolume', label: 'SFX volume', default: 8, type: 'stepper', min: 0, max: 10 },
+      {
+        key: 'sfxEnabled',
+        label: 'Sound effects',
+        default: true,
+        type: 'toggle',
+        attribution: 'SFX by Zapsplat - https://www.zapsplat.com',
+      },
+    ],
+  },
+  {
     group: 'counts',
     label: 'Counts',
     items: [
-      { key: 'fullScreen',          label: 'Full screen',           default: false, type: 'toggle' },
       { key: 'startingStars', label: 'Starting Stars', default: 0, type: 'stepper', min: 0, max: 52 },
       { key: 'startingDice', label: 'Starting Dice', default: 7, type: 'stepper', min: 0, max: 24 },
       { key: 'nDice',  label: 'N-dice (pool)',  default: 14, type: 'stepper', min: 1, max: 24 },
@@ -107,4 +136,8 @@ export function clampSettings() {
   if (settings.sweptLowSuitBonus > 10) settings.sweptLowSuitBonus = 10;
   if (settings.sweptDuplicatePenalty < 0) settings.sweptDuplicatePenalty = 0;
   if (settings.sweptDuplicatePenalty > 10) settings.sweptDuplicatePenalty = 10;
+  if (settings.sfxVolume < 0) settings.sfxVolume = 0;
+  if (settings.sfxVolume > 10) settings.sfxVolume = 10;
+  if (settings.musicVolume < 0) settings.musicVolume = 0;
+  if (settings.musicVolume > 10) settings.musicVolume = 10;
 }

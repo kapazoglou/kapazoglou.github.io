@@ -14,6 +14,7 @@ import { payStarForSlot } from './pip-anim.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { playRepositionStarRefunds, peekStarPowerRepositionRefund } from './star-refund-anim.js';
 import { scheduleRender } from '../../logic/turn.js';
+import { playSfx } from './sfx.js';
 
 function handlePlaceDieResult(result) {
   if (result === 'domino-exhausted') {
@@ -220,6 +221,7 @@ function stackLiftDesignPx() {
 
 /** Lift stack + pusher together, then commit. */
 function animatePushBelowLift(col, duration, onDone, flyer = null) {
+  playSfx('dice_land', { volumeScale: 0.85, delay: 40 });
   const inner = document.querySelector('.placement-row-inner');
   const colNode = colEl(inner, col);
 
@@ -369,6 +371,7 @@ function runSpreadThenFly(dieId, slot, onDone, existingFlyer = null) {
   };
 
   const flyIn = () => {
+    playSfx('dice_land', { volumeScale: 0.85 });
     commitFlyer = animateDieFly(dieId, finalTarget, flyMs, () => {
       if (!handlePlaceDieResult(placeDie(dieId, slot))) {
         finishPlacement();
@@ -452,6 +455,7 @@ export function placeDieWithAnim(dieId, slot, existingFlyer = null) {
     const repositionRefund = peekStarPowerRepositionRefund(dieId);
     const ok = handlePlaceDieResult(placeDie(dieId, slot));
     if (ok) {
+      playSfx('dice_land');
       resetRepositionCollapse();
       render();
       playRepositionStarRefunds(repositionRefund, slot);

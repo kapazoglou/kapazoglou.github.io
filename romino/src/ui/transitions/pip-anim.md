@@ -1,9 +1,9 @@
 ---
 module: pip-anim
 layer: ui/transitions
-v: 1.16
-date: 2026-08-14
-deps: [state, settings, hud-v2, timing, dice-visual]
+v: 1.19
+date: 2026-08-17
+deps: [state, settings, hud-v2, timing, dice-visual, sfx]
 ---
 # Pip Anim
 
@@ -11,7 +11,7 @@ Row gap → HUD and HUD stars → swept points. Uses convert-style fly (`CONVERT
 
 ## Exports
 - `starFlyLayer()` — dedicated top z-index container inside `.viewport-inner`
-- `bankStarsToPoints(starsBeforeBank, lengthFactor, onDone)` — accent `effectiveStars×lengthFactor` (520ms) → product (520ms); 0 stars before bank uses effective 1; pip fly (587ms) then score updates
+- `bankStarsToPoints(starsBeforeBank, lengthFactor, onDone)` — accent `lengthFactor×effectiveStars` (520ms) → product (520ms); 0 stars before bank uses effective 1; pip fly (587ms) then score updates
 - `collectStarsToHUD(count, fromRects, onDone)` — row gap → `#hud-star-pay` after confirm
 - `payStarForConvert(..., { skipFly, deductState })` — `#hud-star-pay` → stack column; `deductState` updates star count text only (no full HUD rebuild)
 - `payStarForSlot(col, onDone, count = 1)` — alias for push-from-below star fly (N flyers when cost > 1)

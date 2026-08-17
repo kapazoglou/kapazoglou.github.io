@@ -1,5 +1,7 @@
 /** UI-only armed state for roll-button KO confirm (not game state). */
 
+import { playSfx } from '../transitions/sfx.js';
+
 let armed = false;
 /** @type {string|null} */
 let pendingReason = null;
@@ -22,6 +24,7 @@ export function armEndGamePrompt(reason, source = 'warning-red') {
   armed = true;
   pendingReason = reason;
   armSource = source;
+  playSfx('warning');
 }
 
 export function disarmEndGamePrompt() {

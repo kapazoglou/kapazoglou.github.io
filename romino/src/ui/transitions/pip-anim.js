@@ -3,6 +3,7 @@ import { spd } from '../../logic/settings.js';
 import { starSVG } from '../../logic/dice-visual.js';
 import { renderHUD } from '../display/hud-v2.js';
 import { CONVERT_FLY_MS, SWEEP_MULT_EQ_HOLD_MS, SWEEP_MULT_PRODUCT_HOLD_MS, SWEEP_MULT_BANK_FLY_MS } from './timing.js';
+import { playSfx } from './sfx.js';
 
 const FLY_EASING = 'cubic-bezier(0.05, 0.75, 0.15, 1)';
 const HUD_STAR_PX = 32;
@@ -116,6 +117,7 @@ export function collectStarsToHUD(count, fromRects, onDone) {
   }
 
   launchStarFlyers(fromCenters, end, layer, flyMs);
+  playSfx('star_collect');
 
   setTimeout(() => {
     starsEl.textContent = String(state.stars);
@@ -190,6 +192,7 @@ export function refundStarFromCol(col, onDone, count = 1, { fromRow = null } = {
   for (let i = 0; i < count; i++) {
     launchStarFlyer(start, toCenters[i], layer, flyMs);
   }
+  playSfx('star_collect');
 
   setTimeout(() => {
     starsEl.textContent = String(state.stars);
@@ -224,6 +227,7 @@ export function payStarForConvert(col, onDone, count = 1, { skipFly = false, ded
   const start = hudStarPayCenter(layerRect, scale);
 
   starsEl.textContent = String(deductState ? state.stars : state.stars - count);
+  playSfx('star_spend', { volumeScale: 0.85 });
 
   if (skipFly || !start) {
     onDone?.();
@@ -271,6 +275,7 @@ export function payStarForDominoPair(onDone, { skipFly = false } = {}) {
   }
 
   starsEl.textContent = String(state.stars - 1);
+  playSfx('star_spend', { volumeScale: 0.85 });
 
   if (skipFly) {
     onDone?.();
@@ -305,6 +310,7 @@ export function payStarForTrayDie(dieId, onDone, { skipFly = false } = {}) {
   }
 
   starsEl.textContent = String(state.stars - 1);
+  playSfx('star_spend', { volumeScale: 0.85 });
 
   if (skipFly) {
     onDone?.();
@@ -337,8 +343,9 @@ export function bankStarsToPoints(starsBeforeBank, lengthFactor, onDone) {
   const flyMs = spd(SWEEP_MULT_BANK_FLY_MS);
 
   pointsEl.textContent = String(oldPoints);
-  starsEl.textContent = `${effectiveStars}×${lengthFactor}`;
+  starsEl.textContent = `${lengthFactor}×${effectiveStars}`;
   starsEl.classList.add('is-sweep-mult');
+  playSfx('score_reveal');
 
   setTimeout(() => {
     starsEl.textContent = String(product);
@@ -364,6 +371,7 @@ export function bankStarsToPoints(starsBeforeBank, lengthFactor, onDone) {
 
       const fromCenters = Array.from({ length: effectiveStars }, () => start);
       launchStarFlyers(fromCenters, end, layer, flyMs);
+      playSfx('score_bank');
 
       setTimeout(() => {
         starsEl.classList.remove('is-sweep-mult');

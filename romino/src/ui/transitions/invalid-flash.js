@@ -1,4 +1,5 @@
 import { spd } from '../../logic/settings.js';
+import { playSfx } from './sfx.js';
 import { state } from '../../logic/state.js';
 import { getStripTileForIdentity, getRowColForIdentity } from '../../logic/dealt-strip.js';
 
@@ -15,6 +16,7 @@ export function flashInvalidPlacement() {
 
   flashing = true;
   const ms = spd(FLASH_MS);
+  playSfx('invalid');
   viewport.style.setProperty('--invalid-flash-ms', `${ms}ms`);
   viewport.classList.add('is-invalid-flash');
   setTimeout(() => {

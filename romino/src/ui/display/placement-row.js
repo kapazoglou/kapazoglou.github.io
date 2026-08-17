@@ -5,6 +5,7 @@ import { dieSVG, hintTriangleSVG, DIE_OUTER, dieFaceBorderColor, starSVG, tileHT
 import { sessionSweepDuplicateNumber, stackConvertSweepDuplicateNumber } from '../../logic/suit-tally.js';
 import { flankStackColHTML, flankStackColElement } from './flank-stacks.js';
 import { COL_SPREAD_MS } from '../transitions/timing.js';
+import { playSfx } from '../transitions/sfx.js';
 import { pushBelowEnabled, getStarPowerCostReminderMatches } from '../../logic/star-powers.js';
 import {
   getOccupiedCols, getValidSlotsForDie,
@@ -86,6 +87,109 @@ const TIP_DOWN_Y = 42;
 const GAP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--die-gap-h')) || 6;
 const COL_W = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--col-width')) || 48;
 const STAR_MARKER_PX = 28;
+
+/** Die-pair keys that already played `star_created` for their current board existence. */
+const playedStarSfxKeys = new Set();
+
+/** Highest −N copy warned per column this appearance (clears when mark hides). */
+const sweepDupWarnSeen = new Map();
+
+/** Clear on full game reset only — roll/confirm must not wipe (matches can persist on the row). */
+export function resetStarCreatedSfxKeys() {
+  playedStarSfxKeys.clear();
+  sweepDupWarnSeen.clear();
+}
+
+function sweepDupCopyForCol(col) {
+  if (!settings.sweptSuits) return 0;
+  const column = getColumn(col);
+  if (!column) return 0;
+  if (column.kind === 'tile') {
+    return sessionSweepDuplicateNumber(column.suit, column.rank);
+  }
+  if (column.kind !== 'stack' || column.dice.length !== 3) return 0;
+  if (state.draggingDieId != null && column.dice.includes(state.draggingDieId)) return 0;
+  const values = column.dice.map(id => state.dice[id].value);
+  return stackConvertSweepDuplicateNumber(values);
+}
+
+function notifySweepDupWarnSfx() {
+  if (!settings.sweptSuits || state.phase === 'replay') {
+    sweepDupWarnSeen.clear();
+    return;
+  }
+  const occupied = getOccupiedCols();
+  const active = new Set(occupied);
+  for (const col of occupied) {
+    const copy = sweepDupCopyForCol(col);
+    if (copy < 1) continue;
+    const seen = sweepDupWarnSeen.get(col) ?? 0;
+    if (copy > seen) {
+      sweepDupWarnSeen.set(col, copy);
+      playSfx('sweep_dup_warn');
+    }
+  }
+  for (const col of sweepDupWarnSeen.keys()) {
+    if (!active.has(col) || sweepDupCopyForCol(col) < 1) sweepDupWarnSeen.delete(col);
+  }
+}
+
+/** Stable SFX identity from the two dice in a match (survives column insert/shift). */
+function starSfxKey(match) {
+  if (match.costReminder) return null;
+  let a;
+  let b;
+  if (match.axis === 'v') {
+    a = dieIdAt(match.col, match.row);
+    b = dieIdAt(match.col, match.row + 1);
+  } else {
+    a = dieIdAt(match.leftCol, match.row);
+    b = dieIdAt(match.rightCol, match.row);
+  }
+  if (a == null || b == null) return null;
+  const lo = Math.min(a, b);
+  const hi = Math.max(a, b);
+  return match.axis === 'v' ? `v-${lo}-${hi}` : `h-${lo}-${hi}-r${match.row}`;
+}
+
+function collectActualStarSfxKeys() {
+  const keys = new Set();
+  for (const match of findStarMatches()) {
+    const key = starSfxKey(match);
+    if (key) keys.add(key);
+  }
+  return keys;
+}
+
+/** Live preview SFX — horizontal (any row) + vertical when `verticalStars` ON; not cost reminders. */
+function shouldPlayStarCreatedSound(match, inner) {
+  if (match.costReminder) return false;
+
+  if (match.axis === 'v') {
+    if (!settings.verticalStars) return false;
+    const colNode = colElement(inner, match.col);
+    if (!colNode) return false;
+    const topDie = cellElAtRow(colNode, match.row);
+    const bottomDie = cellElAtRow(colNode, match.row + 1);
+    if (!topDie || !bottomDie) return false;
+    if (topDie.classList.contains('die--drag-source') || bottomDie.classList.contains('die--drag-source')) {
+      return false;
+    }
+    return true;
+  }
+
+  const leftCol = colElement(inner, match.leftCol);
+  const rightCol = colElement(inner, match.rightCol);
+  if (!leftCol || !rightCol) return false;
+  if (match.row === 0 && starAtOpeningGap(leftCol, rightCol)) return false;
+  const leftDie = cellElAtRow(leftCol, match.row);
+  const rightDie = cellElAtRow(rightCol, match.row);
+  if (!leftDie || !rightDie) return false;
+  if (leftDie.classList.contains('die--drag-source') || rightDie.classList.contains('die--drag-source')) {
+    return false;
+  }
+  return true;
+}
 
 function colSpreadDx(el) {
   if (!el) return 0;
@@ -281,6 +385,7 @@ export function renderPlacementRow() {
   } else {
     el.scrollLeft = scrollLeft;
   }
+  notifySweepDupWarnSfx();
 }
 
 /** Edge insert targets — out of flex flow so columns never shift on select. */
@@ -544,12 +649,18 @@ export function positionStarMarkers() {
   const old = inner.querySelector('.placement-stars');
   if (state.phase === 'replay') {
     old?.remove();
+    playedStarSfxKeys.clear();
     return;
   }
 
   const scale = viewportScale();
   const innerRect = inner.getBoundingClientRect();
   const visible = visibleStarMatches();
+  const actualSfxKeys = collectActualStarSfxKeys();
+
+  for (const key of playedStarSfxKeys) {
+    if (!actualSfxKeys.has(key)) playedStarSfxKeys.delete(key);
+  }
 
   if (!visible.length) {
     old?.remove();
@@ -583,6 +694,13 @@ export function positionStarMarkers() {
       el.dataset.starKey = key;
       el.innerHTML = starSVG(STAR_MARKER_PX);
       layer.appendChild(el);
+    }
+
+    const sfxKey = starSfxKey(match);
+    if (sfxKey && actualSfxKeys.has(sfxKey) && shouldPlayStarCreatedSound(match, inner)
+      && !playedStarSfxKeys.has(sfxKey)) {
+      playedStarSfxKeys.add(sfxKey);
+      playSfx('star_created');
     }
 
     el.style.left = `${center.x}px`;

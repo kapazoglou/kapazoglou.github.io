@@ -13,6 +13,7 @@ import { selectedOuterTrayDieId, tryRerollOuterPay } from '../transitions/reroll
 import { canDominoPairStarReroll, tryDominoPairStarReroll } from '../transitions/domino-reroll-anim.js';
 import { tryStarFlipTrayPay } from '../transitions/flip-tray-anim.js';
 import { tryStarSwapStackPay } from '../transitions/stack-swap-anim.js';
+import { playSfx } from '../transitions/sfx.js';
 import { starFlyLayer } from '../transitions/pip-anim.js';
 import { flashStarShortagePlacement } from '../transitions/invalid-flash.js';
 
@@ -237,6 +238,7 @@ function onStarPointerMove(e) {
     if (Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
     starDragActive = true;
     starDragMoved = true;
+    playSfx('dice_pickup');
     const source = document.getElementById('hud-star-pay')?.getBoundingClientRect();
     if (source) createStarFlyer(source);
   }

@@ -4,6 +4,7 @@ import { rerollDominoPairOffer, evaluateGameOver, triggerGameOver, scheduleRende
 import { recordStarSpent } from '../../logic/game-log.js';
 import { payStarForDominoPair } from './pip-anim.js';
 import { render } from '../display/render.js';
+import { playSfx } from './sfx.js';
 
 /** Drop on either domino die — star-pay redraws the whole pair. */
 export function canDominoPairStarReroll(dieId) {
@@ -29,6 +30,7 @@ export function tryDominoPairStarReroll(dieId, { skipStarFly = false } = {}) {
     }
 
     state.phase = 'rolled';
+    playSfx('dice_roll', { volumeScale: 0.5 });
     render();
   }, { skipFly: skipStarFly });
 
