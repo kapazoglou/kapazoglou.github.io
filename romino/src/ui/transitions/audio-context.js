@@ -12,22 +12,23 @@ const unlockListeners = new Set();
 /** @type {(() => void) | null} */
 let unlockHandler = null;
 
-/** Web Audio SFX loudness multiplier (HTML Audio caps at 1.0 per element). */
-const SFX_GAIN_BOOST = 2.5;
-
 function stepToGain(step) {
   return Math.min(1, Math.max(0, (step ?? 8) / 10));
 }
 
-/** Slider 0–10 → master multiplier; applied at each play (not only on bus). */
+/** Slider 0–10 → master; step 10 = 1.0. Applied at each play in sfx.js. */
 export function sfxStepToGain(step = settings.sfxVolume) {
-  const s = Math.min(10, Math.max(0, step ?? 8));
-  return (s / 10) * SFX_GAIN_BOOST;
+  return stepToGain(step);
+}
+
+/** Music slider 0–10 → bus gain at half linear range (step 8 → 0.4, step 10 → 0.5). */
+export function musicStepToGain(step = settings.musicVolume) {
+  return stepToGain(step) * 0.5;
 }
 
 export function syncMusicGain() {
   if (!musicGain) return;
-  const gain = stepToGain(settings.musicVolume);
+  const gain = musicStepToGain(settings.musicVolume);
   const ctx = audioContext;
   if (ctx && ctx.state !== 'closed') {
     musicGain.gain.setValueAtTime(gain, ctx.currentTime);

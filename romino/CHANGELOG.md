@@ -6,6 +6,14 @@ Central version history for all modules. Format per entry: `version | date | sum
 
 ## Deploy / build — 2026-08-17
 
+- **settings.js v2.54** — default `musicVolume` 4, `sfxVolume` 6
+
+- **settings.js v2.53** — default `musicVolume` 4, `sfxVolume` 7 (was 8 / 8)
+
+- **audio-context.js v1.7, sfx.js v1.9** — SFX volume linear again: step 10 → 1.0 (remove 2.5× boost)
+
+- **audio-context.js v1.6, music.js v2.12** — music volume range halved: step 8 → 0.4 bus gain, step 10 → 0.5
+
 - **audio-context.js v1.5, sfx.js v1.8** — SFX volume fix: master at play time (not bus-only); 2.5× boost; per-clip Web Audio/HTML fallback
 
 - **dice-visual.js v2.14, row.js v1.95** — tricolor/joker stack completion requires monotonic bottom→top order (asc or desc); push-from-below may finish ordered tricolor stacks when normal push match fails (`passesJokerOrderedPushBelow`)

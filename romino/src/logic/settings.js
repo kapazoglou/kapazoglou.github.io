@@ -12,7 +12,7 @@ export const SETTINGS_CONFIG = [
         type: 'toggle',
         attribution: 'Dicier, by Speak the Sky, licensed under CC BY 4.0',
       },
-      { key: 'musicVolume', label: 'Music volume', default: 8, type: 'stepper', min: 0, max: 10 },
+      { key: 'musicVolume', label: 'Music volume', default: 4, type: 'stepper', min: 0, max: 10 },
       {
         key: 'musicTrack',
         label: 'Music',
@@ -20,7 +20,7 @@ export const SETTINGS_CONFIG = [
         type: 'select',
         attribution: 'Music by Eric Matyas - www.soundimage.org',
       },
-      { key: 'sfxVolume', label: 'SFX volume', default: 8, type: 'stepper', min: 0, max: 10 },
+      { key: 'sfxVolume', label: 'SFX volume', default: 6, type: 'stepper', min: 0, max: 10 },
       {
         key: 'sfxEnabled',
         label: 'Sound effects',

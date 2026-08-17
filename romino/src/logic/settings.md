@@ -1,7 +1,7 @@
 ---
 module: settings
 layer: logic
-v: 2.52
+v: 2.54
 date: 2026-08-17
 deps: []
 ---
