@@ -75,6 +75,7 @@ export const SETTINGS_CONFIG = [
       { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
       { key: 'tutoria',             label: 'Tutorial',               default: false, type: 'toggle' },
+      { key: 'monotonic',           label: 'Monotonic',             default: false, type: 'toggle' },
     ],
   },
     {
