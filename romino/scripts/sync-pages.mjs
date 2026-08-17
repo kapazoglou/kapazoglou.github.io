@@ -13,4 +13,4 @@ for (const name of await readdir(distAssets)) {
   await cp(join(distAssets, name), join(assetsDir, name), { recursive: true, force: true });
 }
 
-console.log('GitHub Pages sync: dist/index.html → index.html, dist/assets/* → assets/');
+console.log('Local preview sync: dist/index.dev.html → index.html, dist/assets/* → assets/');

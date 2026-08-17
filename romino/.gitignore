@@ -1,0 +1,8 @@
+node_modules/
+dist/
+
+# Vite production bundles — built in CI (do not commit)
+/index.html
+/assets/index*.js
+/assets/index*.css
+/assets/confirm-anim-*.js

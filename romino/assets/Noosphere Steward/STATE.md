@@ -35,6 +35,8 @@ lastVerified: 2026-08-17
 
 ## Modified this session
 
+- **.github/workflows/deploy-pages.yml, _config.yml, romino/.gitignore, README.md** — CI Vite build on push (manifest.json bundled server-side); no local build:pages for deploy
+
 - **viewport-controls.js v1.7, base.css** — desktop fullscreen: width-first fit, extend design height (ultrawide expands width)
 
 - **settings-panel.js v1.71** — backdrop tap dismisses sidebar (same path as × close)
