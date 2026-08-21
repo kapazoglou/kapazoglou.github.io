@@ -67,10 +67,10 @@ export const SETTINGS_CONFIG = [
     items: [
       { key: 'oneToOne',            label: '1to1 placement rules',  default: true,  type: 'toggle' },
       { key: 'diceAndCubes',        label: 'Dice & Cubes',          default: true, type: 'toggle' },
+      { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: true, type: 'toggle' },
       { key: 'stackBottomUp',       label: 'Stack bottom-up',       default: true,  type: 'toggle' },
       { key: 'directPlacement',     label: 'Direct placement',      default: true,  type: 'toggle' },
       { key: 'snapping',            label: 'Snapping',              default: true, type: 'toggle' },
-      { key: 'tileDiceHold',        label: 'Hold dice until sweep', default: true, type: 'toggle' },
       { key: 'sweptSuits',          label: 'Swept Suits',           default: true,  type: 'toggle' },
       { key: 'pushSwapStars',       label: 'Push/swap stars',         default: false, type: 'toggle' },
       { key: 'fastAnimations',      label: 'Fast animations (2×)',  default: false,  type: 'toggle' },
