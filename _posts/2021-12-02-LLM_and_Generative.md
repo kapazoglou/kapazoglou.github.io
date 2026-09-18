@@ -10,7 +10,7 @@ image: "/assets/images/interactive-previews/index.png"
 
 ### AI-Assisted
 
-This website has been built as an experiment in agentic AI assisted design. I use Cursor, Figma Make and Claude Design to implement designs that I create in Figma in a workflow very similar to collaborating with a team of engineers. I find that prompt engineering for agents and handover readiness for engineers are very closely related and I have been generating results that are similarly close to the user stories/prompts I create.
+This website has been built as an experiment in agentic AI assisted design. I use Claude Code, Figma Make and Claude Design to implement designs in a workflow very similar to collaborating with a team of engineers. I find that prompt engineering for agents and handover readiness for engineers are very closely related and I have been generating results that are similarly close to the user stories/prompts I create.
 
 {% include figma-embed-overlay.html embed_url="/romino" iframe_scale="0.8" preview_src="/assets/images/interactive-previews/romino.png" label="Open interactive demo: romino" hide_figma_logo=true cta_line1="Interactive" cta_line2="demo" %}
 
